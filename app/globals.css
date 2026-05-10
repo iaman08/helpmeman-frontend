@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #ffffff;
+  --fg: #0a0a0a;
+  --muted: #5b5b5b;
+  --hairline: rgba(10, 10, 10, 0.08);
+  --accent: #0a0a0a;
+  --accent-fg: #ffffff;
+}
+
+html[data-theme="light"] {
+  --bg: #ffffff;
+  --fg: #0a0a0a;
+  --muted: #5b5b5b;
+  --hairline: rgba(10, 10, 10, 0.08);
+  --accent: #0a0a0a;
+  --accent-fg: #ffffff;
+}
+
+html[data-theme="yellow"] {
+  --bg: #f5c518;
+  --fg: #0a0a0a;
+  --muted: #3a2f00;
+  --hairline: rgba(10, 10, 10, 0.14);
+  --accent: #0a0a0a;
+  --accent-fg: #f5c518;
+}
+
+html[data-theme="dark"] {
+  --bg: #0a0a0a;
+  --fg: #f4f4f4;
+  --muted: #9a9a9a;
+  --hairline: rgba(244, 244, 244, 0.10);
+  --accent: #f4f4f4;
+  --accent-fg: #0a0a0a;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-hairline: var(--hairline);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --font-sans: var(--font-geist-sans);
+  --font-display: var(--font-fraunces);
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color 350ms ease, color 350ms ease;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+.font-display {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-feature-settings: "ss01", "ss02";
+  letter-spacing: -0.02em;
+}
