@@ -88,8 +88,12 @@ export function Navbar() {
                 aria-expanded={dropdownOpen}
                 aria-haspopup="true"
               >
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-(--fg)/8 text-[11px] font-medium">
-                  {getInitials(user.name)}
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-(--fg)/8 text-[11px] font-medium overflow-hidden">
+                  {user.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" />
+                  ) : (
+                    getInitials(user.name)
+                  )}
                 </div>
                 <span className="hidden sm:block text-sm max-w-[120px] truncate">
                   {user.name.split(" ")[0]}

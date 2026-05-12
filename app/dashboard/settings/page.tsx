@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/components/Toast";
 import api from "@/lib/api";
 import { AxiosError } from "axios";
+import { ImageCropModal } from "@/components/ImageCropModal";
 
 const MOCK_PAYMENTS = [
   { id: "pay_001", date: "2026-04-28", amount: 199, mentor: "Arjun Verma", status: "Completed", method: "UPI" },
@@ -23,6 +24,7 @@ export default function SettingsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarSaving, setAvatarSaving] = useState(false);
+  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
 
   const handleAvatarChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -34,8 +36,19 @@ export default function SettingsPage() {
     }
 
     const previewUrl = URL.createObjectURL(file);
-    setAvatarPreview(previewUrl);
-    uploadAvatar(file, previewUrl);
+    setCropImageSrc(previewUrl);
+    
+    // Clear the input value so the same file can be selected again if needed
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleCropComplete = async (croppedFile: File) => {
+    const croppedUrl = URL.createObjectURL(croppedFile);
+    setCropImageSrc(null); // Close modal
+    setAvatarPreview(croppedUrl); // Show local preview instantly
+    await uploadAvatar(croppedFile, croppedUrl);
   };
 
   const uploadAvatar = async (file: File, previewUrl: string) => {
@@ -145,30 +158,31 @@ export default function SettingsPage() {
   ] as const;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 md:px-0 py-4 md:py-8">
-      <div className="mb-8 md:mb-10">
-        <span className="uppercase tracking-[0.2em] text-[10px] md:text-xs text-(--muted) font-bold">Configuration</span>
-        <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mt-2 tracking-tight">Settings.</h1>
-        <p className="text-(--muted) mt-2 md:mt-3 text-sm md:text-base">Manage your account preferences and profile.</p>
-      </div>
+    <>
+      <div className="max-w-5xl mx-auto px-4 md:px-0 py-4 md:py-8">
+        <div className="mb-8 md:mb-10">
+          <span className="uppercase tracking-[0.2em] text-[10px] md:text-xs text-(--muted) font-bold">Configuration</span>
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mt-2 tracking-tight">Settings.</h1>
+          <p className="text-(--muted) mt-2 md:mt-3 text-sm md:text-base">Manage your account preferences and profile.</p>
+        </div>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-1 sm:gap-2 mb-8 md:mb-10 bg-(--fg)/[0.02] p-1.5 rounded-2xl sm:rounded-full w-full border border-(--hairline)">
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-5 py-2.5 rounded-xl sm:rounded-full text-[13px] sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
-              activeTab === tab.id
-                ? "bg-(--fg) text-(--bg) shadow-md"
-                : "text-(--muted) hover:text-(--fg) hover:bg-(--fg)/5"
-            }`}
-          >
-            <tab.icon className={`h-4 w-4 hidden sm:block ${activeTab === tab.id ? "" : "opacity-70"}`} />
-            {tab.label}
-          </button>
-        ))}
-      </div>
+        {/* Tabs */}
+        <div className="flex items-center gap-1 sm:gap-2 mb-8 md:mb-10 bg-(--fg)/[0.02] p-1.5 rounded-2xl sm:rounded-full w-full border border-(--hairline)">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-5 py-2.5 rounded-xl sm:rounded-full text-[13px] sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
+                activeTab === tab.id
+                  ? "bg-(--fg) text-(--bg) shadow-md"
+                  : "text-(--muted) hover:text-(--fg) hover:bg-(--fg)/5"
+              }`}
+            >
+              <tab.icon className={`h-4 w-4 hidden sm:block ${activeTab === tab.id ? "" : "opacity-70"}`} />
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
       <div className="space-y-8 md:space-y-10">
         {activeTab === "profile" && (
@@ -437,6 +451,14 @@ export default function SettingsPage() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+      {cropImageSrc && (
+        <ImageCropModal
+          imageSrc={cropImageSrc}
+          onClose={() => setCropImageSrc(null)}
+          onCropComplete={handleCropComplete}
+        />
+      )}
+    </>
   );
 }

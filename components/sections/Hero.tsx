@@ -53,21 +53,42 @@ export function Hero() {
         ))}
       </div>
 
-      {/* Logos */}
-      <div className="mt-12 sm:mt-16 pt-8 border-t border-(--hairline)">
-        <p className="text-[10px] sm:text-xs uppercase tracking-[0.22em] text-(--muted) font-bold mb-5">
-          Mentors from
-        </p>
-        <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+      {/* Logos Section */}
+      <div className="mt-16 sm:mt-24 pt-12 border-t border-(--hairline)">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+          <div className="max-w-md">
+            <p className="text-[10px] sm:text-xs uppercase tracking-[0.22em] text-(--muted) font-bold mb-3">
+              Trusted Experts
+            </p>
+            <h2 className="text-2xl sm:text-3xl font-display leading-tight">
+              Learn from mentors at world-class companies.
+            </h2>
+          </div>
+          <div className="flex -space-x-3">
+             {[1,2,3,4].map(i => (
+               <img 
+                 key={i}
+                 src={`https://i.pravatar.cc/100?img=${i+10}`} 
+                 className="h-10 w-10 sm:h-12 sm:w-12 rounded-full border-2 border-(--bg) object-cover" 
+                 alt="Mentor"
+               />
+             ))}
+             <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full border-2 border-(--bg) bg-(--fg)/5 flex items-center justify-center text-[10px] font-bold">
+               +500
+             </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4">
           {LOGOS.map((logo) => (
             <div
               key={logo.name}
-              className="flex items-center gap-2.5 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl border border-(--hairline) bg-(--fg)/[0.02] hover:bg-(--fg)/5 transition-colors text-sm sm:text-base font-medium shadow-sm"
+              className="flex flex-col items-center justify-center gap-3 p-6 rounded-[2rem] border border-(--hairline) bg-(--fg)/[0.02] hover:bg-(--fg)/5 transition-all hover:scale-[1.02] group cursor-default"
             >
-              <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-white overflow-hidden shrink-0 shadow-sm border border-neutral-100">
-                <img src={logo.img} alt={logo.name} className="h-full w-full object-contain p-1" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white overflow-hidden shadow-sm border border-neutral-100 group-hover:shadow-md transition-shadow">
+                <img src={logo.img} alt={logo.name} className="h-full w-full object-contain p-2" />
               </div>
-              <span className="font-bold">{logo.name}</span>
+              <span className="font-bold text-xs sm:text-sm text-center">{logo.name}</span>
             </div>
           ))}
         </div>

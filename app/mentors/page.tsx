@@ -89,7 +89,7 @@ export default function MentorsPage() {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              className="w-full bg-(--fg)/5 border border-(--hairline) rounded-xl sm:rounded-2xl pl-11 pr-4 py-3 sm:py-4 text-sm outline-none focus:border-(--fg)/20 focus:bg-(--fg)/10 transition-all shadow-sm placeholder:text-(--muted)"
+              className="w-full bg-(--fg)/5 border border-(--hairline) rounded-xl sm:rounded-2xl pl-11 pr-4 py-3 sm:py-4 text-base sm:text-sm outline-none focus:border-(--fg)/20 focus:bg-(--fg)/10 transition-all shadow-sm placeholder:text-(--muted)"
             />
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
@@ -123,8 +123,8 @@ export default function MentorsPage() {
 
       {/* ─── Filters Dialog Modal ─── */}
       {showFilters && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-xl bg-(--bg) border border-(--hairline) rounded-2xl sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 shadow-2xl flex flex-col gap-6 sm:gap-8 max-h-[90vh] overflow-y-auto no-scrollbar">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-xl bg-(--bg) border border-(--hairline) rounded-2xl sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 shadow-2xl flex flex-col gap-6 sm:gap-8 max-h-[90vh] overflow-y-auto no-scrollbar animate-in zoom-in-95 slide-in-from-bottom-10 duration-300">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg sm:text-2xl font-bold">Refine Search</h3>

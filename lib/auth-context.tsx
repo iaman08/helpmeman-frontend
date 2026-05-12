@@ -88,62 +88,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /* ─── Login ─── */
   const login = useCallback(
     async (email: string, password: string) => {
-      // ─── Demo Mock Logic ───
-      // Allows testing the dashboard even if backend is not running
+      // ─── Real Login ───
+      // Mocks removed to connect to real backend
+      /*
       if (password === "password123") {
-        if (email === "admin@helpmeman.com") {
-          const mockAdminData: AuthResponse = {
-            accessToken: "mock_admin_token",
-            refreshToken: "mock_admin_refresh",
-            user: {
-              id: "demo_admin",
-              name: "Admin Demo",
-              email: "admin@helpmeman.com",
-              role: "ADMIN",
-              isEmailVerified: true,
-              createdAt: new Date().toISOString(),
-            },
-          };
-          persist(mockAdminData);
-          return;
-        }
-        if (email === "mentor@helpmeman.com") {
-          const mockMentorData: AuthResponse = {
-            accessToken: "mock_mentor_token",
-            refreshToken: "mock_mentor_refresh",
-            user: {
-              id: "demo_mentor",
-              name: "Mentor Demo",
-              email: "mentor@helpmeman.com",
-              role: "MENTOR",
-              isEmailVerified: true,
-              createdAt: new Date().toISOString(),
-            },
-            mentor: {
-              id: "mentor_1",
-              approvalStatus: "APPROVED",
-            },
-          };
-          persist(mockMentorData);
-          return;
-        }
-        if (email === "user@helpmeman.com") {
-          const mockUserData: AuthResponse = {
-            accessToken: "mock_user_token",
-            refreshToken: "mock_user_refresh",
-            user: {
-              id: "demo_user",
-              name: "User Demo",
-              email: "user@helpmeman.com",
-              role: "USER",
-              isEmailVerified: true,
-              createdAt: new Date().toISOString(),
-            },
-          };
-          persist(mockUserData);
-          return;
-        }
+        ...
       }
+      */
+
 
       const { data } = await api.post<AuthResponse>("/auth/login", {
         email,
