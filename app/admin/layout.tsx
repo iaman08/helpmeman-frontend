@@ -50,6 +50,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       brandLabel="Admin Panel"
       brandColor="text-red-500"
       userName={user.name}
+      userAvatar={user.avatar}
       userBadge="Administrator"
       avatarColor="bg-red-500/10 text-red-500"
       onLogout={async () => {

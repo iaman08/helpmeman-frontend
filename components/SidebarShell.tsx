@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut, Moon, Sun, Monitor } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useTheme, THEMES } from "./ThemeProvider";
 
 interface NavItem {
   href: string;
@@ -20,6 +21,7 @@ interface SidebarShellProps {
   brandColor?: string;
   userName: string;
   userEmail?: string;
+  userAvatar?: string | null;
   userBadge?: string;
   avatarColor?: string;
   onLogout: () => void;
@@ -33,12 +35,14 @@ export function SidebarShell({
   brandColor = "text-(--muted)",
   userName,
   userEmail,
+  userAvatar,
   userBadge,
   avatarColor = "bg-(--fg)/8 text-(--fg)",
   onLogout,
 }: SidebarShellProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   // Close on route change
   useEffect(() => {
@@ -78,9 +82,13 @@ export function SidebarShell({
       <div className="px-6 pb-5">
         <div className="flex items-center gap-3">
           <div
-            className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-medium shrink-0 ${avatarColor}`}
+            className={`flex h-10 w-10 items-center justify-center rounded-full overflow-hidden text-xs font-medium shrink-0 ${avatarColor}`}
           >
-            {initials}
+            {userAvatar ? (
+              <img src={userAvatar} alt={userName} className="h-full w-full object-cover" />
+            ) : (
+              initials
+            )}
           </div>
           <div className="flex flex-col min-w-0">
             <span className="text-sm font-medium truncate">{userName}</span>
@@ -113,7 +121,7 @@ export function SidebarShell({
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
                 active
                   ? "bg-(--fg)/8 text-(--fg)"
                   : "text-(--muted) hover:text-(--fg) hover:bg-(--fg)/4"
@@ -126,11 +134,28 @@ export function SidebarShell({
         })}
       </nav>
 
-      <div className="px-3 pb-6">
+      <div className="px-4 pb-6 flex flex-col gap-2">
+        <div className="flex items-center gap-1 rounded-xl bg-(--fg)/5 p-1 mb-2">
+          {THEMES.map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTheme(t)}
+              className={`flex-1 h-8 rounded-lg text-[11px] font-medium transition-colors cursor-pointer capitalize ${
+                theme === t
+                  ? "bg-(--accent) text-(--accent-fg)"
+                  : "text-(--muted) hover:text-(--fg)"
+              }`}
+            >
+              {t === "yellow" ? "sun" : t}
+            </button>
+          ))}
+        </div>
+
         <button
           type="button"
           onClick={onLogout}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-(--muted) hover:text-red-500 hover:bg-red-500/5 transition-colors cursor-pointer"
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-(--muted) hover:text-red-500 hover:bg-red-500/5 transition-colors cursor-pointer"
         >
           <LogOut className="h-4 w-4 shrink-0" />
           Sign out
@@ -142,12 +167,12 @@ export function SidebarShell({
   return (
     <div className="min-h-screen flex">
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex fixed inset-y-0 left-0 z-40 w-64 flex-col bg-(--fg)/[0.02] border-r border-(--hairline)">
+      <aside className="hidden md:flex fixed inset-y-0 left-0 z-40 w-64 flex-col bg-(--bg) border-r border-(--hairline)">
         {sidebarContent}
       </aside>
 
       {/* Mobile header bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 backdrop-blur-md bg-(--bg)/90 border-b border-(--hairline)">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 backdrop-blur-xl bg-(--bg)/80 border-b border-(--hairline)">
         <Link href="/" className="font-display text-lg tracking-tight">
           HelpMeMan<span className="text-(--muted)">.</span>
         </Link>
@@ -160,7 +185,12 @@ export function SidebarShell({
           {mobileOpen ? (
             <X className="h-5 w-5" />
           ) : (
-            <Menu className="h-5 w-5" />
+            <div className="flex items-center gap-3">
+              <div className={`h-8 w-8 rounded-full overflow-hidden ${avatarColor} flex items-center justify-center text-[10px]`}>
+                 {userAvatar ? <img src={userAvatar} className="h-full w-full object-cover" /> : initials}
+              </div>
+              <Menu className="h-5 w-5" />
+            </div>
           )}
         </button>
       </div>
@@ -169,22 +199,23 @@ export function SidebarShell({
       {mobileOpen && (
         <>
           <div
-            className="md:hidden fixed inset-0 z-40 bg-black/50"
+            className="md:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-all animate-in fade-in duration-300"
             onClick={() => setMobileOpen(false)}
             aria-hidden
           />
-          <aside className="md:hidden fixed inset-y-0 left-0 z-50 w-72 flex flex-col bg-(--bg) shadow-xl animate-in slide-in-from-left duration-200">
+          <aside className="md:hidden fixed inset-y-0 left-0 z-50 w-72 flex flex-col bg-(--bg) shadow-2xl animate-in slide-in-from-left duration-300 border-r border-(--hairline)">
             {sidebarContent}
           </aside>
         </>
       )}
 
       {/* Main content */}
-      <main className="md:ml-64 flex-1 min-h-screen">
-        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-6 pt-16 md:pt-8">
+      <main className="md:ml-64 flex-1 min-h-screen min-w-0">
+        <div className="max-w-5xl mx-auto w-full px-4 sm:px-10 py-10 pt-24 md:pt-10">
           {children}
         </div>
       </main>
     </div>
   );
 }
+

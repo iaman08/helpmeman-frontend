@@ -57,7 +57,6 @@ html, body {
 
 html {
   scroll-behavior: smooth;
-  scroll-snap-type: y mandatory;
 }
 
 body {
@@ -69,4 +68,18 @@ body {
   font-family: var(--font-fraunces), Georgia, serif;
   font-feature-settings: "ss01", "ss02";
   letter-spacing: -0.02em;
+}
+
+/* Hide scrollbar on filter chips etc */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Hide Next.js dev indicator globally */
+#nextjs-build-indicator, nextjs-portal, [data-nextjs-toast] {
+  display: none !important;
 }

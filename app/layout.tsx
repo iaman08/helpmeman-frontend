@@ -3,6 +3,7 @@ import { Geist, Fraunces } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/lib/auth-context";
+import { ToastProvider } from "@/components/Toast";
 import { AIChatWidget } from "@/components/AIChatWidget";
 
 const geistSans = Geist({
@@ -31,14 +32,20 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${fraunces.variable} antialiased`}
     >
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+      </head>
       <body>
         <ThemeProvider>
           <AuthProvider>
-            {children}
-            <AIChatWidget />
+            <ToastProvider>
+              {children}
+              <AIChatWidget />
+            </ToastProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
   );
 }
+

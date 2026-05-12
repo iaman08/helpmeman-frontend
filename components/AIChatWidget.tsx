@@ -160,7 +160,7 @@ export function AIChatWidget() {
 
       {/* ─── Chat panel ─── */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col w-[380px] h-[520px] rounded-2xl shadow-2xl border border-(--hairline) overflow-hidden"
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col w-[calc(100vw-32px)] sm:w-[380px] h-[calc(100dvh-100px)] sm:h-[520px] rounded-2xl shadow-2xl border border-(--hairline) overflow-hidden"
           style={{ background: "var(--bg)" }}>
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-(--hairline) bg-(--fg)/[0.02]">

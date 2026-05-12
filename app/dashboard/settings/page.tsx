@@ -1,288 +1,441 @@
 "use client";
 
-import { useState, useRef, type FormEvent, type ChangeEvent } from "react";
-import { User, Lock, CheckCircle, Camera } from "lucide-react";
+import { useState, useRef, type ChangeEvent } from "react";
+import { User, Camera, CreditCard, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { useToast } from "@/components/Toast";
 import api from "@/lib/api";
 import { AxiosError } from "axios";
 
-export default function SettingsPage() {
-  const { user, refreshUser } = useAuth();
+const MOCK_PAYMENTS = [
+  { id: "pay_001", date: "2026-04-28", amount: 199, mentor: "Arjun Verma", status: "Completed", method: "UPI" },
+  { id: "pay_002", date: "2026-04-15", amount: 499, mentor: "Priya Sharma", status: "Completed", method: "Card" },
+  { id: "pay_003", date: "2026-03-22", amount: 129, mentor: "Rohit Mehra", status: "Refunded", method: "UPI" },
+  { id: "pay_004", date: "2026-03-10", amount: 249, mentor: "Sneha Gupta", status: "Completed", method: "UPI" },
+];
 
-  /* ─── Avatar upload ─── */
+export default function SettingsPage() {
+  const { user, refreshUser, updateUser } = useAuth();
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState<"profile" | "security" | "payments">("profile");
+
+  // Avatar Upload
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarSaving, setAvatarSaving] = useState(false);
-  const [avatarMsg, setAvatarMsg] = useState("");
 
-  function handleAvatarChange(e: ChangeEvent<HTMLInputElement>) {
+  const handleAvatarChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     if (file.size > 5 * 1024 * 1024) {
-      setAvatarMsg("File too large. Max 5MB.");
+      toast("File too large. Max 5MB allowed.", "error");
       return;
     }
-    const preview = URL.createObjectURL(file);
-    setAvatarPreview(preview);
-    uploadAvatar(file);
-  }
 
-  async function uploadAvatar(file: File) {
+    const previewUrl = URL.createObjectURL(file);
+    setAvatarPreview(previewUrl);
+    uploadAvatar(file, previewUrl);
+  };
+
+  const uploadAvatar = async (file: File, previewUrl: string) => {
     setAvatarSaving(true);
-    setAvatarMsg("");
+
     try {
+      // Mock logic for demo users
+      if (user?.id.startsWith("demo_")) {
+        await new Promise((resolve) => setTimeout(resolve, 800)); // Simulate delay
+        updateUser({ avatar: previewUrl }); // Update globally
+        toast("Profile photo updated!", "success");
+        return;
+      }
+
       const form = new FormData();
       form.append("avatar", file);
+
       await api.put("/users/me", form, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+
       await refreshUser();
-      setAvatarMsg("Photo updated!");
+      toast("Profile photo updated!", "success");
     } catch (err) {
       setAvatarPreview(null);
       if (err instanceof AxiosError) {
-        setAvatarMsg(err.response?.data?.error ?? "Upload failed.");
+        toast(err.response?.data?.error || "Failed to upload photo.", "error");
       } else {
-        setAvatarMsg("Something went wrong.");
+        toast("Something went wrong.", "error");
       }
     } finally {
       setAvatarSaving(false);
     }
-  }
+  };
 
-  /* ─── Profile form ─── */
+  const removePhoto = async () => {
+    setAvatarPreview(null);
+    try {
+        if (user?.id.startsWith("demo_")) {
+           updateUser({ avatar: null });
+           toast("Photo removed.", "success");
+           return;
+        }
+        await api.put("/users/me", { avatar: null });
+        await refreshUser();
+        toast("Photo removed.", "success");
+    } catch {
+        toast("Failed to remove photo.", "error");
+    }
+  };
+
+  // Profile Form
   const [name, setName] = useState(user?.name ?? "");
+  const [username, setUsername] = useState(user?.email?.split("@")[0] ?? "");
   const [phone, setPhone] = useState(user?.phone ?? "");
-  const [profileSaving, setProfileSaving] = useState(false);
-  const [profileMsg, setProfileMsg] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  async function handleProfileSave(e: FormEvent) {
+  const hasChanges =
+    name !== (user?.name ?? "") ||
+    username !== (user?.email?.split("@")[0] ?? "") ||
+    phone !== (user?.phone ?? "");
+
+  const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setProfileSaving(true);
-    setProfileMsg("");
+    setSaving(true);
+
+    // Phone limit check
+    if (phone && phone.length !== 10) {
+      toast("Phone number must be exactly 10 digits.", "error");
+      setSaving(false);
+      return;
+    }
+
     try {
-      await api.put("/users/me", { name, phone });
+      if (user?.id.startsWith("demo_")) {
+        await new Promise((resolve) => setTimeout(resolve, 600));
+        updateUser({ name, phone }); // Update globally
+        toast("Profile updated successfully!", "success");
+        return;
+      }
+      await api.put("/users/me", { name, phone, username });
       await refreshUser();
-      setProfileMsg("Profile updated successfully.");
+      toast("Profile updated successfully!", "success");
     } catch (err) {
       if (err instanceof AxiosError) {
-        setProfileMsg(err.response?.data?.error ?? "Update failed.");
+        toast(err.response?.data?.error || "Update failed.", "error");
       } else {
-        setProfileMsg("Something went wrong.");
+        toast("Something went wrong.", "error");
       }
     } finally {
-      setProfileSaving(false);
+      setSaving(false);
     }
-  }
+  };
 
-  /* ─── Password form ─── */
-  const [currentPw, setCurrentPw] = useState("");
-  const [newPw, setNewPw] = useState("");
-  const [confirmPw, setConfirmPw] = useState("");
-  const [pwSaving, setPwSaving] = useState(false);
-  const [pwMsg, setPwMsg] = useState("");
-  const [pwSuccess, setPwSuccess] = useState(false);
+  const currentAvatar = avatarPreview || user?.avatar;
+  const initials = user?.name
+    ?.split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2) || "JD";
 
-  async function handlePasswordChange(e: FormEvent) {
-    e.preventDefault();
-    setPwMsg("");
-    setPwSuccess(false);
-    if (newPw.length < 8) { setPwMsg("Password must be at least 8 characters."); return; }
-    if (newPw !== confirmPw) { setPwMsg("Passwords do not match."); return; }
-    setPwSaving(true);
-    try {
-      await api.put("/users/me/password", { currentPassword: currentPw, newPassword: newPw });
-      setPwSuccess(true);
-      setPwMsg("Password changed successfully.");
-      setCurrentPw(""); setNewPw(""); setConfirmPw("");
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        setPwMsg(err.response?.data?.error ?? "Change failed.");
-      } else {
-        setPwMsg("Something went wrong.");
-      }
-    } finally {
-      setPwSaving(false);
-    }
-  }
-
-  const currentAvatar = avatarPreview ?? (user as { avatar?: string } | null)?.avatar ?? null;
-  const initials = user?.name?.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+  const TABS = [
+    { id: "profile", label: "Profile", icon: User },
+    { id: "security", label: "Security", icon: ShieldCheck },
+    { id: "payments", label: "Payments", icon: CreditCard },
+  ] as const;
 
   return (
-    <div className="flex flex-col gap-10">
-      <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">Settings</p>
-        <h1 className="font-display text-4xl leading-tight">Your profile.</h1>
+    <div className="max-w-5xl mx-auto px-4 md:px-0 py-4 md:py-8">
+      <div className="mb-8 md:mb-10">
+        <span className="uppercase tracking-[0.2em] text-[10px] md:text-xs text-(--muted) font-bold">Configuration</span>
+        <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mt-2 tracking-tight">Settings.</h1>
+        <p className="text-(--muted) mt-2 md:mt-3 text-sm md:text-base">Manage your account preferences and profile.</p>
       </div>
 
-      {/* ─── Avatar Section ─── */}
-      <div className="rounded-2xl bg-(--fg)/[0.02] p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <Camera className="h-4 w-4 text-(--muted)" />
-          <h2 className="text-xs uppercase tracking-[0.22em] text-(--muted)">Profile Photo</h2>
-        </div>
-        <div className="flex items-center gap-6">
+      {/* Tabs */}
+      <div className="flex items-center gap-1 sm:gap-2 mb-8 md:mb-10 bg-(--fg)/[0.02] p-1.5 rounded-2xl sm:rounded-full w-full border border-(--hairline)">
+        {TABS.map((tab) => (
           <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={avatarSaving}
-            className="relative group cursor-pointer shrink-0 disabled:cursor-wait"
-            aria-label="Change profile photo"
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-5 py-2.5 rounded-xl sm:rounded-full text-[13px] sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
+              activeTab === tab.id
+                ? "bg-(--fg) text-(--bg) shadow-md"
+                : "text-(--muted) hover:text-(--fg) hover:bg-(--fg)/5"
+            }`}
           >
-            <div className="h-20 w-20 rounded-full overflow-hidden bg-(--fg)/10 flex items-center justify-center text-2xl font-medium">
-              {currentAvatar ? (
-                <img src={currentAvatar} alt="Avatar" className="h-full w-full object-cover" />
-              ) : (
-                <span>{initials}</span>
-              )}
-            </div>
-            {!avatarSaving && (
-              <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <Camera className="h-5 w-5 text-white" />
-              </div>
-            )}
-            {avatarSaving && (
-              <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
-                <div className="h-5 w-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
-              </div>
-            )}
+            <tab.icon className={`h-4 w-4 hidden sm:block ${activeTab === tab.id ? "" : "opacity-70"}`} />
+            {tab.label}
           </button>
+        ))}
+      </div>
 
-          <div className="flex flex-col gap-1.5">
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={avatarSaving}
-              className="self-start text-sm rounded-full bg-(--fg)/5 px-5 py-2 hover:bg-(--fg)/10 transition-colors cursor-pointer disabled:opacity-50"
-            >
-              {avatarSaving ? "Uploading…" : "Change photo"}
-            </button>
-            <p className="text-xs text-(--muted)">JPG, PNG or WebP · Max 5MB</p>
-            {avatarMsg && (
-              <p className={`text-xs font-medium ${avatarMsg.includes("updated") ? "text-emerald-500" : "text-red-500"}`}>
-                {avatarMsg}
-              </p>
-            )}
+      <div className="space-y-8 md:space-y-10">
+        {activeTab === "profile" && (
+          <>
+            {/* Profile Photo Section */}
+            <div className="bg-(--fg)/5 border border-(--hairline) rounded-2xl sm:rounded-[2rem] md:rounded-[2.5rem] p-5 sm:p-6 md:p-10 backdrop-blur-xl">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8 md:gap-12">
+                <div className="relative group">
+                  <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-44 md:h-44 rounded-2xl sm:rounded-[2rem] overflow-hidden border-4 border-(--bg) shadow-2xl bg-gradient-to-br from-(--fg)/10 to-(--fg)/5 flex items-center justify-center">
+                    {currentAvatar ? (
+                      <img
+                        src={currentAvatar}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-4xl sm:text-5xl md:text-6xl font-bold text-(--fg) tracking-tighter opacity-80">{initials}</span>
+                    )}
+                  </div>
+
+                  <label className="absolute -bottom-2 -right-2 bg-(--accent) text-(--accent-fg) p-2.5 sm:p-3 rounded-xl sm:rounded-2xl cursor-pointer hover:scale-110 active:scale-95 transition-all shadow-xl">
+                    <Camera className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleAvatarChange}
+                    />
+                  </label>
+                </div>
+
+                <div className="flex-1 text-center sm:text-left space-y-4">
+                  <div>
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold">Profile Photo</h3>
+                    <p className="text-(--muted) text-sm mt-1 max-w-sm">
+                      Square image, at least 400×400px. JPG, PNG, WebP (Max 5MB).
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={avatarSaving}
+                      className="px-5 sm:px-6 py-2.5 sm:py-3 bg-(--accent) text-(--accent-fg) rounded-xl sm:rounded-2xl font-bold text-sm hover:opacity-90 transition-all disabled:opacity-50 cursor-pointer"
+                    >
+                      {avatarSaving ? "Uploading..." : "Change Photo"}
+                    </button>
+                    <button
+                      onClick={removePhoto}
+                      className="px-5 sm:px-6 py-2.5 sm:py-3 bg-(--fg)/10 text-(--muted) rounded-xl sm:rounded-2xl font-bold text-sm hover:bg-(--fg)/20 hover:text-(--fg) transition-all cursor-pointer"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Personal Information */}
+            <div className="bg-(--fg)/5 border border-(--hairline) rounded-2xl sm:rounded-[2rem] md:rounded-[2.5rem] p-5 sm:p-6 md:p-10 backdrop-blur-xl">
+              <div className="flex items-center gap-3 mb-6 sm:mb-8 md:mb-10">
+                <div className="p-2 sm:p-2.5 bg-(--fg)/10 rounded-xl sm:rounded-2xl">
+                  <User className="w-4 h-4 sm:w-5 sm:h-5 text-(--fg)" />
+                </div>
+                <h3 className="text-lg sm:text-xl md:text-2xl font-bold">Personal Information</h3>
+              </div>
+
+              <form onSubmit={handleProfileSave} className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 md:gap-8">
+                <div className="space-y-2">
+                  <label className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-(--muted) font-bold ml-1">Full Name</label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter your name"
+                    className="w-full bg-(--fg)/5 border border-(--hairline) rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 focus:border-(--fg)/20 focus:bg-(--fg)/10 outline-none transition-all placeholder:text-(--muted) text-sm sm:text-base"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-(--muted) font-bold ml-1">Username</label>
+                  <div className="relative">
+                    <span className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-(--muted) font-medium text-sm sm:text-base">@</span>
+                    <input
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
+                      placeholder="username"
+                      className="w-full bg-(--fg)/5 border border-(--hairline) rounded-xl sm:rounded-2xl pl-9 sm:pl-10 pr-4 sm:pr-5 py-3 sm:py-4 focus:border-(--fg)/20 focus:bg-(--fg)/10 outline-none transition-all placeholder:text-(--muted) text-sm sm:text-base"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-(--muted) font-bold ml-1">Email Address</label>
+                  <input
+                    type="email"
+                    value={user?.email || ""}
+                    disabled
+                    className="w-full bg-(--fg)/5 border border-(--hairline) rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 opacity-40 cursor-not-allowed italic text-sm sm:text-base"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-(--muted) font-bold ml-1">Phone Number</label>
+                  <div className="flex gap-2 sm:gap-3">
+                    <div className="w-16 sm:w-20 bg-(--fg)/5 border border-(--hairline) rounded-xl sm:rounded-2xl px-2 py-3 sm:py-4 text-center font-mono text-(--muted) text-sm sm:text-base">
+                      +91
+                    </div>
+                    <input
+                      type="tel"
+                      maxLength={10}
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                      placeholder="10-digit number"
+                      className="flex-1 bg-(--fg)/5 border border-(--hairline) rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 focus:border-(--fg)/20 focus:bg-(--fg)/10 outline-none transition-all placeholder:text-(--muted) text-sm sm:text-base"
+                    />
+                  </div>
+                </div>
+
+                {hasChanges && (
+                  <div className="md:col-span-2 flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-3 sm:pt-4">
+                    <button
+                      type="button"
+                      onClick={() => { setName(user?.name ?? ""); setPhone(user?.phone ?? ""); setUsername(user?.email?.split("@")[0] ?? ""); }}
+                      className="px-6 sm:px-8 py-3 sm:py-4 text-(--muted) hover:text-(--fg) transition-colors font-bold text-sm cursor-pointer"
+                    >
+                      Discard Changes
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="px-8 sm:px-10 py-3 sm:py-4 bg-(--accent) text-(--accent-fg) rounded-xl sm:rounded-2xl font-bold text-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
+                    >
+                      {saving ? "Saving..." : "Save Changes"}
+                    </button>
+                  </div>
+                )}
+              </form>
+            </div>
+          </>
+        )}
+
+        {activeTab === "security" && (
+          <div className="space-y-8 md:space-y-10">
+            <div className="bg-(--fg)/5 border border-(--hairline) rounded-2xl sm:rounded-[2rem] md:rounded-[2.5rem] p-5 sm:p-6 md:p-10 backdrop-blur-xl">
+              <div className="flex items-center gap-3 mb-6 sm:mb-8 md:mb-10">
+                <div className="p-2 sm:p-2.5 bg-(--fg)/10 rounded-xl sm:rounded-2xl">
+                  <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-(--fg)" />
+                </div>
+                <h3 className="text-lg sm:text-xl md:text-2xl font-bold">Authentication</h3>
+              </div>
+
+              <form className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 md:gap-8" onSubmit={(e) => e.preventDefault()}>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-(--muted) font-bold ml-1">Current Password</label>
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    className="w-full bg-(--fg)/5 border border-(--hairline) rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 focus:border-(--fg)/20 focus:bg-(--fg)/10 outline-none transition-all placeholder:text-(--muted) text-sm sm:text-base"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-(--muted) font-bold ml-1">New Password</label>
+                  <input
+                    type="password"
+                    placeholder="At least 8 characters"
+                    className="w-full bg-(--fg)/5 border border-(--hairline) rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 focus:border-(--fg)/20 focus:bg-(--fg)/10 outline-none transition-all placeholder:text-(--muted) text-sm sm:text-base"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-(--muted) font-bold ml-1">Confirm New Password</label>
+                  <input
+                    type="password"
+                    placeholder="Repeat new password"
+                    className="w-full bg-(--fg)/5 border border-(--hairline) rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 focus:border-(--fg)/20 focus:bg-(--fg)/10 outline-none transition-all placeholder:text-(--muted) text-sm sm:text-base"
+                  />
+                </div>
+
+                <div className="md:col-span-2 flex justify-end pt-3 sm:pt-4">
+                  <button
+                    type="button"
+                    className="px-8 sm:px-10 py-3 sm:py-4 bg-(--accent) text-(--accent-fg) rounded-xl sm:rounded-2xl font-bold text-sm hover:opacity-90 active:scale-95 transition-all cursor-pointer"
+                    onClick={() => toast("Password update is disabled for demo accounts.", "info")}
+                  >
+                    Update Password
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
+        )}
 
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            className="hidden"
-            onChange={handleAvatarChange}
-          />
-        </div>
-      </div>
+        {activeTab === "payments" && (
+          <div className="space-y-6">
+            <div className="bg-(--fg)/5 border border-(--hairline) rounded-2xl sm:rounded-[2rem] md:rounded-[2.5rem] p-5 sm:p-6 md:p-10 backdrop-blur-xl">
+              <div className="flex items-center gap-3 mb-6 sm:mb-8">
+                <div className="p-2 sm:p-2.5 bg-(--fg)/10 rounded-xl sm:rounded-2xl">
+                  <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-(--fg)" />
+                </div>
+                <div>
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold">Payment History</h3>
+                  <p className="text-sm text-(--muted) mt-0.5">All payments you&apos;ve made on HelpMeMan.</p>
+                </div>
+              </div>
 
-      {/* ─── Profile Section ─── */}
-      <div className="rounded-2xl bg-(--fg)/[0.02] p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <User className="h-4 w-4 text-(--muted)" />
-          <h2 className="text-xs uppercase tracking-[0.22em] text-(--muted)">Personal Information</h2>
-        </div>
-        <form onSubmit={handleProfileSave} className="flex flex-col gap-5 max-w-lg">
-          <label className="flex flex-col gap-2 text-sm">
-            <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Email</span>
-            <input
-              type="email"
-              value={user?.email ?? ""}
-              disabled
-              className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none opacity-50 cursor-not-allowed"
-            />
-          </label>
-          <label className="flex flex-col gap-2 text-sm">
-            <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Full Name</span>
-            <input
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors"
-            />
-          </label>
-          <label className="flex flex-col gap-2 text-sm">
-            <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Phone</span>
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="+91..."
-              className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors"
-            />
-          </label>
-          {profileMsg && (
-            <div className={`rounded-lg px-4 py-3 text-sm ${profileMsg.includes("success") ? "bg-emerald-500/10 text-emerald-600" : "bg-red-500/10 text-red-600"}`}>
-              {profileMsg}
+              {/* Desktop table */}
+              <div className="hidden sm:block overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-(--hairline)">
+                      <th className="text-left text-[10px] uppercase tracking-[0.2em] text-(--muted) font-bold pb-4 pl-1">Date</th>
+                      <th className="text-left text-[10px] uppercase tracking-[0.2em] text-(--muted) font-bold pb-4">Mentor</th>
+                      <th className="text-left text-[10px] uppercase tracking-[0.2em] text-(--muted) font-bold pb-4">Method</th>
+                      <th className="text-right text-[10px] uppercase tracking-[0.2em] text-(--muted) font-bold pb-4">Amount</th>
+                      <th className="text-right text-[10px] uppercase tracking-[0.2em] text-(--muted) font-bold pb-4 pr-1">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {MOCK_PAYMENTS.map((pay) => (
+                      <tr key={pay.id} className="border-b border-(--hairline)/50 last:border-0">
+                        <td className="py-4 pl-1 text-(--muted)">{new Date(pay.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
+                        <td className="py-4 font-medium">{pay.mentor}</td>
+                        <td className="py-4 text-(--muted)">{pay.method}</td>
+                        <td className="py-4 text-right font-display text-lg">₹{pay.amount}</td>
+                        <td className="py-4 text-right pr-1">
+                          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
+                            pay.status === "Completed"
+                              ? "bg-emerald-500/10 text-emerald-500"
+                              : "bg-amber-500/10 text-amber-500"
+                          }`}>
+                            <span className={`h-1.5 w-1.5 rounded-full ${pay.status === "Completed" ? "bg-emerald-500" : "bg-amber-500"}`} />
+                            {pay.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile cards */}
+              <div className="flex flex-col gap-3 sm:hidden">
+                {MOCK_PAYMENTS.map((pay) => (
+                  <div key={pay.id} className="bg-(--fg)/5 rounded-xl p-4 flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-sm">{pay.mentor}</span>
+                      <span className="font-display text-lg">₹{pay.amount}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-(--muted)">
+                      <span>{new Date(pay.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })} · {pay.method}</span>
+                      <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                        pay.status === "Completed"
+                          ? "bg-emerald-500/10 text-emerald-500"
+                          : "bg-amber-500/10 text-amber-500"
+                      }`}>
+                        {pay.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          )}
-          <button
-            type="submit"
-            disabled={profileSaving}
-            className="self-start rounded-full bg-(--accent) text-(--accent-fg) px-7 py-3 text-sm hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50"
-          >
-            {profileSaving ? "Saving…" : "Save changes"}
-          </button>
-        </form>
-      </div>
-
-      {/* ─── Password Section ─── */}
-      <div className="rounded-2xl bg-(--fg)/[0.02] p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <Lock className="h-4 w-4 text-(--muted)" />
-          <h2 className="text-xs uppercase tracking-[0.22em] text-(--muted)">Change Password</h2>
-        </div>
-        <form onSubmit={handlePasswordChange} className="flex flex-col gap-5 max-w-lg">
-          <label className="flex flex-col gap-2 text-sm">
-            <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Current Password</span>
-            <input
-              type="password"
-              required
-              value={currentPw}
-              onChange={(e) => setCurrentPw(e.target.value)}
-              className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors"
-              autoComplete="current-password"
-            />
-          </label>
-          <label className="flex flex-col gap-2 text-sm">
-            <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">New Password</span>
-            <input
-              type="password"
-              required
-              minLength={8}
-              value={newPw}
-              onChange={(e) => setNewPw(e.target.value)}
-              placeholder="At least 8 characters"
-              className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors"
-              autoComplete="new-password"
-            />
-          </label>
-          <label className="flex flex-col gap-2 text-sm">
-            <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Confirm New Password</span>
-            <input
-              type="password"
-              required
-              value={confirmPw}
-              onChange={(e) => setConfirmPw(e.target.value)}
-              className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors"
-              autoComplete="new-password"
-            />
-          </label>
-          {pwMsg && (
-            <div className={`rounded-lg px-4 py-3 text-sm flex items-center gap-2 ${pwSuccess ? "bg-emerald-500/10 text-emerald-600" : "bg-red-500/10 text-red-600"}`}>
-              {pwSuccess && <CheckCircle className="h-4 w-4" />}
-              {pwMsg}
-            </div>
-          )}
-          <button
-            type="submit"
-            disabled={pwSaving}
-            className="self-start rounded-full bg-(--fg)/5 px-7 py-3 text-sm hover:bg-(--fg)/8 transition-colors cursor-pointer disabled:opacity-50"
-          >
-            {pwSaving ? "Changing…" : "Change password"}
-          </button>
-        </form>
+          </div>
+        )}
       </div>
     </div>
   );

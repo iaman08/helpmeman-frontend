@@ -75,30 +75,6 @@ export function Navbar() {
 
         {/* Right side */}
         <div className="flex items-center gap-4 sm:gap-5">
-          {/* Theme switcher — desktop only */}
-          <div
-            role="radiogroup"
-            aria-label="Theme"
-            className="hidden lg:flex items-center gap-1 rounded-full bg-(--fg)/5 p-1"
-          >
-            {THEMES.map((t) => (
-              <button
-                key={t}
-                type="button"
-                role="radio"
-                aria-checked={theme === t}
-                onClick={() => setTheme(t)}
-                className={`h-7 px-3 rounded-full text-xs transition-colors cursor-pointer ${
-                  theme === t
-                    ? "bg-(--accent) text-(--accent-fg)"
-                    : "text-(--fg)/70 hover:text-(--fg)"
-                }`}
-              >
-                {themeLabels[t]}
-              </button>
-            ))}
-          </div>
-
           {/* Auth section */}
           {loading ? (
             <div className="h-8 w-8 rounded-full bg-(--fg)/5 animate-pulse" />
@@ -225,23 +201,6 @@ export function Navbar() {
             </Link>
           )}
 
-          {/* Mobile theme switcher */}
-          <div className="flex items-center gap-1 rounded-full bg-(--fg)/5 p-1 self-start lg:hidden mt-2">
-            {THEMES.map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => setTheme(t)}
-                className={`h-7 px-3 rounded-full text-xs cursor-pointer ${
-                  theme === t
-                    ? "bg-(--accent) text-(--accent-fg)"
-                    : "text-(--fg)/70"
-                }`}
-              >
-                {themeLabels[t]}
-              </button>
-            ))}
-          </div>
         </div>
       )}
     </header>

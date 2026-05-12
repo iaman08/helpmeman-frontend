@@ -93,7 +93,7 @@ export default function SignInPage() {
               placeholder="you@domain.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors"
+              className="bg-(--fg)/5 rounded-lg px-4 py-3.5 outline-none focus:bg-(--fg)/8 transition-colors"
               autoComplete="email"
             />
           </label>
@@ -107,16 +107,16 @@ export default function SignInPage() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors"
+              className="bg-(--fg)/5 rounded-lg px-4 py-3.5 outline-none focus:bg-(--fg)/8 transition-colors"
               autoComplete="current-password"
             />
           </label>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mt-2">
             <button
               type="submit"
-                          disabled={submitting}
-              className="rounded-full bg-(--accent) text-(--accent-fg) px-7 py-3.5 text-sm hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={submitting}
+              className="rounded-full bg-(--accent) text-(--accent-fg) px-10 py-4 text-sm font-semibold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? "Signing in…" : "Sign in"}
             </button>
@@ -129,9 +129,47 @@ export default function SignInPage() {
           </div>
         </form>
 
-        <p className="text-sm text-(--muted)">
+        <div className="mt-4 flex flex-col gap-4">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-(--fg)/10"></div>
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-(--bg) px-2 text-(--muted) tracking-widest">Demo access</span>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button
+              type="button"
+              onClick={() => { setEmail("admin@helpmeman.com"); setPassword("password123"); }}
+              className="flex flex-col items-start gap-1 p-4 rounded-2xl bg-(--fg)/5 hover:bg-(--fg)/8 transition-colors text-left"
+            >
+              <span className="text-xs font-semibold uppercase tracking-wider">Admin</span>
+              <span className="text-[10px] text-(--muted)">admin@helpmeman.com</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => { setEmail("mentor@helpmeman.com"); setPassword("password123"); }}
+              className="flex flex-col items-start gap-1 p-4 rounded-2xl bg-(--fg)/5 hover:bg-(--fg)/8 transition-colors text-left"
+            >
+              <span className="text-xs font-semibold uppercase tracking-wider">Mentor</span>
+              <span className="text-[10px] text-(--muted)">mentor@helpmeman.com</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => { setEmail("user@helpmeman.com"); setPassword("password123"); }}
+              className="flex flex-col items-start gap-1 p-4 rounded-2xl bg-(--fg)/5 hover:bg-(--fg)/8 transition-colors text-left"
+            >
+              <span className="text-xs font-semibold uppercase tracking-wider">User</span>
+              <span className="text-[10px] text-(--muted)">user@helpmeman.com</span>
+            </button>
+          </div>
+        </div>
+
+        <p className="text-sm text-(--muted) mt-4">
           New here?{" "}
-          <Link href="/signup" className="text-(--fg) underline-offset-4 hover:underline">
+          <Link href="/signup" className="text-(--fg) font-medium underline-offset-4 hover:underline">
             Create an account
           </Link>
         </p>
