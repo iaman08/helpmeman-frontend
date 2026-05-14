@@ -85,7 +85,7 @@ export function Hero() {
               key={logo.name}
               className="flex flex-col items-center justify-center gap-3 p-6 rounded-[2rem] border border-(--hairline) bg-(--fg)/[0.02] hover:bg-(--fg)/5 transition-all hover:scale-[1.02] group cursor-default"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white overflow-hidden shadow-sm border border-neutral-100 group-hover:shadow-md transition-shadow">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-(--bg) overflow-hidden shadow-sm border border-(--hairline) group-hover:shadow-md transition-shadow">
                 <img src={logo.img} alt={logo.name} className="h-full w-full object-contain p-2" />
               </div>
               <span className="font-bold text-xs sm:text-sm text-center">{logo.name}</span>

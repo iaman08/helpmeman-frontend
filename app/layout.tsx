@@ -1,26 +1,27 @@
 import type { Metadata } from "next";
-import { Geist, Fraunces } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/lib/auth-context";
 import { ToastProvider } from "@/components/Toast";
 import { AIChatWidget } from "@/components/AIChatWidget";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+const playfairDisplay = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
-  axes: ["opsz", "SOFT"],
+  style: ["normal", "italic"],
+  weight: ["400", "700", "900"],
 });
 
 export const metadata: Metadata = {
-  title: "HelpMeMan — Mentorship from people who've done it",
+  title: "HelpMeMan — Real Mentorship",
   description:
-    "A premium mentorship platform connecting students with verified mentors from IITs, AIIMS, NLUs, FAANG, and elite founders.",
+    "Access the world's Elite 1%. Connect with verified mentors from Google, Meta, YC, and IIT (AIR 1) who have actually walked your path.",
 };
 
 export default function RootLayout({
@@ -30,12 +31,12 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${fraunces.variable} antialiased`}
+      className={`${inter.variable} ${playfairDisplay.variable} antialiased selection:bg-white selection:text-black`}
     >
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
       </head>
-      <body>
+      <body className="font-sans bg-[#050505] text-white overflow-x-hidden">
         <ThemeProvider>
           <AuthProvider>
             <ToastProvider>
@@ -48,4 +49,3 @@ export default function RootLayout({
     </html>
   );
 }
-

@@ -11,6 +11,8 @@ import {
 } from "react";
 import api from "./api";
 import type { AuthResponse, User } from "./types";
+import { auth as firebaseAuth, googleProvider } from "./firebase";
+import { signInWithPopup } from "firebase/auth";
 
 interface MentorMeta {
   id: string;
@@ -23,6 +25,7 @@ interface AuthState {
   mentor: MentorMeta | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -106,6 +109,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [persist],
   );
 
+  /* ─── Google Login ─── */
+  const loginWithGoogle = useCallback(async () => {
+    if (!firebaseAuth) {
+      throw new Error("Google login is currently disabled because Firebase configuration is missing.");
+    }
+    const result = await signInWithPopup(firebaseAuth, googleProvider);
+    const idToken = await result.user.getIdToken();
+    const { data } = await api.post<AuthResponse>("/auth/google", { idToken });
+    persist(data);
+  }, [persist]);
+
   /* ─── Register ─── */
   const register = useCallback(
     async (name: string, email: string, password: string) => {
@@ -162,6 +176,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       mentor,
       loading,
       login,
+      loginWithGoogle,
       register,
       logout,
       refreshUser,
@@ -170,7 +185,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isMentor: user?.role === "MENTOR",
       isAdmin: user?.role === "ADMIN",
     }),
-    [user, mentor, loading, login, register, logout, refreshUser, updateUser],
+    [user, mentor, loading, login, loginWithGoogle, register, logout, refreshUser, updateUser],
   );
 
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
