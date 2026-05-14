@@ -91,15 +91,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /* ─── Login ─── */
   const login = useCallback(
     async (email: string, password: string) => {
-      // ─── Real Login ───
-      // Mocks removed to connect to real backend
-      /*
-      if (password === "password123") {
-        ...
+      // ─── Demo mock login (works offline) ───
+      const DEMO_USERS: Record<string, { role: "ADMIN" | "MENTOR" | "USER"; name: string }> = {
+        "admin@helpmeman.com":  { role: "ADMIN",  name: "Demo Admin" },
+        "mentor@helpmeman.com": { role: "MENTOR", name: "Demo Mentor" },
+        "user@helpmeman.com":   { role: "USER",   name: "Demo User" },
+      };
+
+      if (password === "password123" && DEMO_USERS[email]) {
+        const { role, name } = DEMO_USERS[email];
+        const mockUser: User = {
+          id: `demo_${role.toLowerCase()}`,
+          name,
+          email,
+          role,
+          avatar: null,
+          isEmailVerified: true,
+          createdAt: new Date().toISOString(),
+        };
+        const mockData: AuthResponse = {
+          accessToken:  "demo_access_token",
+          refreshToken: "demo_refresh_token",
+          user: mockUser,
+          mentor: null,
+        };
+        persist(mockData);
+        return;
       }
-      */
 
-
+      // ─── Real backend login ───
       const { data } = await api.post<AuthResponse>("/auth/login", {
         email,
         password,

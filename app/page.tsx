@@ -1,9 +1,10 @@
 "use client";
 
 import { useAuth } from "@/lib/auth-context";
+import { useTheme } from "@/components/ThemeProvider";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowRight, Infinity as InfinityIcon, Star, X, Check, ShieldCheck } from "lucide-react";
+import { ArrowRight, Infinity as InfinityIcon, Star, X, Check, ShieldCheck, Sun, Moon } from "lucide-react";
 import Link from "next/link";
 
 const ChromeIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -22,7 +23,10 @@ const LinkedinIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export default function Home() {
     const { user, loading } = useAuth();
     const router = useRouter();
+    const { theme, setTheme } = useTheme();
     const [isSignupOpen, setIsSignupOpen] = useState(false);
+    const [activeCard, setActiveCard] = useState<number | null>(null);
+    const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
     useEffect(() => {
         if (!loading && user) {
@@ -75,26 +79,33 @@ export default function Home() {
 
     return (
         <>
-            <nav className="fixed top-0 w-full z-[100] glass border-b border-white/5 py-3 sm:py-4 px-4 sm:px-8">
+            <nav className="fixed top-0 w-full z-[100] glass border-b border-[var(--hairline)] py-3 sm:py-4 px-4 sm:px-8">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-12">
                         <a href="#" className="text-2xl font-black tracking-tighter serif italic">HelpMeMan<span className="text-neutral-600 font-sans">.</span></a>
                         <div className="hidden lg:flex items-center gap-8 text-[11px] font-bold uppercase tracking-widest text-neutral-500">
-                            <a href="#about" className="hover:text-white transition-colors">About</a>
-                            <a href="#how" className="hover:text-white transition-colors">Method</a>
-                            <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
+                            <a href="#about" className="hover:text-[var(--fg)] transition-colors">About</a>
+                            <a href="#how" className="hover:text-[var(--fg)] transition-colors">Method</a>
+                            <a href="#pricing" className="hover:text-[var(--fg)] transition-colors">Pricing</a>
                         </div>
                     </div>
-                    <div className="flex items-center gap-6">
-                        <Link href="/signin" className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 hover:text-white">Login</Link>
-                        <Link href="/signup" className="bg-white text-black px-6 py-2.5 rounded-full text-xs font-bold hover:scale-105 transition-transform">Get Started</Link>
+                    <div className="flex items-center gap-2 sm:gap-6">
+                        <button 
+                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} 
+                            className="p-1.5 sm:p-2 text-neutral-400 hover:text-[var(--fg)] transition-colors rounded-full hover:bg-[var(--hairline)]"
+                            aria-label="Toggle Theme"
+                        >
+                            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                        </button>
+                        <Link href="/signin" className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-neutral-400 hover:text-[var(--fg)] transition-colors">Login</Link>
+                        <Link href="/signup" className="bg-[var(--fg)] text-[var(--bg)] px-4 py-2 sm:px-6 sm:py-2.5 rounded-full text-[10px] sm:text-xs font-bold hover:scale-105 transition-transform whitespace-nowrap">Get Started</Link>
                     </div>
                 </div>
             </nav>
 
             <main className="relative pt-28 sm:pt-40 lg:pt-56 pb-20 sm:pb-32 px-4 sm:px-8 overflow-hidden grid-bg">
-                <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center relative z-10">
-                    <div>
+                <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-20 items-center relative z-10">
+                    <div className="order-2 lg:order-1 mt-8 lg:mt-0">
                         <div className="flex items-center gap-3 mb-6">
                             <span className="text-[11px] tracking-[0.4em] text-blue-500 font-bold uppercase">Verified Network</span>
                             <div className="h-px w-8 bg-neutral-800"></div>
@@ -112,7 +123,7 @@ export default function Home() {
                             </button>
                         </div>
 
-                        <div className="mt-16 pt-8 border-t border-white/5">
+                        <div className="mt-12 sm:mt-16 pt-8 border-t border-[var(--hairline)]">
                             <p className="text-[10px] font-bold text-neutral-600 uppercase tracking-widest mb-6">Mentors from the world&apos;s best</p>
                             <div className="flex flex-wrap items-center gap-8 opacity-40 grayscale hover:grayscale-0 transition-all duration-700">
                                 <div className="flex items-center gap-2">
@@ -125,22 +136,22 @@ export default function Home() {
                                 </div>
                                 <div className="flex items-center gap-2 text-orange-500 opacity-100 grayscale-0">
                                     <span className="font-black text-lg">Y</span>
-                                    <span className="font-bold text-sm text-white">Combinator</span>
+                                    <span className="font-bold text-sm text-[var(--fg)]">Combinator</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <span className="font-black text-sm italic">IIT</span>
-                                    <span className="text-[10px] bg-neutral-800 px-1.5 py-0.5 rounded uppercase">AIR 1</span>
+                                    <span className="text-[10px] bg-[var(--fg)] text-[var(--bg)] px-1.5 py-0.5 rounded uppercase font-bold">AIR 1</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="relative h-[400px] sm:h-[500px] lg:h-[600px] flex items-center justify-center mt-12 lg:mt-0 scale-[0.8] sm:scale-100 origin-top">
+                    <div className="relative h-[400px] sm:h-[500px] lg:h-[600px] flex items-center justify-center lg:mt-0 scale-[0.8] sm:scale-100 origin-top order-1 lg:order-2">
                         <div className="mentor-shape w-64 h-64 bg-blue-600 top-10 left-10 hidden sm:block"></div>
                         <div className="mentor-shape w-48 h-48 bg-purple-600 bottom-10 right-10 hidden sm:block"></div>
                         <div className="mentor-shape w-48 h-48 bg-blue-600 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 sm:hidden blur-3xl opacity-50"></div>
 
-                        <div className="float-card absolute top-0 -left-6 sm:left-0 glass p-3 rounded-2xl w-48 shadow-2xl border-white/20 z-10">
+                        <div className="float-card absolute top-0 -left-6 sm:left-0 glass p-3 rounded-2xl w-48 shadow-2xl border-[var(--hairline)] z-10">
                             <div className="flex items-center gap-3">
                                 <img src="https://i.pinimg.com/736x/fc/86/7d/fc867df822d70b9d78171c7e790f99c7.jpg" className="w-10 h-10 rounded-lg object-cover" alt="Google Mentor" />
                                 <div>
@@ -150,7 +161,7 @@ export default function Home() {
                             </div>
                         </div>
 
-                        <div className="float-card absolute top-24 sm:top-20 -right-6 sm:right-10 glass p-3 rounded-2xl w-48 shadow-2xl border-white/20 z-10" style={{ animationDelay: '-2s' }}>
+                        <div className="float-card absolute top-24 sm:top-20 -right-6 sm:right-10 glass p-3 rounded-2xl w-48 shadow-2xl border-[var(--hairline)] z-10" style={{ animationDelay: '-2s' }}>
                             <div className="flex items-center gap-3">
                                 <img src="https://i.pinimg.com/1200x/1c/85/2e/1c852ea928150dfcf54c5457dbca0a35.jpg" className="w-10 h-10 rounded-lg object-cover" alt="YC Founder" />
                                 <div>
@@ -160,7 +171,7 @@ export default function Home() {
                             </div>
                         </div>
 
-                        <div className="float-card absolute bottom-4 sm:bottom-10 left-0 sm:left-20 glass p-3 rounded-2xl w-48 shadow-2xl border-white/20 z-10" style={{ animationDelay: '-4s' }}>
+                        <div className="float-card absolute bottom-4 sm:bottom-10 left-0 sm:left-20 glass p-3 rounded-2xl w-48 shadow-2xl border-[var(--hairline)] z-10" style={{ animationDelay: '-4s' }}>
                             <div className="flex items-center gap-3">
                                 <img src="https://i.pinimg.com/736x/41/d0/ab/41d0abba8ff870ce4ef1cbea5b56fb29.jpg" className="w-10 h-10 rounded-lg object-cover" alt="IIT Mentor" />
                                 <div>
@@ -170,9 +181,9 @@ export default function Home() {
                             </div>
                         </div>
 
-                        <div className="float-card absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 glass p-5 sm:p-6 rounded-[2.5rem] w-64 sm:w-72 shadow-2xl z-20 border-white/30" style={{ animationDelay: '-1.5s' }}>
+                        <div className="float-card absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 glass p-5 sm:p-6 rounded-[2.5rem] w-64 sm:w-72 shadow-2xl z-20 border-[var(--hairline)]" style={{ animationDelay: '-1.5s' }}>
                             <div className="relative mb-6">
-                                <img src="https://i.pinimg.com/736x/0d/a5/e7/0da5e7b3a24ea9ef05db4eaa253e9cf3.jpg" className="w-full aspect-square rounded-[2rem] object-cover border-4 border-black/50" alt="Featured Mentor" />
+                                <img src="https://i.pinimg.com/736x/0d/a5/e7/0da5e7b3a24ea9ef05db4eaa253e9cf3.jpg" className="w-full aspect-square rounded-[2rem] object-cover border-4 border-[var(--bg)]" alt="Featured Mentor" />
                                 <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-xl">META | STAFF ENG</div>
                             </div>
                             <div className="text-center">
@@ -190,14 +201,14 @@ export default function Home() {
                 </div>
             </main>
 
-            <section className="py-16 sm:py-24 lg:py-32 px-4 sm:px-8 bg-black/50">
+            <section className="py-16 sm:py-24 lg:py-32 px-4 sm:px-8 bg-[var(--hairline)] border-y border-[var(--hairline)]">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-10 sm:mb-16">
                         <div>
                             <span className="text-[11px] tracking-[0.4em] text-blue-500 font-bold uppercase mb-4 block">The Directory</span>
                             <h2 className="serif text-3xl sm:text-5xl font-bold italic">Elite Mentors.</h2>
                         </div>
-                        <button onClick={toggleSignup} className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 hover:text-white border-b border-white/10 pb-1 transition-all">View All 400+ Mentors</button>
+                        <button onClick={toggleSignup} className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 hover:text-[var(--fg)] border-b border-[var(--hairline)] hover:border-[var(--fg)] pb-1 transition-all">View All 400+ Mentors</button>
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
@@ -212,9 +223,9 @@ export default function Home() {
                             <div
                                 key={mentor.name}
                                 onClick={toggleSignup}
-                                className="glass p-5 sm:p-6 rounded-3xl text-center cursor-pointer transition-all duration-300 hover:bg-white/10 hover:border-blue-500/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] hover:scale-[1.04] active:scale-[0.98] group"
+                                className="glass p-5 sm:p-6 rounded-3xl text-center cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.04] active:scale-[0.98] group hover:border-[var(--fg)]/20"
                             >
-                                <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto rounded-2xl bg-black border border-white/10 flex items-center justify-center mb-4 text-white shadow-lg group-hover:shadow-xl transition-all group-hover:border-white/30 group-hover:bg-neutral-900">
+                                <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto rounded-2xl bg-[var(--bg)] border border-[var(--hairline)] flex items-center justify-center mb-4 text-[var(--fg)] shadow-lg group-hover:shadow-xl transition-all group-hover:border-[var(--fg)]/20">
                                     {mentor.company === 'Google' && <ChromeIcon scale={28} className="text-blue-500" />}
                                     {mentor.company === 'Meta' && <InfinityIcon size={32} className="text-blue-600" />}
                                     {mentor.company === 'YC W22' && <span className="font-serif italic font-bold text-3xl text-orange-500">Y</span>}
@@ -222,9 +233,9 @@ export default function Home() {
                                     {mentor.company === 'AIIMS' && <ShieldCheck size={28} className="text-rose-500" />}
                                     {mentor.company === 'Apple' && <div className="w-8 h-8 bg-neutral-300 rounded-full flex items-center justify-center text-black font-bold text-xl"></div>}
                                 </div>
-                                <p className="text-xs sm:text-sm font-bold group-hover:text-white transition-colors">{mentor.name}</p>
-                                <p className="text-[9px] sm:text-[10px] text-neutral-500 mt-1 group-hover:text-neutral-300 transition-colors">{mentor.role}</p>
-                                <p className="text-[9px] text-neutral-600 uppercase tracking-tighter mt-1 group-hover:text-blue-400 transition-colors">{mentor.company}</p>
+                                <p className="text-xs sm:text-sm font-bold text-[var(--fg)] transition-colors">{mentor.name}</p>
+                                <p className="text-[9px] sm:text-[10px] text-neutral-500 mt-1 group-hover:text-[var(--fg)] transition-colors">{mentor.role}</p>
+                                <p className="text-[9px] text-neutral-600 uppercase tracking-tighter mt-1 group-hover:text-[var(--fg)] transition-colors">{mentor.company}</p>
                             </div>
                         ))}
                     </div>
@@ -232,7 +243,7 @@ export default function Home() {
             </section>
 
             {/* Signup Overlay */}
-            <div className={`fixed inset-0 z-[200] bg-black/90 backdrop-blur-md flex-col items-center justify-center p-8 ${isSignupOpen ? 'flex' : 'hidden'}`}>
+            <div className={`fixed inset-0 z-[200] bg-black/90 backdrop-blur-md flex-col items-center justify-center p-8 text-white ${isSignupOpen ? 'flex' : 'hidden'}`}>
                 <button onClick={toggleSignup} className="absolute top-8 right-8 text-neutral-500 hover:text-white transition-colors">
                     <X className="w-8 h-8" />
                 </button>
@@ -253,7 +264,7 @@ export default function Home() {
                 </div>
             </div>
 
-            <section id="about" className="py-16 sm:py-24 lg:py-32 px-4 sm:px-8 border-t border-white/5">
+            <section id="about" className="py-16 sm:py-24 lg:py-32 px-4 sm:px-8 border-t border-[var(--hairline)]">
                 <div className="max-w-7xl mx-auto">
                     <div className="grid lg:grid-cols-12 gap-12 items-start mb-24">
                         <div className="lg:col-span-8">
@@ -270,22 +281,22 @@ export default function Home() {
                     </div>
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        <div className="p-8 border-l border-white/10 hover:border-white/40 transition-colors">
+                        <div className="p-8 border-l border-[var(--hairline)] hover:border-[var(--fg)] transition-colors">
                             <span className="text-[10px] text-neutral-600 font-bold mb-4 block">01</span>
                             <h4 className="font-bold mb-3">Real mentors, not influencers</h4>
                             <p className="text-xs text-neutral-500 leading-relaxed">Every mentor has actually walked the path — placements, residencies, founding teams.</p>
                         </div>
-                        <div className="p-8 border-l border-white/10 hover:border-white/40 transition-colors">
+                        <div className="p-8 border-l border-[var(--hairline)] hover:border-[var(--fg)] transition-colors">
                             <span className="text-[10px] text-neutral-600 font-bold mb-4 block">02</span>
                             <h4 className="font-bold mb-3">Verified, every single one</h4>
                             <p className="text-xs text-neutral-500 leading-relaxed">Verified against institution emails and alumni records. If they say IIT, they are.</p>
                         </div>
-                        <div className="p-8 border-l border-white/10 hover:border-white/40 transition-colors">
+                        <div className="p-8 border-l border-[var(--hairline)] hover:border-[var(--fg)] transition-colors">
                             <span className="text-[10px] text-neutral-600 font-bold mb-4 block">03</span>
                             <h4 className="font-bold mb-3">From the rooms you want</h4>
                             <p className="text-xs text-neutral-500 leading-relaxed">Mentors from Google, Meta, IITs, AIIMS, and elite unicorn founders.</p>
                         </div>
-                        <div className="p-8 border-l border-white/10 hover:border-white/40 transition-colors">
+                        <div className="p-8 border-l border-[var(--hairline)] hover:border-[var(--fg)] transition-colors">
                             <span className="text-[10px] text-neutral-600 font-bold mb-4 block">04</span>
                             <h4 className="font-bold mb-3">Practical, not performative</h4>
                             <p className="text-xs text-neutral-500 leading-relaxed">Specific frameworks and honest tradeoffs you can act on this week.</p>
@@ -294,7 +305,7 @@ export default function Home() {
                 </div>
             </section>
 
-            <section id="how" className="py-16 sm:py-24 lg:py-32 px-4 sm:px-8 bg-neutral-950/50 relative overflow-hidden">
+            <section id="how" className="py-16 sm:py-24 lg:py-32 px-4 sm:px-8 bg-[var(--hairline)] relative overflow-hidden">
                 <div className="max-w-7xl mx-auto relative z-10">
                     <div className="grid lg:grid-cols-12 gap-12 items-end mb-24">
                         <div className="lg:col-span-8">
@@ -313,27 +324,27 @@ export default function Home() {
 
                     <div className="grid lg:grid-cols-3 gap-12">
                         <div className="relative">
-                            <h3 className="serif text-8xl font-black text-white/5 absolute -top-12 -left-4">01</h3>
+                            <h3 className="serif text-8xl font-black text-[var(--fg)]/5 absolute -top-12 -left-4">01</h3>
                             <div className="relative z-10 pt-8">
-                                <div className="h-[1px] w-full bg-white/10 mb-8"></div>
+                                <div className="h-[1px] w-full bg-[var(--fg)]/10 mb-8"></div>
                                 <h4 className="text-xl font-bold mb-4">Choose your stage</h4>
                                 <p className="text-neutral-500 text-sm leading-relaxed">Tell us where you are — Class 12, undergrad, or mid-career. We match on stage, not vibes.</p>
                                 <span className="text-[10px] uppercase font-bold text-neutral-600 mt-6 block tracking-widest">60 Seconds</span>
                             </div>
                         </div>
                         <div className="relative">
-                            <h3 className="serif text-8xl font-black text-white/5 absolute -top-12 -left-4">02</h3>
+                            <h3 className="serif text-8xl font-black text-[var(--fg)]/5 absolute -top-12 -left-4">02</h3>
                             <div className="relative z-10 pt-8">
-                                <div className="h-[1px] w-full bg-white/10 mb-8"></div>
+                                <div className="h-[1px] w-full bg-[var(--fg)]/10 mb-8"></div>
                                 <h4 className="text-xl font-bold mb-4">Pick a mentor</h4>
                                 <p className="text-neutral-500 text-sm leading-relaxed">Browse a small, hand-picked shortlist. Read their path, focus areas, and what mentees say.</p>
                                 <span className="text-[10px] uppercase font-bold text-neutral-600 mt-6 block tracking-widest">Verified Profiles</span>
                             </div>
                         </div>
                         <div className="relative">
-                            <h3 className="serif text-8xl font-black text-white/5 absolute -top-12 -left-4">03</h3>
+                            <h3 className="serif text-8xl font-black text-[var(--fg)]/5 absolute -top-12 -left-4">03</h3>
                             <div className="relative z-10 pt-8">
-                                <div className="h-[1px] w-full bg-white/10 mb-8"></div>
+                                <div className="h-[1px] w-full bg-[var(--fg)]/10 mb-8"></div>
                                 <h4 className="text-xl font-bold mb-4">Book a session</h4>
                                 <p className="text-neutral-500 text-sm leading-relaxed">Pick a 30 or 60 minute slot, pay once, and meet on a private call. Notes land in your dashboard.</p>
                                 <span className="text-[10px] uppercase font-bold text-neutral-600 mt-6 block tracking-widest">From ₹129</span>
@@ -343,54 +354,92 @@ export default function Home() {
                 </div>
             </section>
 
+            {/* Improved Pricing Section */}
             <section id="pricing" className="py-16 sm:py-24 lg:py-32 px-4 sm:px-8">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-24">
                         <span className="text-[11px] tracking-[0.4em] text-neutral-500 font-bold uppercase mb-6 block">Chapter 04 — Pricing</span>
-                        <h2 className="serif text-3xl sm:text-5xl lg:text-8xl font-bold italic mb-6 sm:mb-8">Real mentorship, at the <br /> <span className="not-italic">price of a meal out.</span></h2>
-                        <p className="text-neutral-500 max-w-xl mx-auto">One transparent price per stage. No subscriptions, no hidden upsells. Pay once, talk to someone who&apos;s been there.</p>
+                        <h2 className="serif text-3xl sm:text-5xl lg:text-8xl font-bold italic mb-6 sm:mb-8">
+                            Real mentorship, at the <br /> <span className="not-italic">price of a meal out.</span>
+                        </h2>
+                        <p className="text-neutral-500 max-w-xl mx-auto">
+                            One transparent price per stage. No subscriptions, no hidden upsells.
+                        </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 items-stretch">
-                        {[
-                            { name: 'Starter', price: '129', desc: '11th — 12th guidance', features: ['1 mentor call', '30-day chat access'], highlight: false },
-                            { name: 'Most Chosen', price: '199', desc: '1st / 2nd / 3rd year', features: ['1 mentor call', '30-day chat access'], highlight: false },
-                            { name: 'Career', price: '249', desc: 'Internship / Job guidance', features: ['1 mentor call', '30-day chat access'], highlight: false },
-                            { name: 'Premium', price: '499', desc: 'Top MNC Mentors', features: ['1 premium mentor call', '7-day priority chat'], highlight: true },
-                        ].map((tier) => (
-                            <div
-                                key={tier.name}
-                                onClick={toggleSignup}
-                                className={`p-6 sm:p-8 lg:p-10 rounded-[2rem] border relative cursor-pointer transition-all duration-300 flex flex-col group ${
-                                    tier.highlight
-                                        ? 'border-white bg-white text-black shadow-2xl lg:scale-[1.02] hover:scale-[1.04]'
-                                        : 'glass border-white/5 hover:bg-white hover:text-black hover:border-white hover:shadow-2xl hover:scale-[1.02]'
-                                }`}
-                            >
-                                {tier.highlight && <div className="absolute top-4 sm:top-6 right-4 sm:right-6 bg-neutral-100 text-black text-[8px] sm:text-[9px] font-black tracking-widest uppercase px-2 py-1 rounded-full border border-black/10">Highlighted</div>}
-                                <span className={`text-[9px] sm:text-[10px] tracking-widest font-bold uppercase mb-4 sm:mb-8 transition-colors ${tier.highlight ? 'text-black/50' : 'text-neutral-500 group-hover:text-neutral-500'}`}>{tier.name}</span>
-                                <div className={`flex items-start gap-1 sm:gap-2 mb-2 transition-colors duration-300 ${tier.highlight ? 'group-hover:text-blue-600' : 'group-hover:text-blue-500'}`}>
-                                    <span className="text-xl sm:text-2xl mt-1 sm:mt-2">₹</span>
-                                    <span className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tighter">{tier.price}</span>
-                                </div>
-                                <p className={`text-xs sm:text-sm font-medium mb-6 sm:mb-8 pb-6 sm:pb-8 border-b transition-colors ${tier.highlight ? 'border-neutral-200 text-black' : 'border-white/10 group-hover:border-neutral-200 text-neutral-400 group-hover:text-black'}`}>{tier.desc}</p>
-                                <ul className="space-y-3 sm:space-y-4 mb-8 sm:mb-12 flex-1">
-                                    {tier.features.map(f => (
-                                        <li key={f} className={`flex items-center gap-2 sm:gap-3 text-xs sm:text-sm font-medium transition-colors ${tier.highlight ? 'text-black/70' : 'text-neutral-400 group-hover:text-black/70'}`}>
-                                            <Check size={14} className={tier.highlight ? 'text-black' : 'text-white group-hover:text-black'} /> {f}
-                                        </li>
-                                    ))}
-                                </ul>
-                                <button className={`w-full py-3 sm:py-4 rounded-xl text-[10px] sm:text-[11px] font-bold tracking-widest uppercase flex items-center justify-center gap-2 transition-all mt-auto ${
-                                    tier.highlight
-                                        ? 'bg-black text-white hover:bg-neutral-800'
-                                        : 'border border-white/20 hover:bg-black group-hover:bg-black group-hover:text-white group-hover:border-black'
-                                }`}>
-                                    Book at ₹{tier.price} <ArrowRight size={14} />
-                                </button>
+                    {/* Active style = identical to how ₹499 Premium looks by default */}
+                    {(() => {
+                        const pricingTiers = [
+                            { name: 'Starter',     price: '129', desc: '11th — 12th guidance',     features: ['1 mentor call', '30-day chat access']           },
+                            { name: 'Most Chosen', price: '199', desc: '1st / 2nd / 3rd year',     features: ['1 mentor call', '30-day chat access']           },
+                            { name: 'Career',      price: '249', desc: 'Internship / Job guidance', features: ['1 mentor call', '30-day chat access']           },
+                            { name: 'Premium',     price: '499', desc: 'Top MNC Mentors',           features: ['1 premium mentor call', '7-day priority chat'] },
+                        ];
+
+                        // Style constants — active mirrors the Premium card look exactly
+                        const activeCard_cls   = 'border-[var(--fg)] bg-[var(--fg)] text-[var(--bg)] shadow-2xl scale-[1.02]';
+                        const inactiveCard_cls = 'glass border-[var(--hairline)] text-[var(--fg)]';
+                        const activeTag_cls    = 'text-[var(--bg)]/50';
+                        const inactiveTag_cls  = 'text-[var(--fg)]/50';
+                        const activeDesc_cls   = 'border-[var(--bg)]/20 text-[var(--bg)]';
+                        const inactiveDesc_cls = 'border-[var(--hairline)] text-[var(--fg)]/70';
+                        const activeFeat_cls   = 'text-[var(--bg)]/80';
+                        const inactiveFeat_cls = 'text-[var(--fg)]/70';
+                        const activeChk_cls    = 'text-[var(--bg)]';
+                        const inactiveChk_cls  = 'text-[var(--fg)]';
+                        const activeBtn_cls    = 'bg-[var(--bg)] text-[var(--fg)] hover:opacity-90';
+                        const inactiveBtn_cls  = 'border border-[var(--hairline)] text-[var(--fg)] hover:border-[var(--fg)]';
+
+                        return (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 items-stretch">
+                                {pricingTiers.map((tier, index) => {
+                                    const isCardActive = (hoveredCard !== null ? hoveredCard === index : activeCard === index);
+                                    return (
+                                        <div
+                                            key={tier.name}
+                                            onClick={() => { setActiveCard(index); toggleSignup(); }}
+                                            onMouseEnter={() => setHoveredCard(index)}
+                                            onMouseLeave={() => setHoveredCard(null)}
+                                            className={`relative p-6 sm:p-8 lg:p-10 rounded-[2rem] border transition-all duration-300 flex flex-col cursor-pointer hover:-translate-y-1 ${isCardActive ? activeCard_cls : inactiveCard_cls}`}
+                                        >
+                                            {isCardActive && (
+                                                <div className="absolute top-4 sm:top-6 right-4 sm:right-6 bg-[var(--bg)] text-[var(--fg)] text-[8px] sm:text-[9px] font-black tracking-widest uppercase px-2 py-1 rounded-full border border-[var(--hairline)]">
+                                                    Highlighted
+                                                </div>
+                                            )}
+
+                                            <span className={`text-[9px] sm:text-[10px] tracking-widest font-bold uppercase mb-4 sm:mb-8 ${isCardActive ? activeTag_cls : inactiveTag_cls}`}>
+                                                {tier.name}
+                                            </span>
+
+                                            <div className="flex items-start gap-1 sm:gap-2 mb-2">
+                                                <span className="text-xl sm:text-2xl mt-1 sm:mt-2">₹</span>
+                                                <span className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tighter">
+                                                    {tier.price}
+                                                </span>
+                                            </div>
+
+                                            <p className={`text-xs sm:text-sm font-medium mb-6 sm:mb-8 pb-6 sm:pb-8 border-b transition-colors ${isCardActive ? activeDesc_cls : inactiveDesc_cls}`}>
+                                                {tier.desc}
+                                            </p>
+
+                                            <ul className="space-y-3 sm:space-y-4 mb-8 sm:mb-12 flex-1">
+                                                {tier.features.map(f => (
+                                                    <li key={f} className={`flex items-center gap-2 sm:gap-3 text-xs sm:text-sm font-medium ${isCardActive ? activeFeat_cls : inactiveFeat_cls}`}>
+                                                        <Check size={14} className={isCardActive ? activeChk_cls : inactiveChk_cls} /> {f}
+                                                    </li>
+                                                ))}
+                                            </ul>
+
+                                            <button className={`w-full py-3 sm:py-4 rounded-xl text-[10px] sm:text-[11px] font-bold tracking-widest uppercase flex items-center justify-center gap-2 transition-all mt-auto ${isCardActive ? activeBtn_cls : inactiveBtn_cls}`}>
+                                                Book at ₹{tier.price} <ArrowRight size={14} />
+                                            </button>
+                                        </div>
+                                    );
+                                })}
                             </div>
-                        ))}
-                    </div>
+                        );
+                    })()}
                 </div>
             </section>
 
