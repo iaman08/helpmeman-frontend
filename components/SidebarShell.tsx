@@ -147,7 +147,7 @@ export function SidebarShell({
                   : "text-(--muted) hover:text-(--fg)"
               }`}
             >
-              {t === "yellow" ? "sun" : t}
+              {t}
             </button>
           ))}
         </div>

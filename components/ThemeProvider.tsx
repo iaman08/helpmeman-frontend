@@ -8,8 +8,8 @@ import {
   type ReactNode,
 } from "react";
 
-export type Theme = "light" | "yellow" | "dark";
-export const THEMES: Theme[] = ["light", "yellow", "dark"];
+export type Theme = "light" | "dark";
+export const THEMES: Theme[] = ["light", "dark"];
 
 const STORAGE_KEY = "helpmeman.theme";
 

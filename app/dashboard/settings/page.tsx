@@ -8,12 +8,6 @@ import api from "@/lib/api";
 import { AxiosError } from "axios";
 import { ImageCropModal } from "@/components/ImageCropModal";
 
-const MOCK_PAYMENTS = [
-  { id: "pay_001", date: "2026-04-28", amount: 199, mentor: "Arjun Verma", status: "Completed", method: "UPI" },
-  { id: "pay_002", date: "2026-04-15", amount: 499, mentor: "Priya Sharma", status: "Completed", method: "Card" },
-  { id: "pay_003", date: "2026-03-22", amount: 129, mentor: "Rohit Mehra", status: "Refunded", method: "UPI" },
-  { id: "pay_004", date: "2026-03-10", amount: 249, mentor: "Sneha Gupta", status: "Completed", method: "UPI" },
-];
 
 export default function SettingsPage() {
   const { user, refreshUser, updateUser } = useAuth();
@@ -104,12 +98,14 @@ export default function SettingsPage() {
   const [name, setName] = useState(user?.name ?? "");
   const [username, setUsername] = useState(user?.email?.split("@")[0] ?? "");
   const [phone, setPhone] = useState(user?.phone ?? "");
+  const [currentRole, setCurrentRole] = useState(user?.currentRole ?? "");
   const [saving, setSaving] = useState(false);
 
   const hasChanges =
     name !== (user?.name ?? "") ||
     username !== (user?.email?.split("@")[0] ?? "") ||
-    phone !== (user?.phone ?? "");
+    phone !== (user?.phone ?? "") ||
+    currentRole !== (user?.currentRole ?? "");
 
   const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,11 +121,11 @@ export default function SettingsPage() {
     try {
       if (user?.id.startsWith("demo_")) {
         await new Promise((resolve) => setTimeout(resolve, 600));
-        updateUser({ name, phone }); // Update globally
+        updateUser({ name, phone, currentRole }); // Update globally
         toast("Profile updated successfully!", "success");
         return;
       }
-      await api.put("/users/me", { name, phone, username });
+      await api.put("/users/me", { name, phone, username, currentRole });
       await refreshUser();
       toast("Profile updated successfully!", "success");
     } catch (err) {
@@ -216,11 +212,17 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="flex-1 text-center sm:text-left space-y-4">
-                  <div>
-                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold">Profile Photo</h3>
-                    <p className="text-(--muted) text-sm mt-1 max-w-sm">
-                      Square image, at least 400×400px. JPG, PNG, WebP (Max 5MB).
-                    </p>
+                  <div className="flex flex-col gap-1">
+                    <h3 className="font-display text-2xl sm:text-3xl font-bold tracking-tight">
+                      {name || "Your Name"}
+                    </h3>
+                    {currentRole ? (
+                      <p className="text-sm text-(--muted) font-medium">
+                        {currentRole}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-(--muted) italic">Add your current role below</p>
+                    )}
                   </div>
                   <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
                     <button
@@ -303,11 +305,22 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
+                <div className="space-y-2">
+                  <label className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-(--muted) font-bold ml-1">Current Role</label>
+                  <input
+                    type="text"
+                    value={currentRole}
+                    onChange={(e) => setCurrentRole(e.target.value)}
+                    placeholder="e.g. Software Engineer, Product Manager"
+                    className="w-full bg-(--fg)/5 border border-(--hairline) rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 focus:border-(--fg)/20 focus:bg-(--fg)/10 outline-none transition-all placeholder:text-(--muted) text-sm sm:text-base"
+                  />
+                </div>
+
                 {hasChanges && (
                   <div className="md:col-span-2 flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-3 sm:pt-4">
                     <button
                       type="button"
-                      onClick={() => { setName(user?.name ?? ""); setPhone(user?.phone ?? ""); setUsername(user?.email?.split("@")[0] ?? ""); }}
+                      onClick={() => { setName(user?.name ?? ""); setPhone(user?.phone ?? ""); setUsername(user?.email?.split("@")[0] ?? ""); setCurrentRole(user?.currentRole ?? ""); }}
                       className="px-6 sm:px-8 py-3 sm:py-4 text-(--muted) hover:text-(--fg) transition-colors font-bold text-sm cursor-pointer"
                     >
                       Discard Changes
@@ -391,61 +404,10 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              {/* Desktop table */}
-              <div className="hidden sm:block overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-(--hairline)">
-                      <th className="text-left text-[10px] uppercase tracking-[0.2em] text-(--muted) font-bold pb-4 pl-1">Date</th>
-                      <th className="text-left text-[10px] uppercase tracking-[0.2em] text-(--muted) font-bold pb-4">Mentor</th>
-                      <th className="text-left text-[10px] uppercase tracking-[0.2em] text-(--muted) font-bold pb-4">Method</th>
-                      <th className="text-right text-[10px] uppercase tracking-[0.2em] text-(--muted) font-bold pb-4">Amount</th>
-                      <th className="text-right text-[10px] uppercase tracking-[0.2em] text-(--muted) font-bold pb-4 pr-1">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {MOCK_PAYMENTS.map((pay) => (
-                      <tr key={pay.id} className="border-b border-(--hairline)/50 last:border-0">
-                        <td className="py-4 pl-1 text-(--muted)">{new Date(pay.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
-                        <td className="py-4 font-medium">{pay.mentor}</td>
-                        <td className="py-4 text-(--muted)">{pay.method}</td>
-                        <td className="py-4 text-right font-display text-lg">₹{pay.amount}</td>
-                        <td className="py-4 text-right pr-1">
-                          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
-                            pay.status === "Completed"
-                              ? "bg-emerald-500/10 text-emerald-500"
-                              : "bg-amber-500/10 text-amber-500"
-                          }`}>
-                            <span className={`h-1.5 w-1.5 rounded-full ${pay.status === "Completed" ? "bg-emerald-500" : "bg-amber-500"}`} />
-                            {pay.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Mobile cards */}
-              <div className="flex flex-col gap-3 sm:hidden">
-                {MOCK_PAYMENTS.map((pay) => (
-                  <div key={pay.id} className="bg-(--fg)/5 rounded-xl p-4 flex flex-col gap-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-sm">{pay.mentor}</span>
-                      <span className="font-display text-lg">₹{pay.amount}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-(--muted)">
-                      <span>{new Date(pay.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })} · {pay.method}</span>
-                      <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
-                        pay.status === "Completed"
-                          ? "bg-emerald-500/10 text-emerald-500"
-                          : "bg-amber-500/10 text-amber-500"
-                      }`}>
-                        {pay.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+              <div className="flex flex-col items-center justify-center py-12 text-center bg-(--fg)/5 rounded-xl border border-dashed border-(--hairline)">
+                <CreditCard className="w-8 h-8 text-(--muted) mb-3" />
+                <p className="text-sm font-medium">No payments yet</p>
+                <p className="text-xs text-(--muted) mt-1">When you book sessions, your payment history will appear here.</p>
               </div>
             </div>
           </div>

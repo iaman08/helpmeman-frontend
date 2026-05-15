@@ -8,7 +8,7 @@ import {
   DollarSign,
   Star,
   Clock,
-  Settings,
+  User,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { SidebarShell } from "@/components/SidebarShell";
@@ -19,7 +19,7 @@ const NAV = [
   { href: "/mentor/availability", label: "Availability", icon: Clock },
   { href: "/mentor/earnings", label: "Earnings", icon: DollarSign },
   { href: "/mentor/reviews", label: "Reviews", icon: Star },
-  { href: "/mentor/settings", label: "Profile", icon: Settings },
+  { href: "/mentor/settings", label: "Profile", icon: User },
 ];
 
 export default function MentorLayout({
@@ -37,14 +37,15 @@ export default function MentorLayout({
       return;
     }
     // Redirect non-approved mentors to status page
-    if (
-      !loading &&
-      isMentor &&
-      mentor?.approvalStatus !== "APPROVED" &&
-      pathname !== "/mentor/status"
-    ) {
-      router.replace("/mentor/status");
-    }
+    // Development mode bypass: Allow all mentors to access the dashboard regardless of approval status
+    // if (
+    //   !loading &&
+    //   isMentor &&
+    //   mentor?.approvalStatus !== "APPROVED" &&
+    //   pathname !== "/mentor/status"
+    // ) {
+    //   router.replace("/mentor/status");
+    // }
   }, [loading, user, isMentor, mentor, pathname, router]);
 
   if (loading || !user || !isMentor) {

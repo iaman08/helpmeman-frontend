@@ -113,7 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           accessToken:  "demo_access_token",
           refreshToken: "demo_refresh_token",
           user: mockUser,
-          mentor: null,
+          mentor: role === "MENTOR" ? { id: "demo_mentor_id", approvalStatus: "APPROVED", isActive: true } : null,
         };
         persist(mockData);
         return;

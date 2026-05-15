@@ -22,6 +22,7 @@ export interface User {
   phone?: string | null;
   avatar?: string | null;
   role: Role;
+  currentRole?: string | null;
   isEmailVerified: boolean;
   createdAt: string;
 }
