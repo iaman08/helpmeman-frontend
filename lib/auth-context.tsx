@@ -49,13 +49,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [mentor, setMentor] = useState<MentorMeta | null>(null);
   const [loading, setLoading] = useState(true);
 
-  /* ─── Hydrate from localStorage on mount ─── */
+  /* ─── Hydrate from localStorage on mount, then refresh from backend (which reads Firestore) ─── */
   useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem(KEYS.user);
-      const storedMentor = localStorage.getItem(KEYS.mentor);
-      const token = localStorage.getItem(KEYS.access);
-      if (storedUser && token) {
+    async function hydrate() {
+      try {
+        const storedUser = localStorage.getItem(KEYS.user);
+        const storedMentor = localStorage.getItem(KEYS.mentor);
+        const token = localStorage.getItem(KEYS.access);
+
+        if (!storedUser || !token) {
+          setLoading(false);
+          return;
+        }
+
         const parsedUser = JSON.parse(storedUser);
         // Clean up legacy dicebear avatars
         if (parsedUser.avatar?.includes("dicebear")) {
@@ -64,11 +70,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         setUser(parsedUser);
         if (storedMentor) setMentor(JSON.parse(storedMentor));
+
+        // Refresh from backend API (which enriches with Firestore data like username)
+        if (!parsedUser.id?.startsWith("demo_")) {
+          try {
+            const { data } = await api.get<{ user: User }>("/users/me");
+            setUser(data.user);
+            localStorage.setItem(KEYS.user, JSON.stringify(data.user));
+          } catch {
+            /* backend unavailable — use cached data */
+          }
+        }
+      } catch {
+        /* corrupted storage — ignore */
       }
-    } catch {
-      /* corrupted storage — ignore */
+      setLoading(false);
     }
-    setLoading(false);
+    hydrate();
   }, []);
 
   /* ─── Persist helper ─── */
@@ -84,6 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       setUser(data.user);
       setMentor(data.mentor ?? null);
+      // Backend already syncs user data to Firestore on auth events
     },
     [],
   );
@@ -119,7 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      // ─── Real backend login ───
+      // ─── Real backend login (backend syncs to Firestore) ───
       const { data } = await api.post<AuthResponse>("/auth/login", {
         email,
         password,
@@ -136,6 +155,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     const result = await signInWithPopup(firebaseAuth, googleProvider);
     const idToken = await result.user.getIdToken();
+    // Backend verifies token, creates/finds user, and syncs to Firestore
     const { data } = await api.post<AuthResponse>("/auth/google", { idToken });
     persist(data);
   }, [persist]);
@@ -143,6 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /* ─── Register ─── */
   const register = useCallback(
     async (name: string, email: string, password: string) => {
+      // Backend creates user and syncs to Firestore
       const { data } = await api.post<AuthResponse>("/auth/register", {
         name,
         email,
@@ -166,7 +187,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setMentor(null);
   }, []);
 
-  /* ─── Refresh user profile ─── */
+  /* ─── Refresh user profile (from backend, which reads from Firestore) ─── */
   const refreshUser = useCallback(async () => {
     // Skip API call for mock demo users
     if (user?.id.startsWith("demo_")) return;
@@ -180,7 +201,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
-  /* ─── Update user locally (useful for demo/instant feedback) ─── */
+  /* ─── Update user locally (for instant UI feedback) ─── */
   const updateUser = useCallback((updates: Partial<User>) => {
     setUser((prev) => {
       if (!prev) return null;

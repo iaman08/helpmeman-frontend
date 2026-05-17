@@ -18,6 +18,7 @@ export type SenderRole = "USER" | "MENTOR";
 export interface User {
   id: string;
   name: string;
+  username?: string | null;
   email: string;
   phone?: string | null;
   avatar?: string | null;

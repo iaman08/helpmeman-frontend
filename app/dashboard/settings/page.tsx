@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, type ChangeEvent } from "react";
+import { useState, useRef, useEffect, type ChangeEvent } from "react";
 import { User, Camera, CreditCard, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/components/Toast";
@@ -96,14 +96,24 @@ export default function SettingsPage() {
 
   // Profile Form
   const [name, setName] = useState(user?.name ?? "");
-  const [username, setUsername] = useState(user?.email?.split("@")[0] ?? "");
+  const [username, setUsername] = useState(user?.username ?? user?.email?.split("@")[0] ?? "");
   const [phone, setPhone] = useState(user?.phone ?? "");
   const [currentRole, setCurrentRole] = useState(user?.currentRole ?? "");
   const [saving, setSaving] = useState(false);
 
+  // Sync form states with loaded user data
+  useEffect(() => {
+    if (user) {
+      setName(user.name ?? "");
+      setUsername(user.username ?? user.email?.split("@")[0] ?? "");
+      setPhone(user.phone ?? "");
+      setCurrentRole(user.currentRole ?? "");
+    }
+  }, [user]);
+
   const hasChanges =
     name !== (user?.name ?? "") ||
-    username !== (user?.email?.split("@")[0] ?? "") ||
+    username !== (user?.username ?? user?.email?.split("@")[0] ?? "") ||
     phone !== (user?.phone ?? "") ||
     currentRole !== (user?.currentRole ?? "");
 
@@ -125,8 +135,8 @@ export default function SettingsPage() {
         toast("Profile updated successfully!", "success");
         return;
       }
-      await api.put("/users/me", { name, phone, username, currentRole });
-      await refreshUser();
+      const { data } = await api.put("/users/me", { name, phone, username, currentRole });
+      updateUser(data.user);
       toast("Profile updated successfully!", "success");
     } catch (err) {
       if (err instanceof AxiosError) {
@@ -320,7 +330,7 @@ export default function SettingsPage() {
                   <div className="md:col-span-2 flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-3 sm:pt-4">
                     <button
                       type="button"
-                      onClick={() => { setName(user?.name ?? ""); setPhone(user?.phone ?? ""); setUsername(user?.email?.split("@")[0] ?? ""); setCurrentRole(user?.currentRole ?? ""); }}
+                      onClick={() => { setName(user?.name ?? ""); setPhone(user?.phone ?? ""); setUsername(user?.username ?? user?.email?.split("@")[0] ?? ""); setCurrentRole(user?.currentRole ?? ""); }}
                       className="px-6 sm:px-8 py-3 sm:py-4 text-(--muted) hover:text-(--fg) transition-colors font-bold text-sm cursor-pointer"
                     >
                       Discard Changes
