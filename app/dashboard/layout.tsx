@@ -25,8 +25,6 @@ export default function DashboardLayout({
     { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
     { href: "/dashboard/bookings", label: "Bookings", icon: CalendarCheck },
     { href: "/dashboard/chat", label: "Chat", icon: MessageCircle },
-    { href: "/mentors", label: "Browse Mentors", icon: Search },
-    { href: "/dashboard/settings", label: "Settings", icon: Settings },
     {
       onClick: () => {
         if (typeof window !== "undefined") {
@@ -36,6 +34,8 @@ export default function DashboardLayout({
       label: "AI Assistant",
       icon: Sparkles,
     },
+    { href: "/mentors", label: "Browse Mentors", icon: Search },
+    { href: "/dashboard/settings", label: "Settings", icon: Settings },
   ];
 
   useEffect(() => {
