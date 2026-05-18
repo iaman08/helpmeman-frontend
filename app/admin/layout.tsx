@@ -10,6 +10,7 @@ import {
   FolderTree,
   DollarSign,
   Star,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { SidebarShell } from "@/components/SidebarShell";
@@ -23,6 +24,15 @@ const NAV = [
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
   { href: "/admin/earnings", label: "Earnings", icon: DollarSign },
   { href: "/admin/reviews", label: "Reviews", icon: Star },
+  {
+    onClick: () => {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("open-ai"));
+      }
+    },
+    label: "AI Assistant",
+    icon: Sparkles,
+  },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

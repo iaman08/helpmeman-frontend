@@ -9,6 +9,7 @@ import {
   Star,
   Clock,
   User,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { SidebarShell } from "@/components/SidebarShell";
@@ -20,6 +21,15 @@ const NAV = [
   { href: "/mentor/earnings", label: "Earnings", icon: DollarSign },
   { href: "/mentor/reviews", label: "Reviews", icon: Star },
   { href: "/mentor/settings", label: "Profile", icon: User },
+  {
+    onClick: () => {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("open-ai"));
+      }
+    },
+    label: "AI Assistant",
+    icon: Sparkles,
+  },
 ];
 
 export default function MentorLayout({

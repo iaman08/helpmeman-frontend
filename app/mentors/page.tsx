@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import { Search, SlidersHorizontal, X, LayoutDashboard, CalendarCheck, MessageCircle, Settings, Search as SearchIcon } from "lucide-react";
+import { Search, SlidersHorizontal, X, LayoutDashboard, CalendarCheck, MessageCircle, Settings, Search as SearchIcon, Sparkles } from "lucide-react";
 import { useMentors, useCategories, type MentorFilters } from "@/lib/hooks";
 import { MentorCard } from "@/components/MentorCard";
 import { MentorCardSkeleton } from "@/components/Skeleton";
@@ -342,6 +342,15 @@ export default function MentorsPage() {
       { href: "/dashboard/chat", label: "Chat", icon: MessageCircle },
       { href: "/mentors", label: "Browse Mentors", icon: SearchIcon },
       { href: "/dashboard/settings", label: "Settings", icon: Settings },
+      {
+        onClick: () => {
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new Event("open-ai"));
+          }
+        },
+        label: "AI Assistant",
+        icon: Sparkles,
+      },
     ];
 
     return (

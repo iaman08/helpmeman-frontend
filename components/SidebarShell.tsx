@@ -8,7 +8,8 @@ import type { LucideIcon } from "lucide-react";
 import { useTheme, THEMES } from "./ThemeProvider";
 
 interface NavItem {
-  href: string;
+  href?: string;
+  onClick?: () => void;
   label: string;
   icon: LucideIcon;
 }
@@ -43,10 +44,27 @@ export function SidebarShell({
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { theme, setTheme } = useTheme();
+  const [aiOpen, setAiOpen] = useState(false);
+
+  useEffect(() => {
+    const handleOpen = () => setAiOpen(true);
+    const handleClose = () => setAiOpen(false);
+    if (typeof window !== "undefined") {
+      window.addEventListener("open-ai", handleOpen);
+      window.addEventListener("close-ai", handleClose);
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("open-ai", handleOpen);
+        window.removeEventListener("close-ai", handleClose);
+      }
+    };
+  }, []);
 
   // Close on route change
   useEffect(() => {
     setMobileOpen(false);
+    setAiOpen(false);
   }, [pathname]);
 
   // Prevent body scroll when mobile sidebar is open
@@ -114,13 +132,37 @@ export function SidebarShell({
 
       <nav className="flex-1 flex flex-col gap-1 px-3 py-4 overflow-y-auto">
         {navItems.map((item) => {
+          if (item.onClick) {
+            const active = item.label === "AI Assistant" && aiOpen;
+            return (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => {
+                  item.onClick?.();
+                  if (mobileOpen) setMobileOpen(false);
+                }}
+                className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors cursor-pointer ${
+                  active
+                    ? "bg-(--fg)/8 text-(--fg)"
+                    : "text-(--muted) hover:text-(--fg) hover:bg-(--fg)/4"
+                }`}
+              >
+                <item.icon className="h-4 w-4 shrink-0" />
+                {item.label}
+              </button>
+            );
+          }
+
           const active =
-            pathname === item.href ||
-            (item.href !== rootPath && pathname.startsWith(item.href));
+            !aiOpen &&
+            item.href &&
+            (pathname === item.href ||
+              (item.href !== rootPath && pathname.startsWith(item.href)));
           return (
             <Link
-              key={item.href}
-              href={item.href}
+              key={item.href || item.label}
+              href={item.href!}
               className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
                 active
                   ? "bg-(--fg)/8 text-(--fg)"

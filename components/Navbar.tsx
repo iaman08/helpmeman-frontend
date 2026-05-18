@@ -10,7 +10,6 @@ const links: { id: string; label: string }[] = [];
 
 const themeLabels: Record<Theme, string> = {
   light: "Light",
-  yellow: "Sun",
   dark: "Night",
 };
 
