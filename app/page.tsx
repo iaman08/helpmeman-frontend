@@ -3,7 +3,7 @@
 import { useAuth } from "@/lib/auth-context";
 import { useTheme } from "@/components/ThemeProvider";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { ArrowRight, Infinity as InfinityIcon, Star, X, Check, ShieldCheck, Sun, Moon } from "lucide-react";
 import Link from "next/link";
 
@@ -20,6 +20,81 @@ const LinkedinIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 
+const mentors = [
+    {
+        name: 'Mr.Beast',
+        role: 'SDE (50+ LPA)',
+        company: 'Cohesity',
+        badge: 'COHESITY | SDE',
+        img: '/mentor2.png',
+        stars: 5,
+    },
+    {
+        name: 'Anwesh Das',
+        role: 'SDE (1Cr+)',
+        company: 'Rubrik',
+        badge: 'RUBRIK | SDE',
+        img: '/mentor3.png',
+        stars: 5,
+    },
+    {
+        name: 'Priya Kapoor',
+        role: 'Staff Engineer',
+        company: 'Meta',
+        badge: 'META | STAFF ENG',
+        img: 'https://i.pinimg.com/736x/0d/a5/e7/0da5e7b3a24ea9ef05db4eaa253e9cf3.jpg',
+        stars: 5,
+    },
+    {
+        name: 'Harkirat Singh',
+        role: 'Staff Engineer',
+        company: 'Meta',
+        badge: 'META | STAFF ENG',
+        img: 'https://i.pinimg.com/736x/fc/86/7d/fc867df822d70b9d78171c7e790f99c7.jpg',
+        stars: 5,
+    },
+    {
+        name: 'Harnoor Singh',
+        role: 'Product Manager',
+        company: 'Google',
+        badge: 'GOOGLE | PM',
+        img: 'https://i.pinimg.com/1200x/1c/85/2e/1c852ea928150dfcf54c5457dbca0a35.jpg',
+        stars: 5,
+    },
+    {
+        name: 'Priya Sharma',
+        role: 'UX Lead',
+        company: 'Google',
+        badge: 'GOOGLE | UX LEAD',
+        img: 'https://i.pinimg.com/736x/41/d0/ab/41d0abba8ff870ce4ef1cbea5b56fb29.jpg',
+        stars: 5,
+    },
+    {
+        name: 'Arjun Mehta',
+        role: 'L7 Engineer',
+        company: 'Google',
+        badge: 'GOOGLE | L7 ENG',
+        img: 'https://i.pinimg.com/736x/fc/86/7d/fc867df822d70b9d78171c7e790f99c7.jpg',
+        stars: 5,
+    },
+    {
+        name: 'Vikram Anand',
+        role: 'YC Founder',
+        company: 'YC S21',
+        badge: 'YC | FOUNDER',
+        img: 'https://i.pinimg.com/736x/0d/a5/e7/0da5e7b3a24ea9ef05db4eaa253e9cf3.jpg',
+        stars: 5,
+    },
+    {
+        name: 'Vineet',
+        role: "GSoC '25 & '26",
+        company: 'IIT Roorkee',
+        badge: 'IIT ROORKEE | GSOC',
+        img: '/mentor1.png',
+        stars: 5,
+    },
+];
+
 export default function Home() {
     const { user, loading } = useAuth();
     const router = useRouter();
@@ -27,6 +102,119 @@ export default function Home() {
     const [isSignupOpen, setIsSignupOpen] = useState(false);
     const [activeCard, setActiveCard] = useState<number | null>(null);
     const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+
+    // Carousel state
+    const [currentMentor, setCurrentMentor] = useState(0);
+    const dragStartX = useRef<number | null>(null);
+    const dragStartTime = useRef<number>(0);
+    const isDragging = useRef(false);
+    const trackRef = useRef<HTMLDivElement>(null);
+    const wheelAccumulator = useRef(0);
+    const wheelTimeout = useRef<NodeJS.Timeout | null>(null);
+
+    const prevMentor = useCallback(() => {
+        setCurrentMentor(i => (i - 1 + mentors.length) % mentors.length);
+    }, []);
+
+    const nextMentor = useCallback(() => {
+        setCurrentMentor(i => (i + 1) % mentors.length);
+    }, []);
+
+    // Pointer drag handlers on the track
+    const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.currentTarget.setPointerCapture(e.pointerId);
+        dragStartX.current = e.clientX;
+        dragStartTime.current = Date.now();
+        isDragging.current = false;
+    };
+    const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+        if (dragStartX.current === null) return;
+        if (Math.abs(e.clientX - dragStartX.current) > 8) {
+            isDragging.current = true;
+        }
+    };
+    const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+        if (dragStartX.current === null) return;
+        const delta = dragStartX.current - e.clientX;
+        const duration = (Date.now() - dragStartTime.current) / 1000;
+        const velocity = Math.abs(delta) / (duration || 0.1);
+
+        if (Math.abs(delta) > 30) {
+            // Force-based drag: calculate card shift based on distance + velocity
+            const distanceShifts = Math.floor(Math.abs(delta) / 150);
+            const velocityShifts = velocity > 1200 ? 2 : (velocity > 600 ? 1 : 0);
+            let shiftCount = Math.max(1, distanceShifts + velocityShifts);
+            shiftCount = Math.min(4, shiftCount);
+
+            if (delta > 0) {
+                setCurrentMentor(i => (i + shiftCount) % mentors.length);
+            } else {
+                setCurrentMentor(i => (i - shiftCount + mentors.length) % mentors.length);
+            }
+        } else {
+            // Tap/click detection: determine which card region was tapped
+            // Since cards have pointerEvents:none, we use position-based hit testing
+            const trackRect = trackRef.current?.getBoundingClientRect();
+            if (trackRect) {
+                const tapX = e.clientX - trackRect.left;
+                const trackCenter = trackRect.width / 2;
+                const deadZone = 60; // center card region (no action needed)
+
+                if (tapX < trackCenter - deadZone) {
+                    // Tapped on the LEFT side → bring previous card to center
+                    console.log('Tap left → prev card');
+                    setCurrentMentor(i => (i - 1 + mentors.length) % mentors.length);
+                } else if (tapX > trackCenter + deadZone) {
+                    // Tapped on the RIGHT side → bring next card to center
+                    console.log('Tap right → next card');
+                    setCurrentMentor(i => (i + 1) % mentors.length);
+                }
+            }
+        }
+        dragStartX.current = null;
+        setTimeout(() => { isDragging.current = false; }, 10);
+    };
+
+    // Touchpad / Trackpad horizontal swipe to navigate carousel
+    useEffect(() => {
+        const el = trackRef.current;
+        if (!el) return;
+        const onWheel = (e: WheelEvent) => {
+            // Only intercept horizontal swipes — let vertical scroll pass through for page scrolling
+            if (Math.abs(e.deltaX) <= Math.abs(e.deltaY) || Math.abs(e.deltaX) < 4) return;
+
+            // Prevent browser back/forward navigation on horizontal swipe
+            e.preventDefault();
+
+            // Clear any active decay timer
+            if (wheelTimeout.current) clearTimeout(wheelTimeout.current);
+
+            // Accumulate horizontal touchpad delta input
+            wheelAccumulator.current += e.deltaX;
+
+            // Trigger swipe step when accumulator crosses threshold
+            const threshold = 80;
+            if (Math.abs(wheelAccumulator.current) >= threshold) {
+                const shifts = Math.trunc(wheelAccumulator.current / threshold);
+                if (shifts !== 0) {
+                    console.log(`Horizontal swipe: Delta ${wheelAccumulator.current.toFixed(1)}, Shifts: ${shifts}`);
+                    setCurrentMentor(i => (i + shifts + mentors.length * 10) % mentors.length);
+                }
+                wheelAccumulator.current = wheelAccumulator.current % threshold;
+            }
+
+            // Decay accumulator if user stops scrolling for 150ms
+            wheelTimeout.current = setTimeout(() => {
+                wheelAccumulator.current = 0;
+            }, 150);
+        };
+        el.addEventListener("wheel", onWheel, { passive: false });
+        return () => {
+            el.removeEventListener("wheel", onWheel);
+            if (wheelTimeout.current) clearTimeout(wheelTimeout.current);
+        };
+    }, []);
 
     useEffect(() => {
         if (!loading && user) {
@@ -103,7 +291,7 @@ export default function Home() {
                 </div>
             </nav>
 
-            <main className="relative pt-28 sm:pt-40 lg:pt-56 pb-20 sm:pb-32 px-4 sm:px-8 overflow-hidden grid-bg">
+            <main className="relative pt-14 sm:pt-28 lg:pt-40 pb-8 sm:pb-12 lg:pb-20 px-4 sm:px-8 overflow-hidden grid-bg">
                 <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-20 items-center relative z-10">
                     <div className="order-2 lg:order-1 mt-8 lg:mt-0">
                         <div className="flex items-center gap-3 mb-6">
@@ -123,7 +311,7 @@ export default function Home() {
                             </button>
                         </div>
 
-                        <div className="mt-12 sm:mt-16 pt-8 border-t border-[var(--hairline)]">
+                        <div className="mt-6 sm:mt-8 pt-4 border-t border-[var(--hairline)]">
                             <p className="text-[10px] font-bold text-neutral-600 uppercase tracking-widest mb-6">Mentors from the world&apos;s best</p>
                             <div className="flex flex-wrap items-center gap-8 opacity-40 grayscale hover:grayscale-0 transition-all duration-700">
                                 <div className="flex items-center gap-2">
@@ -146,56 +334,93 @@ export default function Home() {
                         </div>
                     </div>
 
-                    <div className="relative h-[400px] sm:h-[500px] lg:h-[600px] flex items-center justify-center lg:mt-0 scale-[0.8] sm:scale-100 origin-top order-1 lg:order-2">
+                    {/* Mentor Carousel */}
+                    <div className="relative w-full h-[440px] sm:h-[520px] lg:h-[600px] flex items-center justify-center order-1 lg:order-2 overflow-visible">
+                        {/* Ambient glows */}
                         <div className="mentor-shape w-64 h-64 bg-blue-600 top-10 left-10 hidden sm:block"></div>
                         <div className="mentor-shape w-48 h-48 bg-purple-600 bottom-10 right-10 hidden sm:block"></div>
                         <div className="mentor-shape w-48 h-48 bg-blue-600 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 sm:hidden blur-3xl opacity-50"></div>
 
-                        <div className="float-card absolute top-0 -left-6 sm:left-0 glass p-3 rounded-2xl w-48 shadow-2xl border-[var(--hairline)] z-10">
-                            <div className="flex items-center gap-3">
-                                <img src="https://i.pinimg.com/736x/fc/86/7d/fc867df822d70b9d78171c7e790f99c7.jpg" className="w-10 h-10 rounded-lg object-cover" alt="Google Mentor" />
-                                <div>
-                                    <p className="text-[10px] font-bold">Google L6</p>
-                                    <p className="text-[8px] text-neutral-400">Engineering</p>
-                                </div>
-                            </div>
+                        {/* Carousel track — handles pointer drag + wheel scroll */}
+                        <div
+                            ref={trackRef}
+                            className="mentor-carousel-track"
+                            onPointerDown={handlePointerDown}
+                            onPointerMove={handlePointerMove}
+                            onPointerUp={handlePointerUp}
+                            onPointerCancel={handlePointerUp}
+                        >
+                            {mentors.map((mentor, i) => {
+                                const offset = i - currentMentor;
+                                // Only render visible cards: center, prev, next
+                                const isCenter = offset === 0;
+                                const isPrev = offset === -1 || (currentMentor === 0 && i === mentors.length - 1);
+                                const isNext = offset === 1 || (currentMentor === mentors.length - 1 && i === 0);
+                                // Compute normalized offset for wrapping
+                                let normOffset = i - currentMentor;
+                                if (normOffset > mentors.length / 2) normOffset -= mentors.length;
+                                if (normOffset < -mentors.length / 2) normOffset += mentors.length;
+
+                                const visible = Math.abs(normOffset) <= 1;
+                                if (!visible) return null;
+
+                                const tx = normOffset * 190;
+                                const scale = isCenter ? 1 : 0.78;
+                                const opacity = isCenter ? 1 : 0.45;
+                                const zIndex = isCenter ? 20 : 10;
+                                const blur = isCenter ? 0 : 0;
+
+                                return (
+                                    <div
+                                        key={mentor.name}
+                                        className="mentor-carousel-card glass"
+                                        data-index={i}
+                                        style={{
+                                            transform: `translateX(${tx}px) scale(${scale})`,
+                                            opacity,
+                                            zIndex,
+                                            filter: isCenter ? 'none' : 'blur(0.5px)',
+                                            pointerEvents: 'none',
+                                        }}
+                                    >
+                                        <div className="relative mb-5">
+                                            <img
+                                                src={mentor.img}
+                                                className="w-full aspect-square rounded-[1.8rem] object-cover border-4 border-[var(--bg)] select-none"
+                                                alt={mentor.name}
+                                                draggable={false}
+                                            />
+                                            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-tighter shadow-xl whitespace-nowrap">
+                                                {mentor.badge}
+                                            </div>
+                                        </div>
+                                        <div className="text-center pt-1">
+                                            <h3 className="font-bold text-base">{mentor.name}</h3>
+                                            <div className="flex justify-center gap-0.5 mt-2">
+                                                {Array.from({ length: mentor.stars }).map((_, si) => (
+                                                    <Star key={si} className="w-3.5 h-3.5 fill-yellow-500 text-yellow-500" />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
 
-                        <div className="float-card absolute top-24 sm:top-20 -right-6 sm:right-10 glass p-3 rounded-2xl w-48 shadow-2xl border-[var(--hairline)] z-10" style={{ animationDelay: '-2s' }}>
-                            <div className="flex items-center gap-3">
-                                <img src="https://i.pinimg.com/1200x/1c/85/2e/1c852ea928150dfcf54c5457dbca0a35.jpg" className="w-10 h-10 rounded-lg object-cover" alt="YC Founder" />
-                                <div>
-                                    <p className="text-[10px] font-bold">YC Founder</p>
-                                    <p className="text-[8px] text-neutral-400">S21 Cohort</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="float-card absolute bottom-4 sm:bottom-10 left-0 sm:left-20 glass p-3 rounded-2xl w-48 shadow-2xl border-[var(--hairline)] z-10" style={{ animationDelay: '-4s' }}>
-                            <div className="flex items-center gap-3">
-                                <img src="https://i.pinimg.com/736x/41/d0/ab/41d0abba8ff870ce4ef1cbea5b56fb29.jpg" className="w-10 h-10 rounded-lg object-cover" alt="IIT Mentor" />
-                                <div>
-                                    <p className="text-[10px] font-bold">IIT Delhi</p>
-                                    <p className="text-[8px] text-neutral-400">AIR 12 (JEE)</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="float-card absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 glass p-5 sm:p-6 rounded-[2.5rem] w-64 sm:w-72 shadow-2xl z-20 border-[var(--hairline)]" style={{ animationDelay: '-1.5s' }}>
-                            <div className="relative mb-6">
-                                <img src="https://i.pinimg.com/736x/0d/a5/e7/0da5e7b3a24ea9ef05db4eaa253e9cf3.jpg" className="w-full aspect-square rounded-[2rem] object-cover border-4 border-[var(--bg)]" alt="Featured Mentor" />
-                                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-xl">META | STAFF ENG</div>
-                            </div>
-                            <div className="text-center">
-                                <h3 className="font-bold text-lg">Priya Kapoor</h3>
-                                <div className="flex justify-center gap-1 mt-2">
-                                    <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
-                                    <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
-                                    <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
-                                    <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
-                                    <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
-                                </div>
-                            </div>
+                        {/* Dot indicators */}
+                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-2 z-30">
+                            {mentors.map((_, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => setCurrentMentor(i)}
+                                    className={`rounded-full transition-all duration-300 ${
+                                        i === currentMentor
+                                            ? 'w-6 h-2 bg-blue-500'
+                                            : 'w-2 h-2 bg-neutral-400 opacity-40 hover:opacity-70'
+                                    }`}
+                                    aria-label={`Go to mentor ${i + 1}`}
+                                />
+                            ))}
                         </div>
                     </div>
                 </div>
