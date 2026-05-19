@@ -137,56 +137,70 @@ export default function Home() {
     const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
         if (dragStartX.current === null) return;
         const delta = dragStartX.current - e.clientX;
-        const duration = (Date.now() - dragStartTime.current) / 1000; // duration in seconds
-        const velocity = Math.abs(delta) / (duration || 0.1); // pixels per second
-
-        console.log(`Pointer Up. DeltaX: ${delta}px, Velocity: ${velocity.toFixed(1)}px/s`);
+        const duration = (Date.now() - dragStartTime.current) / 1000;
+        const velocity = Math.abs(delta) / (duration || 0.1);
 
         if (Math.abs(delta) > 30) {
-            // Force factor: calculate card shift step based on distance and swipe velocity
+            // Force-based drag: calculate card shift based on distance + velocity
             const distanceShifts = Math.floor(Math.abs(delta) / 150);
             const velocityShifts = velocity > 1200 ? 2 : (velocity > 600 ? 1 : 0);
             let shiftCount = Math.max(1, distanceShifts + velocityShifts);
-            shiftCount = Math.min(4, shiftCount); // cap shift count to avoid skipping too far
+            shiftCount = Math.min(4, shiftCount);
 
             if (delta > 0) {
-                console.log(`Force swipe NEXT by ${shiftCount} cards`);
                 setCurrentMentor(i => (i + shiftCount) % mentors.length);
             } else {
-                console.log(`Force swipe PREV by ${shiftCount} cards`);
                 setCurrentMentor(i => (i - shiftCount + mentors.length) % mentors.length);
+            }
+        } else {
+            // Tap/click detection: determine which card region was tapped
+            // Since cards have pointerEvents:none, we use position-based hit testing
+            const trackRect = trackRef.current?.getBoundingClientRect();
+            if (trackRect) {
+                const tapX = e.clientX - trackRect.left;
+                const trackCenter = trackRect.width / 2;
+                const deadZone = 60; // center card region (no action needed)
+
+                if (tapX < trackCenter - deadZone) {
+                    // Tapped on the LEFT side → bring previous card to center
+                    console.log('Tap left → prev card');
+                    setCurrentMentor(i => (i - 1 + mentors.length) % mentors.length);
+                } else if (tapX > trackCenter + deadZone) {
+                    // Tapped on the RIGHT side → bring next card to center
+                    console.log('Tap right → next card');
+                    setCurrentMentor(i => (i + 1) % mentors.length);
+                }
             }
         }
         dragStartX.current = null;
         setTimeout(() => { isDragging.current = false; }, 10);
     };
 
-    // Touchpad / Trackpad fluid scroll to swipe
+    // Touchpad / Trackpad horizontal swipe to navigate carousel
     useEffect(() => {
         const el = trackRef.current;
         if (!el) return;
         const onWheel = (e: WheelEvent) => {
-            // Prevent default vertical/horizontal browser navigation bounce
+            // Only intercept horizontal swipes — let vertical scroll pass through for page scrolling
+            if (Math.abs(e.deltaX) <= Math.abs(e.deltaY) || Math.abs(e.deltaX) < 4) return;
+
+            // Prevent browser back/forward navigation on horizontal swipe
             e.preventDefault();
 
-            // Determine primary scroll vector
-            const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-            
             // Clear any active decay timer
             if (wheelTimeout.current) clearTimeout(wheelTimeout.current);
 
-            // Accumulate touchpad delta input
-            wheelAccumulator.current += delta;
+            // Accumulate horizontal touchpad delta input
+            wheelAccumulator.current += e.deltaX;
 
-            // Trigger swipe step when accumulator crosses the threshold (e.g. 100)
-            const threshold = 100;
+            // Trigger swipe step when accumulator crosses threshold
+            const threshold = 80;
             if (Math.abs(wheelAccumulator.current) >= threshold) {
                 const shifts = Math.trunc(wheelAccumulator.current / threshold);
                 if (shifts !== 0) {
-                    console.log(`Touchpad force swipe: Accumulated Delta ${wheelAccumulator.current.toFixed(1)}, Shifts: ${shifts}`);
+                    console.log(`Horizontal swipe: Delta ${wheelAccumulator.current.toFixed(1)}, Shifts: ${shifts}`);
                     setCurrentMentor(i => (i + shifts + mentors.length * 10) % mentors.length);
                 }
-                // Keep the remainder for continuous scrolling
                 wheelAccumulator.current = wheelAccumulator.current % threshold;
             }
 
@@ -277,7 +291,7 @@ export default function Home() {
                 </div>
             </nav>
 
-            <main className="relative pt-28 sm:pt-40 lg:pt-56 pb-20 sm:pb-32 px-4 sm:px-8 overflow-hidden grid-bg">
+            <main className="relative pt-14 sm:pt-28 lg:pt-40 pb-8 sm:pb-12 lg:pb-20 px-4 sm:px-8 overflow-hidden grid-bg">
                 <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-20 items-center relative z-10">
                     <div className="order-2 lg:order-1 mt-8 lg:mt-0">
                         <div className="flex items-center gap-3 mb-6">
@@ -297,7 +311,7 @@ export default function Home() {
                             </button>
                         </div>
 
-                        <div className="mt-12 sm:mt-16 pt-8 border-t border-[var(--hairline)]">
+                        <div className="mt-6 sm:mt-8 pt-4 border-t border-[var(--hairline)]">
                             <p className="text-[10px] font-bold text-neutral-600 uppercase tracking-widest mb-6">Mentors from the world&apos;s best</p>
                             <div className="flex flex-wrap items-center gap-8 opacity-40 grayscale hover:grayscale-0 transition-all duration-700">
                                 <div className="flex items-center gap-2">
@@ -360,12 +374,13 @@ export default function Home() {
                                     <div
                                         key={mentor.name}
                                         className="mentor-carousel-card glass"
+                                        data-index={i}
                                         style={{
                                             transform: `translateX(${tx}px) scale(${scale})`,
                                             opacity,
                                             zIndex,
                                             filter: isCenter ? 'none' : 'blur(0.5px)',
-                                            pointerEvents: 'none', // let track handle all pointer events
+                                            pointerEvents: 'none',
                                         }}
                                     >
                                         <div className="relative mb-5">
