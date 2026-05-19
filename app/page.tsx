@@ -22,6 +22,22 @@ const LinkedinIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 const mentors = [
     {
+        name: 'Mr.Beast',
+        role: 'SDE (50+ LPA)',
+        company: 'Cohesity',
+        badge: 'COHESITY | SDE',
+        img: '/mentor2.png',
+        stars: 5,
+    },
+    {
+        name: 'Anwesh Das',
+        role: 'SDE (1Cr+)',
+        company: 'Rubrik',
+        badge: 'RUBRIK | SDE',
+        img: '/mentor3.png',
+        stars: 5,
+    },
+    {
         name: 'Priya Kapoor',
         role: 'Staff Engineer',
         company: 'Meta',
@@ -67,6 +83,14 @@ const mentors = [
         company: 'YC S21',
         badge: 'YC | FOUNDER',
         img: 'https://i.pinimg.com/736x/0d/a5/e7/0da5e7b3a24ea9ef05db4eaa253e9cf3.jpg',
+        stars: 5,
+    },
+    {
+        name: 'Vineet',
+        role: "GSoC '25 & '26",
+        company: 'IIT Roorkee',
+        badge: 'IIT ROORKEE | GSOC',
+        img: '/mentor1.png',
         stars: 5,
     },
 ];
