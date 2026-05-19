@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Bot, Send, X, Trash2, Sparkles, Clock, ChevronRight, MessageSquare, RotateCcw, Plus, History, Calendar, Video, Edit2, Check } from "lucide-react";
+import { Bot, Send, X, Trash2, Sparkles, Clock, ChevronRight, MessageSquare, RotateCcw, Plus, History, Calendar, Video, Edit2, Check, Smile, Mic, ArrowUp } from "lucide-react";
 import api from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import Link from "next/link";
 import { AxiosError } from "axios";
+import { usePathname } from "next/navigation";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -97,10 +98,64 @@ function formatTime(isoDate: string) {
   return new Date(isoDate).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
 }
 
+function formatAppleMessageHeader(dateStr: string) {
+  const date = new Date(dateStr);
+  const now = new Date();
+
+  let hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  const timeStr = `${hours}:${minutes} ${ampm}`;
+
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  const dayOfWeek = dayNames[date.getDay()];
+  const month = monthNames[date.getMonth()];
+  const day = date.getDate();
+  const year = date.getFullYear();
+
+  if (year !== now.getFullYear()) {
+    return `${month} ${day}, ${year} at ${timeStr}`;
+  } else {
+    return `${dayOfWeek}, ${month} ${day} at ${timeStr}`;
+  }
+}
+
+function formatReadReceiptTime(dateStr: string) {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const msgDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+  let hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  const timeStr = `${hours}:${minutes} ${ampm}`;
+
+  if (msgDate.getTime() === today.getTime()) {
+    return timeStr;
+  } else if (msgDate.getTime() === yesterday.getTime()) {
+    return "Yesterday";
+  } else {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear().toString().slice(-2);
+    return `${day}/${month}/${year}`;
+  }
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function AIChatWidget() {
   const { user } = useAuth();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"chat" | "history" | "meetings">("chat");
 
@@ -129,14 +184,50 @@ export function AIChatWidget() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
 
-  // ─── Open/close event listeners ────────────────────────────────────────────
+  // Theme state: imessage, sms, pink, white
+  const [chatTheme, setChatTheme] = useState<"imessage" | "sms" | "pink" | "white">(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("helpmeman.chatTheme");
+      if (saved === "imessage" || saved === "sms" || saved === "pink" || saved === "white") return saved;
+    }
+    return "imessage";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("helpmeman.chatTheme", chatTheme);
+  }, [chatTheme]);
+
+  // Click outside to close emoji picker
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+        setShowEmojiPicker(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // ─── Open/close event listeners and route change ───────────────────────────
 
   useEffect(() => {
     const handleOpen = () => setIsOpen(true);
+    const handleClose = () => setIsOpen(false);
     window.addEventListener("open-ai", handleOpen);
-    return () => window.removeEventListener("open-ai", handleOpen);
+    window.addEventListener("close-ai", handleClose);
+    return () => {
+      window.removeEventListener("open-ai", handleOpen);
+      window.removeEventListener("close-ai", handleClose);
+    };
   }, []);
+
+  // Close AI Chat drawer on route change
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
 
   // Body scroll lock
   useEffect(() => {
@@ -260,7 +351,7 @@ export function AIChatWidget() {
     window.dispatchEvent(new Event("close-ai"));
     // End session async
     if (sessionId && messages.length > 0) {
-      api.post(`/ai/sessions/${sessionId}/end`).catch(() => {});
+      api.post(`/ai/sessions/${sessionId}/end`).catch(() => { });
     }
   }, [sessionId, messages.length]);
 
@@ -268,7 +359,7 @@ export function AIChatWidget() {
 
   const handleNewChat = useCallback(() => {
     if (sessionId && messages.length > 0) {
-      api.post(`/ai/sessions/${sessionId}/end`).catch(() => {});
+      api.post(`/ai/sessions/${sessionId}/end`).catch(() => { });
     }
     setSessionId(null);
     setSessionTitle(null);
@@ -291,6 +382,7 @@ export function AIChatWidget() {
       id: `u_${Date.now()}`,
       role: "user",
       content: msg,
+      createdAt: new Date().toISOString(),
     };
     setMessages(prev => [...prev, optimisticMsg]);
     setLoading(true);
@@ -312,6 +404,7 @@ export function AIChatWidget() {
         id: `ai_${Date.now()}`,
         role: "assistant",
         content: data.response,
+        createdAt: new Date().toISOString(),
       };
       setMessages(prev => [...prev, aiMsg]);
     } catch (err) {
@@ -390,21 +483,21 @@ export function AIChatWidget() {
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div className="shrink-0 border-b border-(--hairline) bg-(--bg)/80 backdrop-blur-md sticky top-0 z-10 pt-safe-top md:pt-0">
         <div className="max-w-4xl w-full mx-auto px-4 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between gap-3">
-          
+
           {/* Left Segment: Brand and premium inline breadcrumb layout */}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-(--accent)/10 shrink-0">
               <Bot className="h-4.5 w-4.5 text-(--accent)" />
             </div>
-            
-            <div className="shrink-0">
+
+            <div className={`shrink-0 ${sessionTitle && activeTab === "chat" ? "hidden sm:block" : ""}`}>
               <h3 className="text-xs sm:text-sm font-bold tracking-tight text-(--fg)">
                 HelpMeMan AI
               </h3>
             </div>
 
             {sessionTitle && activeTab === "chat" && (
-              <span className="text-(--muted)/40 text-xs shrink-0 font-medium select-none">/</span>
+              <span className="text-(--muted)/40 text-xs shrink-0 font-medium select-none hidden sm:inline">/</span>
             )}
 
             {sessionTitle && activeTab === "chat" && (
@@ -467,7 +560,35 @@ export function AIChatWidget() {
           </div>
 
           {/* Right Segment: Action controls */}
-          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Theme Toggle option showing 4 color options inline */}
+            {activeTab === "chat" && (
+              <div className="flex items-center gap-1 px-1.5 py-1 rounded-full border border-(--hairline) bg-(--fg)/5 select-none shrink-0 shadow-sm">
+                {[
+                  { id: "imessage", color: "#007aff", title: "iMessage (Blue)" },
+                  { id: "sms", color: "#34c759", title: "SMS (Green)" },
+                  { id: "pink", color: "#ff2d55", title: "Pink Theme" },
+                  { id: "white", color: "#ffffff", title: "White Theme", border: true }
+                ].map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setChatTheme(t.id as any)}
+                    className={`h-2.5 w-2.5 rounded-full transition-all duration-200 cursor-pointer mx-0.5 hover:scale-120 ${
+                      chatTheme === t.id
+                        ? "ring-2 ring-(--fg) ring-offset-1 ring-offset-(--bg) scale-110"
+                        : "opacity-60 hover:opacity-100"
+                    }`}
+                    style={{
+                      backgroundColor: t.color,
+                      border: t.border ? "1px solid rgba(128, 128, 128, 0.4)" : "none"
+                    }}
+                    title={t.title}
+                  />
+                ))}
+              </div>
+            )}
+
             <button
               type="button"
               onClick={handleNewChat}
@@ -492,11 +613,10 @@ export function AIChatWidget() {
           <button
             type="button"
             onClick={() => setActiveTab("chat")}
-            className={`flex items-center gap-1.5 px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 transition-colors cursor-pointer shrink-0 ${
-              activeTab === "chat"
+            className={`flex items-center gap-1.5 px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 transition-colors cursor-pointer shrink-0 ${activeTab === "chat"
                 ? "border-(--accent) text-(--fg)"
                 : "border-transparent text-(--muted) hover:text-(--fg)"
-            }`}
+              }`}
           >
             <MessageSquare className="h-3.5 w-3.5" />
             New Chat
@@ -504,11 +624,10 @@ export function AIChatWidget() {
           <button
             type="button"
             onClick={() => setActiveTab("meetings")}
-            className={`flex items-center gap-1.5 px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 transition-colors cursor-pointer shrink-0 ${
-              activeTab === "meetings"
+            className={`flex items-center gap-1.5 px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 transition-colors cursor-pointer shrink-0 ${activeTab === "meetings"
                 ? "border-(--accent) text-(--fg)"
                 : "border-transparent text-(--muted) hover:text-(--fg)"
-            }`}
+              }`}
           >
             <Calendar className="h-3.5 w-3.5" />
             Meeting Chat
@@ -516,11 +635,10 @@ export function AIChatWidget() {
           <button
             type="button"
             onClick={() => setActiveTab("history")}
-            className={`flex items-center gap-1.5 px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 transition-colors cursor-pointer shrink-0 ${
-              activeTab === "history"
+            className={`flex items-center gap-1.5 px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 transition-colors cursor-pointer shrink-0 ${activeTab === "history"
                 ? "border-(--accent) text-(--fg)"
                 : "border-transparent text-(--muted) hover:text-(--fg)"
-            }`}
+              }`}
           >
             <History className="h-3.5 w-3.5" />
             History
@@ -593,45 +711,92 @@ export function AIChatWidget() {
               )}
 
               {/* Messages */}
-              {messages.map(msg => (
-                <div
-                  key={msg.id}
-                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  {msg.role === "assistant" && (
-                    <div className="flex h-7.5 w-7.5 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-(--accent)/10 shrink-0 mt-1 mr-2">
-                      <Bot className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-(--accent)" />
-                    </div>
-                  )}
-                  <div
-                    className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm ${
-                      msg.role === "user"
-                        ? "bg-(--accent) text-(--accent-fg) rounded-br-md"
-                        : "bg-(--fg)/[0.03] border border-(--hairline)/30 rounded-bl-md"
-                    }`}
-                  >
-                    {msg.role === "assistant" ? (
-                      <div className="flex flex-col gap-1.5 text-[13px] sm:text-[14px] leading-relaxed">
-                        {formatAIContent(msg.content)}
+              {(() => {
+                let lastHeaderTime: Date | null = null;
+                // Find index of the last user message to show the read receipt
+                let lastUserMsgIndex = -1;
+                for (let i = messages.length - 1; i >= 0; i--) {
+                  if (messages[i].role === "user") {
+                    lastUserMsgIndex = i;
+                    break;
+                  }
+                }
+
+                return messages.map((msg, index) => {
+                  const msgDateStr = msg.createdAt || new Date().toISOString();
+                  const msgTime = new Date(msgDateStr);
+
+                  // Show header if it's the first message or if the gap since the last header is > 15 minutes
+                  let showHeader = false;
+                  if (index === 0) {
+                    showHeader = true;
+                    lastHeaderTime = msgTime;
+                  } else if (lastHeaderTime && (msgTime.getTime() - lastHeaderTime.getTime() > 15 * 60 * 1000)) {
+                    showHeader = true;
+                    lastHeaderTime = msgTime;
+                  }
+
+                  const isLastUserMsg = index === lastUserMsgIndex;
+
+                  return (
+                    <div key={msg.id} className="w-full flex flex-col">
+                      {/* Centered Date Header */}
+                      {showHeader && (
+                        <div className="flex flex-col items-center my-5 select-none">
+                          <span className="text-[11px] font-semibold text-(--muted) tracking-tight">
+                            {formatAppleMessageHeader(msgDateStr)}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Bubble Container */}
+                      <div
+                        className={`flex w-full mb-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                      >
+                        <div className="flex flex-col max-w-[85%] sm:max-w-[75%]">
+                          <div
+                            className={`rounded-[18px] px-4 py-2.5 text-[15px] leading-relaxed shadow-sm ${
+                              msg.role === "user"
+                                ? chatTheme === "imessage"
+                                  ? "bg-[#007aff] text-white rounded-br-[4px]"
+                                  : chatTheme === "sms"
+                                  ? "bg-[#34c759] text-white rounded-br-[4px]"
+                                  : chatTheme === "pink"
+                                  ? "bg-[#ff2d55] text-white rounded-br-[4px]"
+                                  : "bg-white dark:bg-zinc-100 text-zinc-900 border border-zinc-200/60 rounded-br-[4px]"
+                                : "bg-(--fg)/5 border border-(--hairline)/25 text-(--fg) rounded-bl-[4px]"
+                            }`}
+                          >
+                            {msg.role === "assistant" ? (
+                              <div className="flex flex-col gap-1.5 text-[14px] leading-relaxed">
+                                {formatAIContent(msg.content)}
+                              </div>
+                            ) : (
+                              msg.content
+                            )}
+                          </div>
+
+                          {/* Read Receipt underneath outgoing bubble */}
+                          {msg.role === "user" && isLastUserMsg && (
+                            <div className="text-[10px] font-bold text-(--muted)/80 mt-1 text-right mr-1.5 select-none">
+                              Read {formatReadReceiptTime(msgDateStr)}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    ) : (
-                      msg.content
-                    )}
-                  </div>
-                </div>
-              ))}
+                    </div>
+                  );
+                });
+              })()}
 
               {/* Typing indicator */}
               {loading && (
-                <div className="flex justify-start">
-                  <div className="flex h-7.5 w-7.5 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-(--accent)/10 shrink-0 mr-2 mt-1">
-                    <Bot className="h-3.5 w-3.5 text-(--accent)" />
-                  </div>
-                  <div className="bg-(--fg)/[0.03] border border-(--hairline)/30 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
+                <div className="flex justify-start mb-2">
+                  <div className="bg-(--fg)/5 border border-(--hairline)/25 rounded-[18px] rounded-bl-[4px] px-4 py-3 shadow-sm">
                     <div className="flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-(--muted) animate-bounce" style={{ animationDelay: "0ms" }} />
-                      <span className="h-2 w-2 rounded-full bg-(--muted) animate-bounce" style={{ animationDelay: "150ms" }} />
-                      <span className="h-2 w-2 rounded-full bg-(--muted) animate-bounce" style={{ animationDelay: "300ms" }} />
+                      <span className="h-2 w-2 rounded-full bg-(--muted)/85 animate-bounce" style={{ animationDelay: "0ms" }} />
+                      <span className="h-2 w-2 rounded-full bg-(--muted)/85 animate-bounce" style={{ animationDelay: "150ms" }} />
+                      <span className="h-2 w-2 rounded-full bg-(--muted)/85 animate-bounce" style={{ animationDelay: "300ms" }} />
                     </div>
                   </div>
                 </div>
@@ -652,25 +817,92 @@ export function AIChatWidget() {
           <div className="shrink-0 border-t border-(--hairline) bg-(--bg) px-4 sm:px-6 py-3 sm:py-4 pb-safe-bottom">
             <form
               onSubmit={(e) => { e.preventDefault(); handleSend(); }}
-              className="max-w-4xl w-full mx-auto flex items-center gap-2 sm:gap-3"
+              className="max-w-4xl w-full mx-auto flex items-center gap-1.5 sm:gap-3 relative"
             >
-              <input
-                ref={inputRef}
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask me anything…"
-                maxLength={2000}
-                disabled={loading || sessionLoading}
-                className="flex-1 bg-(--fg)/5 rounded-full px-4.5 sm:px-5 py-2.5 sm:py-3 text-sm outline-none focus:bg-(--fg)/8 transition-all disabled:opacity-50 border border-transparent focus:border-(--accent)/20"
-              />
-              <button
-                type="submit"
-                disabled={!input.trim() || loading || sessionLoading}
-                className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-(--accent) text-(--accent-fg) hover:opacity-90 cursor-pointer disabled:opacity-30 shrink-0 transition-all duration-200"
+              {/* Input Wrapper */}
+              <div 
+                className={`flex-1 flex items-center bg-(--fg)/5 rounded-full px-3.5 py-2 sm:py-2.5 border transition-all ${
+                  chatTheme === "imessage"
+                    ? "border-(--hairline)/45 focus-within:border-[#007aff]/60 focus-within:bg-(--fg)/8"
+                    : chatTheme === "sms"
+                    ? "border-(--hairline)/45 focus-within:border-[#34c759]/60 focus-within:bg-(--fg)/8"
+                    : chatTheme === "pink"
+                    ? "border-(--hairline)/45 focus-within:border-[#ff2d55]/60 focus-within:bg-(--fg)/8"
+                    : "border-(--hairline)/45 focus-within:border-(--fg)/40 focus-within:bg-(--fg)/8"
+                }`}
               >
-                <Send className="h-4 w-4 sm:h-5 sm:w-5" />
-              </button>
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Message..."
+                  maxLength={2000}
+                  disabled={loading || sessionLoading}
+                  className="flex-1 bg-transparent text-sm outline-none placeholder-(--muted)/60 disabled:opacity-50 text-(--fg)"
+                  style={{ 
+                    caretColor: 
+                      chatTheme === "imessage" ? "#007aff" : 
+                      chatTheme === "sms" ? "#34c759" : 
+                      chatTheme === "pink" ? "#ff2d55" : "var(--fg)" 
+                  }}
+                />
+                
+                {/* Waveform / Mic icon on the right inside input pill if input is empty */}
+                {!input.trim() ? (
+                  <Mic className="h-4.5 w-4.5 text-(--muted)/85 hover:text-(--fg) cursor-pointer transition-colors ml-2" />
+                ) : (
+                  /* Send Button inside input pill if input is not empty */
+                  <button
+                    type="submit"
+                    disabled={loading || sessionLoading}
+                    className={`flex h-7 w-7 items-center justify-center rounded-full hover:opacity-90 cursor-pointer disabled:opacity-30 shrink-0 transition-all duration-200 ml-2 ${
+                      chatTheme === "white" ? "text-zinc-900 border border-zinc-200" : "text-white"
+                    }`}
+                    style={{ 
+                      backgroundColor: 
+                        chatTheme === "imessage" ? "#007aff" : 
+                        chatTheme === "sms" ? "#34c759" : 
+                        chatTheme === "pink" ? "#ff2d55" : "#ffffff" 
+                    }}
+                  >
+                    <ArrowUp className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Emoji/Smile Button on the far right */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowEmojiPicker(prev => !prev)}
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-(--muted) hover:text-(--fg) hover:bg-(--fg)/5 shrink-0 transition-all active:scale-95 cursor-pointer"
+                  title="Emojis"
+                >
+                  <Smile className="h-5.5 w-5.5" />
+                </button>
+
+                {showEmojiPicker && (
+                  <div
+                    ref={emojiPickerRef}
+                    className="absolute bottom-12 right-0 p-2.5 bg-(--bg) border border-(--hairline) rounded-2xl shadow-xl grid grid-cols-6 gap-1.5 z-50 w-60 animate-in fade-in slide-in-from-bottom-2 duration-150"
+                  >
+                    {["😀", "😂", "🥰", "😍", "🤔", "👀", "👍", "👎", "❤️", "🔥", "👏", "🎉", "🚀", "💡", "✨", "💯", "🥳", "🤖", "👋", "🙏", "❌", "✅", "⚠️", "💬"].map((emoji) => (
+                      <button
+                        key={emoji}
+                        type="button"
+                        onClick={() => {
+                          setInput(prev => prev + emoji);
+                          inputRef.current?.focus();
+                        }}
+                        className="h-8 w-8 flex items-center justify-center text-lg hover:bg-(--fg)/5 rounded-lg active:scale-90 transition-transform cursor-pointer"
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </form>
           </div>
         </>
@@ -712,12 +944,11 @@ export function AIChatWidget() {
                       <h4 className="text-sm font-semibold truncate text-(--fg)">
                         Session with {meeting.mentor.displayName}
                       </h4>
-                      <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold tracking-wider uppercase shrink-0 ${
-                        meeting.status === "COMPLETED" ? "bg-green-500/10 text-green-500 border border-green-500/20" :
-                        meeting.status === "CONFIRMED" ? "bg-blue-500/10 text-blue-500 border border-blue-500/20" :
-                        meeting.status === "CANCELLED" ? "bg-red-500/10 text-red-500 border border-red-500/20" :
-                        "bg-yellow-500/10 text-yellow-600 border border-yellow-500/20"
-                      }`}>
+                      <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold tracking-wider uppercase shrink-0 ${meeting.status === "COMPLETED" ? "bg-green-500/10 text-green-500 border border-green-500/20" :
+                          meeting.status === "CONFIRMED" ? "bg-blue-500/10 text-blue-500 border border-blue-500/20" :
+                            meeting.status === "CANCELLED" ? "bg-red-500/10 text-red-500 border border-red-500/20" :
+                              "bg-yellow-500/10 text-yellow-600 border border-yellow-500/20"
+                        }`}>
                         {meeting.status}
                       </span>
                     </div>

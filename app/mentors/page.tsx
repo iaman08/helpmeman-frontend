@@ -340,8 +340,6 @@ export default function MentorsPage() {
       { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
       { href: "/dashboard/bookings", label: "Bookings", icon: CalendarCheck },
       { href: "/dashboard/chat", label: "Chat", icon: MessageCircle },
-      { href: "/mentors", label: "Browse Mentors", icon: SearchIcon },
-      { href: "/dashboard/settings", label: "Settings", icon: Settings },
       {
         onClick: () => {
           if (typeof window !== "undefined") {
@@ -351,6 +349,8 @@ export default function MentorsPage() {
         label: "AI Assistant",
         icon: Sparkles,
       },
+      { href: "/mentors", label: "Browse Mentors", icon: SearchIcon },
+      { href: "/dashboard/settings", label: "Settings", icon: Settings },
     ];
 
     return (
