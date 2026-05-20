@@ -38,6 +38,14 @@ const mentors = [
         stars: 5,
     },
     {
+        name: 'Sunny Sharma',
+        role: 'SDE (50+ LPA)',
+        company: 'Salesforce @tech lead',
+        badge: 'COHESITY | SDE',
+        img: '/mentor4.jpg',
+        stars: 4,
+    },
+    {
         name: 'Priya Kapoor',
         role: 'Staff Engineer',
         company: 'Meta',
