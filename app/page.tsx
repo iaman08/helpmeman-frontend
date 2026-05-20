@@ -224,6 +224,7 @@ export default function Home() {
         };
     }, []);
 
+
     useEffect(() => {
         if (!loading && user) {
             router.push("/dashboard");
@@ -275,26 +276,26 @@ export default function Home() {
 
     return (
         <>
-            <nav className="fixed top-0 w-full z-[100] glass border-b border-[var(--hairline)] py-3 sm:py-4 px-4 sm:px-8">
+            <nav className="fixed top-0 w-full z-[100] glass border-b border-[var(--hairline)] py-2 sm:py-4 px-3 sm:px-8">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-12">
-                        <a href="#" className="text-2xl font-black tracking-tighter serif italic">HelpMeMan<span className="text-neutral-600 font-sans">.</span></a>
+                        <a href="#" className="text-xl sm:text-2xl font-black tracking-tighter serif italic">HelpMeMan<span className="text-neutral-600 font-sans">.</span></a>
                         <div className="hidden lg:flex items-center gap-8 text-[11px] font-bold uppercase tracking-widest text-neutral-500">
                             <a href="#about" className="hover:text-[var(--fg)] transition-colors">About</a>
                             <a href="#how" className="hover:text-[var(--fg)] transition-colors">Method</a>
                             <a href="#pricing" className="hover:text-[var(--fg)] transition-colors">Pricing</a>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2 sm:gap-6">
+                    <div className="flex items-center gap-1.5 sm:gap-6">
                         <button
                             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                            className="p-1.5 sm:p-2 text-neutral-400 hover:text-[var(--fg)] transition-colors rounded-full hover:bg-[var(--hairline)]"
+                            className="p-1 sm:p-2 text-neutral-400 hover:text-[var(--fg)] transition-colors rounded-full hover:bg-[var(--hairline)]"
                             aria-label="Toggle Theme"
                         >
                             {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
                         </button>
-                        <Link href="/signin" className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-neutral-400 hover:text-[var(--fg)] transition-colors">Login</Link>
-                        <Link href="/signup" className="bg-[var(--fg)] text-[var(--bg)] px-4 py-2 sm:px-6 sm:py-2.5 rounded-full text-[10px] sm:text-xs font-bold hover:scale-105 transition-transform whitespace-nowrap">Get Started</Link>
+                        <Link href="/signin" className="hidden sm:block text-[9px] sm:text-[11px] font-bold uppercase tracking-widest text-neutral-400 hover:text-[var(--fg)] transition-colors">Login</Link>
+                        <Link href="/signup" className="bg-[var(--fg)] text-[var(--bg)] px-3 py-1.5 sm:px-6 sm:py-2.5 rounded-full text-[9px] sm:text-xs font-bold hover:scale-105 transition-transform whitespace-nowrap">Get Started</Link>
                     </div>
                 </div>
             </nav>
@@ -431,6 +432,77 @@ export default function Home() {
                     </div>
                 </div>
             </main>
+
+            {/* ── Testimonial / Review Section ── */}
+            <section className="py-16 sm:py-24 lg:py-32 px-4 sm:px-8 relative overflow-hidden">
+                {/* Decorative background dots */}
+                <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle, var(--fg) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+
+                <div className="max-w-7xl mx-auto relative z-10">
+                    {/* Section Header */}
+                    <div className="text-center mb-14 sm:mb-20">
+                        <span className="text-[11px] tracking-[0.4em] text-blue-500 font-bold uppercase mb-4 block">Client Testimonials</span>
+                        <h2 className="serif text-3xl sm:text-5xl lg:text-7xl font-bold italic leading-tight">
+                            What They Say?
+                        </h2>
+                    </div>
+
+                    {/* Cards Layout — scattered / overlapping like the reference */}
+                    <div className="flex flex-col sm:block relative w-full max-w-4xl mx-auto gap-6 items-center sm:min-h-[520px]">
+
+                        {/* Card 1 — Green — top left */}
+                        <div className="review-card review-card-green relative sm:absolute sm:left-[2%] sm:top-0 w-full max-w-[300px] sm:max-w-none sm:w-[300px] sm:rotate-[-4deg] sm:hover:rotate-0 z-10">
+                            <div className="flex gap-0.5 mb-3">
+                                {[1,2,3,4,5].map(s => <Star key={s} className="w-3.5 h-3.5 fill-current" />)}
+                            </div>
+                            <p className="text-sm leading-relaxed mb-5">
+                                &ldquo;HelpMeMan didn&apos;t just help me crack my placement — they helped me find my direction. I&apos;ve never felt more seen or more confident in my career.&rdquo;
+                            </p>
+                            <div className="flex items-center gap-3 mt-auto">
+                                <img src="https://i.pravatar.cc/80?img=5" alt="Neha D." className="w-9 h-9 rounded-full object-cover border-2 border-white/60" />
+                                <div>
+                                    <p className="font-bold text-sm">Neha D.</p>
+                                    <p className="text-[10px] opacity-70">Wellness Coach</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Card 2 — Pink — top right */}
+                        <div className="review-card review-card-pink relative sm:absolute sm:right-[2%] sm:top-0 w-full max-w-[300px] sm:max-w-none sm:w-[280px] sm:rotate-[3deg] sm:hover:rotate-0 z-20">
+                            <div className="flex gap-0.5 mb-3">
+                                {[1,2,3,4,5].map(s => <Star key={s} className={`w-3.5 h-3.5 ${s <= 4 ? "fill-current" : "fill-transparent opacity-40"}`} />)}
+                            </div>
+                            <p className="text-sm leading-relaxed mb-5">
+                                &ldquo;From scattered confusion to a clear roadmap in 30 days. The mentor made the entire process smooth, sharp, and stress-free.&rdquo;
+                            </p>
+                            <div className="flex items-center gap-3 mt-auto">
+                                <img src="https://i.pravatar.cc/80?img=12" alt="Jay K." className="w-9 h-9 rounded-full object-cover border-2 border-white/60" />
+                                <div>
+                                    <p className="font-bold text-sm">Jay K.</p>
+                                    <p className="text-[10px] opacity-70">Startup Founder</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Card 3 — Neutral/White — bottom center, longer */}
+                        <div className="review-card review-card-neutral relative sm:absolute sm:left-1/2 sm:-translate-x-1/2 sm:bottom-0 w-full max-w-[300px] sm:max-w-none sm:w-[340px] sm:rotate-[1deg] sm:hover:rotate-0 z-30">
+                            <div className="flex gap-0.5 mb-3">
+                                {[1,2,3,4,5].map(s => <Star key={s} className="w-3.5 h-3.5 fill-current" />)}
+                            </div>
+                            <p className="text-sm leading-relaxed mb-5">
+                                &ldquo;I never imagined I&apos;d see my story in a successful career — let alone feel proud of it. I was overwhelmed, unsure, and had no idea where to begin. But HelpMeMan listened to me, really listened, and turned my messy plans into something powerful and personal.&rdquo;
+                            </p>
+                            <div className="flex items-center gap-3 mt-auto">
+                                <img src="https://i.pravatar.cc/80?img=25" alt="Fatima S." className="w-9 h-9 rounded-full object-cover border-2 border-white/40" />
+                                <div>
+                                    <p className="font-bold text-sm">Fatima S.</p>
+                                    <p className="text-[10px] opacity-70">Business Consultant, UAE</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             <section className="py-16 sm:py-24 lg:py-32 px-4 sm:px-8 bg-[var(--hairline)] border-y border-[var(--hairline)]">
                 <div className="max-w-7xl mx-auto">
@@ -674,20 +746,20 @@ export default function Home() {
                 </div>
             </section>
 
-            <footer className="py-12 sm:py-20 px-4 sm:px-8 border-t border-white/5">
-                <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
+            <footer className="py-12 sm:py-20 px-4 sm:px-8 border-t border-[var(--hairline)]">
+                <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 md:gap-10">
                     <div className="text-center md:text-left">
-                        <a href="#" className="text-xl font-black tracking-tighter serif italic">HelpMeMan<span className="text-neutral-600 font-sans">.</span></a>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-600 mt-4">© 2026 Verified Mentorship Network</p>
+                        <a href="#" className="text-xl font-black tracking-tighter serif italic text-[var(--fg)]">HelpMeMan<span className="text-neutral-500 font-sans">.</span></a>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500 dark:text-neutral-600 mt-3 md:mt-4">© 2026 Verified Mentorship Network</p>
                     </div>
-                    <div className="flex gap-10 text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">
-                        <a href="#" className="hover:text-white transition-colors">Privacy</a>
-                        <a href="#" className="hover:text-white transition-colors">Terms</a>
-                        <a href="#" className="hover:text-white transition-colors">Mentors Apply</a>
+                    <div className="flex flex-wrap justify-center gap-6 sm:gap-10 text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500 dark:text-neutral-400">
+                        <a href="#" className="hover:text-[var(--fg)] transition-colors">Privacy</a>
+                        <a href="#" className="hover:text-[var(--fg)] transition-colors">Terms</a>
+                        <a href="#" className="hover:text-[var(--fg)] transition-colors">Mentors Apply</a>
                     </div>
                     <div className="flex gap-4">
-                        <button className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors"><TwitterIcon className="w-4 h-4" /></button>
-                        <button className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors"><LinkedinIcon className="w-4 h-4" /></button>
+                        <button className="w-10 h-10 rounded-full border border-[var(--hairline)] flex items-center justify-center hover:bg-neutral-100 dark:hover:bg-white/5 text-[var(--fg)] transition-colors"><TwitterIcon className="w-4 h-4" /></button>
+                        <button className="w-10 h-10 rounded-full border border-[var(--hairline)] flex items-center justify-center hover:bg-neutral-100 dark:hover:bg-white/5 text-[var(--fg)] transition-colors"><LinkedinIcon className="w-4 h-4" /></button>
                     </div>
                 </div>
             </footer>
