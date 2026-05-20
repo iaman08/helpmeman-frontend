@@ -34,7 +34,7 @@ const mentors = [
         role: 'SDE (1Cr+)',
         company: 'Rubrik',
         badge: 'RUBRIK | SDE',
-        img: '/mentor3.png',
+        img: '/mentor3.jpg',
         stars: 5,
     },
     {
