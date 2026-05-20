@@ -48,7 +48,8 @@ html[data-theme="dark"] {
   --font-display: var(--font-playfair);
 }
 
-html, body {
+html,
+body {
   background: var(--bg);
   color: var(--fg);
   -webkit-font-smoothing: antialiased;
@@ -75,18 +76,23 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
 /* Hide Next.js dev indicator globally */
-#nextjs-build-indicator, nextjs-portal, [data-nextjs-toast] {
+#nextjs-build-indicator,
+nextjs-portal,
+[data-nextjs-toast] {
   display: none !important;
 }
 
 /* Custom Styles for HelpMeMan Landing Page */
-.serif { font-family: var(--font-playfair), serif; }
+.serif {
+  font-family: var(--font-playfair), serif;
+}
 
 .glass {
   background-color: color-mix(in srgb, var(--fg) 3%, transparent);
@@ -108,8 +114,15 @@ body {
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0); }
-  50% { transform: translateY(-20px) rotate(2deg); }
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+
+  50% {
+    transform: translateY(-20px) rotate(2deg);
+  }
 }
 
 .grid-bg {
@@ -118,12 +131,21 @@ body {
 }
 
 .premium-border {
-  border-image: linear-gradient(to right, rgba(255,255,255,0.1), rgba(255,255,255,0.02)) 1;
+  border-image: linear-gradient(to right, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)) 1;
 }
 
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: #050505; }
-::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #222;
+  border-radius: 10px;
+}
 
 .mentor-carousel-track {
   position: absolute;
@@ -145,19 +167,33 @@ body {
 
 .mentor-carousel-card {
   position: absolute;
-  width: 220px;
-  padding: 20px;
-  border-radius: 2.2rem;
-  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.18);
-  transition: transform 0.45s cubic-bezier(0.34, 1.36, 0.64, 1),
-              opacity 0.4s ease,
-              filter 0.4s ease;
+  width: 230px;
+  height: 380px;
+  padding: 0;
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+    opacity 0.5s ease,
+    filter 0.5s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
   will-change: transform, opacity;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+}
+
+.mentor-carousel-card:hover {
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.25), 0 0 60px rgba(139, 92, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.4);
 }
 
 @media (min-width: 640px) {
   .mentor-carousel-card {
-    width: 260px;
-    padding: 24px;
+    width: 270px;
+    height: 440px;
+    padding: 0;
+    border-radius: 2rem;
   }
 }

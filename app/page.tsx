@@ -102,6 +102,14 @@ export default function Home() {
     const [isSignupOpen, setIsSignupOpen] = useState(false);
     const [activeCard, setActiveCard] = useState<number | null>(null);
     const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        setIsMobile(window.innerWidth < 640);
+        const handleResize = () => setIsMobile(window.innerWidth < 640);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     // Carousel state
     const [currentMentor, setCurrentMentor] = useState(0);
@@ -278,8 +286,8 @@ export default function Home() {
                         </div>
                     </div>
                     <div className="flex items-center gap-2 sm:gap-6">
-                        <button 
-                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} 
+                        <button
+                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                             className="p-1.5 sm:p-2 text-neutral-400 hover:text-[var(--fg)] transition-colors rounded-full hover:bg-[var(--hairline)]"
                             aria-label="Toggle Theme"
                         >
@@ -335,11 +343,11 @@ export default function Home() {
                     </div>
 
                     {/* Mentor Carousel */}
-                    <div className="relative w-full h-[440px] sm:h-[520px] lg:h-[600px] flex items-center justify-center order-1 lg:order-2 overflow-visible">
+                    <div className="relative w-full h-[400px] sm:h-[480px] lg:h-[540px] flex items-center justify-center order-1 lg:order-2 overflow-visible">
                         {/* Ambient glows */}
-                        <div className="mentor-shape w-64 h-64 bg-blue-600 top-10 left-10 hidden sm:block"></div>
-                        <div className="mentor-shape w-48 h-48 bg-purple-600 bottom-10 right-10 hidden sm:block"></div>
-                        <div className="mentor-shape w-48 h-48 bg-blue-600 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 sm:hidden blur-3xl opacity-50"></div>
+                        <div className="mentor-shape w-64 h-64 bg-blue-600/30 top-10 left-10 hidden sm:block blur-3xl rounded-full"></div>
+                        <div className="mentor-shape w-48 h-48 bg-purple-600/20 bottom-10 right-10 hidden sm:block blur-3xl rounded-full"></div>
+                        <div className="mentor-shape w-48 h-48 bg-blue-600/30 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 sm:hidden blur-3xl opacity-50 rounded-full"></div>
 
                         {/* Carousel track — handles pointer drag + wheel scroll */}
                         <div
@@ -364,63 +372,61 @@ export default function Home() {
                                 const visible = Math.abs(normOffset) <= 1;
                                 if (!visible) return null;
 
-                                const tx = normOffset * 190;
-                                const scale = isCenter ? 1 : 0.78;
+                                // Responsive card spacing and scaling
+                                const cardSpacing = isMobile ? 180 : 250;
+                                const tx = normOffset * cardSpacing;
+                                const scale = isCenter ? 1.05 : 0.82;
                                 const opacity = isCenter ? 1 : 0.45;
                                 const zIndex = isCenter ? 20 : 10;
-                                const blur = isCenter ? 0 : 0;
 
                                 return (
                                     <div
                                         key={mentor.name}
-                                        className="mentor-carousel-card glass"
+                                        className="mentor-carousel-card glass group cursor-pointer"
                                         data-index={i}
+                                        onClick={isCenter ? toggleSignup : undefined}
                                         style={{
                                             transform: `translateX(${tx}px) scale(${scale})`,
                                             opacity,
                                             zIndex,
-                                            filter: isCenter ? 'none' : 'blur(0.5px)',
-                                            pointerEvents: 'none',
+                                            filter: isCenter ? 'none' : 'blur(0.8px)',
+                                            pointerEvents: isCenter ? 'auto' : 'none',
                                         }}
                                     >
-                                        <div className="relative mb-5">
+                                        {/* Card Image Section - Modern rectangular cover */}
+                                        <div className="relative w-full aspect-[4/5] overflow-hidden rounded-t-[1.4rem] sm:rounded-t-[1.9rem]">
                                             <img
                                                 src={mentor.img}
-                                                className="w-full aspect-square rounded-[1.8rem] object-cover border-4 border-[var(--bg)] select-none"
+                                                className="w-full h-full object-cover select-none transition-transform duration-700 ease-out group-hover:scale-110"
                                                 alt={mentor.name}
                                                 draggable={false}
                                             />
-                                            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-tighter shadow-xl whitespace-nowrap">
+                                            {/* Premium Dark overlay for text readability */}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/90 via-[#0a0a0a]/30 to-transparent opacity-80" />
+                                        </div>
+
+                                        {/* Details container below image */}
+                                        <div className="flex flex-col flex-1 justify-between p-4 sm:p-5 text-center z-10">
+                                            {/* Role & Company Badge */}
+                                            <div className="inline-flex self-center items-center bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest my-1 shadow-[0_0_15px_rgba(59,130,246,0.1)] whitespace-nowrap">
                                                 {mentor.badge}
                                             </div>
-                                        </div>
-                                        <div className="text-center pt-1">
-                                            <h3 className="font-bold text-base">{mentor.name}</h3>
-                                            <div className="flex justify-center gap-0.5 mt-2">
+
+                                            {/* Name */}
+                                            <h3 className="font-bold text-sm sm:text-base text-[var(--fg)] tracking-tight leading-tight group-hover:text-blue-500 transition-colors">
+                                                {mentor.name}
+                                            </h3>
+
+                                            {/* Star Rating */}
+                                            <div className="flex justify-center gap-0.5 mt-1">
                                                 {Array.from({ length: mentor.stars }).map((_, si) => (
-                                                    <Star key={si} className="w-3.5 h-3.5 fill-yellow-500 text-yellow-500" />
+                                                    <Star key={si} className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-yellow-500 text-yellow-500 filter drop-shadow-[0_0_4px_rgba(234,179,8,0.3)]" />
                                                 ))}
                                             </div>
                                         </div>
                                     </div>
                                 );
                             })}
-                        </div>
-
-                        {/* Dot indicators */}
-                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-2 z-30">
-                            {mentors.map((_, i) => (
-                                <button
-                                    key={i}
-                                    onClick={() => setCurrentMentor(i)}
-                                    className={`rounded-full transition-all duration-300 ${
-                                        i === currentMentor
-                                            ? 'w-6 h-2 bg-blue-500'
-                                            : 'w-2 h-2 bg-neutral-400 opacity-40 hover:opacity-70'
-                                    }`}
-                                    aria-label={`Go to mentor ${i + 1}`}
-                                />
-                            ))}
                         </div>
                     </div>
                 </div>
@@ -595,25 +601,25 @@ export default function Home() {
                     {/* Active style = identical to how ₹499 Premium looks by default */}
                     {(() => {
                         const pricingTiers = [
-                            { name: 'Starter',     price: '129', desc: '11th — 12th guidance',     features: ['1 mentor call', '30-day chat access']           },
-                            { name: 'Most Chosen', price: '199', desc: '1st / 2nd / 3rd year',     features: ['1 mentor call', '30-day chat access']           },
-                            { name: 'Career',      price: '249', desc: 'Internship / Job guidance', features: ['1 mentor call', '30-day chat access']           },
-                            { name: 'Premium',     price: '499', desc: 'Top MNC Mentors',           features: ['1 premium mentor call', '7-day priority chat'] },
+                            { name: 'Starter', price: '129', desc: '11th — 12th guidance', features: ['1 mentor call', '30-day chat access'] },
+                            { name: 'Most Chosen', price: '199', desc: '1st / 2nd / 3rd year', features: ['1 mentor call', '30-day chat access'] },
+                            { name: 'Career', price: '249', desc: 'Internship / Job guidance', features: ['1 mentor call', '30-day chat access'] },
+                            { name: 'Premium', price: '499', desc: 'Top MNC Mentors', features: ['1 premium mentor call', '7-day priority chat'] },
                         ];
 
                         // Style constants — active mirrors the Premium card look exactly
-                        const activeCard_cls   = 'border-[var(--fg)] bg-[var(--fg)] text-[var(--bg)] shadow-2xl scale-[1.02]';
+                        const activeCard_cls = 'border-[var(--fg)] bg-[var(--fg)] text-[var(--bg)] shadow-2xl scale-[1.02]';
                         const inactiveCard_cls = 'glass border-[var(--hairline)] text-[var(--fg)]';
-                        const activeTag_cls    = 'text-[var(--bg)]/50';
-                        const inactiveTag_cls  = 'text-[var(--fg)]/50';
-                        const activeDesc_cls   = 'border-[var(--bg)]/20 text-[var(--bg)]';
+                        const activeTag_cls = 'text-[var(--bg)]/50';
+                        const inactiveTag_cls = 'text-[var(--fg)]/50';
+                        const activeDesc_cls = 'border-[var(--bg)]/20 text-[var(--bg)]';
                         const inactiveDesc_cls = 'border-[var(--hairline)] text-[var(--fg)]/70';
-                        const activeFeat_cls   = 'text-[var(--bg)]/80';
+                        const activeFeat_cls = 'text-[var(--bg)]/80';
                         const inactiveFeat_cls = 'text-[var(--fg)]/70';
-                        const activeChk_cls    = 'text-[var(--bg)]';
-                        const inactiveChk_cls  = 'text-[var(--fg)]';
-                        const activeBtn_cls    = 'bg-[var(--bg)] text-[var(--fg)] hover:opacity-90';
-                        const inactiveBtn_cls  = 'border border-[var(--hairline)] text-[var(--fg)] hover:border-[var(--fg)]';
+                        const activeChk_cls = 'text-[var(--bg)]';
+                        const inactiveChk_cls = 'text-[var(--fg)]';
+                        const activeBtn_cls = 'bg-[var(--bg)] text-[var(--fg)] hover:opacity-90';
+                        const inactiveBtn_cls = 'border border-[var(--hairline)] text-[var(--fg)] hover:border-[var(--fg)]';
 
                         return (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 items-stretch">
