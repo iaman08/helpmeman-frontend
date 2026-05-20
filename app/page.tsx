@@ -22,19 +22,19 @@ const LinkedinIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 const mentors = [
     {
-        name: 'Mr.Beast',
-        role: 'SDE (50+ LPA)',
-        company: 'Cohesity',
-        badge: 'COHESITY | SDE',
-        img: '/mentor2.png',
-        stars: 5,
-    },
-    {
         name: 'Anwesh Das',
         role: 'SDE (1Cr+)',
         company: 'Rubrik',
         badge: 'RUBRIK | SDE',
         img: '/mentor3.jpg',
+        stars: 5,
+    },
+    {
+        name: 'Mr.Beast',
+        role: 'SDE (50+ LPA)',
+        company: 'Cohesity',
+        badge: 'COHESITY | SDE',
+        img: '/mentor2.png',
         stars: 5,
     },
     {
@@ -453,7 +453,7 @@ export default function Home() {
                         {/* Card 1 — Green — top left */}
                         <div className="review-card review-card-green relative sm:absolute sm:left-[2%] sm:top-0 w-full max-w-[300px] sm:max-w-none sm:w-[300px] sm:rotate-[-4deg] sm:hover:rotate-0 z-10">
                             <div className="flex gap-0.5 mb-3">
-                                {[1,2,3,4,5].map(s => <Star key={s} className="w-3.5 h-3.5 fill-current" />)}
+                                {[1, 2, 3, 4, 5].map(s => <Star key={s} className="w-3.5 h-3.5 fill-current" />)}
                             </div>
                             <p className="text-sm leading-relaxed mb-5">
                                 &ldquo;HelpMeMan didn&apos;t just help me crack my placement — they helped me find my direction. I&apos;ve never felt more seen or more confident in my career.&rdquo;
@@ -470,7 +470,7 @@ export default function Home() {
                         {/* Card 2 — Pink — top right */}
                         <div className="review-card review-card-pink relative sm:absolute sm:right-[2%] sm:top-0 w-full max-w-[300px] sm:max-w-none sm:w-[280px] sm:rotate-[3deg] sm:hover:rotate-0 z-20">
                             <div className="flex gap-0.5 mb-3">
-                                {[1,2,3,4,5].map(s => <Star key={s} className={`w-3.5 h-3.5 ${s <= 4 ? "fill-current" : "fill-transparent opacity-40"}`} />)}
+                                {[1, 2, 3, 4, 5].map(s => <Star key={s} className={`w-3.5 h-3.5 ${s <= 4 ? "fill-current" : "fill-transparent opacity-40"}`} />)}
                             </div>
                             <p className="text-sm leading-relaxed mb-5">
                                 &ldquo;From scattered confusion to a clear roadmap in 30 days. The mentor made the entire process smooth, sharp, and stress-free.&rdquo;
@@ -487,7 +487,7 @@ export default function Home() {
                         {/* Card 3 — Neutral/White — bottom center, longer */}
                         <div className="review-card review-card-neutral relative sm:absolute sm:left-1/2 sm:-translate-x-1/2 sm:bottom-0 w-full max-w-[300px] sm:max-w-none sm:w-[340px] sm:rotate-[1deg] sm:hover:rotate-0 z-30">
                             <div className="flex gap-0.5 mb-3">
-                                {[1,2,3,4,5].map(s => <Star key={s} className="w-3.5 h-3.5 fill-current" />)}
+                                {[1, 2, 3, 4, 5].map(s => <Star key={s} className="w-3.5 h-3.5 fill-current" />)}
                             </div>
                             <p className="text-sm leading-relaxed mb-5">
                                 &ldquo;I never imagined I&apos;d see my story in a successful career — let alone feel proud of it. I was overwhelmed, unsure, and had no idea where to begin. But HelpMeMan listened to me, really listened, and turned my messy plans into something powerful and personal.&rdquo;
