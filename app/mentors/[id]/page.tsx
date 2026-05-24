@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Star, Clock, MapPin, Briefcase, ExternalLink, MessageCircle } from "lucide-react";
+import { Star, Clock, MapPin, Briefcase, ExternalLink, MessageCircle, Share2 } from "lucide-react";
 import { useMentor, useMentorReviews } from "@/lib/hooks";
 import { InstitutionBadge } from "@/components/InstitutionBadge";
 import { Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { ShareProfileModal } from "@/components/ShareProfileModal";
 
 function formatPrice(paise: number): string {
   return `₹${Math.round(paise / 100)}`;
@@ -46,8 +47,20 @@ export default function MentorProfilePage() {
     id,
     reviewPage,
   );
+  
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   const mentor = data?.mentor;
+
+  // Auto-open share modal if ?share=true query param is present
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("share") === "true") {
+        setIsShareOpen(true);
+      }
+    }
+  }, []);
 
   if (isLoading) {
     return (
@@ -352,10 +365,27 @@ export default function MentorProfilePage() {
                 <MessageCircle className="h-4 w-4" />
                 Chat first
               </button>
+
+              <button
+                type="button"
+                onClick={() => setIsShareOpen(true)}
+                className="flex items-center justify-center gap-2 rounded-full border border-(--hairline) px-7 py-3.5 text-sm hover:bg-(--fg)/5 transition-colors cursor-pointer"
+              >
+                <Share2 className="h-4 w-4" />
+                Share profile
+              </button>
             </div>
           </div>
         </div>
       </main>
+
+      {mentor && (
+        <ShareProfileModal
+          isOpen={isShareOpen}
+          onClose={() => setIsShareOpen(false)}
+          mentor={mentor}
+        />
+      )}
     </div>
   );
 }

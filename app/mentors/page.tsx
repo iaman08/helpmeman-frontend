@@ -9,6 +9,8 @@ import { EmptyState } from "@/components/EmptyState";
 import { Navbar } from "@/components/Navbar";
 import { SidebarShell } from "@/components/SidebarShell";
 import { useAuth } from "@/lib/auth-context";
+import { ShareProfileModal } from "@/components/ShareProfileModal";
+import type { Mentor } from "@/lib/types";
 
 const SORT_OPTIONS = [
   { value: "rating", label: "Top Rated" },
@@ -33,6 +35,8 @@ export default function MentorsPage() {
   });
   const [searchInput, setSearchInput] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedShareMentor, setSelectedShareMentor] = useState<Mentor | null>(null);
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   const { data, isLoading, error } = useMentors(filters);
   const { data: catData } = useCategories();
@@ -286,7 +290,14 @@ export default function MentorsPage() {
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {data.mentors.map((m) => (
-              <MentorCard key={m.id} mentor={m} />
+              <MentorCard
+                key={m.id}
+                mentor={m}
+                onShare={(mentor) => {
+                  setSelectedShareMentor(mentor);
+                  setIsShareOpen(true);
+                }}
+              />
             ))}
           </div>
 
@@ -330,6 +341,17 @@ export default function MentorsPage() {
               </button>
             ) : undefined
           }
+        />
+      )}
+
+      {selectedShareMentor && (
+        <ShareProfileModal
+          isOpen={isShareOpen}
+          onClose={() => {
+            setIsShareOpen(false);
+            setSelectedShareMentor(null);
+          }}
+          mentor={selectedShareMentor}
         />
       )}
     </div>

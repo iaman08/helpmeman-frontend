@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { Star, Building2 } from "lucide-react";
+import { Star, Building2, Share2 } from "lucide-react";
 import { InstitutionBadge } from "./InstitutionBadge";
 import { useState } from "react";
 import type { Mentor } from "@/lib/types";
 
 type Props = {
   mentor: Mentor;
+  onShare?: (mentor: Mentor) => void;
 };
 
 function formatPrice(paise: number): string {
@@ -32,7 +33,7 @@ function CompanyLogo({ company }: { company: string }) {
   );
 }
 
-export function MentorCard({ mentor }: Props) {
+export function MentorCard({ mentor, onShare }: Props) {
   const [avatarError, setAvatarError] = useState(false);
   const avatarUrl = mentor.avatar || `https://i.pravatar.cc/150?u=${mentor.id}`;
   const initials = mentor.displayName.slice(0, 2).toUpperCase();
@@ -43,29 +44,46 @@ export function MentorCard({ mentor }: Props) {
       className="group flex flex-col gap-4 rounded-2xl bg-(--fg)/[0.02] hover:bg-(--fg)/5 p-5 sm:p-6 transition-colors border border-transparent hover:border-(--hairline)"
     >
       {/* ─── Header ─── */}
-      <div className="flex items-center gap-4">
-        {!avatarError ? (
-          <img
-            src={avatarUrl}
-            alt={mentor.displayName}
-            className="h-14 w-14 rounded-full object-cover shrink-0 border border-(--hairline)"
-            onError={() => setAvatarError(true)}
-          />
-        ) : (
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-(--fg)/8 text-lg font-medium shrink-0 border border-(--hairline)">
-            {initials}
-          </div>
-        )}
-        <div className="flex flex-col gap-0.5 min-w-0">
-          <span className="font-display text-lg leading-tight truncate">
-            {mentor.displayName}
-          </span>
-          {mentor.currentRole && (
-            <span className="text-xs text-(--muted) truncate">
-              {mentor.currentRole}
-            </span>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-center gap-4 min-w-0">
+          {!avatarError ? (
+            <img
+              src={avatarUrl}
+              alt={mentor.displayName}
+              className="h-14 w-14 rounded-full object-cover shrink-0 border border-(--hairline)"
+              onError={() => setAvatarError(true)}
+            />
+          ) : (
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-(--fg)/8 text-lg font-medium shrink-0 border border-(--hairline)">
+              {initials}
+            </div>
           )}
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <span className="font-display text-lg leading-tight truncate">
+              {mentor.displayName}
+            </span>
+            {mentor.currentRole && (
+              <span className="text-xs text-(--muted) truncate">
+                {mentor.currentRole}
+              </span>
+            )}
+          </div>
         </div>
+
+        {onShare && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onShare(mentor);
+            }}
+            className="p-2 bg-(--fg)/5 hover:bg-(--fg)/10 border border-(--hairline) rounded-full transition-colors cursor-pointer shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100 transition-all"
+            title="Share profile"
+          >
+            <Share2 className="h-3.5 w-3.5 text-(--muted) hover:text-(--fg)" />
+          </button>
+        )}
       </div>
 
       {/* ─── Company / Institution ─── */}
