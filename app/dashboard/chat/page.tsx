@@ -18,7 +18,7 @@ const getSocketUrl = () => {
     (window.location.hostname.includes("vercel.app") ||
       window.location.hostname.includes("helpmeman.com"))
   ) {
-    return "https://helpmeman-backend.onrender.com";
+    return "https://helpmeman-backend-7r53z.ondigitalocean.app";
   }
   return "http://localhost:8080";
 };
