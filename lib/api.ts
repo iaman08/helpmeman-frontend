@@ -4,10 +4,14 @@ const getApiBaseUrl = () => {
   if (process.env.NEXT_PUBLIC_API_URL) {
     return process.env.NEXT_PUBLIC_API_URL;
   }
-  if (typeof window !== "undefined" && window.location.hostname.includes("vercel.app")) {
+  if (
+    typeof window !== "undefined" &&
+    (window.location.hostname.includes("vercel.app") ||
+      window.location.hostname.includes("helpmeman.com"))
+  ) {
     return "https://helpmeman-backend.onrender.com/api";
   }
-  return "http://localhost:3001/api";
+  return "http://localhost:8080/api";
 };
 
 const API_BASE = getApiBaseUrl();

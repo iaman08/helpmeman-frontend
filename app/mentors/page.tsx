@@ -107,11 +107,10 @@ export default function MentorsPage() {
             <button
               type="button"
               onClick={() => setShowFilters((p) => !p)}
-              className={`flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl border px-4 sm:px-6 py-3 sm:py-4 text-sm font-bold transition-all active:scale-95 cursor-pointer ${
-                showFilters 
-                  ? "bg-(--fg)/10 border-(--fg)/20 text-(--fg)" 
+              className={`flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl border px-4 sm:px-6 py-3 sm:py-4 text-sm font-bold transition-all active:scale-95 cursor-pointer ${showFilters
+                  ? "bg-(--fg)/10 border-(--fg)/20 text-(--fg)"
                   : "bg-(--fg)/5 border-(--hairline) text-(--muted) hover:border-(--fg)/20 hover:text-(--fg)"
-              }`}
+                }`}
             >
               <SlidersHorizontal className="h-4 w-4" />
               <span className="hidden sm:inline">Filters</span>
@@ -253,11 +252,10 @@ export default function MentorsPage() {
               key={opt.value}
               type="button"
               onClick={() => updateFilter("sortBy", opt.value)}
-              className={`rounded-full px-3.5 sm:px-5 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                filters.sortBy === opt.value
+              className={`rounded-full px-3.5 sm:px-5 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${filters.sortBy === opt.value
                   ? "bg-(--accent) text-(--accent-fg) shadow-lg"
                   : "bg-(--fg)/5 text-(--muted) hover:text-(--fg) border border-(--hairline)"
-              }`}
+                }`}
             >
               {opt.label}
             </button>
@@ -312,11 +310,10 @@ export default function MentorsPage() {
                     onClick={() =>
                       setFilters((prev) => ({ ...prev, page: p }))
                     }
-                    className={`h-9 w-9 rounded-full text-sm transition-colors cursor-pointer ${
-                      data.page === p
+                    className={`h-9 w-9 rounded-full text-sm transition-colors cursor-pointer ${data.page === p
                         ? "bg-(--accent) text-(--accent-fg)"
                         : "bg-(--fg)/5 hover:bg-(--fg)/8"
-                    }`}
+                      }`}
                   >
                     {p}
                   </button>

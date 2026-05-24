@@ -9,8 +9,21 @@ import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/Skeleton";
 import type { ChatThread, ChatMessage } from "@/lib/types";
 
-const SOCKET_URL =
-  process.env.NEXT_PUBLIC_SOCKET_URL ?? "http://localhost:3001";
+const getSocketUrl = () => {
+  if (process.env.NEXT_PUBLIC_SOCKET_URL) {
+    return process.env.NEXT_PUBLIC_SOCKET_URL;
+  }
+  if (
+    typeof window !== "undefined" &&
+    (window.location.hostname.includes("vercel.app") ||
+      window.location.hostname.includes("helpmeman.com"))
+  ) {
+    return "https://helpmeman-backend.onrender.com";
+  }
+  return "http://localhost:8080";
+};
+
+const SOCKET_URL = getSocketUrl();
 
 function formatTime(d: string) {
   return new Date(d).toLocaleTimeString("en-IN", {
