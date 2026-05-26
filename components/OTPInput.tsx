@@ -83,7 +83,7 @@ export default function OTPInput({
   };
 
   return (
-    <div className="flex gap-2.5 sm:gap-4 justify-between items-center w-full max-w-md mx-auto my-2">
+    <div className="flex gap-2 sm:gap-3 md:gap-4 justify-between items-center w-full max-w-md mx-auto my-2">
       {Array.from({ length }).map((_, i) => (
         <input
           key={i}
@@ -98,7 +98,7 @@ export default function OTPInput({
           onPaste={handlePaste}
           disabled={disabled}
           className={`
-            w-12 h-14 sm:w-14 sm:h-16 text-center text-xl font-semibold rounded-xl outline-none
+            flex-1 min-w-0 aspect-[5/6] max-w-[3.5rem] text-center text-lg sm:text-xl font-semibold rounded-xl outline-none
             transition-all duration-200 border-2
             ${
               error
