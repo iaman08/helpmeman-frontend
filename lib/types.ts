@@ -190,3 +190,14 @@ export interface MentorAvailabilityResponse {
   availabilities: Availability[];
   bookedSlots: { scheduledAt: string; durationMinutes: number }[];
 }
+
+export interface OTPResponse {
+  message: string;
+  email: string;
+  requiresOTP: boolean;
+}
+
+export interface ResetOTPResponse {
+  resetToken: string;
+  message: string;
+}

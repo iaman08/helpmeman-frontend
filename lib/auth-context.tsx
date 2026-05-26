@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import api from "./api";
-import type { AuthResponse, User } from "./types";
+import type { AuthResponse, User, OTPResponse } from "./types";
 import { auth as firebaseAuth, googleProvider } from "./firebase";
 import { signInWithPopup } from "firebase/auth";
 
@@ -26,7 +26,8 @@ interface AuthState {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<OTPResponse>;
+  verifySignupOTP: (formData: { name: string; email: string; password: string; phone?: string; otp: string }) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   updateUser: (updates: Partial<User>) => void;
@@ -163,12 +164,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /* ─── Register ─── */
   const register = useCallback(
     async (name: string, email: string, password: string) => {
-      // Backend creates user and syncs to Firestore
-      const { data } = await api.post<AuthResponse>("/auth/register", {
+      // Backend does not create user immediately, it sends an OTP and returns OTPResponse
+      const { data } = await api.post<OTPResponse>("/auth/register", {
         name,
         email,
         password,
       });
+      return data;
+    },
+    [],
+  );
+
+  /* ─── Verify Signup OTP ─── */
+  const verifySignupOTP = useCallback(
+    async (formData: { name: string; email: string; password: string; phone?: string; otp: string }) => {
+      const { data } = await api.post<AuthResponse>("/auth/verify-signup-otp", formData);
       persist(data);
     },
     [persist],
@@ -219,6 +229,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       loginWithGoogle,
       register,
+      verifySignupOTP,
       logout,
       refreshUser,
       updateUser,
@@ -226,7 +237,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isMentor: user?.role === "MENTOR",
       isAdmin: user?.role === "ADMIN",
     }),
-    [user, mentor, loading, login, loginWithGoogle, register, logout, refreshUser, updateUser],
+    [user, mentor, loading, login, loginWithGoogle, register, verifySignupOTP, logout, refreshUser, updateUser],
   );
 
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
