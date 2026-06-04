@@ -18,7 +18,7 @@ export default function NotFound() {
           Go home
         </Link>
         <Link
-          href="/mentors"
+          href="/?auth=signup"
           className="rounded-full bg-(--fg)/5 px-7 py-3 text-sm hover:bg-(--fg)/8 transition-colors"
         >
           Browse mentors

@@ -6,6 +6,8 @@ import { AuthProvider } from "@/lib/auth-context";
 import { ToastProvider } from "@/components/Toast";
 import { AIChatWidget } from "@/components/AIChatWidget";
 
+import { PublicThemeManager } from "@/components/PublicThemeManager";
+
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -22,6 +24,11 @@ export const metadata: Metadata = {
   title: "HelpMeMan — Real Mentorship",
   description:
     "Access the world's Elite 1%. Connect with verified mentors from Google, Meta, YC, and IIT (AIR 1) who have actually walked your path.",
+  icons: {
+    icon: "/logo.svg",
+    shortcut: "/logo.svg",
+    apple: "/logo.svg",
+  },
 };
 
 export default function RootLayout({
@@ -36,8 +43,9 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
       </head>
-      <body className="font-sans bg-[#050505] text-white overflow-x-hidden">
+      <body className="font-sans bg-bg text-fg overflow-x-hidden">
         <ThemeProvider>
+          <PublicThemeManager />
           <AuthProvider>
             <ToastProvider>
               {children}

@@ -36,6 +36,8 @@ export default function SignUpPage() {
     if (!loading && user) router.replace("/dashboard");
   }, [user, loading, router]);
 
+
+
   // Cooldown countdown timer
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -141,86 +143,83 @@ export default function SignUpPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-6 py-24">
-      <div className="w-full max-w-md flex flex-col gap-10">
-        <div>
-          <Link
-            href="/"
-            className="text-xs uppercase tracking-[0.22em] text-(--muted) hover:text-(--fg)"
-          >
-            ← HelpMeMan
-          </Link>
-        </div>
+    <main className="min-h-screen bg-gray-50 dark:bg-[#0A0A0B] flex flex-col justify-center items-center py-12 px-6 sm:px-6 lg:px-8 transition-colors duration-300">
+      
+      {/* Brand logo at the top */}
+      <div className="flex flex-col items-center justify-center mb-6">
+        <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity select-none">
+          <img src="/logo.svg" alt="HelpMeMan Logo" className="w-8 h-8 object-contain" />
+          <span className="font-bold text-xl tracking-tight text-[var(--fg)]">HelpMeMan</span>
+        </Link>
+      </div>
 
+      {/* ChatGPT-style Centered signup Card */}
+      <div className="w-full max-w-md bg-white dark:bg-[#121214] py-8 px-6 sm:px-10 border border-gray-200/60 dark:border-zinc-800/80 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.03)] dark:shadow-[0_12px_40px_rgb(0,0,0,0.5)]">
         {step === 1 ? (
           <>
-            <div className="flex flex-col gap-3">
-              <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">
-                Create your account
-              </p>
-              <h1 className="font-display text-5xl leading-none">Sign up.</h1>
-              <p className="text-(--muted) leading-relaxed">
-                Three minutes to set up. Then meet your first mentor.
-              </p>
-            </div>
+            <h2 className="text-center text-[28px] font-bold text-[var(--fg)] tracking-tight mb-1 select-none">
+              Create your account
+            </h2>
+            <p className="text-center text-[13px] text-[var(--muted)] mb-6 max-w-xs mx-auto">
+              Three minutes to set up. Then meet your first mentor.
+            </p>
 
             {error && (
-              <div
-                className="rounded-lg bg-red-500/10 text-red-600 px-4 py-3 text-sm"
-                role="alert"
-              >
+              <div className="rounded-lg bg-red-500/10 text-red-600 px-4 py-3 text-sm mb-4 animate-fade-in text-center" role="alert">
                 {error}
               </div>
             )}
 
-            <form className="flex flex-col gap-5" onSubmit={handleRegisterSubmit}>
-              <label className="flex flex-col gap-2 text-sm">
-                <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">
+            <form className="space-y-4" onSubmit={handleRegisterSubmit}>
+              <div>
+                <label className="block text-xs font-semibold text-[var(--muted)] uppercase tracking-wider mb-2">
                   Full name
-                </span>
+                </label>
                 <input
                   type="text"
                   required
                   placeholder="Aanya Sharma"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors"
+                  className="appearance-none block w-full px-3.5 py-3 border border-gray-300 dark:border-zinc-700 rounded-lg shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-[var(--fg)] focus:border-[var(--fg)] text-[14px] bg-transparent text-[var(--fg)] transition-all"
                   autoComplete="name"
                 />
-              </label>
-              <label className="flex flex-col gap-2 text-sm">
-                <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">
-                  Email
-                </span>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[var(--muted)] uppercase tracking-wider mb-2">
+                  Email address
+                </label>
                 <input
                   type="email"
                   required
-                  placeholder="you@domain.com"
+                  placeholder="name@domain.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors"
+                  className="appearance-none block w-full px-3.5 py-3 border border-gray-300 dark:border-zinc-700 rounded-lg shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-[var(--fg)] focus:border-[var(--fg)] text-[14px] bg-transparent text-[var(--fg)] transition-all"
                   autoComplete="email"
                 />
-              </label>
-              <label className="flex flex-col gap-2 text-sm">
-                <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[var(--muted)] uppercase tracking-wider mb-2">
                   Password
-                </span>
-                <div className="relative w-full">
+                </label>
+                <div className="relative rounded-lg shadow-sm">
                   <input
                     type={showPassword ? "text" : "password"}
                     required
                     placeholder="At least 8 characters"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-(--fg)/5 rounded-lg pl-4 pr-11 py-3 outline-none focus:bg-(--fg)/8 transition-colors"
+                    className="appearance-none block w-full pl-3.5 pr-11 py-3 border border-gray-300 dark:border-zinc-700 rounded-lg placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-[var(--fg)] focus:border-[var(--fg)] text-[14px] bg-transparent text-[var(--fg)] transition-all"
                     autoComplete="new-password"
                     minLength={8}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-(--muted) hover:text-(--fg) transition-colors focus:outline-none cursor-pointer"
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 dark:text-zinc-500 hover:text-[var(--fg)] transition-colors focus:outline-none cursor-pointer"
                   >
                     {showPassword ? (
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -235,22 +234,23 @@ export default function SignUpPage() {
                   </button>
                 </div>
                 <PasswordStrength password={password} />
-              </label>
+              </div>
+
               <button
                 type="submit"
                 disabled={submitting}
-                className="mt-2 self-start rounded-full bg-(--accent) text-(--accent-fg) px-7 py-3.5 text-sm hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-[var(--bg)] bg-[var(--fg)] hover:opacity-90 active:scale-[0.99] focus:outline-none transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? "Sending verification code…" : "Create account"}
               </button>
             </form>
 
-            <div className="relative my-2">
+            <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-(--fg)/10"></div>
+                <div className="w-full border-t border-gray-200 dark:border-zinc-800"></div>
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-(--bg) px-2 text-(--muted) tracking-widest">or</span>
+              <div className="relative flex justify-center text-xs uppercase select-none">
+                <span className="bg-white dark:bg-[#121214] px-3 text-[var(--muted)] tracking-wider">or</span>
               </div>
             </div>
 
@@ -265,7 +265,7 @@ export default function SignUpPage() {
                   if (!msg.includes("popup-closed")) setError(msg);
                 }
               }}
-              className="flex items-center justify-center gap-3 w-full rounded-full border border-(--fg)/10 py-3.5 text-sm font-medium hover:bg-(--fg)/5 transition-colors cursor-pointer"
+              className="w-full flex items-center justify-center gap-3 rounded-lg border border-gray-300 dark:border-zinc-700 py-3 text-sm font-medium hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer bg-transparent text-[var(--fg)] shadow-sm"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -275,76 +275,76 @@ export default function SignUpPage() {
               </svg>
               Continue with Google
             </button>
+
+            <p className="text-center text-sm text-[var(--muted)] mt-6 select-none">
+              Already on HelpMeMan?{" "}
+              <Link href="/signin" className="text-[#2563EB] font-medium hover:underline">
+                Sign in
+              </Link>
+            </p>
           </>
         ) : (
           <>
-            <div className="flex flex-col gap-3">
-              <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">
-                Verify your email
-              </p>
-              <h1 className="font-display text-5xl leading-none">Enter OTP.</h1>
-              <p className="text-(--muted) leading-relaxed">
-                We sent a 6-digit code to <strong className="text-(--fg)">{email}</strong>.
-              </p>
-            </div>
+            <h2 className="text-center text-3xl font-bold text-[var(--fg)] tracking-tight mb-2 select-none">
+              Verify your email
+            </h2>
+            <p className="text-center text-sm text-[var(--muted)] mb-6 max-w-xs mx-auto">
+              We sent a 6-digit verification code to <strong className="text-[var(--fg)]">{email}</strong>.
+            </p>
 
             {error && (
-              <div
-                className="rounded-lg bg-red-500/10 text-red-600 px-4 py-3 text-sm"
-                role="alert"
-              >
+              <div className="rounded-lg bg-red-500/10 text-red-600 px-4 py-3 text-sm mb-4 animate-fade-in text-center" role="alert">
                 {error}
               </div>
             )}
 
             {resendSuccess && (
-              <div
-                className="rounded-lg bg-green-500/10 text-green-600 px-4 py-3 text-sm"
-                role="alert"
-              >
+              <div className="rounded-lg bg-green-500/10 text-green-600 px-4 py-3 text-sm mb-4 animate-fade-in text-center" role="alert">
                 {resendSuccess}
               </div>
             )}
 
-            <form className="flex flex-col gap-6" onSubmit={handleOTPSubmit}>
-              <OTPInput
-                value={otp}
-                onChange={setOtp}
-                disabled={submitting}
-                error={!!error}
-              />
+            <form className="space-y-6" onSubmit={handleOTPSubmit}>
+              <div className="flex justify-center">
+                <OTPInput
+                  value={otp}
+                  onChange={setOtp}
+                  disabled={submitting}
+                  error={!!error}
+                />
+              </div>
 
-              <label className="flex flex-col gap-2 text-sm">
-                <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">
+              <div>
+                <label className="block text-xs font-semibold text-[var(--muted)] uppercase tracking-wider mb-2">
                   Phone number (optional)
-                </span>
+                </label>
                 <input
                   type="tel"
                   placeholder="+91 98765 43210"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors"
+                  className="appearance-none block w-full px-3.5 py-3 border border-gray-300 dark:border-zinc-700 rounded-lg shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-[var(--fg)] focus:border-[var(--fg)] text-[14px] bg-transparent text-[var(--fg)] transition-all"
                   autoComplete="tel"
                 />
-              </label>
+              </div>
 
               <button
                 type="submit"
                 disabled={submitting || otp.length < 6}
-                className="self-start rounded-full bg-(--accent) text-(--accent-fg) px-7 py-3.5 text-sm hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-[var(--bg)] bg-[var(--fg)] hover:opacity-90 active:scale-[0.99] focus:outline-none transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? "Verifying…" : "Verify & Complete Signup"}
               </button>
             </form>
 
-            <div className="flex flex-col items-start gap-4 text-sm mt-4 border-t border-(--fg)/5 pt-6">
-              <p className="text-(--muted)">
+            <div className="flex flex-col items-center gap-4 text-sm mt-6 border-t border-gray-200 dark:border-zinc-800 pt-6 animate-fade-in">
+              <p className="text-[var(--muted)] text-center">
                 Didn't get the code?{" "}
                 <button
                   type="button"
                   disabled={cooldown > 0 || resending}
                   onClick={handleResendOTP}
-                  className="text-(--fg) font-medium underline underline-offset-4 hover:opacity-80 transition-opacity disabled:opacity-40 disabled:no-underline cursor-pointer"
+                  className="text-[#2563EB] font-medium hover:underline cursor-pointer bg-transparent border-none outline-none"
                 >
                   {cooldown > 0
                     ? `Resend in ${cooldown}s`
@@ -362,24 +362,15 @@ export default function SignUpPage() {
                   setResendSuccess("");
                   setOtp("");
                 }}
-                className="text-xs uppercase tracking-[0.18em] text-(--muted) hover:text-(--fg) transition-colors"
+                className="text-xs uppercase tracking-[0.18em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors cursor-pointer bg-transparent border-none"
               >
                 ← Back to edit details
               </button>
             </div>
           </>
         )}
-
-        <p className="text-sm text-(--muted)">
-          Already on HelpMeMan?{" "}
-          <Link
-            href="/signin"
-            className="text-(--fg) underline-offset-4 hover:underline"
-          >
-            Sign in
-          </Link>
-        </p>
       </div>
     </main>
   );
 }
+

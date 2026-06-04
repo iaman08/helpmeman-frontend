@@ -14,7 +14,7 @@ const getApiBaseUrl = () => {
   return "http://localhost:8080/api";
 };
 
-const API_BASE = getApiBaseUrl();
+export const API_BASE = getApiBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE,

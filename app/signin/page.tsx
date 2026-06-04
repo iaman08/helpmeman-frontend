@@ -44,6 +44,8 @@ export default function SignInPage() {
     }
   }, [user, loading, router]);
 
+
+
   // Cooldown countdown timer
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -100,7 +102,6 @@ export default function SignInPage() {
         password,
         otp,
       });
-      // Auth context will set user, triggering redirect
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(err.response?.data?.error ?? "Verification failed. Please try again.");
@@ -155,68 +156,75 @@ export default function SignInPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-6 py-24">
-      <div className="w-full max-w-md flex flex-col gap-10">
-        <div>
-          <Link
-            href="/"
-            className="text-xs uppercase tracking-[0.22em] text-(--muted) hover:text-(--fg)"
-          >
-            ← HelpMeMan
-          </Link>
-        </div>
+    <main className="min-h-screen bg-gray-50 dark:bg-[#0A0A0B] flex flex-col justify-center items-center py-12 px-6 sm:px-6 lg:px-8 transition-colors duration-300">
+      
+      {/* Brand logo at the top */}
+      <div className="flex flex-col items-center justify-center mb-6">
+        <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity select-none">
+          <img src="/logo.svg" alt="HelpMeMan Logo" className="w-8 h-8 object-contain" />
+          <span className="font-bold text-xl tracking-tight text-[var(--fg)]">HelpMeMan</span>
+        </Link>
+      </div>
 
+      {/* ChatGPT-style Centered login Card */}
+      <div className="w-full max-w-md bg-white dark:bg-[#121214] py-8 px-6 sm:px-10 border border-gray-200/60 dark:border-zinc-800/80 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.03)] dark:shadow-[0_12px_40px_rgb(0,0,0,0.5)]">
         {step === "login" ? (
           <>
-            <div className="flex flex-col gap-3">
-              <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">
-                Welcome back
-              </p>
-              <h1 className="font-display text-5xl leading-none">Sign in.</h1>
-              <p className="text-(--muted) leading-relaxed">
-                Continue your conversation with the mentors who&rsquo;ve been there.
-              </p>
-            </div>
+            <h2 className="text-center text-[28px] font-bold text-[var(--fg)] tracking-tight mb-1 select-none">
+              Welcome back
+            </h2>
+            <p className="text-center text-[13px] text-[var(--muted)] mb-6 max-w-xs mx-auto">
+              Continue your conversation with the mentors who've been there.
+            </p>
 
             {error && (
-              <div className="rounded-lg bg-red-500/10 text-red-600 px-4 py-3 text-sm animate-fade-in" role="alert">
+              <div className="rounded-lg bg-red-500/10 text-red-600 px-4 py-3 text-sm mb-4 animate-fade-in text-center" role="alert">
                 {error}
               </div>
             )}
 
-            <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
-              <label className="flex flex-col gap-2 text-sm">
-                <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">
-                  Email
-                </span>
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              <div>
+                <label className="block text-xs font-semibold text-[var(--muted)] uppercase tracking-wider mb-2">
+                  Email address
+                </label>
                 <input
                   type="email"
                   required
-                  placeholder="you@domain.com"
+                  placeholder="name@domain.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-(--fg)/5 rounded-lg px-4 py-3.5 outline-none focus:bg-(--fg)/8 transition-colors"
+                  className="appearance-none block w-full px-3.5 py-3 border border-gray-300 dark:border-zinc-700 rounded-lg shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-[var(--fg)] focus:border-[var(--fg)] text-[14px] bg-transparent text-[var(--fg)] transition-all"
                   autoComplete="email"
                 />
-              </label>
-              <label className="flex flex-col gap-2 text-sm">
-                <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">
-                  Password
-                </span>
-                <div className="relative w-full">
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-semibold text-[var(--muted)] uppercase tracking-wider">
+                    Password
+                  </label>
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs text-[#2563EB] hover:underline"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+                <div className="relative rounded-lg shadow-sm">
                   <input
                     type={showPassword ? "text" : "password"}
                     required
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-(--fg)/5 rounded-lg pl-4 pr-11 py-3.5 outline-none focus:bg-(--fg)/8 transition-colors"
+                    className="appearance-none block w-full pl-3.5 pr-11 py-3 border border-gray-300 dark:border-zinc-700 rounded-lg placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-[var(--fg)] focus:border-[var(--fg)] text-[14px] bg-transparent text-[var(--fg)] transition-all"
                     autoComplete="current-password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-(--muted) hover:text-(--fg) transition-colors focus:outline-none cursor-pointer"
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 dark:text-zinc-500 hover:text-[var(--fg)] transition-colors focus:outline-none cursor-pointer"
                   >
                     {showPassword ? (
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -230,31 +238,23 @@ export default function SignInPage() {
                     )}
                   </button>
                 </div>
-              </label>
-
-              <div className="flex items-center justify-between mt-2">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="rounded-full bg-(--accent) text-(--accent-fg) px-10 py-4 text-sm font-semibold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {submitting ? "Signing in…" : "Sign in"}
-                </button>
-                <Link
-                  href="/forgot-password"
-                  className="text-xs text-(--muted) hover:text-(--fg) transition-colors"
-                >
-                  Forgot password?
-                </Link>
               </div>
+
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-[var(--bg)] bg-[var(--fg)] hover:opacity-90 active:scale-[0.99] focus:outline-none transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {submitting ? "Signing in…" : "Sign in"}
+              </button>
             </form>
 
-            <div className="relative my-2">
+            <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-(--fg)/10"></div>
+                <div className="w-full border-t border-gray-200 dark:border-zinc-800"></div>
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-(--bg) px-2 text-(--muted) tracking-widest">or</span>
+              <div className="relative flex justify-center text-xs uppercase select-none">
+                <span className="bg-white dark:bg-[#121214] px-3 text-[var(--muted)] tracking-wider">or</span>
               </div>
             </div>
 
@@ -269,7 +269,7 @@ export default function SignInPage() {
                   if (!msg.includes("popup-closed")) setError(msg);
                 }
               }}
-              className="flex items-center justify-center gap-3 w-full rounded-full border border-(--fg)/10 py-3.5 text-sm font-medium hover:bg-(--fg)/5 transition-colors cursor-pointer"
+              className="w-full flex items-center justify-center gap-3 rounded-lg border border-gray-300 dark:border-zinc-700 py-3 text-sm font-medium hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer bg-transparent text-[var(--fg)] shadow-sm"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -280,93 +280,95 @@ export default function SignInPage() {
               Continue with Google
             </button>
 
-            <div className="mt-4 flex flex-col gap-4">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-(--fg)/10"></div>
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-(--bg) px-2 text-(--muted) tracking-widest">Demo access</span>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {/* ChatGPT-style clean accordion drawer for Demo Logins */}
+            <details className="w-full mt-6 group border border-gray-200/60 dark:border-zinc-800 rounded-xl overflow-hidden">
+              <summary className="flex items-center justify-between px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-[var(--muted)] cursor-pointer select-none bg-gray-50 dark:bg-zinc-900/60 hover:bg-gray-100/60 dark:hover:bg-zinc-800/80 transition-colors">
+                <span>Quick Demo Access</span>
+                <span className="text-[10px] text-[var(--muted)] transition-transform duration-200 group-open:rotate-180">▼</span>
+              </summary>
+              <div className="p-4 bg-white dark:bg-[#121214] grid grid-cols-1 sm:grid-cols-3 gap-2 border-t border-gray-100 dark:border-zinc-800">
                 <button
                   type="button"
                   onClick={() => handleDemoAccess("admin@helpmeman.com", "password123")}
-                  className="flex flex-col items-start gap-1 p-4 rounded-2xl bg-(--fg)/5 hover:bg-(--fg)/8 transition-colors text-left cursor-pointer"
+                  className="flex flex-col items-start gap-0.5 p-3 rounded-xl bg-[var(--fg)]/5 hover:bg-[var(--fg)]/8 border border-transparent hover:border-gray-200 dark:hover:border-zinc-700 transition-all text-left cursor-pointer"
                 >
-                  <span className="text-xs font-semibold uppercase tracking-wider">Admin</span>
-                  <span className="text-[10px] text-(--muted)">admin@helpmeman.com</span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--fg)]">Admin</span>
+                  <span className="text-[9px] text-[var(--muted)]">admin@domain</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDemoAccess("mentor@helpmeman.com", "password123")}
-                  className="flex flex-col items-start gap-1 p-4 rounded-2xl bg-(--fg)/5 hover:bg-(--fg)/8 transition-colors text-left cursor-pointer"
+                  className="flex flex-col items-start gap-0.5 p-3 rounded-xl bg-[var(--fg)]/5 hover:bg-[var(--fg)]/8 border border-transparent hover:border-gray-200 dark:hover:border-zinc-700 transition-all text-left cursor-pointer"
                 >
-                  <span className="text-xs font-semibold uppercase tracking-wider">Mentor</span>
-                  <span className="text-[10px] text-(--muted)">mentor@helpmeman.com</span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--fg)]">Mentor</span>
+                  <span className="text-[9px] text-[var(--muted)]">mentor@domain</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDemoAccess("user@helpmeman.com", "password123")}
-                  className="flex flex-col items-start gap-1 p-4 rounded-2xl bg-(--fg)/5 hover:bg-(--fg)/8 transition-colors text-left cursor-pointer"
+                  className="flex flex-col items-start gap-0.5 p-3 rounded-xl bg-[var(--fg)]/5 hover:bg-[var(--fg)]/8 border border-transparent hover:border-gray-200 dark:hover:border-zinc-700 transition-all text-left cursor-pointer"
                 >
-                  <span className="text-xs font-semibold uppercase tracking-wider">User</span>
-                  <span className="text-[10px] text-(--muted)">user@helpmeman.com</span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--fg)]">User</span>
+                  <span className="text-[9px] text-[var(--muted)]">user@domain</span>
                 </button>
               </div>
-            </div>
+            </details>
+
+            <p className="text-center text-sm text-[var(--muted)] mt-6 select-none">
+              Don't have an account?{" "}
+              <Link href="/signup" className="text-[#2563EB] font-medium hover:underline">
+                Sign up
+              </Link>
+            </p>
           </>
         ) : (
           <>
-            <div className="flex flex-col gap-3">
-              <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">
-                Verify your email
-              </p>
-              <h1 className="font-display text-5xl leading-none">Enter OTP.</h1>
-              <p className="text-(--muted) leading-relaxed">
-                Your email is not verified. We sent a 6-digit code to <strong className="text-(--fg)">{unverifiedEmail}</strong>.
-              </p>
-            </div>
+            <h2 className="text-center text-3xl font-bold text-[var(--fg)] tracking-tight mb-2 select-none">
+              Verify your email
+            </h2>
+            <p className="text-center text-sm text-[var(--muted)] mb-6 max-w-xs mx-auto">
+              Your email is not verified. We sent a 6-digit code to <strong className="text-[var(--fg)]">{unverifiedEmail}</strong>.
+            </p>
 
             {error && (
-              <div className="rounded-lg bg-red-500/10 text-red-600 px-4 py-3 text-sm animate-fade-in" role="alert">
+              <div className="rounded-lg bg-red-500/10 text-red-600 px-4 py-3 text-sm mb-4 animate-fade-in text-center" role="alert">
                 {error}
               </div>
             )}
 
             {resendSuccess && (
-              <div className="rounded-lg bg-green-500/10 text-green-600 px-4 py-3 text-sm animate-fade-in" role="alert">
+              <div className="rounded-lg bg-green-500/10 text-green-600 px-4 py-3 text-sm mb-4 animate-fade-in text-center" role="alert">
                 {resendSuccess}
               </div>
             )}
 
-            <form className="flex flex-col gap-6" onSubmit={handleOTPVerifySubmit}>
-              <OTPInput
-                value={otp}
-                onChange={setOtp}
-                disabled={submitting}
-                error={!!error}
-              />
+            <form className="space-y-6" onSubmit={handleOTPVerifySubmit}>
+              <div className="flex justify-center">
+                <OTPInput
+                  value={otp}
+                  onChange={setOtp}
+                  disabled={submitting}
+                  error={!!error}
+                />
+              </div>
 
               <button
                 type="submit"
                 disabled={submitting || otp.length < 6}
-                className="self-start rounded-full bg-(--accent) text-(--accent-fg) px-7 py-3.5 text-sm hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-[var(--bg)] bg-[var(--fg)] hover:opacity-90 active:scale-[0.99] focus:outline-none transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? "Verifying…" : "Verify & Sign In"}
               </button>
             </form>
 
-            <div className="flex flex-col items-start gap-4 text-sm mt-4 border-t border-(--fg)/5 pt-6 animate-fade-in">
-              <p className="text-(--muted)">
+            <div className="flex flex-col items-center gap-4 text-sm mt-6 border-t border-gray-200 dark:border-zinc-800 pt-6 animate-fade-in">
+              <p className="text-[var(--muted)] text-center">
                 Didn't get the code?{" "}
                 <button
                   type="button"
                   disabled={cooldown > 0 || resending}
                   onClick={handleResendOTP}
-                  className="text-(--fg) font-medium underline underline-offset-4 hover:opacity-80 transition-opacity disabled:opacity-40 disabled:no-underline cursor-pointer"
+                  className="text-[#2563EB] font-medium hover:underline cursor-pointer bg-transparent border-none outline-none"
                 >
                   {cooldown > 0
                     ? `Resend in ${cooldown}s`
@@ -384,21 +386,15 @@ export default function SignInPage() {
                   setResendSuccess("");
                   setOtp("");
                 }}
-                className="text-xs uppercase tracking-[0.18em] text-(--muted) hover:text-(--fg) transition-colors cursor-pointer"
+                className="text-xs uppercase tracking-[0.18em] text-[var(--muted)] hover:text-[var(--fg)] transition-colors cursor-pointer bg-transparent border-none"
               >
                 ← Back to login
               </button>
             </div>
           </>
         )}
-
-        <p className="text-sm text-(--muted) mt-4">
-          New here?{" "}
-          <Link href="/signup" className="text-(--fg) font-medium underline-offset-4 hover:underline">
-            Create an account
-          </Link>
-        </p>
       </div>
     </main>
   );
 }
+
