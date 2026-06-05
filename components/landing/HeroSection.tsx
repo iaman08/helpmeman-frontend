@@ -101,20 +101,15 @@ export function HeroSection() {
             <span>Microsoft</span>
           </div>
 
-          {/* Airbnb */}
-          <div className="flex items-center gap-1.5 text-[14px] font-semibold">
-            <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-              <path d="M12 2.25c-.2 0-.39.07-.55.2L2.73 9.77a1.5 1.5 0 0 0-.6 1.2v9.28a1.5 1.5 0 0 0 1.5 1.5h16.74a1.5 1.5 0 0 0 1.5-1.5v-9.28a1.5 1.5 0 0 0-.6-1.2L12.55 2.45c-.16-.13-.35-.2-.55-.2zm0 13c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-            </svg>
-            <span>Airbnb</span>
-          </div>
+          {/* Meta */}
+          <span className="text-[14px] font-bold tracking-tight">Meta</span>
 
           {/* Y Combinator */}
           <div className="flex items-center gap-1.5 text-[14px] font-semibold">
             <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
               <path d="M4 0h16c2.2 0 4 1.8 4 4v16c0 2.2-1.8 4-4 4H4c-2.2 0-4-1.8-4-4V4c0-2.2 1.8-4 4-4zm4 6.5h2.5l1.5 2.8 1.5-2.8H16l-3 5.3v3.7h-2V11.8L8 6.5z" />
             </svg>
-            <span>Combinator</span>
+            <span>Y Combinator</span>
           </div>
 
           {/* Amazon */}
