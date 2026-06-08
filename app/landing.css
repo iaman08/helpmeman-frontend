@@ -545,3 +545,116 @@ html[data-theme="dark"] .review-card-pink .fill-current { color: #f5a0c4; }
 @media (min-width: 640px) {
   .mentor-carousel-card { width: 270px; height: 440px; border-radius: 2rem; }
 }
+
+/* ── Mobbin-style Logo Marquee (above hero) ── */
+.logo-marquee-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 28px;
+  user-select: none;
+}
+
+.logo-marquee-label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9CA3AF;
+  text-align: center;
+}
+
+html[data-theme="dark"] .logo-marquee-label {
+  color: #52525B;
+}
+
+/* Outer mask — gradient fade on edges */
+.logo-marquee-mask {
+  position: relative;
+  width: 100%;
+  max-width: 860px;
+  overflow: hidden;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 8%,
+    black 92%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 8%,
+    black 92%,
+    transparent 100%
+  );
+}
+
+/* Scrolling track — uses duplicated logo arrays */
+.logo-marquee-track {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  width: max-content;
+  animation: marquee-left 45s linear infinite;
+  will-change: transform;
+}
+
+/* Pause on hover — subtle premium feel */
+.logo-marquee-mask:hover .logo-marquee-track {
+  animation-play-state: paused;
+}
+
+/* Individual logo item */
+.logo-marquee-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  padding: 6px 0;
+  transition: opacity 0.3s ease;
+}
+
+.logo-marquee-item:hover {
+  opacity: 0.65;
+}
+
+.logo-marquee-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #B0B0B0;
+}
+
+html[data-theme="dark"] .logo-marquee-icon {
+  color: #525252;
+}
+
+.logo-marquee-name {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #B0B0B0;
+}
+
+html[data-theme="dark"] .logo-marquee-name {
+  color: #525252;
+}
+
+/* Responsive: slightly tighter on mobile */
+@media (max-width: 640px) {
+  .logo-marquee-track {
+    gap: 28px;
+  }
+
+  .logo-marquee-name {
+    font-size: 12px;
+  }
+
+  .logo-marquee-section {
+    padding-bottom: 20px;
+  }
+}

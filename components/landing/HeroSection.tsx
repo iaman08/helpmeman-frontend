@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { motion } from "motion/react";
+import { LogoMarquee } from "./LogoMarquee";
 
 export function HeroSection() {
   const scrollToAI = () => {
@@ -13,6 +14,9 @@ export function HeroSection() {
     <section className="relative pt-36 pb-20 md:pt-48 md:pb-28 lg:pt-56 lg:pb-36 px-6 overflow-hidden">
       {/* ── Main Hero Content ── */}
       <div className="max-w-[1200px] mx-auto text-center relative z-20">
+        {/* Mobbin-style Logo Marquee — directly above hero headline */}
+        <LogoMarquee />
+
         {/* Headline */}
         <motion.h1
           initial={{ opacity: 0, y: 24 }}
