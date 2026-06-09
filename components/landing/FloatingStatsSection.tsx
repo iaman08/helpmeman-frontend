@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { motion, useInView } from "motion/react";
+import { motion, useInView, useScroll, useTransform } from "motion/react";
 
 /* ─────────────────────────────────────────────────
    Icons via jsDelivr (CSP-safe, no blocked domains)
@@ -23,12 +23,7 @@ const LOGOS = [
   { name: "Uber", color: "#000000", slug: "uber", size: 60 },
 ];
 
-const STATS = [
-  { number: "100+", label: "Mentors from Tier 1 Companies" },
-  { number: "100+", label: "Global Companies Represented" },
-  { number: "3+", label: "Sessions Completed" },
-  { number: "4.9★", label: "Average Mentor Rating" },
-];
+
 
 /* Deterministic positions — logos spread across all edges/corners, never center */
 const INITIAL_SPREAD = [
@@ -67,6 +62,15 @@ function LogoIcon({ slug, size }: { slug: string; size: number }) {
 
 export function FloatingStatsSection() {
   const sectionRef = useRef<HTMLElement>(null);
+  
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  
+  const textOpacity = useTransform(scrollYProgress, [0.2, 0.45, 0.55, 0.8], [0, 1, 1, 0]);
+  const textY = useTransform(scrollYProgress, [0.2, 0.45, 0.55, 0.8], [30, 0, 0, -30]);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const logoElsRef = useRef<(HTMLDivElement | null)[]>([]);
   const innerElsRef = useRef<(HTMLDivElement | null)[]>([]);
@@ -220,7 +224,7 @@ export function FloatingStatsSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full overflow-hidden bg-white dark:bg-[#0A0A0A] border-y border-[#E5E7EB] dark:border-[#27272A]"
+      className="relative w-full overflow-hidden bg-white dark:bg-[#0A0A0A]"
       style={{ height: "650px" }}
     >
       {/* ── Physics canvas ── */}
@@ -275,22 +279,18 @@ export function FloatingStatsSection() {
           Trusted by professionals at
         </p>
 
-        {/* Stats Row / Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-8 gap-x-4 w-full max-w-[1000px] bg-white/70 dark:bg-black/50 border border-slate-200/50 dark:border-zinc-800/50 rounded-2xl p-6 md:p-8 backdrop-blur-md shadow-lg pointer-events-auto">
-          {STATS.map((stat, idx) => (
-            <div
-              key={idx}
-              className="stat-item flex flex-col items-center justify-center text-center px-4"
-            >
-              <span className="stat-number text-[#111111] dark:text-white font-extrabold tracking-tight">
-                {stat.number}
-              </span>
-              <span className="stat-label mt-2 text-slate-500 dark:text-zinc-400 text-[13px] md:text-[14px]">
-                {stat.label}
-              </span>
-            </div>
-          ))}
-        </div>
+        {/* Main Stat */}
+        <motion.div
+          className="flex flex-col items-center justify-center text-center pointer-events-auto z-30 mt-4"
+          style={{ opacity: textOpacity, y: textY }}
+        >
+          <span className="text-[#111111] dark:text-white text-[90px] md:text-[120px] font-black tracking-tighter leading-[0.9]">
+            100+
+          </span>
+          <span className="text-slate-400 dark:text-zinc-500 text-[15px] md:text-[18px] font-medium tracking-wide mt-3">
+            Mentors from Tier 1 Companies
+          </span>
+        </motion.div>
 
       </div>
 

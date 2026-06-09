@@ -260,21 +260,6 @@ export function LogoStack() {
       className="flex flex-col items-center pb-10"
       aria-label="Logos of companies and institutions our mentors come from"
     >
-      {/* Subtle label */}
-      <p
-        className="text-center select-none pointer-events-none"
-        style={{
-          fontSize: "11px",
-          fontWeight: 500,
-          letterSpacing: "0.1em",
-          textTransform: "uppercase" as const,
-          color: "#9CA3AF",
-          marginBottom: "24px",
-        }}
-      >
-        Mentors from leading companies &amp; institutions
-      </p>
-
       {/* Stack container */}
       <div
         className="relative"
