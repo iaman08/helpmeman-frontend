@@ -247,9 +247,13 @@ const LOGOS: LogoCard[] = [
     name: "AIIMS Delhi",
     bg: "#1A365D",
     icon: (
-      <svg width="44" height="20" viewBox="0 0 72 24" fill="white">
-        <text x="36" y="20" textAnchor="middle" fontSize="22" fontWeight="700" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="1">AIIMS</text>
-      </svg>
+      <img
+        src="/aiimsdelhi.png"
+        alt="AIIMS Delhi logo"
+        width={56}
+        height={56}
+        style={{ objectFit: "contain", borderRadius: 18 }}
+      />
     ),
   },
 
@@ -258,9 +262,13 @@ const LOGOS: LogoCard[] = [
     name: "NLSIU",
     bg: "#1E3A5F",
     icon: (
-      <svg width="44" height="20" viewBox="0 0 68 24" fill="white">
-        <text x="34" y="20" textAnchor="middle" fontSize="21" fontWeight="700" fontFamily="'Times New Roman', Georgia, serif" letterSpacing="1.5">NLSIU</text>
-      </svg>
+      <img
+        src="/nlsiu.png"
+        alt="NLSIU Bangalore logo"
+        width={56}
+        height={56}
+        style={{ objectFit: "contain", borderRadius: 18 }}
+      />
     ),
   },
 
@@ -269,11 +277,13 @@ const LOGOS: LogoCard[] = [
     name: "Superteam",
     bg: "#6366F1",
     icon: (
-      <svg width="36" height="36" viewBox="0 0 40 40" fill="white">
-        <path d="M20 2l2.5 7.7h8.1l-6.5 4.7 2.5 7.7L20 17.4l-6.5 4.7 2.5-7.7-6.5-4.7h8.1L20 2z" />
-        <circle cx="20" cy="28" r="6" fill="none" stroke="white" strokeWidth="2.5" />
-        <path d="M17 34l3 4 3-4" fill="white" />
-      </svg>
+      <img
+        src="/superteam.png"
+        alt="Superteam logo"
+        width={56}
+        height={56}
+        style={{ objectFit: "contain", borderRadius: 18 }}
+      />
     ),
   },
 ];
