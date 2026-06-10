@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
 const MESSAGES = [
+  "Signing you in...",
   "Onboarding to Dashboard...",
   "Securing your workspace connection...",
   "Retrieving custom settings and profiles...",
