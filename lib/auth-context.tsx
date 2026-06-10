@@ -74,17 +74,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         setUser(parsedUser);
         if (storedMentor) setMentor(JSON.parse(storedMentor));
+        
+        // Hydrated successfully from local storage; unblock UI rendering immediately.
+        setLoading(false);
 
-        // Refresh from backend API (which enriches with Firestore data like username)
+        // Refresh user profile asynchronously from backend API
         if (!parsedUser.id?.startsWith("demo_")) {
-          try {
-            const { data } = await api.get<{ user: User }>("/users/me");
-            setUser(data.user);
-            localStorage.setItem(KEYS.user, JSON.stringify(data.user));
-          } catch {
-            /* backend unavailable — use cached data */
-          }
+          api.get<{ user: User }>("/users/me")
+            .then(({ data }) => {
+              setUser(data.user);
+              localStorage.setItem(KEYS.user, JSON.stringify(data.user));
+            })
+            .catch(() => {
+              /* backend unavailable — use cached data */
+            });
         }
+        return; // Already set loading to false above
       } catch {
         /* corrupted storage — ignore */
       }
