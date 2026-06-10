@@ -13,6 +13,7 @@ import api from "./api";
 import type { AuthResponse, User, OTPResponse } from "./types";
 import { auth as firebaseAuth, googleProvider } from "./firebase";
 import { signInWithPopup } from "firebase/auth";
+import GoogleAuthLoader from "@/components/GoogleAuthLoader";
 
 interface MentorMeta {
   id: string;
@@ -24,6 +25,7 @@ interface AuthState {
   user: User | null;
   mentor: MentorMeta | null;
   loading: boolean;
+  googleAuthenticating: boolean;
   login: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<OTPResponse>;
@@ -49,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [mentor, setMentor] = useState<MentorMeta | null>(null);
   const [loading, setLoading] = useState(true);
+  const [googleAuthenticating, setGoogleAuthenticating] = useState(false);
 
   /* ─── Hydrate from localStorage on mount, then refresh from backend (which reads Firestore) ─── */
   useEffect(() => {
@@ -154,11 +157,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!firebaseAuth) {
       throw new Error("Google login is currently disabled because Firebase configuration is missing.");
     }
-    const result = await signInWithPopup(firebaseAuth, googleProvider);
-    const idToken = await result.user.getIdToken();
-    // Backend verifies token, creates/finds user, and syncs to Firestore
-    const { data } = await api.post<AuthResponse>("/auth/google", { idToken });
-    persist(data);
+    setGoogleAuthenticating(true);
+    try {
+      const result = await signInWithPopup(firebaseAuth, googleProvider);
+      const idToken = await result.user.getIdToken();
+      // Backend verifies token, creates/finds user, and syncs to Firestore
+      const { data } = await api.post<AuthResponse>("/auth/google", { idToken });
+      persist(data);
+    } finally {
+      setGoogleAuthenticating(false);
+    }
   }, [persist]);
 
   /* ─── Register ─── */
@@ -226,6 +234,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       mentor,
       loading,
+      googleAuthenticating,
       login,
       loginWithGoogle,
       register,
@@ -237,10 +246,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isMentor: user?.role === "MENTOR",
       isAdmin: user?.role === "ADMIN",
     }),
-    [user, mentor, loading, login, loginWithGoogle, register, verifySignupOTP, logout, refreshUser, updateUser],
+    [user, mentor, loading, googleAuthenticating, login, loginWithGoogle, register, verifySignupOTP, logout, refreshUser, updateUser],
   );
 
-  return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
+  return (
+    <AuthCtx.Provider value={value}>
+      {children}
+      {googleAuthenticating && <GoogleAuthLoader />}
+    </AuthCtx.Provider>
+  );
 }
 
 export function useAuth() {

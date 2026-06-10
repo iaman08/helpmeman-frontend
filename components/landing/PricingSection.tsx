@@ -93,11 +93,10 @@ export function PricingSection() {
               initial={{ opacity: 0, y: 30 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className={`relative flex flex-col rounded-2xl p-6 transition-all duration-300 ${
-                tier.popular
-                  ? "bg-[#111111] dark:bg-[#18181B] text-white shadow-xl scale-[1.02] md:scale-[1.03] lg:scale-[1.04] border border-transparent dark:border-[#27272A]"
-                  : "bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] text-[#111111] dark:text-white hover:border-[#CCCCCC] dark:hover:border-[#3F3F46] hover:shadow-md"
-              }`}
+              className={`relative flex flex-col rounded-2xl p-6 transition-all duration-300 ${tier.popular
+                ? "bg-[#111111] dark:bg-[#18181B] text-white shadow-xl scale-[1.02] md:scale-[1.03] lg:scale-[1.04] border border-transparent dark:border-[#27272A]"
+                : "bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] text-[#111111] dark:text-white hover:border-[#CCCCCC] dark:hover:border-[#3F3F46] hover:shadow-md"
+                }`}
             >
               {tier.popular && (
                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#2563EB] text-white text-[10px] uppercase font-bold tracking-[0.15em] px-3 py-1 rounded-full">
@@ -143,11 +142,10 @@ export function PricingSection() {
 
               {/* Action Button */}
               <button
-                className={`w-full py-3 px-4 rounded-xl text-[13px] font-medium transition-all duration-200 active:scale-[0.98] ${
-                  tier.popular
-                    ? "bg-[#2563EB] text-white hover:bg-[#3B82F6]"
-                    : "bg-[#F3F4F6] dark:bg-[#27272A] text-[#111111] dark:text-white hover:bg-[#E5E7EB] dark:hover:bg-[#3F3F46]"
-                }`}
+                className={`w-full py-3 px-4 rounded-xl text-[13px] font-medium transition-all duration-200 active:scale-[0.98] ${tier.popular
+                  ? "bg-[#2563EB] text-white hover:bg-[#3B82F6]"
+                  : "bg-[#F3F4F6] dark:bg-[#27272A] text-[#111111] dark:text-white hover:bg-[#E5E7EB] dark:hover:bg-[#3F3F46]"
+                  }`}
               >
                 {tier.cta}
               </button>
