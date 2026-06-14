@@ -31,7 +31,7 @@ function LandingPageContent() {
 
   useEffect(() => {
     if (!loading && user) {
-      router.push("/dashboard");
+      router.push("/mentors");
     }
   }, [user, loading, router]);
 
