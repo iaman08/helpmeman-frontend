@@ -104,7 +104,7 @@ export default function SignUpPage() {
         phone: phone ? phone.trim() : undefined,
         otp,
       });
-      router.replace("/dashboard");
+      router.replace("/onboarding");
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(

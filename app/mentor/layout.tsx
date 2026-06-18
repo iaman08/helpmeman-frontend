@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { SidebarShell } from "@/components/SidebarShell";
+import api from "@/lib/api";
 
 const NAV = [
   { href: "/mentor", label: "Overview", icon: LayoutDashboard },
@@ -57,6 +58,15 @@ export default function MentorLayout({
     //   router.replace("/mentor/status");
     // }
   }, [loading, user, isMentor, mentor, pathname, router]);
+
+  useEffect(() => {
+    if (loading || !user || !isMentor || user.id.startsWith("demo_") || pathname === "/mentor/status") return;
+    api.get<{ role: string | null; status: string }>("/onboarding/status")
+      .then(({ data }) => {
+        if (data.role !== "MENTOR" || data.status !== "COMPLETED") router.replace("/onboarding");
+      })
+      .catch(() => { /* keep the dashboard usable during a transient API outage */ });
+  }, [loading, user, isMentor, pathname, router]);
 
   if (loading || !user || !isMentor) {
     return (

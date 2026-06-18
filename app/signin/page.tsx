@@ -37,9 +37,7 @@ export default function SignInPage() {
       const dest =
         user.role === "ADMIN"
           ? "/admin"
-          : user.role === "MENTOR"
-            ? "/mentor"
-            : "/dashboard";
+          : "/onboarding";
       router.replace(dest);
     }
   }, [user, loading, router]);
