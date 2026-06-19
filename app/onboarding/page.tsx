@@ -113,6 +113,8 @@ export default function OnboardingPage() {
   const [latestRuthMessage, setLatestRuthMessage] = useState("Hi, I'm Ruth. I'll set up your mentor memory in a few focused questions.");
   const [streamedRuthMessage, setStreamedRuthMessage] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const statusLoadedRef = useRef(false);
+  const localStageRef = useRef<Stage>("role");
 
   const question = state?.question;
   const questionType = question?.type || "text";
@@ -125,10 +127,19 @@ export default function OnboardingPage() {
   }, [state?.answers, user?.name]);
 
   useEffect(() => {
-    if (!loading && !user) router.replace("/signin");
-    if (!user) return;
+    localStageRef.current = stage;
+  }, [stage]);
+
+  useEffect(() => {
+    if (loading) return;
+    if (!user) {
+      router.replace("/signin");
+      return;
+    }
+    if (statusLoadedRef.current) return;
 
     if (user.id.startsWith("demo_")) {
+      statusLoadedRef.current = true;
       if (user.role === "MENTOR") {
         const next = initialState();
         setState(next);
@@ -137,18 +148,38 @@ export default function OnboardingPage() {
       return;
     }
 
+    let cancelled = false;
     api.get<State>("/onboarding/status")
       .then(({ data }) => {
+        if (cancelled) return;
+        statusLoadedRef.current = true;
         if (data.role === "MENTEE") return router.replace("/dashboard");
         if (data.status === "COMPLETED") return router.replace("/mentor");
+
         setState(data);
+        const current = localStageRef.current;
+        const localOnlyStages: Stage[] = ["preparing", "tour", "name"];
+        if (localOnlyStages.includes(current)) {
+          if (current === "name" && (data.currentQuestion > 0 || data.answers.length > 0)) {
+            setStage("chat");
+          }
+          return;
+        }
+
         if (!data.role) setStage("role");
         else if (data.currentQuestion === 0 && data.answers.length === 0) setStage("name");
         else setStage("chat");
+
         if (data.question) setLatestRuthMessage(data.message || data.question.text);
       })
-      .catch(() => setError("Ruth couldn't load your conversation. Please try again."));
-  }, [user, loading, router]);
+      .catch(() => {
+        if (!cancelled) setError("Ruth couldn't load your conversation. Please try again.");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, loading, router]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -287,8 +318,26 @@ export default function OnboardingPage() {
     setSelected(current => current.includes(option) ? current.filter(item => item !== option) : [...current, option]);
   }
 
-  if (loading || !user || (!state && !error && stage !== "role")) {
-    return <div className="min-h-screen bg-bg" />;
+  if (loading || !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-bg">
+        <div className="text-center">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted" />
+          <p className="mt-4 text-sm text-muted">Loading your onboarding...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!state && !error && stage !== "role") {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-bg">
+        <div className="text-center">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted" />
+          <p className="mt-4 text-sm text-muted">Ruth is getting things ready...</p>
+        </div>
+      </div>
+    );
   }
 
   if (completed && state) {

@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { Menu, X, LogOut, Moon, Sun, Monitor } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useTheme, THEMES } from "./ThemeProvider";
+import { NotificationBell } from "./NotificationBell";
 
 interface NavItem {
   href?: string;
@@ -25,6 +26,7 @@ interface SidebarShellProps {
   userAvatar?: string | null;
   userBadge?: string;
   avatarColor?: string;
+  notificationsPath?: string;
   onLogout: () => void;
 }
 
@@ -39,6 +41,7 @@ export function SidebarShell({
   userAvatar,
   userBadge,
   avatarColor = "bg-(--fg)/8 text-(--fg)",
+  notificationsPath = "/dashboard/notifications",
   onLogout,
 }: SidebarShellProps) {
   const pathname = usePathname();
@@ -88,13 +91,16 @@ export function SidebarShell({
 
   const sidebarContent = (
     <>
-      <div className="px-6 py-6">
-        <Link href="/" className="font-display text-xl tracking-tight">
-          HelpMeMan<span className="text-(--muted)">.</span>
-        </Link>
-        <p className={`text-[10px] uppercase tracking-[0.22em] mt-1 ${brandColor}`}>
-          {brandLabel}
-        </p>
+      <div className="px-6 py-6 flex items-start justify-between gap-3">
+        <div>
+          <Link href="/" className="font-display text-xl tracking-tight">
+            HelpMeMan<span className="text-(--muted)">.</span>
+          </Link>
+          <p className={`text-[10px] uppercase tracking-[0.22em] mt-1 ${brandColor}`}>
+            {brandLabel}
+          </p>
+        </div>
+        <NotificationBell notificationsPath={notificationsPath} />
       </div>
 
       <div className="px-6 pb-5">
@@ -218,7 +224,9 @@ export function SidebarShell({
         <Link href="/" className="font-display text-lg tracking-tight">
           HelpMeMan<span className="text-(--muted)">.</span>
         </Link>
-        <button
+        <div className="flex items-center gap-2">
+          <NotificationBell notificationsPath={notificationsPath} />
+          <button
           type="button"
           onClick={() => setMobileOpen(!mobileOpen)}
           className="cursor-pointer p-1"
@@ -235,6 +243,7 @@ export function SidebarShell({
             </div>
           )}
         </button>
+        </div>
       </div>
 
       {/* Mobile sidebar overlay */}

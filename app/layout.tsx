@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/lib/auth-context";
 import { ToastProvider } from "@/components/Toast";
 import { AIChatWidget } from "@/components/AIChatWidget";
+import { PushPermissionPrompt } from "@/components/PushPermissionPrompt";
 
 import { PublicThemeManager } from "@/components/PublicThemeManager";
 
@@ -50,6 +51,7 @@ export default function RootLayout({
             <ToastProvider>
               {children}
               <AIChatWidget />
+              <PushPermissionPrompt />
             </ToastProvider>
           </AuthProvider>
         </ThemeProvider>

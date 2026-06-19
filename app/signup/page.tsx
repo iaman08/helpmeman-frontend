@@ -31,10 +31,12 @@ export default function SignUpPage() {
   const [resending, setResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState("");
 
-  // Redirect if already logged in
+  // Redirect if already logged in (skip during OTP step to avoid racing verifySignupOTP redirect)
   useEffect(() => {
-    if (!loading && user) router.replace("/dashboard");
-  }, [user, loading, router]);
+    if (!loading && user && step === 1) {
+      router.replace("/onboarding");
+    }
+  }, [user, loading, router, step]);
 
 
 
@@ -47,7 +49,7 @@ export default function SignUpPage() {
     return () => clearInterval(timer);
   }, [cooldown]);
 
-  if (loading || user) return null;
+  if (loading || (user && step === 1)) return null;
 
   async function handleRegisterSubmit(e: FormEvent) {
     e.preventDefault();

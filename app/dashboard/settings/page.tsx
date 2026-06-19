@@ -1,18 +1,19 @@
 "use client";
 
 import { useState, useRef, useEffect, type ChangeEvent } from "react";
-import { User, Camera, CreditCard, ShieldCheck } from "lucide-react";
+import { User, Camera, CreditCard, ShieldCheck, Bell } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/components/Toast";
 import api from "@/lib/api";
 import { AxiosError } from "axios";
 import { ImageCropModal } from "@/components/ImageCropModal";
+import { NotificationSettingsPanel } from "@/components/NotificationSettingsPanel";
 
 
 export default function SettingsPage() {
   const { user, refreshUser, updateUser } = useAuth();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<"profile" | "security" | "payments">("profile");
+  const [activeTab, setActiveTab] = useState<"profile" | "security" | "payments" | "notifications">("profile");
 
   // Avatar Upload
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -160,6 +161,7 @@ export default function SettingsPage() {
   const TABS = [
     { id: "profile", label: "Profile", icon: User },
     { id: "security", label: "Security", icon: ShieldCheck },
+    { id: "notifications", label: "Notifications", icon: Bell },
     { id: "payments", label: "Payments", icon: CreditCard },
   ] as const;
 
@@ -400,6 +402,8 @@ export default function SettingsPage() {
             </div>
           </div>
         )}
+
+        {activeTab === "notifications" && <NotificationSettingsPanel />}
 
         {activeTab === "payments" && (
           <div className="space-y-6">

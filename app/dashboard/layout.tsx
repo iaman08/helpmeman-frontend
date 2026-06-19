@@ -9,6 +9,7 @@ import {
   Settings,
   Search,
   Sparkles,
+  Bell,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { SidebarShell } from "@/components/SidebarShell";
@@ -25,6 +26,7 @@ export default function DashboardLayout({
     { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
     { href: "/dashboard/bookings", label: "Bookings", icon: CalendarCheck },
     { href: "/dashboard/chat", label: "Chat", icon: MessageCircle },
+    { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
     {
       onClick: () => {
         if (typeof window !== "undefined") {
@@ -60,6 +62,7 @@ export default function DashboardLayout({
       userName={user.name}
       userEmail={user.email}
       userAvatar={user.avatar}
+      notificationsPath="/dashboard/notifications"
       onLogout={async () => {
         await logout();
         router.replace("/signin");

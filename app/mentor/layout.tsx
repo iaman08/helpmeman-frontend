@@ -10,6 +10,7 @@ import {
   Clock,
   User,
   Sparkles,
+  Bell,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { SidebarShell } from "@/components/SidebarShell";
@@ -21,6 +22,7 @@ const NAV = [
   { href: "/mentor/availability", label: "Availability", icon: Clock },
   { href: "/mentor/earnings", label: "Earnings", icon: DollarSign },
   { href: "/mentor/reviews", label: "Reviews", icon: Star },
+  { href: "/mentor/notifications", label: "Notifications", icon: Bell },
   { href: "/mentor/settings", label: "Profile", icon: User },
   {
     onClick: () => {
@@ -89,6 +91,7 @@ export default function MentorLayout({
           : mentor?.approvalStatus
       }
       avatarColor="bg-amber-500/10 text-amber-500"
+      notificationsPath="/mentor/notifications"
       onLogout={async () => {
         await logout();
         router.replace("/signin");

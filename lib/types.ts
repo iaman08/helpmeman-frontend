@@ -123,7 +123,21 @@ export interface Notification {
   title: string;
   body: string;
   isRead: boolean;
+  emailSent?: boolean;
+  pushSent?: boolean;
+  metadata?: Record<string, unknown> | null;
   createdAt: string;
+}
+
+export interface NotificationPreferences {
+  userId: string;
+  emailNotifications: boolean;
+  pushNotifications: boolean;
+  marketingEmails: boolean;
+  accountUpdates: boolean;
+  messages: boolean;
+  mentorUpdates: boolean;
+  updatedAt: string;
 }
 
 export interface Earning {

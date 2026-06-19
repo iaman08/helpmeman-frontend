@@ -105,12 +105,21 @@ export function useBookings(status?: string, page = 1) {
 }
 
 /* ─── Notifications ─── */
-export function useNotifications() {
+export function useNotifications(type?: string) {
+  const key = type ? `/users/me/notifications?type=${type}` : "/users/me/notifications";
   return useSWR<{
     notifications: Notification[];
     total: number;
     unreadCount: number;
-  }>("/users/me/notifications", fetcher, {
+  }>(key, fetcher, {
     refreshInterval: 30_000,
   });
+}
+
+export function useNotificationPreferences() {
+  return useSWR<{ preferences: import("./types").NotificationPreferences }>(
+    "/users/me/notification-preferences",
+    fetcher,
+    { revalidateOnFocus: false }
+  );
 }
