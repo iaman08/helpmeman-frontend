@@ -49,6 +49,12 @@ export function NotificationBell({ notificationsPath = "/dashboard/notifications
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (open && unreadCount > 0) {
+      markAllRead();
+    }
+  }, [open, unreadCount]);
+
   async function markRead(id: string) {
     await api.put(`/users/me/notifications/${id}/read`);
     mutate("/users/me/notifications");
@@ -76,7 +82,7 @@ export function NotificationBell({ notificationsPath = "/dashboard/notifications
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-[min(92vw,360px)] overflow-hidden rounded-2xl border border-(--hairline) bg-(--bg) shadow-2xl">
+        <div className="fixed md:absolute top-[76px] md:top-auto left-4 right-4 md:left-0 md:right-auto md:w-[360px] w-auto z-50 mt-2 overflow-hidden rounded-2xl border border-(--hairline) bg-(--bg) shadow-2xl">
           <div className="flex items-center justify-between border-b border-(--hairline) px-4 py-3">
             <div>
               <p className="text-sm font-semibold">Notifications</p>

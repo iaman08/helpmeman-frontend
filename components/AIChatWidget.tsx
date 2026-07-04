@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Bot, Send, X, Trash2, Sparkles, Clock, ChevronRight, MessageSquare, RotateCcw, Plus, History, Calendar, Video, Edit2, Check, Smile, Mic, ArrowUp } from "lucide-react";
+import { Bot, X, Trash2, Sparkles, Clock, ChevronRight, MessageSquare, RotateCcw, Plus, History, Calendar, Video, Edit2, Check, Smile, Mic, ArrowUp, Star, BadgeCheck } from "lucide-react";
 import api from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import Link from "next/link";
@@ -10,12 +10,40 @@ import { usePathname } from "next/navigation";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+interface MentorData {
+  id: string;
+  displayName: string;
+  bio: string;
+  avatar?: string | null;
+  currentRole?: string | null;
+  company?: string | null;
+  expertise: string[];
+  institutionName: string;
+  institutionType: string;
+  rating: number;
+  totalSessions: number;
+  pricePerSession: number;
+  sessionDuration: number;
+}
+
+interface BookingSuccess {
+  bookingId: string;
+  mentorName: string;
+  scheduledAt: string;
+  durationMinutes: number;
+  meetingType: string;
+}
+
 interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
   createdAt?: string;
+  mentors?: MentorData[];
+  bookingSuccess?: BookingSuccess;
+  mentorProfile?: MentorData;
 }
+
 
 interface SessionSummary {
   id: string;
@@ -49,8 +77,25 @@ interface Booking {
 
 // ─── Markdown helpers ─────────────────────────────────────────────────────────
 
-function parseMarkdownLinks(text: string) {
-  const parts = text.split(/(\[.*?\]\(.*?\))/g);
+function parseMarkdownLinks(text: string, mentors?: MentorData[]) {
+  // First, replace bare mentor names with markdown links if they appear in the text
+  // and we have mentor data with IDs
+  let processed = text;
+  if (mentors && mentors.length > 0) {
+    mentors.forEach((m) => {
+      // Only replace if not already wrapped in a markdown link
+      const name = m.displayName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const alreadyLinked = new RegExp(`\\[${name}\\]\\(`);
+      if (!alreadyLinked.test(processed)) {
+        processed = processed.replace(
+          new RegExp(`\\b${name}\\b`, 'g'),
+          `[${m.displayName}](/mentors/${m.id})`
+        );
+      }
+    });
+  }
+
+  const parts = processed.split(/(\[.*?\]\(.*?\))/g);
   return parts.map((part, i) => {
     const match = part.match(/\[(.*?)\]\((.*?)\)/);
     if (match) {
@@ -64,16 +109,16 @@ function parseMarkdownLinks(text: string) {
   });
 }
 
-function formatAIContent(content: string) {
+function formatAIContent(content: string, mentors?: MentorData[]) {
   const lines = content.split("\n");
   return lines.map((line, i) => {
     const trimmed = line.trim();
     const boldParts = trimmed.split(/(\*\*.*?\*\*)/g);
     const formatted = boldParts.map((p, j) => {
       if (p.startsWith("**") && p.endsWith("**")) {
-        return <strong key={j} className="font-semibold">{parseMarkdownLinks(p.slice(2, -2))}</strong>;
+        return <strong key={j} className="font-semibold">{parseMarkdownLinks(p.slice(2, -2), mentors)}</strong>;
       }
-      return <span key={j}>{parseMarkdownLinks(p)}</span>;
+      return <span key={j}>{parseMarkdownLinks(p, mentors)}</span>;
     });
     if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
       return <li key={i} className="ml-4 list-disc">{formatted}</li>;
@@ -82,6 +127,7 @@ function formatAIContent(content: string) {
     return <p key={i} className="leading-relaxed">{formatted}</p>;
   });
 }
+
 
 function formatRelativeDate(isoDate: string) {
   const d = new Date(isoDate);
@@ -151,6 +197,441 @@ function formatReadReceiptTime(dateStr: string) {
   }
 }
 
+// ─── Razorpay global type ─────────────────────────────────────────────────────
+declare global {
+  interface Window {
+    Razorpay?: new (options: Record<string, unknown>) => { open: () => void };
+  }
+}
+
+// ─── Mentor Card In Chat ──────────────────────────────────────────────────────
+
+function MentorCardInChat({ mentor, onBook }: { mentor: MentorData; onBook: (mentor: MentorData) => void }) {
+  const [avatarError, setAvatarError] = useState(false);
+  const avatarUrl = mentor.avatar || `https://i.pravatar.cc/150?u=${mentor.id}`;
+  const initials = mentor.displayName.slice(0, 2).toUpperCase();
+
+  // Institution badge color
+  const instColor =
+    mentor.institutionType === "COMPANY" ? "bg-amber-500/12 text-amber-600" :
+      mentor.institutionType === "STARTUP" ? "bg-purple-500/12 text-purple-600" :
+        "bg-blue-500/12 text-blue-600";
+
+  return (
+    <div className="rounded-2xl border border-(--hairline) bg-(--bg) shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+      {/* Header */}
+      <div className="flex items-start gap-3 p-4 pb-3">
+        {!avatarError ? (
+          <img
+            src={avatarUrl}
+            alt={mentor.displayName}
+            className="h-12 w-12 rounded-full object-cover shrink-0 border border-(--hairline)"
+            onError={() => setAvatarError(true)}
+          />
+        ) : (
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-(--fg)/8 text-sm font-semibold shrink-0 border border-(--hairline)">
+            {initials}
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="font-semibold text-sm truncate">{mentor.displayName}</span>
+            <BadgeCheck className="h-3.5 w-3.5 text-blue-500 shrink-0" />
+          </div>
+          {mentor.currentRole && (
+            <p className="text-xs text-(--muted) truncate">{mentor.currentRole}</p>
+          )}
+          <span className={`inline-block mt-1 rounded-full px-2.5 py-0.5 text-[10px] font-medium ${instColor}`}>
+            {mentor.institutionName}
+          </span>
+        </div>
+        <div className="text-right shrink-0">
+          <p className="text-base font-bold text-(--accent)">₹{Math.round(mentor.pricePerSession / 100)}</p>
+          <p className="text-[10px] text-(--muted)">{mentor.sessionDuration}min</p>
+        </div>
+      </div>
+
+      {/* Bio */}
+      <p className="px-4 text-xs text-(--muted) leading-relaxed line-clamp-2">{mentor.bio}</p>
+
+      {/* Skills */}
+      {mentor.expertise.length > 0 && (
+        <div className="px-4 pt-2 flex flex-wrap gap-1">
+          {mentor.expertise.slice(0, 4).map((skill) => (
+            <span key={skill} className="text-[10px] bg-(--fg)/[0.05] border border-(--hairline) rounded-full px-2 py-0.5 text-(--muted) font-medium">
+              {skill}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Stats */}
+      <div className="flex items-center gap-3 px-4 pt-2.5 pb-3">
+        <div className="flex items-center gap-1">
+          <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
+          <span className="text-xs font-bold">{mentor.rating > 0 ? mentor.rating.toFixed(1) : "New"}</span>
+        </div>
+        <span className="text-xs text-(--muted)">{mentor.totalSessions} sessions</span>
+        <span className="ml-auto text-[10px] text-green-600 font-semibold">● Available</span>
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-2 px-4 pb-4">
+        <Link
+          href={`/mentors/${mentor.id}`}
+          className="flex-1 text-center text-xs font-semibold py-2 rounded-xl border border-(--hairline) text-(--muted) hover:text-(--fg) hover:border-(--fg)/20 transition-colors"
+        >
+          View Profile
+        </Link>
+        <button
+          type="button"
+          onClick={() => onBook(mentor)}
+          className="flex-1 text-xs font-semibold py-2 rounded-xl bg-(--fg) text-(--bg) hover:opacity-90 transition-opacity cursor-pointer"
+        >
+          Book Session
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Booking Modal In Chat ────────────────────────────────────────────────────
+
+function BookingModalInChat({
+  mentor,
+  user,
+  onClose,
+  onSuccess,
+}: {
+  mentor: MentorData;
+  user: { id: string; name: string; email: string };
+  onClose: () => void;
+  onSuccess: (info: BookingSuccess) => void;
+}) {
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [booking, setBooking] = useState(false);
+  const [error, setError] = useState("");
+
+  // Ensure Razorpay is loaded
+  useEffect(() => {
+    if (document.getElementById("razorpay-script")) return;
+    const script = document.createElement("script");
+    script.id = "razorpay-script";
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+  }, []);
+
+  const days: Date[] = [];
+  const today = new Date();
+  for (let i = 1; i <= 7; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    days.push(d);
+  }
+
+  const timeSlots: string[] = [];
+  for (let h = 9; h <= 20; h++) {
+    timeSlots.push(`${h.toString().padStart(2, "0")}:00`);
+    if (h < 20) timeSlots.push(`${h.toString().padStart(2, "0")}:30`);
+  }
+
+  async function handleConfirm() {
+    if (!selectedDate || !selectedTime || booking) return;
+    setError("");
+    setBooking(true);
+
+    const [hours, minutes] = selectedTime.split(":").map(Number);
+    const scheduledAt = new Date(selectedDate);
+    scheduledAt.setHours(hours, minutes, 0, 0);
+
+    try {
+      const res = await api.post("/bookings", {
+        mentorId: mentor.id,
+        scheduledAt: scheduledAt.toISOString(),
+        durationMinutes: mentor.sessionDuration,
+      });
+
+      const { booking: bookingData, order, razorpayKeyId } = res.data;
+
+      if (!order || !razorpayKeyId || !window.Razorpay) {
+        // No Razorpay — direct success
+        onSuccess({
+          bookingId: bookingData.id,
+          mentorName: mentor.displayName,
+          scheduledAt: scheduledAt.toISOString(),
+          durationMinutes: mentor.sessionDuration,
+          meetingType: "Google Meet",
+        });
+        return;
+      }
+
+      const rzp = new window.Razorpay({
+        key: razorpayKeyId,
+        amount: order.amount,
+        currency: order.currency || "INR",
+        name: "HelpMeMan",
+        description: `Session with ${mentor.displayName}`,
+        order_id: order.id,
+        handler: async function (response: {
+          razorpay_order_id: string;
+          razorpay_payment_id: string;
+          razorpay_signature: string;
+        }) {
+          try {
+            await api.post(`/bookings/${bookingData.id}/verify-payment`, {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+            onSuccess({
+              bookingId: bookingData.id,
+              mentorName: mentor.displayName,
+              scheduledAt: scheduledAt.toISOString(),
+              durationMinutes: mentor.sessionDuration,
+              meetingType: "Google Meet",
+            });
+          } catch {
+            setError("Payment verification failed. Please contact support.");
+            setBooking(false);
+          }
+        },
+        prefill: { name: user.name, email: user.email },
+        theme: { color: "#0a0a0a" },
+        modal: { ondismiss: () => { setError("Payment cancelled."); setBooking(false); } },
+      });
+      rzp.open();
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        setError(err.response?.data?.error ?? "Booking failed.");
+      } else {
+        setError("Booking failed.");
+      }
+      setBooking(false);
+    }
+  }
+
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  return (
+    <div className="rounded-2xl border border-(--hairline) bg-(--bg) shadow-xl overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-(--hairline) bg-(--fg)/[0.02]">
+        <div>
+          <p className="text-sm font-semibold">Book a Session</p>
+          <p className="text-xs text-(--muted)">{mentor.displayName} · ₹{Math.round(mentor.pricePerSession / 100)} · {mentor.sessionDuration}min</p>
+        </div>
+        <button type="button" onClick={onClose} className="p-1.5 text-(--muted) hover:text-(--fg) rounded-lg hover:bg-(--fg)/5 cursor-pointer">
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      <div className="p-4 flex flex-col gap-4">
+        {/* Date picker */}
+        <div>
+          <p className="text-xs font-semibold text-(--muted) uppercase tracking-wide mb-2">Select Date</p>
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+            {days.map((d) => {
+              const active = selectedDate?.toDateString() === d.toDateString();
+              return (
+                <button
+                  key={d.toISOString()}
+                  type="button"
+                  onClick={() => setSelectedDate(d)}
+                  className={`flex flex-col items-center justify-center shrink-0 w-12 h-14 rounded-xl text-xs font-medium transition-all cursor-pointer border ${active
+                      ? "bg-(--fg) text-(--bg) border-(--fg)"
+                      : "border-(--hairline) text-(--muted) hover:border-(--fg)/20 hover:text-(--fg)"
+                    }`}
+                >
+                  <span className="text-[10px] font-semibold">{dayNames[d.getDay()]}</span>
+                  <span className="text-base font-bold">{d.getDate()}</span>
+                  <span className="text-[9px]">{monthNames[d.getMonth()]}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Time picker */}
+        <div>
+          <p className="text-xs font-semibold text-(--muted) uppercase tracking-wide mb-2">Select Time</p>
+          <div className="grid grid-cols-4 gap-1.5 max-h-32 overflow-y-auto pr-1">
+            {timeSlots.map((slot) => {
+              const active = selectedTime === slot;
+              return (
+                <button
+                  key={slot}
+                  type="button"
+                  onClick={() => setSelectedTime(slot)}
+                  className={`text-xs py-1.5 rounded-lg font-medium transition-all cursor-pointer border ${active
+                      ? "bg-(--fg) text-(--bg) border-(--fg)"
+                      : "border-(--hairline) text-(--muted) hover:border-(--fg)/20 hover:text-(--fg)"
+                    }`}
+                >
+                  {slot}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {error && (
+          <p className="text-xs text-red-500 bg-red-500/10 rounded-lg px-3 py-2 border border-red-500/20">{error}</p>
+        )}
+
+        <button
+          type="button"
+          onClick={handleConfirm}
+          disabled={!selectedDate || !selectedTime || booking}
+          className="w-full py-2.5 rounded-xl bg-(--fg) text-(--bg) text-sm font-semibold disabled:opacity-40 hover:opacity-90 transition-opacity cursor-pointer disabled:cursor-not-allowed"
+        >
+          {booking ? "Processing..." : `Confirm & Pay ₹${Math.round(mentor.pricePerSession / 100)}`}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Mentor Profile In Chat ───────────────────────────────────────────────────
+
+function MentorProfileInChat({ mentor, onBook }: { mentor: MentorData; onBook: (mentor: MentorData) => void }) {
+  const [avatarError, setAvatarError] = useState(false);
+  const avatarUrl = mentor.avatar || `https://i.pravatar.cc/150?u=${mentor.id}`;
+  const initials = mentor.displayName.slice(0, 2).toUpperCase();
+
+  return (
+    <div className="rounded-2xl border border-(--hairline) bg-(--bg) shadow-md overflow-hidden p-4 flex flex-col gap-3">
+      <div className="flex items-center gap-3">
+        {!avatarError ? (
+          <img
+            src={avatarUrl}
+            alt={mentor.displayName}
+            className="h-14 w-14 rounded-full object-cover border border-(--hairline)"
+            onError={() => setAvatarError(true)}
+          />
+        ) : (
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-(--fg)/8 text-base font-semibold border border-(--hairline)">
+            {initials}
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="font-semibold text-sm truncate">{mentor.displayName}</span>
+            <BadgeCheck className="h-3.5 w-3.5 text-blue-500 shrink-0" />
+          </div>
+          {mentor.currentRole && (
+            <p className="text-xs text-(--muted) truncate">{mentor.currentRole} at {mentor.company || mentor.institutionName}</p>
+          )}
+          <span className="inline-block mt-1 rounded-full bg-blue-500/12 text-blue-600 px-2 py-0.5 text-[10px] font-medium">
+            {mentor.institutionName}
+          </span>
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <p className="text-xs font-semibold text-(--muted) uppercase tracking-wide">About</p>
+        <p className="text-xs leading-relaxed text-(--muted) line-clamp-3">{mentor.bio}</p>
+      </div>
+
+      <div className="space-y-1">
+        <p className="text-xs font-semibold text-(--muted) uppercase tracking-wide">Expertise</p>
+        <div className="flex flex-wrap gap-1">
+          {mentor.expertise.map((skill) => (
+            <span key={skill} className="text-[10px] bg-(--fg)/5 border border-(--hairline) rounded-full px-2 py-0.5 text-(--muted) font-medium">
+              {skill}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2 border-t border-(--hairline) pt-2 text-center">
+        <div>
+          <p className="text-[9px] text-(--muted) uppercase font-semibold">Rating</p>
+          <div className="flex items-center justify-center gap-0.5 mt-0.5">
+            <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
+            <span className="text-xs font-bold">{mentor.rating > 0 ? mentor.rating.toFixed(1) : "New"}</span>
+          </div>
+        </div>
+        <div>
+          <p className="text-[9px] text-(--muted) uppercase font-semibold">Sessions</p>
+          <p className="text-xs font-bold mt-0.5">{mentor.totalSessions}</p>
+        </div>
+        <div>
+          <p className="text-[9px] text-(--muted) uppercase font-semibold">Price</p>
+          <p className="text-xs font-bold mt-0.5 text-(--accent)">₹{Math.round(mentor.pricePerSession / 100)}</p>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => onBook(mentor)}
+        className="w-full text-xs font-semibold py-2 rounded-xl bg-(--fg) text-(--bg) hover:opacity-90 transition-opacity cursor-pointer mt-1"
+      >
+        Book 1-on-1 Session
+      </button>
+    </div>
+  );
+}
+
+// ─── Booking Success In Chat ──────────────────────────────────────────────────
+
+function BookingSuccessInChat({ info }: { info: BookingSuccess }) {
+  const date = new Date(info.scheduledAt);
+  const dateStr = date.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+  const timeStr = date.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+
+  return (
+    <div className="rounded-2xl border border-green-500/30 bg-green-500/5 overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-3 bg-green-500/10 border-b border-green-500/20">
+        <span className="text-lg">✅</span>
+        <div>
+          <p className="text-sm font-bold text-green-700 dark:text-green-400">Booking Confirmed!</p>
+          <p className="text-xs text-(--muted)">Your session is scheduled</p>
+        </div>
+      </div>
+      <div className="px-4 py-3 flex flex-col gap-1.5">
+        <div className="flex items-center gap-2 text-xs">
+          <span className="text-(--muted) w-16 shrink-0">Mentor</span>
+          <span className="font-semibold">{info.mentorName}</span>
+        </div>
+        <div className="flex items-center gap-2 text-xs">
+          <span className="text-(--muted) w-16 shrink-0">Date</span>
+          <span className="font-semibold">{dateStr}</span>
+        </div>
+        <div className="flex items-center gap-2 text-xs">
+          <span className="text-(--muted) w-16 shrink-0">Time</span>
+          <span className="font-semibold">{timeStr}</span>
+        </div>
+        <div className="flex items-center gap-2 text-xs">
+          <span className="text-(--muted) w-16 shrink-0">Duration</span>
+          <span className="font-semibold">{info.durationMinutes} minutes</span>
+        </div>
+        <div className="flex items-center gap-2 text-xs">
+          <span className="text-(--muted) w-16 shrink-0">Type</span>
+          <span className="font-semibold">{info.meetingType}</span>
+        </div>
+      </div>
+      <div className="flex gap-2 px-4 pb-4">
+        <Link
+          href="/dashboard/bookings"
+          className="flex-1 text-center text-xs font-semibold py-2 rounded-xl bg-(--fg) text-(--bg) hover:opacity-90 transition-opacity"
+        >
+          View Booking
+        </Link>
+        <Link
+          href="/dashboard/chat"
+          className="flex-1 text-center text-xs font-semibold py-2 rounded-xl border border-(--hairline) text-(--muted) hover:text-(--fg) transition-colors"
+        >
+          Open Chat
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function AIChatWidget() {
@@ -168,6 +649,10 @@ export function AIChatWidget() {
   const [sessionTitle, setSessionTitle] = useState<string | null>(null);
   const [resumeBanner, setResumeBanner] = useState<string | null>(null);
   const [sessionLoading, setSessionLoading] = useState(false);
+
+  // Mentor booking state
+  const mentorContextRef = useRef<MentorData[]>([]);
+  const [bookingMentor, setBookingMentor] = useState<MentorData | null>(null);
 
   // History state
   const [historyGroups, setHistoryGroups] = useState<DateGroup[]>([]);
@@ -375,6 +860,64 @@ export function AIChatWidget() {
     const msg = input.trim();
     if (!msg || loading) return;
 
+    const lower = msg.toLowerCase();
+    const contextMentors = mentorContextRef.current;
+
+    // ── 1. Resolve target mentor from memory (names, ordinals, pronouns) ──
+    let resolvedMentor: MentorData | null = null;
+    if (contextMentors.length > 0) {
+      // Name match
+      for (const m of contextMentors) {
+        const firstName = m.displayName.split(" ")[0].toLowerCase();
+        const fullName = m.displayName.toLowerCase();
+        if (lower.includes(fullName) || lower.includes(firstName)) {
+          resolvedMentor = m;
+          break;
+        }
+      }
+      // Ordinals
+      if (!resolvedMentor) {
+        if (/(first|1st|number one|top one|#1)/i.test(lower)) resolvedMentor = contextMentors[0];
+        else if (/(second|2nd|number two|#2)/i.test(lower) && contextMentors.length > 1) resolvedMentor = contextMentors[1];
+        else if (/(third|3rd|number three|#3)/i.test(lower) && contextMentors.length > 2) resolvedMentor = contextMentors[2];
+        else if (/(fourth|4th|number four|#4)/i.test(lower) && contextMentors.length > 3) resolvedMentor = contextMentors[3];
+      }
+      // Pronoun or general intent fallback (book, session, profile, etc.)
+      const isBookingOrProfileQuery = /(book|schedule|reserve|meet|session|profile|tell me|who is|details|view)/i.test(lower);
+      if (!resolvedMentor && (/(him|her|this|that|them|the mentor)/i.test(lower) || isBookingOrProfileQuery)) {
+        resolvedMentor = contextMentors[contextMentors.length - 1];
+      }
+    }
+
+    // ── 2. Route Booking Intent directly to modal (Rule 4, 5) ──
+    const isBookingIntent = /(book|schedule|reserve|meet|session with|i want this|continue booking|i'll take|pick|choose|select)/i.test(lower);
+    if (isBookingIntent && resolvedMentor) {
+      setBookingMentor(resolvedMentor);
+      setInput("");
+      return;
+    }
+
+    // ── 3. Route Profile Intent directly to inline component (Rule 7, 8) ──
+    const isProfileIntent = /(profile|tell me|who is|details|about him|about her|more info|view)/i.test(lower);
+    if (isProfileIntent && resolvedMentor) {
+      setInput("");
+      const userMsg: Message = {
+        id: `u_${Date.now()}`,
+        role: "user",
+        content: msg,
+        createdAt: new Date().toISOString(),
+      };
+      const assistantMsg: Message = {
+        id: `ai_${Date.now()}`,
+        role: "assistant",
+        content: `Here is the profile for **${resolvedMentor.displayName}**:`,
+        createdAt: new Date().toISOString(),
+        mentorProfile: resolvedMentor,
+      };
+      setMessages(prev => [...prev, userMsg, assistantMsg]);
+      return;
+    }
+
     setInput("");
     setError("");
 
@@ -393,11 +936,27 @@ export function AIChatWidget() {
         sessionId: sessionId || undefined,
       });
 
-      // Update sessionId if server created one lazily
       if (data.sessionId && !sessionId) {
         setSessionId(data.sessionId);
-        // Initially show first message as title before AI summary runs
         setSessionTitle(msg.slice(0, 30) + (msg.length > 30 ? "..." : ""));
+      }
+
+      // Maintain running list of ALL mentors shown during conversation (Rule 3)
+      if (data.mentors && data.mentors.length > 0) {
+        const currentList = mentorContextRef.current;
+        const newMentors = data.mentors.filter(
+          (nm: MentorData) => !currentList.some((cm) => cm.id === nm.id)
+        );
+        mentorContextRef.current = [...currentList, ...newMentors];
+      }
+
+      // Check server response text for booking modal trigger (Rule 4 fallback)
+      const responseLower = data.response.toLowerCase();
+      if (responseLower.includes("opening booking modal") || responseLower.includes("booking modal for you")) {
+        const target = resolvedMentor || (mentorContextRef.current.length > 0 ? mentorContextRef.current[mentorContextRef.current.length - 1] : null);
+        if (target) {
+          setBookingMentor(target);
+        }
       }
 
       const aiMsg: Message = {
@@ -405,6 +964,7 @@ export function AIChatWidget() {
         role: "assistant",
         content: data.response,
         createdAt: new Date().toISOString(),
+        mentors: data.mentors && data.mentors.length > 0 ? data.mentors : undefined,
       };
       setMessages(prev => [...prev, aiMsg]);
     } catch (err) {
@@ -417,6 +977,7 @@ export function AIChatWidget() {
       setLoading(false);
     }
   }, [input, loading, sessionId]);
+
 
   // ─── Save manual rename ───────────────────────────────────────────────────
 
@@ -492,7 +1053,7 @@ export function AIChatWidget() {
 
             <div className={`shrink-0 ${sessionTitle && activeTab === "chat" ? "hidden sm:block" : ""}`}>
               <h3 className="text-xs sm:text-sm font-bold tracking-tight text-(--fg)">
-                HelpMeMan AI
+                Ruth
               </h3>
             </div>
 
@@ -574,11 +1135,10 @@ export function AIChatWidget() {
                     key={t.id}
                     type="button"
                     onClick={() => setChatTheme(t.id as any)}
-                    className={`h-2.5 w-2.5 rounded-full transition-all duration-200 cursor-pointer mx-0.5 hover:scale-120 ${
-                      chatTheme === t.id
+                    className={`h-2.5 w-2.5 rounded-full transition-all duration-200 cursor-pointer mx-0.5 hover:scale-120 ${chatTheme === t.id
                         ? "ring-2 ring-(--fg) ring-offset-1 ring-offset-(--bg) scale-110"
                         : "opacity-60 hover:opacity-100"
-                    }`}
+                      }`}
                     style={{
                       backgroundColor: t.color,
                       border: t.border ? "1px solid rgba(128, 128, 128, 0.4)" : "none"
@@ -614,8 +1174,8 @@ export function AIChatWidget() {
             type="button"
             onClick={() => setActiveTab("chat")}
             className={`flex items-center gap-1.5 px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 transition-colors cursor-pointer shrink-0 ${activeTab === "chat"
-                ? "border-(--accent) text-(--fg)"
-                : "border-transparent text-(--muted) hover:text-(--fg)"
+              ? "border-(--accent) text-(--fg)"
+              : "border-transparent text-(--muted) hover:text-(--fg)"
               }`}
           >
             <MessageSquare className="h-3.5 w-3.5" />
@@ -625,8 +1185,8 @@ export function AIChatWidget() {
             type="button"
             onClick={() => setActiveTab("meetings")}
             className={`flex items-center gap-1.5 px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 transition-colors cursor-pointer shrink-0 ${activeTab === "meetings"
-                ? "border-(--accent) text-(--fg)"
-                : "border-transparent text-(--muted) hover:text-(--fg)"
+              ? "border-(--accent) text-(--fg)"
+              : "border-transparent text-(--muted) hover:text-(--fg)"
               }`}
           >
             <Calendar className="h-3.5 w-3.5" />
@@ -636,8 +1196,8 @@ export function AIChatWidget() {
             type="button"
             onClick={() => setActiveTab("history")}
             className={`flex items-center gap-1.5 px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 transition-colors cursor-pointer shrink-0 ${activeTab === "history"
-                ? "border-(--accent) text-(--fg)"
-                : "border-transparent text-(--muted) hover:text-(--fg)"
+              ? "border-(--accent) text-(--fg)"
+              : "border-transparent text-(--muted) hover:text-(--fg)"
               }`}
           >
             <History className="h-3.5 w-3.5" />
@@ -648,8 +1208,9 @@ export function AIChatWidget() {
 
       {/* ── Chat Tab ───────────────────────────────────────────────────────── */}
       {activeTab === "chat" && (
-        <>
+        <div className="relative flex-1 flex flex-col overflow-hidden">
           {/* Resume banner */}
+
           {resumeBanner && (
             <div className="shrink-0 bg-(--accent)/10 border-b border-(--accent)/20 px-4 sm:px-6 py-2.5">
               <div className="max-w-4xl w-full mx-auto flex items-center justify-between">
@@ -755,21 +1316,20 @@ export function AIChatWidget() {
                       >
                         <div className="flex flex-col max-w-[85%] sm:max-w-[75%]">
                           <div
-                            className={`rounded-[18px] px-4 py-2.5 text-[15px] leading-relaxed shadow-sm ${
-                              msg.role === "user"
+                            className={`rounded-[18px] px-4 py-2.5 text-[15px] leading-relaxed shadow-sm ${msg.role === "user"
                                 ? chatTheme === "imessage"
                                   ? "bg-[#007aff] text-white rounded-br-[4px]"
                                   : chatTheme === "sms"
-                                  ? "bg-[#34c759] text-white rounded-br-[4px]"
-                                  : chatTheme === "pink"
-                                  ? "bg-[#ff2d55] text-white rounded-br-[4px]"
-                                  : "bg-white dark:bg-zinc-100 text-zinc-900 border border-zinc-200/60 rounded-br-[4px]"
+                                    ? "bg-[#34c759] text-white rounded-br-[4px]"
+                                    : chatTheme === "pink"
+                                      ? "bg-[#ff2d55] text-white rounded-br-[4px]"
+                                      : "bg-white dark:bg-zinc-100 text-zinc-900 border border-zinc-200/60 rounded-br-[4px]"
                                 : "bg-(--fg)/5 border border-(--hairline)/25 text-(--fg) rounded-bl-[4px]"
-                            }`}
+                              }`}
                           >
                             {msg.role === "assistant" ? (
                               <div className="flex flex-col gap-1.5 text-[14px] leading-relaxed">
-                                {formatAIContent(msg.content)}
+                                {formatAIContent(msg.content, msg.mentors ?? mentorContextRef.current)}
                               </div>
                             ) : (
                               msg.content
@@ -784,8 +1344,40 @@ export function AIChatWidget() {
                           )}
                         </div>
                       </div>
+
+                      {/* ── Mentor Profile (shown below assistant bubble) ── */}
+                      {msg.role === "assistant" && msg.mentorProfile && (
+                        <div className="mt-2 max-w-sm">
+                          <MentorProfileInChat
+                            mentor={msg.mentorProfile}
+                            onBook={(m) => setBookingMentor(m)}
+                          />
+                        </div>
+                      )}
+
+                      {/* ── Mentor Cards (shown below assistant bubble) ── */}
+                      {msg.role === "assistant" && msg.mentors && msg.mentors.length > 0 && (
+                        <div className="flex flex-col gap-3 mt-2 max-w-sm">
+                          {msg.mentors.map((mentor) => (
+                            <MentorCardInChat
+                              key={mentor.id}
+                              mentor={mentor}
+                              onBook={(m) => setBookingMentor(m)}
+                            />
+                          ))}
+                        </div>
+                      )}
+
+                      {/* ── Booking Success ── */}
+                      {msg.role === "assistant" && msg.bookingSuccess && (
+                        <div className="mt-2 max-w-sm">
+                          <BookingSuccessInChat info={msg.bookingSuccess} />
+                        </div>
+                      )}
                     </div>
                   );
+
+
                 });
               })()}
 
@@ -813,6 +1405,31 @@ export function AIChatWidget() {
             </div>
           </div>
 
+          {/* ── Booking Modal Overlay (inside chat area) ── */}
+          {bookingMentor && user && (
+            <div className="absolute inset-0 z-20 flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm">
+              <div className="w-full max-w-md mx-4 mb-4 md:mb-0">
+                <BookingModalInChat
+                  mentor={bookingMentor}
+                  user={{ id: user.id, name: user.name, email: user.email }}
+                  onClose={() => setBookingMentor(null)}
+                  onSuccess={(info) => {
+                    setBookingMentor(null);
+                    // Append a booking success message to the chat
+                    const successMsg: Message = {
+                      id: `success_${Date.now()}`,
+                      role: "assistant",
+                      content: `Great news! Your session with **${info.mentorName}** has been confirmed. 🎉`,
+                      createdAt: new Date().toISOString(),
+                      bookingSuccess: info,
+                    };
+                    setMessages(prev => [...prev, successMsg]);
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Input bar */}
           <div className="shrink-0 border-t border-(--hairline) bg-(--bg) px-4 sm:px-6 py-3 sm:py-4 pb-safe-bottom">
             <form
@@ -820,16 +1437,15 @@ export function AIChatWidget() {
               className="max-w-4xl w-full mx-auto flex items-center gap-1.5 sm:gap-3 relative"
             >
               {/* Input Wrapper */}
-              <div 
-                className={`flex-1 flex items-center bg-(--fg)/5 rounded-full px-3.5 py-2 sm:py-2.5 border transition-all ${
-                  chatTheme === "imessage"
+              <div
+                className={`flex-1 flex items-center bg-(--fg)/5 rounded-full px-3.5 py-2 sm:py-2.5 border transition-all ${chatTheme === "imessage"
                     ? "border-(--hairline)/45 focus-within:border-[#007aff]/60 focus-within:bg-(--fg)/8"
                     : chatTheme === "sms"
-                    ? "border-(--hairline)/45 focus-within:border-[#34c759]/60 focus-within:bg-(--fg)/8"
-                    : chatTheme === "pink"
-                    ? "border-(--hairline)/45 focus-within:border-[#ff2d55]/60 focus-within:bg-(--fg)/8"
-                    : "border-(--hairline)/45 focus-within:border-(--fg)/40 focus-within:bg-(--fg)/8"
-                }`}
+                      ? "border-(--hairline)/45 focus-within:border-[#34c759]/60 focus-within:bg-(--fg)/8"
+                      : chatTheme === "pink"
+                        ? "border-(--hairline)/45 focus-within:border-[#ff2d55]/60 focus-within:bg-(--fg)/8"
+                        : "border-(--hairline)/45 focus-within:border-(--fg)/40 focus-within:bg-(--fg)/8"
+                  }`}
               >
                 <input
                   ref={inputRef}
@@ -840,14 +1456,14 @@ export function AIChatWidget() {
                   maxLength={2000}
                   disabled={loading || sessionLoading}
                   className="flex-1 bg-transparent text-sm outline-none placeholder-(--muted)/60 disabled:opacity-50 text-(--fg)"
-                  style={{ 
-                    caretColor: 
-                      chatTheme === "imessage" ? "#007aff" : 
-                      chatTheme === "sms" ? "#34c759" : 
-                      chatTheme === "pink" ? "#ff2d55" : "var(--fg)" 
+                  style={{
+                    caretColor:
+                      chatTheme === "imessage" ? "#007aff" :
+                        chatTheme === "sms" ? "#34c759" :
+                          chatTheme === "pink" ? "#ff2d55" : "var(--fg)"
                   }}
                 />
-                
+
                 {/* Waveform / Mic icon on the right inside input pill if input is empty */}
                 {!input.trim() ? (
                   <Mic className="h-4.5 w-4.5 text-(--muted)/85 hover:text-(--fg) cursor-pointer transition-colors ml-2" />
@@ -856,14 +1472,13 @@ export function AIChatWidget() {
                   <button
                     type="submit"
                     disabled={loading || sessionLoading}
-                    className={`flex h-7 w-7 items-center justify-center rounded-full hover:opacity-90 cursor-pointer disabled:opacity-30 shrink-0 transition-all duration-200 ml-2 ${
-                      chatTheme === "white" ? "text-zinc-900 border border-zinc-200" : "text-white"
-                    }`}
-                    style={{ 
-                      backgroundColor: 
-                        chatTheme === "imessage" ? "#007aff" : 
-                        chatTheme === "sms" ? "#34c759" : 
-                        chatTheme === "pink" ? "#ff2d55" : "#ffffff" 
+                    className={`flex h-7 w-7 items-center justify-center rounded-full hover:opacity-90 cursor-pointer disabled:opacity-30 shrink-0 transition-all duration-200 ml-2 ${chatTheme === "white" ? "text-zinc-900 border border-zinc-200" : "text-white"
+                      }`}
+                    style={{
+                      backgroundColor:
+                        chatTheme === "imessage" ? "#007aff" :
+                          chatTheme === "sms" ? "#34c759" :
+                            chatTheme === "pink" ? "#ff2d55" : "#ffffff"
                     }}
                   >
                     <ArrowUp className="h-4 w-4" />
@@ -905,8 +1520,9 @@ export function AIChatWidget() {
               </div>
             </form>
           </div>
-        </>
+        </div>
       )}
+
 
       {/* ── Meeting Chat Tab ─────────────────────────────────────────────────── */}
       {activeTab === "meetings" && (
@@ -945,9 +1561,9 @@ export function AIChatWidget() {
                         Session with {meeting.mentor.displayName}
                       </h4>
                       <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold tracking-wider uppercase shrink-0 ${meeting.status === "COMPLETED" ? "bg-green-500/10 text-green-500 border border-green-500/20" :
-                          meeting.status === "CONFIRMED" ? "bg-blue-500/10 text-blue-500 border border-blue-500/20" :
-                            meeting.status === "CANCELLED" ? "bg-red-500/10 text-red-500 border border-red-500/20" :
-                              "bg-yellow-500/10 text-yellow-600 border border-yellow-500/20"
+                        meeting.status === "CONFIRMED" ? "bg-blue-500/10 text-blue-500 border border-blue-500/20" :
+                          meeting.status === "CANCELLED" ? "bg-red-500/10 text-red-500 border border-red-500/20" :
+                            "bg-yellow-500/10 text-yellow-600 border border-yellow-500/20"
                         }`}>
                         {meeting.status}
                       </span>

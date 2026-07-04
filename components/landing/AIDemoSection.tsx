@@ -216,7 +216,7 @@ export function AIDemoSection() {
             Powered by AI
           </div>
           <h2 className="text-[clamp(30px,5vw,52px)] font-semibold tracking-[-0.025em] text-[var(--fg)] leading-[1.1]">
-            Ask HelpMeMan AI
+            Ask Ruth's AI
           </h2>
           <p className="mt-4 text-[16px] md:text-[18px] text-[var(--muted)] max-w-xl mx-auto leading-relaxed">
             Get instant career guidance and mentor recommendations.
@@ -237,9 +237,8 @@ export function AIDemoSection() {
               <button
                 key={i}
                 onClick={() => handlePromptClick(i)}
-                className={`ai-prompt-tab px-4 py-2 text-[13px] font-medium rounded-lg border whitespace-nowrap transition-colors cursor-pointer ${
-                  activeConvo === i ? "ai-prompt-tab--active" : ""
-                }`}
+                className={`ai-prompt-tab px-4 py-2 text-[13px] font-medium rounded-lg border whitespace-nowrap transition-colors cursor-pointer ${activeConvo === i ? "ai-prompt-tab--active" : ""
+                  }`}
               >
                 &ldquo;{convo.prompt}&rdquo;
               </button>
@@ -254,7 +253,7 @@ export function AIDemoSection() {
                 <Sparkles size={12} className="text-white" />
               </div>
               <span className="text-[13px] font-medium text-[var(--fg)]">
-                HelpMeMan AI
+                Ruth
               </span>
               <span className="ml-auto flex items-center gap-1.5 text-[11px] text-[var(--muted)]">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" />
@@ -276,11 +275,10 @@ export function AIDemoSection() {
                     </div>
                   )}
                   <div
-                    className={`rounded-xl px-4 py-3 max-w-[85%] text-[14px] leading-[1.7] ${
-                      msg.role === "user"
-                        ? "bg-[#2563EB] text-white"
-                        : "ai-msg-bubble"
-                    }`}
+                    className={`rounded-xl px-4 py-3 max-w-[85%] text-[14px] leading-[1.7] ${msg.role === "user"
+                      ? "bg-[#2563EB] text-white"
+                      : "ai-msg-bubble"
+                      }`}
                   >
                     {msg.text.split("\n").map((line, li) => (
                       <span key={li}>

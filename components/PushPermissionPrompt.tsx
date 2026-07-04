@@ -23,9 +23,9 @@ export function PushPermissionPrompt() {
   async function enablePush() {
     setBusy(true);
     try {
-      const result = await requestPushPermissionAndRegister();
+      await requestPushPermissionAndRegister();
       localStorage.setItem("helpmeman.pushPromptAsked", "1");
-      if (result.granted) setVisible(false);
+      setVisible(false);
     } finally {
       setBusy(false);
     }
@@ -49,7 +49,7 @@ export function PushPermissionPrompt() {
         <X className="h-4 w-4" />
       </button>
       <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--accent) text-(--accent-fg)">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-(--accent) text-(--accent-fg)">
           <Bell className="h-5 w-5" />
         </div>
         <div>
