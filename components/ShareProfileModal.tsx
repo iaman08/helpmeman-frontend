@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import {
   X,
   Download,
+  MoreHorizontal,
 } from "lucide-react";
 
 import {
@@ -51,6 +52,55 @@ export function ShareProfileModal({
 
   const [qrDataUrl, setQrDataUrl] = useState("");
   const [avatarError, setAvatarError] = useState(false);
+  const [colorIndex, setColorIndex] = useState(0);
+  const [otherLabel, setOtherLabel] = useState("Other");
+
+  const defaultGradient = getGradient(mentor.id);
+  const GRADIENT_OPTIONS = [
+    defaultGradient,
+    "linear-gradient(135deg, #FFD225 0%, #FFA800 100%)", // Warm Golden Yellow
+    "linear-gradient(135deg, #E28253 0%, #8C4325 100%)", // Sunset Orange-Brown
+    "linear-gradient(135deg, #6366F1 0%, #A855F7 100%)", // Indigo Purple
+    "linear-gradient(135deg, #06B6D4 0%, #0891B2 100%)", // Cyan Teal
+    "linear-gradient(135deg, #EC4899 0%, #F43F5E 100%)", // Pink Rose
+  ];
+
+  const handleCycleColor = useCallback(() => {
+    setColorIndex((prev) => (prev + 1) % GRADIENT_OPTIONS.length);
+  }, [GRADIENT_OPTIONS.length]);
+
+  const handleShareOther = async () => {
+    try {
+      const dataUrl = await generateCardImage();
+      if (dataUrl) {
+        const blob = await (await fetch(dataUrl)).blob();
+        const file = new File([blob], `${mentor.displayName}.png`, {
+          type: "image/png",
+        });
+
+        if (navigator.canShare?.({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: mentor.displayName,
+            text: `Check out ${mentor.displayName}'s profile on HelpMeMan 🚀`,
+          });
+          return;
+        }
+      }
+    } catch (err) {
+      console.error("Native share failed:", err);
+    }
+
+    try {
+      await navigator.clipboard.writeText(profileUrl);
+      setOtherLabel("Copied!");
+      setTimeout(() => {
+        setOtherLabel("Other");
+      }, 2000);
+    } catch (err) {
+      console.error("Clipboard copy failed:", err);
+    }
+  };
 
   const profileUrl =
     typeof window !== "undefined"
@@ -62,8 +112,13 @@ export function ShareProfileModal({
     if (!isOpen) return;
 
     QRCode.toDataURL(profileUrl, {
-      width: 220,
+      width: 240,
       margin: 1,
+      errorCorrectionLevel: "H",
+      color: {
+        dark: "#1e293b",
+        light: "#ffffff",
+      },
     }).then(setQrDataUrl);
   }, [profileUrl, isOpen]);
 
@@ -203,90 +258,54 @@ export function ShareProfileModal({
         className="
           relative z-10
           w-[90vw]
-          max-w-[360px]
-          sm:max-w-[380px]
+          max-w-[340px]
+          sm:max-w-[350px]
+          bg-white
+          rounded-[36px]
+          overflow-hidden
+          shadow-[0_25px_80px_rgba(0,0,0,0.3)]
+          flex flex-col
         "
         onClick={(e) => e.stopPropagation()}
       >
-        {/* CLOSE */}
-        <button
-          onClick={onClose}
-          className="
-            absolute top-3 right-3 z-50
-            h-10 w-10
-            rounded-full
-            bg-black/30
-            backdrop-blur-xl
-            border border-white/10
-            flex items-center justify-center
-            text-white
-          "
-        >
-          <X size={18} />
-        </button>
-
-        {/* CARD */}
+        {/* CARD CONTAINER */}
         <div
           ref={cardRef}
-          className="overflow-hidden"
+          onClick={handleCycleColor}
+          className="cursor-pointer select-none active:brightness-95 transition-all duration-150"
           style={{
-            borderRadius: "42px",
-            background: "#ffffff",
-            boxShadow:
-              "0 25px 80px rgba(0,0,0,0.18)",
+            background: GRADIENT_OPTIONS[colorIndex],
+            padding: "36px 20px 24px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
           }}
         >
-          {/* TOP */}
+          {/* WHITE INNER CARD */}
           <div
+            className="w-full bg-white relative flex flex-col items-center"
             style={{
-              background: gradient,
-              height: "200px",
-              position: "relative",
-              overflow: "hidden",
+              borderRadius: "24px",
+              padding: "48px 16px 20px",
+              marginTop: "42px",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
             }}
+            onClick={(e) => e.stopPropagation()}
           >
-            {/* WAVE */}
-            <div
-              style={{
-                position: "absolute",
-                bottom: "-5px",
-                left: 0,
-                width: "100%",
-              }}
-            >
-              <svg
-                viewBox="0 0 500 150"
-                preserveAspectRatio="none"
-                style={{
-                  width: "100%",
-                  height: "90px",
-                }}
-              >
-                <path
-                  d="M0.00,49.98 C150.00,150.00 349.20,-50.00 500.00,49.98 L500.00,150.00 L0.00,150.00 Z"
-                  style={{
-                    stroke: "none",
-                    fill: "#ffffff",
-                  }}
-                />
-              </svg>
-            </div>
-
             {/* AVATAR */}
             <div
               style={{
                 position: "absolute",
+                top: "-42px",
                 left: "50%",
-                bottom: "18px",
                 transform: "translateX(-50%)",
-                width: "118px",
-                height: "118px",
+                width: "84px",
+                height: "84px",
                 borderRadius: "999px",
                 overflow: "hidden",
-                border: "5px solid white",
+                border: "4px solid white",
                 background: "#1f1f1f",
-                boxShadow:
-                  "0 15px 40px rgba(0,0,0,0.22)",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
                 zIndex: 20,
               }}
             >
@@ -300,9 +319,7 @@ export function ShareProfileModal({
                   alt={mentor.displayName}
                   crossOrigin="anonymous"
                   referrerPolicy="no-referrer"
-                  onError={() =>
-                    setAvatarError(true)
-                  }
+                  onError={() => setAvatarError(true)}
                   style={{
                     width: "100%",
                     height: "100%",
@@ -318,7 +335,7 @@ export function ShareProfileModal({
                     alignItems: "center",
                     justifyContent: "center",
                     color: "white",
-                    fontSize: "42px",
+                    fontSize: "28px",
                     fontWeight: 700,
                   }}
                 >
@@ -326,309 +343,217 @@ export function ShareProfileModal({
                 </div>
               )}
             </div>
-          </div>
 
-          {/* BODY */}
-          <div
-            style={{
-              padding: "82px 24px 42px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "18px",
-            }}
-          >
             {/* NAME */}
-            <div className="text-center">
-              <h2
-                style={{
-                  margin: 0,
-                  fontSize: "30px",
-                  fontWeight: 300,
-                  letterSpacing: "-0.04em",
-                  color: "#111827",
-                }}
-              >
-                {mentor.displayName}
-              </h2>
-
-              {(mentor.currentRole ||
-                mentor.company) && (
-                <p
-                  style={{
-                    marginTop: "8px",
-                    fontSize: "14px",
-                    color: "#6b7280",
-                  }}
-                >
-                  {mentor.currentRole}
-                  {mentor.company
-                    ? ` at ${mentor.company}`
-                    : ""}
-                </p>
-              )}
-            </div>
-
-            {/* BIO */}
-            {mentor.bio && (
-              <p
-                style={{
-                  margin: 0,
-                  textAlign: "center",
-                  lineHeight: 1.8,
-                  fontSize: "15px",
-                  color: "#6b7280",
-                  maxWidth: "280px",
-
-                  display: "-webkit-box",
-                  WebkitLineClamp: 4,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
-                }}
-              >
-                {mentor.bio}
-              </p>
-            )}
-
-            {/* TAGS */}
-            {mentor.expertise?.length >
-              0 && (
-              <div className="flex gap-2 flex-wrap justify-center">
-                {mentor.expertise
-                  .slice(0, 2)
-                  .map((tag) => (
-                    <span
-                      key={tag}
-                      className="
-                        px-4 py-2
-                        rounded-full
-                        text-xs
-                        font-semibold
-                        bg-gray-100
-                        text-gray-700
-                      "
-                    >
-                      {tag}
-                    </span>
-                  ))}
-              </div>
-            )}
+            <h2
+              className="text-center font-bold tracking-tight text-gray-900"
+              style={{
+                fontSize: "18px",
+                margin: "0 0 16px 0",
+              }}
+            >
+              {mentor.displayName}
+            </h2>
 
             {/* QR */}
             {qrDataUrl && (
-              <div className="flex flex-col items-center gap-3 mt-2">
+              <div className="relative flex items-center justify-center p-1 bg-white mb-3">
                 <img
                   src={qrDataUrl}
                   alt="QR"
-                  className="
-                    w-[110px]
-                    h-[110px]
-                    sm:w-[120px]
-                    sm:h-[120px]
-                  "
+                  className="w-[160px] h-[160px]"
                 />
-
-                <span className="text-xs text-gray-400 tracking-[0.2em] uppercase">
-                  HelpMeMan
-                </span>
+                <div
+                  className="
+                    absolute
+                    w-[32px] h-[32px]
+                    bg-white
+                    rounded-lg
+                    flex items-center justify-center
+                    shadow-[0_2px_8px_rgba(0,0,0,0.15)]
+                    p-1
+                    border border-gray-100
+                  "
+                >
+                  <svg
+                    viewBox="0 0 100 100"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-full h-full"
+                    style={{ color: "#4f46e5" }}
+                  >
+                    <path d="M20 20h12v60H20V20z" fill="currentColor" />
+                    <path d="M68 20h12v60H68V20z" fill="currentColor" />
+                    <path d="M32 60h12v8H32v-8z" fill="currentColor" />
+                    <path d="M44 48h12v8H44v-8z" fill="currentColor" />
+                    <path d="M56 36h12v8H56v-8z" fill="currentColor" />
+                  </svg>
+                </div>
               </div>
             )}
+
+            {/* SUBTITLE */}
+            <span
+              className="text-center text-gray-400 font-normal mb-3"
+              style={{
+                fontSize: "10px",
+                maxWidth: "180px",
+                lineHeight: "1.4",
+              }}
+            >
+              Scan to connect with {mentor.displayName} on HelpMeMan
+            </span>
+
+            {/* LOGO */}
+            <div className="flex items-center gap-1.5 mt-2">
+              <div className="w-4 h-4 text-gray-900">
+                <svg
+                  viewBox="0 0 100 100"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-full h-full"
+                  style={{ color: "#111827" }}
+                >
+                  <path d="M20 20h12v60H20V20z" fill="currentColor" />
+                  <path d="M68 20h12v60H68V20z" fill="currentColor" />
+                  <path d="M32 60h12v8H32v-8z" fill="currentColor" />
+                  <path d="M44 48h12v8H44v-8z" fill="currentColor" />
+                  <path d="M56 36h12v8H56v-8z" fill="currentColor" />
+                </svg>
+              </div>
+              <span className="font-bold tracking-tight text-gray-900 text-xs">
+                HelpMeMan
+              </span>
+            </div>
           </div>
+
+          {/* TAP TO CHANGE COLOR TEXT */}
+          <span
+            className="text-white/80 font-medium text-center mt-4 tracking-wide text-[10px]"
+            style={{
+              textShadow: "0 1px 2px rgba(0,0,0,0.15)",
+            }}
+          >
+            Tap background to change color
+          </span>
         </div>
 
-        {/* SHARE BAR */}
-        <div
-          className="
-            fixed
-            bottom-[max(14px,env(safe-area-inset-bottom))]
-            left-1/2
-            -translate-x-1/2
-            z-50
+        {/* BOTTOM SHEET */}
+        <div className="bg-white px-5 py-4 border-t border-gray-100 relative">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-gray-400 font-semibold tracking-widest uppercase text-[10px] mx-auto">
+              Share to
+            </span>
+            <button
+              onClick={onClose}
+              className="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X size={18} />
+            </button>
+          </div>
 
-            flex items-center gap-2 sm:gap-3
+          <div className="flex justify-around items-center gap-2">
+            {/* DOWNLOAD */}
+            <button
+              onClick={handleSaveImage}
+              className="flex flex-col items-center gap-1.5 group"
+            >
+              <div
+                className="
+                  w-11 h-11
+                  rounded-full
+                  bg-gray-50
+                  flex items-center justify-center
+                  text-gray-700
+                  border border-gray-100
+                  shadow-sm
+                  transition-all duration-200
+                  group-hover:scale-110 group-hover:bg-gray-100
+                  group-active:scale-95
+                "
+              >
+                <Download size={18} />
+              </div>
+              <span className="text-[10px] font-semibold text-gray-500 group-hover:text-gray-700 transition-colors">
+                Download
+              </span>
+            </button>
 
-            px-3 sm:px-4
-            py-2.5 sm:py-3
+            {/* WHATSAPP */}
+            <button
+              onClick={() => shareImage("whatsapp")}
+              className="flex flex-col items-center gap-1.5 group"
+            >
+              <div
+                className="
+                  w-11 h-11
+                  rounded-full
+                  bg-[#25D366]
+                  flex items-center justify-center
+                  text-white
+                  shadow-md
+                  transition-all duration-200
+                  group-hover:scale-110 group-hover:bg-[#20ba56]
+                  group-active:scale-95
+                "
+              >
+                <FaWhatsapp size={20} />
+              </div>
+              <span className="text-[10px] font-semibold text-gray-500 group-hover:text-gray-700 transition-colors">
+                WhatsApp
+              </span>
+            </button>
 
-            rounded-full
+            {/* LINKEDIN */}
+            <button
+              onClick={() => shareImage("linkedin")}
+              className="flex flex-col items-center gap-1.5 group"
+            >
+              <div
+                className="
+                  w-11 h-11
+                  rounded-full
+                  bg-[#0077B5]
+                  flex items-center justify-center
+                  text-white
+                  shadow-md
+                  transition-all duration-200
+                  group-hover:scale-110 group-hover:bg-[#006396]
+                  group-active:scale-95
+                "
+              >
+                <FaLinkedin size={18} />
+              </div>
+              <span className="text-[10px] font-semibold text-gray-500 group-hover:text-gray-700 transition-colors">
+                LinkedIn
+              </span>
+            </button>
 
-            backdrop-blur-2xl
-
-            border border-white/20
-
-            shadow-[0_10px_40px_rgba(0,0,0,0.18)]
-
-            w-fit
-            max-w-[95vw]
-            overflow-x-auto
-          "
-          style={{
-            background:
-              "rgba(255,255,255,0.78)",
-          }}
-        >
-          {/* LINKEDIN */}
-          <button
-            onClick={() =>
-              shareImage("linkedin")
-            }
-            className="
-              w-[46px] h-[46px]
-              sm:w-[52px] sm:h-[52px]
-
-              rounded-full
-
-              flex items-center justify-center
-
-              transition-all duration-200
-
-              hover:scale-110
-              active:scale-95
-
-              bg-white
-
-              shadow-md
-
-              border border-gray-100
-
-              flex-shrink-0
-            "
-          >
-            <FaLinkedin
-              size={22}
-              color="#0077B5"
-            />
-          </button>
-
-          {/* WHATSAPP */}
-          <button
-            onClick={() =>
-              shareImage("whatsapp")
-            }
-            className="
-              w-[46px] h-[46px]
-              sm:w-[52px] sm:h-[52px]
-
-              rounded-full
-
-              flex items-center justify-center
-
-              transition-all duration-200
-
-              hover:scale-110
-              active:scale-95
-
-              bg-white
-
-              shadow-md
-
-              border border-gray-100
-
-              flex-shrink-0
-            "
-          >
-            <FaWhatsapp
-              size={24}
-              color="#25D366"
-            />
-          </button>
-
-          {/* FACEBOOK */}
-          <button
-            onClick={() =>
-              shareImage("facebook")
-            }
-            className="
-              w-[46px] h-[46px]
-              sm:w-[52px] sm:h-[52px]
-
-              rounded-full
-
-              flex items-center justify-center
-
-              transition-all duration-200
-
-              hover:scale-110
-              active:scale-95
-
-              bg-white
-
-              shadow-md
-
-              border border-gray-100
-
-              flex-shrink-0
-            "
-          >
-            <FaFacebook
-              size={22}
-              color="#1877F2"
-            />
-          </button>
-
-          {/* INSTAGRAM */}
-          <button
-            onClick={() =>
-              shareImage("instagram")
-            }
-            className="
-              w-[46px] h-[46px]
-              sm:w-[52px] sm:h-[52px]
-
-              rounded-full
-
-              flex items-center justify-center
-
-              transition-all duration-200
-
-              hover:scale-110
-              active:scale-95
-
-              bg-white
-
-              shadow-md
-
-              border border-gray-100
-
-              flex-shrink-0
-            "
-          >
-            <FaInstagram
-              size={24}
-              color="#E1306C"
-            />
-          </button>
-
-          {/* SAVE */}
-          <button
-            onClick={handleSaveImage}
-            className="
-              w-[46px] h-[46px]
-              sm:w-[52px] sm:h-[52px]
-
-              rounded-full
-
-              flex items-center justify-center
-
-              transition-all duration-200
-
-              hover:scale-110
-              active:scale-95
-
-              bg-white
-
-              shadow-md
-
-              border border-gray-100
-
-              flex-shrink-0
-            "
-          >
-            <Download
-              size={20}
-              color="#111827"
-            />
-          </button>
+            {/* OTHER */}
+            <button
+              onClick={handleShareOther}
+              className="flex flex-col items-center gap-1.5 group"
+            >
+              <div
+                className="
+                  w-11 h-11
+                  rounded-full
+                  bg-[#6366F1]
+                  flex items-center justify-center
+                  text-white
+                  shadow-md
+                  transition-all duration-200
+                  group-hover:scale-110 group-hover:bg-[#4f46e5]
+                  group-active:scale-95
+                "
+              >
+                <MoreHorizontal size={18} />
+              </div>
+              <span className="text-[10px] font-semibold text-gray-500 group-hover:text-gray-700 transition-colors">
+                {otherLabel}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
