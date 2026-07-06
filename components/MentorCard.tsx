@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Star, Building2, Share2 } from "lucide-react";
+import { Star, Building2, Share2, Globe, Clock, Award } from "lucide-react";
 import { InstitutionBadge } from "./InstitutionBadge";
 import { useState } from "react";
 import type { Mentor } from "@/lib/types";
@@ -59,6 +59,12 @@ export function MentorCard({ mentor, onShare }: Props) {
             </div>
           )}
           <div className="flex flex-col gap-0.5 min-w-0">
+            {mentor.rating >= 4.8 && (
+              <span className="inline-flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 self-start mb-0.5">
+                <Award className="h-2.5 w-2.5" />
+                Top Mentor
+              </span>
+            )}
             <span className="font-display text-lg leading-tight truncate">
               {mentor.displayName}
             </span>
@@ -95,12 +101,28 @@ export function MentorCard({ mentor, onShare }: Props) {
         />
       </div>
 
-
-
       {/* ─── Bio snippet ─── */}
       <p className="text-sm text-(--muted) leading-relaxed line-clamp-2 mt-1">
         {mentor.bio}
       </p>
+
+      {/* ─── Profile Details (Location, Active Status) ─── */}
+      {(mentor.location || mentor.activeStatus || mentor.averageResponseTime) && (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-(--muted) mt-1">
+          {mentor.location && (
+            <span className="flex items-center gap-1 shrink-0">
+              <Globe className="h-3 w-3 shrink-0" />
+              {mentor.location}
+            </span>
+          )}
+          {mentor.activeStatus && (
+            <span className="flex items-center gap-1 shrink-0">
+              <Clock className="h-3 w-3 shrink-0" />
+              {mentor.activeStatus}
+            </span>
+          )}
+        </div>
+      )}
 
       {/* ─── Footer ─── */}
       <div className="flex items-center justify-between mt-auto pt-3 border-t border-(--hairline)">

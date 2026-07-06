@@ -62,6 +62,12 @@ export interface Mentor {
   sessionDuration: number;
   totalSessions: number;
   rating: number;
+  location?: string | null;
+  activeStatus?: string | null;
+  averageResponseTime?: string | null;
+  languages?: string | null;
+  experienceYears?: number | null;
+  isOnline: boolean;
   reviews?: Review[];
   verificationDocs?: VerificationDoc[];
   createdAt: string;

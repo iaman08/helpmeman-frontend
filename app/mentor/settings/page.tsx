@@ -3,7 +3,8 @@
 import { useEffect, useState, useRef, type FormEvent, type ChangeEvent } from "react";
 import {
   User, Save, Camera, X, Plus, Link as LinkIcon, Briefcase,
-  Languages, ChevronDown, Award, CheckCircle2, Clock, Building2
+  Languages, ChevronDown, Award, CheckCircle2, Clock, Building2,
+  Globe, Zap
 } from "lucide-react";
 import api from "@/lib/api";
 import { AxiosError } from "axios";
@@ -88,6 +89,14 @@ export default function MentorSettingsPage() {
   const [sessionDuration, setSessionDuration] = useState("30");
   const [preferredLanguage, setPreferredLanguage] = useState("en");
 
+  // New fields
+  const [location, setLocation] = useState("");
+  const [activeStatus, setActiveStatus] = useState("");
+  const [averageResponseTime, setAverageResponseTime] = useState("");
+  const [languages, setLanguages] = useState("");
+  const [experienceYears, setExperienceYears] = useState("");
+  const [isOnline, setIsOnline] = useState(false);
+
   // Skills / Expertise
   const [skills, setSkills] = useState<string[]>([]);
   const [expertiseInput, setExpertiseInput] = useState("");
@@ -108,6 +117,12 @@ export default function MentorSettingsPage() {
         setPricePerSession(String(Math.round((m.pricePerSession ?? 0) / 100)));
         setSessionDuration(String(m.sessionDuration ?? 30));
         setSkills((m.expertise ?? []) as string[]);
+        setLocation(m.location ?? "");
+        setActiveStatus(m.activeStatus ?? "");
+        setAverageResponseTime(m.averageResponseTime ?? "");
+        setLanguages(m.languages ?? "");
+        setExperienceYears(m.experienceYears !== undefined && m.experienceYears !== null ? String(m.experienceYears) : "");
+        setIsOnline(m.isOnline ?? false);
         if (m.avatar) setAvatarPreview(m.avatar);
       })
       .catch(() => toast("Failed to load profile", "error"))
@@ -208,6 +223,12 @@ export default function MentorSettingsPage() {
         pricePerSession: Number(pricePerSession) * 100,
         sessionDuration: Number(sessionDuration),
         preferredLanguage,
+        location,
+        activeStatus,
+        averageResponseTime,
+        languages,
+        experienceYears: experienceYears ? Number(experienceYears) : null,
+        isOnline,
       });
       toast("Profile updated successfully!", "success");
     } catch (err) {
@@ -384,8 +405,8 @@ export default function MentorSettingsPage() {
                 />
               </Field>
 
-              {/* ─── Role + Language ─── */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* ─── Role + Company + Experience ─── */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <Field label="Current Role">
                   <div className="relative">
                     <Briefcase size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-(--muted)" />
@@ -408,6 +429,89 @@ export default function MentorSettingsPage() {
                     className={inputCls()}
                   />
                 </Field>
+
+                <Field label="Years of Experience">
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder="e.g. 5"
+                    value={experienceYears}
+                    onChange={(e) => setExperienceYears(e.target.value)}
+                    className={inputCls()}
+                  />
+                </Field>
+              </div>
+
+              {/* ─── Location & Languages ─── */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <Field label="Location" description="e.g. Bangalore, India or Remote">
+                  <div className="relative">
+                    <Globe size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-(--muted)" />
+                    <input
+                      type="text"
+                      placeholder="e.g. Bangalore, India"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      className={`${inputCls()} pl-10`}
+                    />
+                  </div>
+                </Field>
+
+                <Field label="Languages Spoken" description="e.g. Speaks English and Hindi">
+                  <div className="relative">
+                    <Languages size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-(--muted)" />
+                    <input
+                      type="text"
+                      placeholder="e.g. Speaks English and Hindi"
+                      value={languages}
+                      onChange={(e) => setLanguages(e.target.value)}
+                      className={`${inputCls()} pl-10`}
+                    />
+                  </div>
+                </Field>
+              </div>
+
+              {/* ─── Active Status & Average Response Time ─── */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <Field label="Active Status" description="e.g. Active today or Active this week">
+                  <div className="relative">
+                    <Clock size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-(--muted)" />
+                    <input
+                      type="text"
+                      placeholder="e.g. Active today"
+                      value={activeStatus}
+                      onChange={(e) => setActiveStatus(e.target.value)}
+                      className={`${inputCls()} pl-10`}
+                    />
+                  </div>
+                </Field>
+
+                <Field label="Average Response Time" description="e.g. Usually responds in half a day">
+                  <div className="relative">
+                    <Zap size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-(--muted)" />
+                    <input
+                      type="text"
+                      placeholder="e.g. Usually responds in half a day"
+                      value={averageResponseTime}
+                      onChange={(e) => setAverageResponseTime(e.target.value)}
+                      className={`${inputCls()} pl-10`}
+                    />
+                  </div>
+                </Field>
+              </div>
+
+              {/* ─── Online Presence ─── */}
+              <div className="flex items-center gap-3 bg-(--fg)/[0.02] border border-(--hairline)/50 rounded-2xl p-4 my-2">
+                <input
+                  id="isOnline"
+                  type="checkbox"
+                  checked={isOnline}
+                  onChange={(e) => setIsOnline(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                />
+                <label htmlFor="isOnline" className="text-sm font-semibold text-(--fg) cursor-pointer select-none">
+                  Show Online Status on Profile (Green Dot badge)
+                </label>
               </div>
 
               {/* ─── Preferred Language ─── */}
