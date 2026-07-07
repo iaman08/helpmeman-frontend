@@ -77,8 +77,10 @@ export function AIDemoSection() {
         return next;
       });
     },
-    onMeta: () => {
-      setShowMentors(true);
+    onMeta: (data) => {
+      if (data && data.suggestMentor) {
+        setShowMentors(true);
+      }
     },
     onError: (err) => {
       setDisplayedMessages((prev) => [...prev, { role: "ai", text: err }]);
