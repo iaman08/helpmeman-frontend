@@ -33,7 +33,7 @@ export default function DashboardLayout({
           window.dispatchEvent(new Event("open-ai"));
         }
       },
-      label: "AI Assistant",
+      label: "Ruth",
       icon: Sparkles,
     },
     { href: "/mentors", label: "Browse Mentors", icon: Search },

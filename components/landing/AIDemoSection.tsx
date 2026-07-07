@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, useInView } from "motion/react";
 import { Send, Sparkles, User } from "lucide-react";
-import axios from "axios";
 import { API_BASE } from "@/lib/api";
+import { useAIStream } from "@/hooks/useAIStream";
 
 interface ChatMessage {
   role: "user" | "ai";
@@ -63,6 +63,28 @@ export function AIDemoSection() {
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const streamingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const { streamState, startStream } = useAIStream({
+    endpoint: `${API_BASE}/public/ai/demo-chat/stream`,
+    onToken: (text) => {
+      setDisplayedMessages((prev) => {
+        const next = [...prev];
+        const lastMsg = next[next.length - 1];
+        if (lastMsg && lastMsg.role === "ai") {
+          next[next.length - 1] = { role: "ai", text };
+        } else {
+          next.push({ role: "ai", text });
+        }
+        return next;
+      });
+    },
+    onMeta: () => {
+      setShowMentors(true);
+    },
+    onError: (err) => {
+      setDisplayedMessages((prev) => [...prev, { role: "ai", text: err }]);
+    }
+  });
+
   const clearTimeouts = useCallback(() => {
     timeoutsRef.current.forEach(clearTimeout);
     timeoutsRef.current = [];
@@ -116,34 +138,13 @@ export function AIDemoSection() {
     clearTimeouts();
     setAutoplayActive(false);
     setIsTyping(false);
+    setShowMentors(false);
 
     const userText = inputValue;
     setDisplayedMessages((prev) => [...prev, { role: "user", text: userText }]);
     setInputValue("");
-    setIsTyping(true);
-    setShowMentors(false);
 
-    try {
-      const response = await axios.post(`${API_BASE}/public/ai/demo-chat`, {
-        message: userText,
-      });
-      const reply = response.data.response || "No response received.";
-      const interval = streamAIMessage(reply, () => {
-        setShowMentors(true);
-      });
-      streamingIntervalRef.current = interval;
-    } catch (err: any) {
-      setIsTyping(false);
-      const errorMessage =
-        err.response?.data?.error || "AI service temporarily unavailable. Please try again.";
-      setDisplayedMessages((prev) => [
-        ...prev,
-        {
-          role: "ai",
-          text: errorMessage,
-        },
-      ]);
-    }
+    startStream(userText);
   };
 
   const playConversation = useCallback(
@@ -305,7 +306,7 @@ export function AIDemoSection() {
               ))}
 
               {/* Typing indicator */}
-              {isTyping && (
+              {(isTyping || streamState === "waiting_first_token" || streamState === "sending") && (
                 <div className="flex gap-3">
                   <div className="w-7 h-7 rounded-lg bg-[#2563EB] flex items-center justify-center flex-shrink-0">
                     <Sparkles size={13} className="text-white" />

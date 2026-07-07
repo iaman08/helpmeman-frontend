@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Bot, X, Trash2, Sparkles, Clock, ChevronRight, MessageSquare, RotateCcw, Plus, History, Calendar, Video, Edit2, Check, Smile, Mic, ArrowUp, Star, BadgeCheck } from "lucide-react";
-import api from "@/lib/api";
+import api, { API_BASE } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import Link from "next/link";
-import { AxiosError } from "axios";
 import { usePathname } from "next/navigation";
+import { AxiosError } from "axios";
+import { useAIStream } from "@/hooks/useAIStream";
+
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -109,24 +111,311 @@ function parseMarkdownLinks(text: string, mentors?: MentorData[]) {
   });
 }
 
-function formatAIContent(content: string, mentors?: MentorData[]) {
-  const lines = content.split("\n");
-  return lines.map((line, i) => {
-    const trimmed = line.trim();
-    const boldParts = trimmed.split(/(\*\*.*?\*\*)/g);
-    const formatted = boldParts.map((p, j) => {
-      if (p.startsWith("**") && p.endsWith("**")) {
-        return <strong key={j} className="font-semibold">{parseMarkdownLinks(p.slice(2, -2), mentors)}</strong>;
+function formatAIContent(content: string, mentors?: MentorData[], isStreaming?: boolean) {
+  const result: React.ReactNode[] = [];
+  let currentIndex = 0;
+
+  while (currentIndex < content.length) {
+    const codeBlockStart = content.indexOf('```', currentIndex);
+    if (codeBlockStart === -1) {
+      const textSegment = content.slice(currentIndex);
+      if (textSegment) {
+        result.push(...parseNormalText(textSegment, mentors));
       }
-      return <span key={j}>{parseMarkdownLinks(p, mentors)}</span>;
-    });
-    if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
-      return <li key={i} className="ml-4 list-disc">{formatted}</li>;
+      break;
     }
-    if (trimmed.length === 0) return <br key={i} />;
-    return <p key={i} className="leading-relaxed">{formatted}</p>;
+
+    const textBefore = content.slice(currentIndex, codeBlockStart);
+    if (textBefore) {
+      result.push(...parseNormalText(textBefore, mentors));
+    }
+
+    const langStart = codeBlockStart + 3;
+    const firstNewline = content.indexOf('\n', langStart);
+    let lang = "";
+    let codeStart = langStart;
+
+    if (firstNewline !== -1 && firstNewline < content.indexOf('```', langStart)) {
+      lang = content.slice(langStart, firstNewline).trim();
+      codeStart = firstNewline + 1;
+    }
+
+    const codeBlockEnd = content.indexOf('```', codeStart);
+    if (codeBlockEnd === -1) {
+      const code = content.slice(codeStart);
+      result.push(
+        <div key={`code-open-${codeBlockStart}`} className="my-2 rounded-xl overflow-hidden border border-(--hairline)">
+          {lang && (
+            <div className="px-3 py-1 text-[10px] font-mono font-semibold text-(--muted) bg-(--fg)/[0.04] border-b border-(--hairline)">
+              {lang} (streaming...)
+            </div>
+          )}
+          <pre className="p-3 text-xs font-mono leading-relaxed overflow-x-auto bg-(--fg)/[0.02] whitespace-pre-wrap">
+            <code>{code}</code>
+          </pre>
+        </div>
+      );
+      break;
+    }
+
+    const code = content.slice(codeStart, codeBlockEnd);
+    result.push(
+      <div key={`code-closed-${codeBlockStart}`} className="my-2 rounded-xl overflow-hidden border border-(--hairline)">
+        {lang && (
+          <div className="px-3 py-1 text-[10px] font-mono font-semibold text-(--muted) bg-(--fg)/[0.04] border-b border-(--hairline)">
+            {lang}
+          </div>
+        )}
+        <pre className="p-3 text-xs font-mono leading-relaxed overflow-x-auto bg-(--fg)/[0.02] whitespace-pre-wrap">
+          <code>{code}</code>
+        </pre>
+      </div>
+    );
+
+    currentIndex = codeBlockEnd + 3;
+  }
+
+  if (isStreaming) {
+    result.push(<span key="cursor" className="inline-block w-0.5 h-4 bg-(--fg)/60 ml-0.5 align-middle animate-pulse" />);
+  }
+
+  return result;
+}
+
+function parseNormalText(text: string, mentors?: MentorData[]): React.ReactNode[] {
+  const result: React.ReactNode[] = [];
+  const lines = text.split('\n');
+  
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    if (trimmed.startsWith('|') && i + 1 < lines.length && lines[i + 1].trim().startsWith('|') && lines[i + 1].trim().includes('-')) {
+      const headerRow = trimmed;
+      const headers = headerRow.split('|').map(s => s.trim()).filter((_, idx, arr) => idx > 0 && idx < arr.length - 1);
+      
+      const rows: string[][] = [];
+      let j = i + 2;
+      while (j < lines.length && lines[j].trim().startsWith('|')) {
+        const rowCells = lines[j].split('|').map(s => s.trim()).filter((_, idx, arr) => idx > 0 && idx < arr.length - 1);
+        rows.push(rowCells);
+        j++;
+      }
+
+      result.push(
+        <div key={`table-${i}`} className="my-3 overflow-x-auto border border-(--hairline) rounded-xl">
+          <table className="w-full text-xs text-left border-collapse">
+            <thead>
+              <tr className="bg-(--fg)/[0.02] border-b border-(--hairline)">
+                {headers.map((h, hIdx) => (
+                  <th key={hIdx} className="px-4 py-2.5 font-semibold text-(--fg)">
+                    {parseMarkdownInline(h, mentors)}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, rIdx) => (
+                <tr key={rIdx} className="border-b border-(--hairline)/60 last:border-0 hover:bg-(--fg)/[0.01]">
+                  {row.map((cell, cIdx) => (
+                    <td key={cIdx} className="px-4 py-2 text-(--fg)/90">
+                      {parseMarkdownInline(cell, mentors)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+
+      i = j;
+      continue;
+    }
+
+    if (trimmed.startsWith('## ')) {
+      result.push(<h3 key={`h-${i}`} className="font-bold text-sm mt-3 mb-1 text-(--fg)">{trimmed.slice(3)}</h3>);
+      i++;
+      continue;
+    }
+
+    if (trimmed.startsWith('### ')) {
+      result.push(<h4 key={`h3-${i}`} className="font-semibold text-sm mt-2 mb-0.5 text-(--fg)">{trimmed.slice(4)}</h4>);
+      i++;
+      continue;
+    }
+
+    if (trimmed === '---' || trimmed === '***') {
+      result.push(<hr key={`hr-${i}`} className="my-2 border-(--hairline)" />);
+      i++;
+      continue;
+    }
+
+    if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+      const itemContent = trimmed.slice(2);
+      result.push(
+        <li key={`li-${i}`} className="ml-4 list-disc text-sm leading-relaxed">
+          {parseMarkdownInline(itemContent, mentors)}
+        </li>
+      );
+      i++;
+      continue;
+    }
+
+    const numberedMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
+    if (numberedMatch) {
+      result.push(
+        <li key={`nl-${i}`} className="ml-4 list-decimal text-sm leading-relaxed">
+          {parseMarkdownInline(numberedMatch[2], mentors)}
+        </li>
+      );
+      i++;
+      continue;
+    }
+
+    if (trimmed.length === 0) {
+      result.push(<br key={`br-${i}`} />);
+      i++;
+      continue;
+    }
+
+    result.push(
+      <p key={`p-${i}`} className="text-sm leading-relaxed">
+        {parseMarkdownInline(trimmed, mentors)}
+      </p>
+    );
+    i++;
+  }
+
+  return result;
+}
+
+
+// Inline markdown parser: bold, inline code, links
+function parseMarkdownInline(text: string, mentors?: MentorData[]): React.ReactNode {
+  // Process bold + inline code + links together
+  const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>;
+    }
+    if (part.startsWith('`') && part.endsWith('`')) {
+      return <code key={i} className="text-[11px] font-mono bg-(--fg)/[0.08] rounded px-1 py-0.5">{part.slice(1, -1)}</code>;
+    }
+    const linkMatch = part.match(/\[([^\]]+)\]\(([^)]+)\)/);
+    if (linkMatch) {
+      return <Link key={i} href={linkMatch[2]} className="text-(--accent) hover:underline font-medium">{linkMatch[1]}</Link>;
+    }
+    return <span key={i}>{part}</span>;
   });
 }
+
+
+interface ChatMessageItemProps {
+  msg: Message;
+  index: number;
+  chatTheme: string;
+  isLastUserMsg: boolean;
+  mentorContext: MentorData[];
+  streamingMessageId: string | null;
+  setBookingMentor: (mentor: MentorData | null) => void;
+  showHeader: boolean;
+  msgDateStr: string;
+}
+
+const ChatMessageItem = React.memo(({
+  msg,
+  index,
+  chatTheme,
+  isLastUserMsg,
+  mentorContext,
+  streamingMessageId,
+  setBookingMentor,
+  showHeader,
+  msgDateStr,
+}: ChatMessageItemProps) => {
+  return (
+    <div className="w-full flex flex-col animate-in fade-in slide-in-from-bottom-1 duration-200">
+      {/* Centered Date Header */}
+      {showHeader && (
+        <div className="flex flex-col items-center my-5 select-none">
+          <span className="text-[11px] font-semibold text-(--muted) tracking-tight">
+            {formatAppleMessageHeader(msgDateStr)}
+          </span>
+        </div>
+      )}
+
+      {/* Bubble Container */}
+      <div
+        className={`flex w-full mb-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+      >
+        <div className="flex flex-col max-w-[85%] sm:max-w-[75%]">
+          <div
+            className={`rounded-[18px] px-4 py-2.5 text-[15px] leading-relaxed shadow-sm ${msg.role === "user"
+                ? chatTheme === "imessage"
+                  ? "bg-[#007aff] text-white rounded-br-[4px]"
+                  : chatTheme === "sms"
+                    ? "bg-[#34c759] text-white rounded-br-[4px]"
+                    : chatTheme === "pink"
+                      ? "bg-[#ff2d55] text-white rounded-br-[4px]"
+                      : "bg-white dark:bg-zinc-100 text-zinc-900 border border-zinc-200/60 rounded-br-[4px]"
+                : "bg-(--fg)/5 border border-(--hairline)/25 text-(--fg) rounded-bl-[4px]"
+              }`}
+          >
+            {msg.role === "assistant" ? (
+              <div className="flex flex-col gap-1.5 text-[14px] leading-relaxed">
+                {formatAIContent(msg.content, msg.mentors ?? mentorContext, msg.id === streamingMessageId)}
+              </div>
+            ) : (
+              msg.content
+            )}
+          </div>
+
+          {/* Read Receipt underneath outgoing bubble */}
+          {msg.role === "user" && isLastUserMsg && (
+            <div className="text-[10px] font-bold text-(--muted)/80 mt-1 text-right mr-1.5 select-none">
+              Read {formatReadReceiptTime(msgDateStr)}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Mentor Profile (shown below assistant bubble) ── */}
+      {msg.role === "assistant" && msg.mentorProfile && (
+        <div className="mt-2 max-w-sm">
+          <MentorProfileInChat
+            mentor={msg.mentorProfile}
+            onBook={(m) => setBookingMentor(m)}
+          />
+        </div>
+      )}
+
+      {/* ── Mentor Cards (shown below assistant bubble) ── */}
+      {msg.role === "assistant" && msg.mentors && msg.mentors.length > 0 && (
+        <div className="flex flex-col gap-3 mt-2 max-w-sm">
+          {msg.mentors.map((mentor) => (
+            <MentorCardInChat
+              key={mentor.id}
+              mentor={mentor}
+              onBook={(m) => setBookingMentor(m)}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* ── Booking Success ── */}
+      {msg.role === "assistant" && msg.bookingSuccess && (
+        <div className="mt-2 max-w-sm">
+          <BookingSuccessInChat info={msg.bookingSuccess} />
+        </div>
+      )}
+    </div>
+  );
+});
+ChatMessageItem.displayName = "ChatMessageItem";
+
+
 
 
 function formatRelativeDate(isoDate: string) {
@@ -667,10 +956,83 @@ export function AIChatWidget() {
   const [meetings, setMeetings] = useState<Booking[]>([]);
   const [meetingsLoading, setMeetingsLoading] = useState(false);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const userHasScrolledUpRef = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
+
+  // Streaming state
+  const streamingMessageIdRef = useRef<string | null>(null);
+  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
+
+  const { streamState, error: streamError, startStream, stopStream } = useAIStream({
+    endpoint: `${API_BASE}/ai/chat/stream`,
+    token: typeof window !== "undefined" ? localStorage.getItem("helpmeman.accessToken") : null,
+    onToken: (text) => {
+      const currentStreamingId = streamingMessageIdRef.current;
+      if (!currentStreamingId) return;
+      setMessages(prev => {
+        const hasStreamingBubble = prev.some(m => m.id === currentStreamingId);
+        if (!hasStreamingBubble) {
+          return [
+            ...prev,
+            {
+              id: currentStreamingId,
+              role: "assistant",
+              content: text,
+              createdAt: new Date().toISOString(),
+            }
+          ];
+        }
+        return prev.map(m => m.id === currentStreamingId ? { ...m, content: text } : m);
+      });
+    },
+    onMeta: (data) => {
+      const currentStreamingId = streamingMessageIdRef.current;
+      if (!currentStreamingId) return;
+
+      const { response: parsedResponse, mentors, sessionId: metaSessionId } = data;
+      if (metaSessionId && !sessionId) {
+        setSessionId(metaSessionId);
+      }
+
+      if (mentors && mentors.length > 0) {
+        const currentList = mentorContextRef.current;
+        const newMentors = mentors.filter(
+          (nm: MentorData) => !currentList.some((cm) => cm.id === nm.id)
+        );
+        mentorContextRef.current = [...currentList, ...newMentors];
+      }
+
+      // Check if we need to open the booking modal
+      const respLower = (parsedResponse || "").toLowerCase();
+      if (respLower.includes("opening booking modal") || respLower.includes("booking modal for you")) {
+        const target = mentorContextRef.current.length > 0 ? mentorContextRef.current[mentorContextRef.current.length - 1] : null;
+        if (target) setBookingMentor(target);
+      }
+
+      setMessages(prev => prev.map(m =>
+        m.id === currentStreamingId
+          ? {
+              ...m,
+              content: parsedResponse || m.content,
+              mentors: mentors && mentors.length > 0 ? mentors : undefined,
+            }
+          : m
+      ));
+    },
+    onError: (err) => {
+      setError(err);
+    },
+    onCompleted: () => {
+      setLoading(false);
+      setStreamingMessageId(null);
+      streamingMessageIdRef.current = null;
+    }
+  });
+
+
 
   // Theme state: imessage, sms, pink, white
   const [chatTheme, setChatTheme] = useState<"imessage" | "sms" | "pink" | "white">(() => {
@@ -721,9 +1083,35 @@ export function AIChatWidget() {
   }, [isOpen]);
 
   // ─── Auto scroll ───────────────────────────────────────────────────────────
+  const autoScroll = useCallback(() => {
+    const container = scrollContainerRef.current;
+    if (!container || userHasScrolledUpRef.current) return;
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: "smooth"
+    });
+  }, []);
+
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    autoScroll();
+  }, [messages, autoScroll]);
+
+  const handleScroll = useCallback(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const offset = container.scrollHeight - container.scrollTop - container.clientHeight;
+    const isAtBottom = offset < 60;
+
+    if (isAtBottom) {
+      userHasScrolledUpRef.current = false;
+    } else {
+      if (streamState === "streaming") {
+        userHasScrolledUpRef.current = true;
+      }
+    }
+  }, [streamState]);
+
 
   // Focus input on open
   useEffect(() => {
@@ -800,8 +1188,6 @@ export function AIChatWidget() {
     }
   }, []);
 
-  // ─── Scoped Meeting Session Chat ────────────────────────────────────────────
-
   const startMeetingChat = useCallback(async (bookingId: string, mentorName: string, scheduledAt: string) => {
     setActiveTab("chat");
     setSessionLoading(true);
@@ -854,19 +1240,22 @@ export function AIChatWidget() {
     setActiveTab("chat");
   }, [sessionId, messages.length]);
 
-  // ─── Send message ──────────────────────────────────────────────────────────
+  const handleStop = useCallback(() => {
+    stopStream();
+    setLoading(false);
+    setStreamingMessageId(null);
+  }, [stopStream]);
 
-  const handleSend = useCallback(async () => {
-    const msg = input.trim();
+  const handleSend = useCallback(async (customMsg?: string, reuseAssistantMessageId?: string) => {
+    const msg = (customMsg !== undefined ? customMsg : input).trim();
     if (!msg || loading) return;
 
     const lower = msg.toLowerCase();
     const contextMentors = mentorContextRef.current;
 
-    // ── 1. Resolve target mentor from memory (names, ordinals, pronouns) ──
+    // ── 1. Route Intent to modal / profile components if matched ──
     let resolvedMentor: MentorData | null = null;
     if (contextMentors.length > 0) {
-      // Name match
       for (const m of contextMentors) {
         const firstName = m.displayName.split(" ")[0].toLowerCase();
         const fullName = m.displayName.toLowerCase();
@@ -875,32 +1264,28 @@ export function AIChatWidget() {
           break;
         }
       }
-      // Ordinals
       if (!resolvedMentor) {
         if (/(first|1st|number one|top one|#1)/i.test(lower)) resolvedMentor = contextMentors[0];
         else if (/(second|2nd|number two|#2)/i.test(lower) && contextMentors.length > 1) resolvedMentor = contextMentors[1];
         else if (/(third|3rd|number three|#3)/i.test(lower) && contextMentors.length > 2) resolvedMentor = contextMentors[2];
         else if (/(fourth|4th|number four|#4)/i.test(lower) && contextMentors.length > 3) resolvedMentor = contextMentors[3];
       }
-      // Pronoun or general intent fallback (book, session, profile, etc.)
       const isBookingOrProfileQuery = /(book|schedule|reserve|meet|session|profile|tell me|who is|details|view)/i.test(lower);
       if (!resolvedMentor && (/(him|her|this|that|them|the mentor)/i.test(lower) || isBookingOrProfileQuery)) {
         resolvedMentor = contextMentors[contextMentors.length - 1];
       }
     }
 
-    // ── 2. Route Booking Intent directly to modal (Rule 4, 5) ──
-    const isBookingIntent = /(book|schedule|reserve|meet|session with|i want this|continue booking|i'll take|pick|choose|select)/i.test(lower);
+    const isBookingIntent = /(book|schedule|reserve|meet|session with|i want this|continue booking|i'll take|go with|pick|choose|select)/i.test(lower);
     if (isBookingIntent && resolvedMentor) {
       setBookingMentor(resolvedMentor);
-      setInput("");
+      if (customMsg === undefined) setInput("");
       return;
     }
 
-    // ── 3. Route Profile Intent directly to inline component (Rule 7, 8) ──
     const isProfileIntent = /(profile|tell me|who is|details|about him|about her|more info|view)/i.test(lower);
     if (isProfileIntent && resolvedMentor) {
-      setInput("");
+      if (customMsg === undefined) setInput("");
       const userMsg: Message = {
         id: `u_${Date.now()}`,
         role: "user",
@@ -918,8 +1303,12 @@ export function AIChatWidget() {
       return;
     }
 
-    setInput("");
+    if (customMsg === undefined) setInput("");
     setError("");
+
+    // Set sending and waiting states
+    setLoading(true);
+    userHasScrolledUpRef.current = false; // Reset scroll up on new message
 
     const optimisticMsg: Message = {
       id: `u_${Date.now()}`,
@@ -927,56 +1316,44 @@ export function AIChatWidget() {
       content: msg,
       createdAt: new Date().toISOString(),
     };
-    setMessages(prev => [...prev, optimisticMsg]);
-    setLoading(true);
 
-    try {
-      const { data } = await api.post("/ai/chat", {
-        message: msg,
-        sessionId: sessionId || undefined,
-      });
-
-      if (data.sessionId && !sessionId) {
-        setSessionId(data.sessionId);
-        setSessionTitle(msg.slice(0, 30) + (msg.length > 30 ? "..." : ""));
-      }
-
-      // Maintain running list of ALL mentors shown during conversation (Rule 3)
-      if (data.mentors && data.mentors.length > 0) {
-        const currentList = mentorContextRef.current;
-        const newMentors = data.mentors.filter(
-          (nm: MentorData) => !currentList.some((cm) => cm.id === nm.id)
-        );
-        mentorContextRef.current = [...currentList, ...newMentors];
-      }
-
-      // Check server response text for booking modal trigger (Rule 4 fallback)
-      const responseLower = data.response.toLowerCase();
-      if (responseLower.includes("opening booking modal") || responseLower.includes("booking modal for you")) {
-        const target = resolvedMentor || (mentorContextRef.current.length > 0 ? mentorContextRef.current[mentorContextRef.current.length - 1] : null);
-        if (target) {
-          setBookingMentor(target);
-        }
-      }
-
-      const aiMsg: Message = {
-        id: `ai_${Date.now()}`,
-        role: "assistant",
-        content: data.response,
-        createdAt: new Date().toISOString(),
-        mentors: data.mentors && data.mentors.length > 0 ? data.mentors : undefined,
-      };
-      setMessages(prev => [...prev, aiMsg]);
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        setError(err.response?.data?.error ?? "Failed to get response");
-      } else {
-        setError("Something went wrong");
-      }
-    } finally {
-      setLoading(false);
+    // ONLY append user message if not reusing. NO placeholder assistant bubble is shown!
+    if (!reuseAssistantMessageId) {
+      setMessages(prev => [...prev, optimisticMsg]);
     }
-  }, [input, loading, sessionId]);
+
+    const streamingId = reuseAssistantMessageId || `ai_stream_${Date.now()}`;
+    setStreamingMessageId(streamingId);
+    streamingMessageIdRef.current = streamingId;
+
+    startStream(msg, { sessionId: sessionId || undefined });
+  }, [input, loading, sessionId, startStream]);
+
+
+  const handleRetry = useCallback(() => {
+    setError("");
+    const lastUserMsg = [...messages].reverse().find(m => m.role === "user");
+    if (!lastUserMsg) return;
+
+    const userMsgIndex = messages.findIndex(m => m.id === lastUserMsg.id);
+    const assistantMsg = messages[userMsgIndex + 1];
+
+    if (assistantMsg && assistantMsg.role === "assistant") {
+      setMessages(prev => prev.map(m =>
+        m.id === assistantMsg.id
+          ? { ...m, content: "", mentors: undefined, mentorProfile: undefined, bookingSuccess: undefined }
+          : m
+      ));
+      handleSend(lastUserMsg.content, assistantMsg.id);
+    } else {
+      const cleanedMessages = messages.slice(0, userMsgIndex + 1);
+      setMessages(cleanedMessages);
+      handleSend(lastUserMsg.content);
+    }
+  }, [messages, handleSend]);
+
+
+
 
 
   // ─── Save manual rename ───────────────────────────────────────────────────
@@ -1230,7 +1607,12 @@ export function AIChatWidget() {
           )}
 
           {/* Messages area */}
-          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 w-full">
+          <div
+            ref={scrollContainerRef}
+            onScroll={handleScroll}
+            className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 w-full"
+          >
+
             <div className="max-w-4xl w-full mx-auto flex flex-col gap-4 sm:gap-5 min-h-full">
 
               {/* Loading skeleton */}
@@ -1300,81 +1682,18 @@ export function AIChatWidget() {
                   const isLastUserMsg = index === lastUserMsgIndex;
 
                   return (
-                    <div key={msg.id} className="w-full flex flex-col">
-                      {/* Centered Date Header */}
-                      {showHeader && (
-                        <div className="flex flex-col items-center my-5 select-none">
-                          <span className="text-[11px] font-semibold text-(--muted) tracking-tight">
-                            {formatAppleMessageHeader(msgDateStr)}
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Bubble Container */}
-                      <div
-                        className={`flex w-full mb-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                      >
-                        <div className="flex flex-col max-w-[85%] sm:max-w-[75%]">
-                          <div
-                            className={`rounded-[18px] px-4 py-2.5 text-[15px] leading-relaxed shadow-sm ${msg.role === "user"
-                                ? chatTheme === "imessage"
-                                  ? "bg-[#007aff] text-white rounded-br-[4px]"
-                                  : chatTheme === "sms"
-                                    ? "bg-[#34c759] text-white rounded-br-[4px]"
-                                    : chatTheme === "pink"
-                                      ? "bg-[#ff2d55] text-white rounded-br-[4px]"
-                                      : "bg-white dark:bg-zinc-100 text-zinc-900 border border-zinc-200/60 rounded-br-[4px]"
-                                : "bg-(--fg)/5 border border-(--hairline)/25 text-(--fg) rounded-bl-[4px]"
-                              }`}
-                          >
-                            {msg.role === "assistant" ? (
-                              <div className="flex flex-col gap-1.5 text-[14px] leading-relaxed">
-                                {formatAIContent(msg.content, msg.mentors ?? mentorContextRef.current)}
-                              </div>
-                            ) : (
-                              msg.content
-                            )}
-                          </div>
-
-                          {/* Read Receipt underneath outgoing bubble */}
-                          {msg.role === "user" && isLastUserMsg && (
-                            <div className="text-[10px] font-bold text-(--muted)/80 mt-1 text-right mr-1.5 select-none">
-                              Read {formatReadReceiptTime(msgDateStr)}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* ── Mentor Profile (shown below assistant bubble) ── */}
-                      {msg.role === "assistant" && msg.mentorProfile && (
-                        <div className="mt-2 max-w-sm">
-                          <MentorProfileInChat
-                            mentor={msg.mentorProfile}
-                            onBook={(m) => setBookingMentor(m)}
-                          />
-                        </div>
-                      )}
-
-                      {/* ── Mentor Cards (shown below assistant bubble) ── */}
-                      {msg.role === "assistant" && msg.mentors && msg.mentors.length > 0 && (
-                        <div className="flex flex-col gap-3 mt-2 max-w-sm">
-                          {msg.mentors.map((mentor) => (
-                            <MentorCardInChat
-                              key={mentor.id}
-                              mentor={mentor}
-                              onBook={(m) => setBookingMentor(m)}
-                            />
-                          ))}
-                        </div>
-                      )}
-
-                      {/* ── Booking Success ── */}
-                      {msg.role === "assistant" && msg.bookingSuccess && (
-                        <div className="mt-2 max-w-sm">
-                          <BookingSuccessInChat info={msg.bookingSuccess} />
-                        </div>
-                      )}
-                    </div>
+                    <ChatMessageItem
+                      key={msg.id}
+                      msg={msg}
+                      index={index}
+                      chatTheme={chatTheme}
+                      isLastUserMsg={isLastUserMsg}
+                      mentorContext={mentorContextRef.current}
+                      streamingMessageId={streamingMessageId}
+                      setBookingMentor={setBookingMentor}
+                      showHeader={showHeader}
+                      msgDateStr={msgDateStr}
+                    />
                   );
 
 
@@ -1382,8 +1701,8 @@ export function AIChatWidget() {
               })()}
 
               {/* Typing indicator */}
-              {loading && (
-                <div className="flex justify-start mb-2">
+              {streamState === "waiting_first_token" && (
+                <div className="flex justify-start mb-2 animate-pulse">
                   <div className="bg-(--fg)/5 border border-(--hairline)/25 rounded-[18px] rounded-bl-[4px] px-4 py-3 shadow-sm">
                     <div className="flex items-center gap-1.5">
                       <span className="h-2 w-2 rounded-full bg-(--muted)/85 animate-bounce" style={{ animationDelay: "0ms" }} />
@@ -1396,12 +1715,20 @@ export function AIChatWidget() {
 
               {/* Error */}
               {error && (
-                <div className="text-xs font-semibold text-red-500 bg-red-500/10 rounded-xl px-4 py-3 border border-red-500/20">
-                  {error}
+                <div className="flex flex-col gap-2.5 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 my-2">
+                  <p className="text-xs font-semibold text-red-500">{error}</p>
+                  <button
+                    type="button"
+                    onClick={handleRetry}
+                    className="self-start flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-red-500 text-white hover:opacity-90 transition-opacity cursor-pointer shadow-sm"
+                  >
+                    <RotateCcw className="h-3 w-3" />
+                    Retry Message
+                  </button>
                 </div>
               )}
 
-              <div ref={messagesEndRef} />
+              <div className="h-2" />
             </div>
           </div>
 
@@ -1464,8 +1791,16 @@ export function AIChatWidget() {
                   }}
                 />
 
-                {/* Waveform / Mic icon on the right inside input pill if input is empty */}
-                {!input.trim() ? (
+                {streamState === "waiting_first_token" || streamState === "streaming" ? (
+                  <button
+                    type="button"
+                    onClick={handleStop}
+                    className="flex h-7 w-7 items-center justify-center rounded-full bg-red-500 hover:bg-red-600 text-white shrink-0 transition-all duration-200 ml-2 active:scale-95 cursor-pointer shadow-sm animate-in fade-in zoom-in-50 duration-200"
+                    title="Stop generating"
+                  >
+                    <div className="h-2.5 w-2.5 bg-white rounded-xs" />
+                  </button>
+                ) : !input.trim() ? (
                   <Mic className="h-4.5 w-4.5 text-(--muted)/85 hover:text-(--fg) cursor-pointer transition-colors ml-2" />
                 ) : (
                   /* Send Button inside input pill if input is not empty */

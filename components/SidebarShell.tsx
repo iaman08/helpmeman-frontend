@@ -139,7 +139,7 @@ export function SidebarShell({
       <nav className="flex-1 flex flex-col gap-1 px-3 py-4 overflow-y-auto">
         {navItems.map((item) => {
           if (item.onClick) {
-            const active = item.label === "AI Assistant" && aiOpen;
+            const active = item.label === "Ruth" && aiOpen;
             return (
               <button
                 key={item.label}
@@ -148,11 +148,10 @@ export function SidebarShell({
                   item.onClick?.();
                   if (mobileOpen) setMobileOpen(false);
                 }}
-                className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors cursor-pointer ${
-                  active
+                className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors cursor-pointer ${active
                     ? "bg-(--fg)/8 text-(--fg)"
                     : "text-(--muted) hover:text-(--fg) hover:bg-(--fg)/4"
-                }`}
+                  }`}
               >
                 <item.icon className="h-4 w-4 shrink-0" />
                 {item.label}
@@ -169,11 +168,10 @@ export function SidebarShell({
             <Link
               key={item.href || item.label}
               href={item.href!}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
-                active
+              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${active
                   ? "bg-(--fg)/8 text-(--fg)"
                   : "text-(--muted) hover:text-(--fg) hover:bg-(--fg)/4"
-              }`}
+                }`}
             >
               <item.icon className="h-4 w-4 shrink-0" />
               {item.label}
@@ -189,11 +187,10 @@ export function SidebarShell({
               key={t}
               type="button"
               onClick={() => setTheme(t)}
-              className={`flex-1 h-8 rounded-lg text-[11px] font-medium transition-colors cursor-pointer capitalize ${
-                theme === t
+              className={`flex-1 h-8 rounded-lg text-[11px] font-medium transition-colors cursor-pointer capitalize ${theme === t
                   ? "bg-(--accent) text-(--accent-fg)"
                   : "text-(--muted) hover:text-(--fg)"
-              }`}
+                }`}
             >
               {t}
             </button>
@@ -227,22 +224,22 @@ export function SidebarShell({
         <div className="flex items-center gap-2">
           <NotificationBell notificationsPath={notificationsPath} />
           <button
-          type="button"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="cursor-pointer p-1"
-          aria-label="Toggle sidebar"
-        >
-          {mobileOpen ? (
-            <X className="h-5 w-5" />
-          ) : (
-            <div className="flex items-center gap-3">
-              <div className={`h-8 w-8 rounded-full overflow-hidden ${avatarColor} flex items-center justify-center text-[10px]`}>
-                 {userAvatar ? <img src={userAvatar} className="h-full w-full object-cover" /> : initials}
+            type="button"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="cursor-pointer p-1"
+            aria-label="Toggle sidebar"
+          >
+            {mobileOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <div className="flex items-center gap-3">
+                <div className={`h-8 w-8 rounded-full overflow-hidden ${avatarColor} flex items-center justify-center text-[10px]`}>
+                  {userAvatar ? <img src={userAvatar} className="h-full w-full object-cover" /> : initials}
+                </div>
+                <Menu className="h-5 w-5" />
               </div>
-              <Menu className="h-5 w-5" />
-            </div>
-          )}
-        </button>
+            )}
+          </button>
         </div>
       </div>
 

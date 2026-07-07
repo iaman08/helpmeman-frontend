@@ -30,7 +30,7 @@ const NAV = [
         window.dispatchEvent(new Event("open-ai"));
       }
     },
-    label: "AI Assistant",
+    label: "Ruth",
     icon: Sparkles,
   },
 ];
