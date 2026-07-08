@@ -113,7 +113,7 @@ export default function OnboardingPage() {
   const [latestRuthMessage, setLatestRuthMessage] = useState("Hi, I'm Ruth. I'll set up your mentor memory in a few focused questions.");
   const [streamedRuthMessage, setStreamedRuthMessage] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
-  const statusLoadedRef = useRef(false);
+  const lastFetchedUserIdRef = useRef<string | null>(null);
   const localStageRef = useRef<Stage>("role");
 
   const question = state?.question;
@@ -136,23 +136,39 @@ export default function OnboardingPage() {
       router.replace("/signin");
       return;
     }
-    if (statusLoadedRef.current) return;
+    if (lastFetchedUserIdRef.current === user.id) return;
+
+    // Reset state before loading new user details to prevent showing old user's data
+    setState(null);
+    setError("");
 
     if (user.id.startsWith("demo_")) {
-      statusLoadedRef.current = true;
+      lastFetchedUserIdRef.current = user.id;
       if (user.role === "MENTOR") {
         const next = initialState();
         setState(next);
         setStage("name");
+      } else {
+        setState({
+          role: null,
+          status: "NOT_STARTED",
+          currentQuestion: 0,
+          totalQuestions: DEMO_QUESTIONS.length,
+          question: DEMO_QUESTIONS[0],
+          answers: [],
+        });
+        setStage("role");
       }
       return;
     }
 
     let cancelled = false;
+    // Set ref immediately so duplicate requests are not fired in Strict Mode
+    lastFetchedUserIdRef.current = user.id;
+
     api.get<State>("/onboarding/status")
       .then(({ data }) => {
         if (cancelled) return;
-        statusLoadedRef.current = true;
         if (data.role === "MENTEE") return router.replace("/dashboard");
         if (data.status === "COMPLETED") return router.replace("/mentor");
 
@@ -172,12 +188,16 @@ export default function OnboardingPage() {
 
         if (data.question) setLatestRuthMessage(data.message || data.question.text);
       })
-      .catch(() => {
-        if (!cancelled) setError("Ruth couldn't load your conversation. Please try again.");
+      .catch((err) => {
+        if (!cancelled) {
+          lastFetchedUserIdRef.current = null; // Clear so they can retry
+          setError("Ruth couldn't load your conversation. Please try again.");
+        }
       });
 
     return () => {
       cancelled = true;
+      lastFetchedUserIdRef.current = null;
     };
   }, [user?.id, loading, router]);
 
@@ -329,7 +349,7 @@ export default function OnboardingPage() {
     );
   }
 
-  if (!state && !error && stage !== "role") {
+  if (!state && !error) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-bg">
         <div className="text-center">
@@ -364,25 +384,25 @@ export default function OnboardingPage() {
 
   if (stage === "role" || !state?.role) {
     return (
-      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-bg px-5 text-fg">
+      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-bg px-4 sm:px-5 text-fg">
         <Aura />
         <motion.section initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="relative w-full max-w-3xl">
-          <div className="mb-10 text-center">
+          <div className="mb-6 sm:mb-10 text-center">
             <RuthMark size="lg" />
-            <p className="mt-7 text-xs font-semibold uppercase tracking-[.24em] text-muted">Before Ruth starts</p>
-            <h1 className="mt-3 font-display text-5xl tracking-[-.05em] sm:text-6xl">How will you use HelpMeMan?</h1>
-            <p className="mx-auto mt-4 max-w-lg text-muted">We'll shape the experience around what you're here to do. Mentors get the AI onboarding flow.</p>
+            <p className="mt-4 sm:mt-7 text-xs font-semibold uppercase tracking-[0.24em] text-muted">Before Ruth starts</p>
+            <h1 className="mt-3 font-display text-3xl sm:text-5xl md:text-6xl tracking-tight">How will you use HelpMeMan?</h1>
+            <p className="mx-auto mt-2 sm:mt-4 max-w-lg text-xs sm:text-sm text-muted">We'll shape the experience around what you're here to do. Mentors get the AI onboarding flow.</p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
             {[
               { role: "MENTOR" as const, icon: BriefcaseBusiness, title: "Continue as a mentor", text: "Build a mentor profile Ruth can personalize deeply." },
               { role: "MENTEE" as const, icon: UsersRound, title: "Continue as a mentee", text: "Find the right guide for your next meaningful step." },
             ].map(({ role, icon: Icon, title, text }) => (
-              <button key={role} onClick={() => chooseRole(role)} disabled={sending} className="group rounded-[32px] border border-hairline bg-bg/80 p-7 text-left shadow-[0_24px_80px_rgba(0,0,0,.08)] backdrop-blur transition hover:-translate-y-1 hover:border-fg/35">
-                <span className="mb-12 flex h-12 w-12 items-center justify-center rounded-2xl bg-fg text-bg"><Icon className="h-5 w-5" /></span>
+              <button key={role} onClick={() => chooseRole(role)} disabled={sending} className="group rounded-[20px] sm:rounded-[32px] border border-hairline bg-bg/80 p-5 sm:p-7 text-left shadow-[0_24px_80px_rgba(0,0,0,.08)] backdrop-blur transition hover:-translate-y-1 hover:border-fg/35">
+                <span className="mb-5 sm:mb-12 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-fg text-bg"><Icon className="h-4 w-4 sm:h-5 sm:w-5" /></span>
                 <span className="flex items-center justify-between gap-4">
-                  <span><strong className="block text-lg">{title}</strong><span className="mt-2 block text-sm leading-6 text-muted">{text}</span></span>
-                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                  <span><strong className="block text-base sm:text-lg">{title}</strong><span className="mt-1 block text-xs sm:text-sm leading-relaxed sm:leading-6 text-muted">{text}</span></span>
+                  <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:translate-x-1" />
                 </span>
               </button>
             ))}
@@ -395,21 +415,21 @@ export default function OnboardingPage() {
 
   if (stage === "name") {
     return (
-      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-bg px-5 text-fg">
+      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-bg px-4 sm:px-5 text-fg">
         <Aura />
-        <motion.form onSubmit={submitName} initial={{ opacity: 0, scale: .96, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} className="relative w-full max-w-[640px] rounded-[30px] border border-hairline bg-bg/85 p-8 text-center shadow-[0_30px_120px_rgba(0,0,0,.12)] backdrop-blur-xl sm:p-12">
+        <motion.form onSubmit={submitName} initial={{ opacity: 0, scale: .96, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} className="relative w-full max-w-[640px] rounded-[20px] sm:rounded-[30px] border border-hairline bg-bg/85 p-5 sm:p-12 text-center shadow-[0_30px_120px_rgba(0,0,0,.12)] backdrop-blur-xl">
           <div className="mx-auto mb-8 flex justify-center"><RuthMark size="lg" /></div>
           <p className="text-xs font-semibold uppercase tracking-[.24em] text-muted">Ruth AI onboarding</p>
-          <h1 className="mt-4 text-4xl tracking-[-.05em] sm:text-5xl">Tell us your name</h1>
-          <p className="mt-3 text-sm text-muted">Ruth will use this to make the onboarding feel human from the first message.</p>
+          <h1 className="mt-4 text-2xl sm:text-4xl md:text-5xl tracking-tight">Tell us your name</h1>
+          <p className="mt-3 text-xs sm:text-sm text-muted">Ruth will use this to make the onboarding feel human from the first message.</p>
           <input
             autoFocus
             value={input}
             onChange={event => setInput(event.target.value)}
             placeholder={question?.placeholder || "Enter your name"}
-            className="mt-10 w-full bg-transparent text-center text-5xl font-semibold tracking-[-.05em] text-fg outline-none placeholder:text-fg/25 sm:text-6xl"
+            className="mt-6 sm:mt-10 w-full bg-transparent text-center text-3xl sm:text-5xl md:text-6xl font-semibold tracking-[-.05em] text-fg outline-none placeholder:text-fg/25"
           />
-          <button disabled={!input.trim() || sending} className="mt-10 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-fg px-6 py-4 text-sm font-semibold text-bg transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-35">
+          <button disabled={!input.trim() || sending} className="mt-6 sm:mt-10 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-fg px-5 py-3.5 sm:px-6 sm:py-4 text-sm font-semibold text-bg transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-35">
             Continue <ArrowRight className="h-4 w-4" />
           </button>
           <p className="mt-5 text-xs text-muted">Tip: this becomes the first saved mentor onboarding answer.</p>
@@ -441,44 +461,44 @@ export default function OnboardingPage() {
     return (
       <main className="relative min-h-screen overflow-hidden bg-bg text-fg">
         <Aura />
-        <div className="mx-auto max-w-5xl px-6 pt-20">
-          <h1 className="text-3xl font-semibold tracking-[-.04em]">Hello {firstName}, I am Ruth your AI onboarding agent!</h1>
-          <p className="mt-3 text-lg text-muted">Let's set up your mentor profile. You can also ask me any questions.</p>
-          <div className="mt-10 rounded-[28px] border border-hairline bg-bg/90 p-8 shadow-[0_22px_90px_rgba(0,0,0,.08)]">
-            <p className="font-semibold">Please select where your mentorship is strongest right now.</p>
-            <div className="mt-7 grid gap-3 sm:grid-cols-2">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 pt-10 sm:pt-20">
+          <h1 className="text-xl sm:text-3xl font-semibold tracking-[-.04em]">Hello {firstName}, I am Ruth your AI onboarding agent!</h1>
+          <p className="mt-2 sm:mt-3 text-sm sm:text-lg text-muted">Let's set up your mentor profile. You can also ask me any questions.</p>
+          <div className="mt-6 rounded-[20px] sm:rounded-[28px] border border-hairline bg-bg/90 p-5 sm:p-8 shadow-[0_22px_90px_rgba(0,0,0,.08)]">
+            <p className="font-semibold text-sm sm:text-base">Please select where your mentorship is strongest right now.</p>
+            <div className="mt-4 sm:mt-7 grid gap-2 sm:gap-3 sm:grid-cols-2">
               {["Career clarity", "Startup advice", "Product strategy", "Technical guidance", "Leadership", "Portfolio reviews"].map(item => (
-                <div key={item} className="flex items-center gap-3 rounded-2xl border border-hairline px-4 py-3 text-muted">
-                  <span className="h-5 w-5 rounded-md border border-hairline" /> {item}
+                <div key={item} className="flex items-center gap-3 rounded-xl border border-hairline px-3 py-2 text-xs sm:text-sm text-muted">
+                  <span className="h-4 w-4 sm:h-5 sm:w-5 rounded-md border border-hairline" /> {item}
                 </div>
               ))}
             </div>
           </div>
         </div>
         <div className="absolute inset-0 bg-fg/55" />
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="absolute bottom-32 left-1/2 w-[min(92vw,410px)] -translate-x-1/2 rounded-[22px] bg-bg p-5 text-fg shadow-[0_24px_90px_rgba(0,0,0,.24)]">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="absolute bottom-36 sm:bottom-32 left-1/2 w-[min(92vw,410px)] -translate-x-1/2 rounded-[22px] bg-bg p-5 text-fg shadow-[0_24px_90px_rgba(0,0,0,.24)]">
           <span className="absolute -bottom-3 left-1/2 h-6 w-6 -translate-x-1/2 rotate-45 bg-bg" />
           <div className="relative">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-lg font-semibold">{steps[tourStep].title}</h2>
-                <p className="mt-2 text-sm leading-6 text-muted">{steps[tourStep].body}</p>
+                <h2 className="text-base sm:text-lg font-semibold">{steps[tourStep].title}</h2>
+                <p className="mt-1.5 text-xs sm:text-sm leading-relaxed sm:leading-6 text-muted">{steps[tourStep].body}</p>
               </div>
               <button onClick={() => setStage("chat")} className="rounded-full p-1 text-muted hover:text-fg"><X className="h-4 w-4" /></button>
             </div>
-            <div className="mt-5 flex items-center justify-between">
-              <button onClick={() => setStage("chat")} className="rounded-xl border border-hairline px-4 py-2 text-sm">Skip</button>
-              <span className="text-sm font-semibold">{tourStep + 1} / {steps.length}</span>
-              <button onClick={() => tourStep === steps.length - 1 ? setStage("chat") : setTourStep(step => step + 1)} className="rounded-xl bg-fg px-4 py-2 text-sm font-semibold text-bg">
+            <div className="mt-4 sm:mt-5 flex items-center justify-between">
+              <button onClick={() => setStage("chat")} className="rounded-xl border border-hairline px-3.5 py-1.5 text-xs sm:text-sm">Skip</button>
+              <span className="text-xs sm:text-sm font-semibold">{tourStep + 1} / {steps.length}</span>
+              <button onClick={() => tourStep === steps.length - 1 ? setStage("chat") : setTourStep(step => step + 1)} className="rounded-xl bg-fg px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-bg">
                 {tourStep === steps.length - 1 ? "Start" : "Next"}
               </button>
             </div>
           </div>
         </motion.div>
         <div className="absolute bottom-5 left-1/2 w-[min(92vw,960px)] -translate-x-1/2 rounded-[24px] border border-hairline bg-bg p-4 shadow-[0_16px_60px_rgba(0,0,0,.14)]">
-          <div className="min-h-24 text-muted">Can I save and continue later? <span className="rounded-md bg-fg/5 px-2 py-1 text-xs">Tab</span></div>
+          <div className="min-h-24 text-muted text-sm">Can I save and continue later? <span className="rounded-md bg-fg/5 px-2 py-1 text-xs">Tab</span></div>
           <div className="flex items-center justify-between">
-            <span className="text-sm">+ Add context</span>
+            <span className="text-xs sm:text-sm text-muted">+ Add context</span>
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-fg text-bg"><Send className="h-4 w-4" /></span>
           </div>
         </div>
@@ -487,9 +507,9 @@ export default function OnboardingPage() {
   }
 
   return (
-    <main className="relative flex h-screen overflow-hidden bg-bg px-3 py-3 text-fg sm:px-6 sm:py-6">
+    <main className="relative flex h-screen overflow-hidden bg-bg px-0 py-0 sm:px-6 sm:py-6 text-fg">
       <Aura />
-      <section className="relative z-10 mx-auto flex h-full w-full max-w-4xl flex-col overflow-hidden rounded-[28px] border border-hairline bg-bg/88 shadow-[0_28px_120px_rgba(0,0,0,.12)] backdrop-blur-xl">
+      <section className="relative z-10 mx-auto flex h-full w-full max-w-4xl flex-col overflow-hidden rounded-none sm:rounded-[28px] border-0 sm:border border-hairline bg-bg/88 shadow-none sm:shadow-[0_28px_120px_rgba(0,0,0,.12)] backdrop-blur-xl">
         <header className="flex shrink-0 items-center justify-between border-b border-hairline px-4 py-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
             <RuthMark size="sm" />
@@ -511,9 +531,9 @@ export default function OnboardingPage() {
         <div ref={scrollRef} className="relative flex-1 overflow-y-auto px-4 py-6 sm:px-6">
           <div className="pointer-events-none sticky top-0 z-10 -mx-6 -mt-6 h-10 bg-gradient-to-b from-bg to-transparent" />
           <div className="mx-auto max-w-3xl space-y-6 pb-4">
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-start gap-3">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-start gap-2.5 sm:gap-3">
               <RuthMark size="sm" />
-              <div className="rounded-[6px_22px_22px_22px] border border-hairline bg-bg px-5 py-4 text-sm leading-7 shadow-[0_12px_45px_rgba(0,0,0,.05)]">
+              <div className="max-w-[85%] sm:max-w-[78%] rounded-[6px_22px_22px_22px] border border-hairline bg-bg px-4 py-3 sm:px-5 sm:py-4 text-sm leading-relaxed sm:leading-7 shadow-[0_12px_45px_rgba(0,0,0,.05)]">
                 Hi {firstName}, I’m Ruth. I’ll ask one thing at a time, remember every answer, and shape your mentor profile as we go.
               </div>
             </motion.div>
@@ -522,18 +542,18 @@ export default function OnboardingPage() {
               <motion.div
                 key={answer.id || `${answer.questionKey}-${index}`}
                 initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: index < Math.max(0, state.answers.length - 3) ? 0.58 : 1, y: 0 }}
+                animate={{ opacity: index < Math.max(0, (state?.answers?.length || 0) - 3) ? 0.58 : 1, y: 0 }}
                 transition={{ duration: 0.28 }}
                 className="space-y-3"
               >
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-2.5 sm:gap-3">
                   <RuthMark size="sm" />
-                  <div className="max-w-[78%] rounded-[6px_22px_22px_22px] border border-hairline bg-bg px-5 py-4 text-sm leading-7 shadow-[0_12px_45px_rgba(0,0,0,.05)]">
+                  <div className="max-w-[85%] sm:max-w-[78%] rounded-[6px_22px_22px_22px] border border-hairline bg-bg px-4 py-3 sm:px-5 sm:py-4 text-sm leading-relaxed sm:leading-7 shadow-[0_12px_45px_rgba(0,0,0,.05)]">
                     {answer.question}
                   </div>
                 </div>
                 <div className="flex justify-end">
-                  <div className="max-w-[78%] rounded-[22px_6px_22px_22px] bg-fg px-5 py-3 text-sm leading-6 text-bg shadow-lg">
+                  <div className="max-w-[85%] sm:max-w-[78%] rounded-[22px_6px_22px_22px] bg-fg px-4 py-2.5 sm:px-5 sm:py-3 text-sm leading-relaxed sm:leading-6 text-bg shadow-lg">
                     {answer.skipped ? <span className="opacity-70">Skipped</span> : answer.answer}
                   </div>
                 </div>
@@ -541,9 +561,9 @@ export default function OnboardingPage() {
             ))}
 
             {question && !sending && (
-              <motion.div key={question.key} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="flex items-start gap-3">
+              <motion.div key={question?.key || "onboarding-question"} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="flex items-start gap-2.5 sm:gap-3">
                 <RuthMark size="sm" />
-                <div className="max-w-[78%] rounded-[6px_22px_22px_22px] border border-hairline bg-bg px-5 py-4 text-sm leading-7 shadow-[0_12px_45px_rgba(0,0,0,.05)]">
+                <div className="max-w-[85%] sm:max-w-[78%] rounded-[6px_22px_22px_22px] border border-hairline bg-bg px-4 py-3 sm:px-5 sm:py-4 text-sm leading-relaxed sm:leading-7 shadow-[0_12px_45px_rgba(0,0,0,.05)]">
                   <span>{streamedRuthMessage || latestRuthMessage}</span>
                   {streamedRuthMessage.length < latestRuthMessage.length && <span className="ml-1 inline-block h-4 w-1 translate-y-0.5 animate-pulse rounded-full bg-fg" />}
                 </div>
@@ -563,10 +583,10 @@ export default function OnboardingPage() {
           </div>
         </div>
 
-        <div className="shrink-0 border-t border-hairline bg-bg/92 px-4 py-4 backdrop-blur-xl sm:px-6">
+        <div className="shrink-0 border-t border-hairline bg-bg/92 px-3 py-3 backdrop-blur-xl sm:px-6 sm:py-4">
           <div className="mx-auto max-w-3xl">
             {questionType === "text" ? (
-              <form onSubmit={event => submitCurrent(event)} className="rounded-[24px] border border-hairline bg-bg p-3 shadow-[0_14px_55px_rgba(0,0,0,.08)] focus-within:border-fg/40">
+              <form onSubmit={event => submitCurrent(event)} className="rounded-2xl sm:rounded-[24px] border border-hairline bg-bg p-2 sm:p-3 shadow-[0_14px_55px_rgba(0,0,0,.08)] focus-within:border-fg/40">
                 <textarea
                   autoFocus
                   rows={2}
@@ -583,31 +603,31 @@ export default function OnboardingPage() {
                 />
                 <div className="flex items-center justify-between">
                   <button type="button" onClick={() => submitCurrent(undefined, true)} disabled={sending} className="px-1 text-xs text-muted hover:text-fg">Skip</button>
-                  <button disabled={!input.trim() || sending} className="flex h-10 w-10 items-center justify-center rounded-2xl bg-fg text-bg disabled:opacity-25"><Send className="h-4 w-4" /></button>
+                  <button disabled={!input.trim() || sending} className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl sm:rounded-2xl bg-fg text-bg disabled:opacity-25"><Send className="h-3.5 w-3.5 sm:h-4 sm:w-4" /></button>
                 </div>
               </form>
             ) : (
-              <div className="rounded-[24px] border border-hairline bg-bg p-3 shadow-[0_14px_55px_rgba(0,0,0,.08)]">
-                <div className="mb-3 flex items-center justify-between gap-3">
+              <div className="rounded-2xl sm:rounded-[24px] border border-hairline bg-bg p-3 shadow-[0_14px_55px_rgba(0,0,0,.08)]">
+                <div className="mb-2 sm:mb-3 flex items-center justify-between gap-3">
                   <span className="text-xs font-medium text-muted">{questionType === "single_choice" ? "Choose one answer" : "Choose all that apply"}</span>
                   <button onClick={() => submitCurrent(undefined, true)} disabled={sending} className="text-xs text-muted hover:text-fg">Skip</button>
                 </div>
-                <div className="flex max-h-32 flex-wrap gap-2 overflow-y-auto pr-1">
+                <div className="flex max-h-40 sm:max-h-32 flex-wrap gap-1.5 sm:gap-2 overflow-y-auto pr-1">
                   {question?.options?.map(option => {
                     const active = selected.includes(option);
                     return (
-                      <button key={option} type="button" onClick={() => toggleChoice(option)} className={`rounded-full border px-4 py-2 text-sm transition ${active ? "border-fg bg-fg text-bg" : "border-hairline bg-fg/[.025] text-fg hover:border-fg/40"}`}>
+                      <button key={option} type="button" onClick={() => toggleChoice(option)} className={`rounded-full border px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm transition ${active ? "border-fg bg-fg text-bg" : "border-hairline bg-fg/[.025] text-fg hover:border-fg/40"}`}>
                         {option}
                       </button>
                     );
                   })}
                 </div>
-                <button onClick={() => submitCurrent()} disabled={!selected.length || sending} className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-fg px-4 py-3 text-sm font-semibold text-bg disabled:opacity-30">
+                <button onClick={() => submitCurrent()} disabled={!selected.length || sending} className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-fg px-4 py-2.5 sm:py-3 text-sm font-semibold text-bg disabled:opacity-30">
                   Confirm <ArrowRight className="h-4 w-4" />
                 </button>
               </div>
             )}
-            {error && <p className="mt-3 text-center text-xs text-red-500">{error}</p>}
+            {error && <p className="mt-2 text-center text-xs text-red-500">{error}</p>}
           </div>
         </div>
       </section>

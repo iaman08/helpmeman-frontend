@@ -526,6 +526,13 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
                       onChange={setOtp}
                       disabled={submitting}
                       error={!!error}
+                      onComplete={(val) => {
+                        // Auto-submit for signin only (signup may need phone field)
+                        if (!submitting && mode === "signin") {
+                          setOtp(val);
+                          handleOTPSubmit({ preventDefault: () => {} } as FormEvent);
+                        }
+                      }}
                     />
                   </div>
 

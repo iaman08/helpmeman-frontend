@@ -9,7 +9,7 @@ import OTPInput from "@/components/OTPInput";
 import api from "@/lib/api";
 
 export default function SignInPage() {
-  const { login, verifySignupOTP, loginWithGoogle, user, loading } = useAuth();
+  const { login, verifySignupOTP, loginWithGoogle, user, mentor, loading } = useAuth();
   const router = useRouter();
 
   // Login states
@@ -34,13 +34,17 @@ export default function SignInPage() {
   // Redirect if already logged in
   useEffect(() => {
     if (!loading && user) {
-      const dest =
-        user.role === "ADMIN"
-          ? "/admin"
-          : "/onboarding";
+      let dest = "/onboarding";
+      if (user.role === "ADMIN") {
+        dest = "/admin";
+      } else if (user.role === "MENTOR" && mentor) {
+        dest = "/mentor";
+      } else if (user.onboardingRole === "MENTEE") {
+        dest = "/dashboard";
+      }
       router.replace(dest);
     }
-  }, [user, loading, router]);
+  }, [user, mentor, loading, router]);
 
 
 
@@ -271,40 +275,6 @@ export default function SignInPage() {
               Continue with Google
             </button>
 
-            {/* ChatGPT-style clean accordion drawer for Demo Logins */}
-            <details className="w-full mt-6 group border border-gray-200/60 dark:border-zinc-800 rounded-xl overflow-hidden">
-              <summary className="flex items-center justify-between px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-[var(--muted)] cursor-pointer select-none bg-gray-50 dark:bg-zinc-900/60 hover:bg-gray-100/60 dark:hover:bg-zinc-800/80 transition-colors">
-                <span>Quick Demo Access</span>
-                <span className="text-[10px] text-[var(--muted)] transition-transform duration-200 group-open:rotate-180">▼</span>
-              </summary>
-              <div className="p-4 bg-white dark:bg-[#121214] grid grid-cols-1 sm:grid-cols-3 gap-2 border-t border-gray-100 dark:border-zinc-800">
-                <button
-                  type="button"
-                  onClick={() => handleDemoAccess("admin@helpmeman.com", "password123")}
-                  className="flex flex-col items-start gap-0.5 p-3 rounded-xl bg-[var(--fg)]/5 hover:bg-[var(--fg)]/8 border border-transparent hover:border-gray-200 dark:hover:border-zinc-700 transition-all text-left cursor-pointer"
-                >
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--fg)]">Admin</span>
-                  <span className="text-[9px] text-[var(--muted)]">admin@domain</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDemoAccess("mentor@helpmeman.com", "password123")}
-                  className="flex flex-col items-start gap-0.5 p-3 rounded-xl bg-[var(--fg)]/5 hover:bg-[var(--fg)]/8 border border-transparent hover:border-gray-200 dark:hover:border-zinc-700 transition-all text-left cursor-pointer"
-                >
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--fg)]">Mentor</span>
-                  <span className="text-[9px] text-[var(--muted)]">mentor@domain</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDemoAccess("user@helpmeman.com", "password123")}
-                  className="flex flex-col items-start gap-0.5 p-3 rounded-xl bg-[var(--fg)]/5 hover:bg-[var(--fg)]/8 border border-transparent hover:border-gray-200 dark:hover:border-zinc-700 transition-all text-left cursor-pointer"
-                >
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--fg)]">User</span>
-                  <span className="text-[9px] text-[var(--muted)]">user@domain</span>
-                </button>
-              </div>
-            </details>
-
             <p className="text-center text-sm text-[var(--muted)] mt-6 select-none">
               Don't have an account?{" "}
               <Link href="/signup" className="text-[#2563EB] font-medium hover:underline">
@@ -340,6 +310,12 @@ export default function SignInPage() {
                   onChange={setOtp}
                   disabled={submitting}
                   error={!!error}
+                  onComplete={(val) => {
+                    if (!submitting) {
+                      setOtp(val);
+                      handleOTPVerifySubmit({ preventDefault: () => {} } as FormEvent);
+                    }
+                  }}
                 />
               </div>
 

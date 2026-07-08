@@ -46,6 +46,16 @@ export default function DashboardLayout({
     }
   }, [loading, user, router]);
 
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        window.location.reload();
+      }
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, []);
+
   if (loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -65,7 +75,7 @@ export default function DashboardLayout({
       notificationsPath="/dashboard/notifications"
       onLogout={async () => {
         await logout();
-        router.replace("/signin");
+        window.location.replace("/");
       }}
     >
       {children}

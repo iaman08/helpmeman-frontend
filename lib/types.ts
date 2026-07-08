@@ -23,6 +23,7 @@ export interface User {
   phone?: string | null;
   avatar?: string | null;
   role: Role;
+  onboardingRole?: string | null;
   currentRole?: string | null;
   isEmailVerified: boolean;
   createdAt: string;

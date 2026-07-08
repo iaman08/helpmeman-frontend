@@ -238,6 +238,14 @@ export default function ForgotPasswordPage() {
                 onChange={setOtp}
                 disabled={loading}
                 error={!!error}
+                onComplete={(val) => {
+                  // Auto-submit the instant all 6 digits are entered
+                  if (!loading) {
+                    const syntheticEvent = { preventDefault: () => {} } as React.FormEvent;
+                    setOtp(val);
+                    handleOTPVerifySubmit(syntheticEvent);
+                  }
+                }}
               />
 
               <button

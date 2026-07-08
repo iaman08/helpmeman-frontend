@@ -6,6 +6,7 @@ import {
   Languages, ChevronDown, Award, CheckCircle2, Clock, Building2,
   Globe, Zap
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { AxiosError } from "axios";
 import { Skeleton } from "@/components/Skeleton";
@@ -67,6 +68,7 @@ function inputCls() {
 }
 
 export default function MentorSettingsPage() {
+  const router = useRouter();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -635,6 +637,26 @@ export default function MentorSettingsPage() {
             </div>
           </div>
         </form>
+
+        {/* ─── Continue as Mentee Section ─── */}
+        <div className="mt-8 bg-(--fg)/5 border border-(--hairline) rounded-2xl sm:rounded-[2rem] p-6 sm:p-8 md:p-10 backdrop-blur-xl">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-(--fg)/10 rounded-xl">
+              <Zap size={20} className="text-(--fg)" />
+            </div>
+            <h3 className="text-lg sm:text-xl font-bold">Continue as a Mentee</h3>
+          </div>
+          <p className="text-sm text-(--muted) mb-6">
+            Want to explore other domains, browse available mentors, or book a guidance session? Switch to the mentee workspace.
+          </p>
+          <button
+            type="button"
+            onClick={() => router.push("/dashboard")}
+            className="px-6 py-3 bg-(--fg) text-(--bg) hover:opacity-90 rounded-xl font-bold text-sm transition-all cursor-pointer"
+          >
+            Switch to Mentee Panel
+          </button>
+        </div>
       </div>
 
       {/* ─── Crop Modal ─── */}

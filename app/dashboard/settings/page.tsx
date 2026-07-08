@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect, type ChangeEvent } from "react";
-import { User, Camera, CreditCard, ShieldCheck, Bell } from "lucide-react";
+import { User, Camera, CreditCard, Bell, Briefcase } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/components/Toast";
 import api from "@/lib/api";
@@ -11,9 +12,35 @@ import { NotificationSettingsPanel } from "@/components/NotificationSettingsPane
 
 
 export default function SettingsPage() {
-  const { user, refreshUser, updateUser } = useAuth();
+  const { user, mentor, refreshUser, updateUser } = useAuth();
+  const router = useRouter();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<"profile" | "security" | "payments" | "notifications">("profile");
+  const [activeTab, setActiveTab] = useState<"profile" | "payments" | "notifications">("profile");
+  const [switching, setSwitching] = useState(false);
+
+  const handleContinueAsMentor = async () => {
+    if (!user) return;
+    if (user.role === "MENTOR" && mentor) {
+      router.push("/mentor");
+      return;
+    }
+
+    setSwitching(true);
+    try {
+      if (user.id.startsWith("demo_")) {
+        updateUser({ role: "MENTOR", onboardingRole: "MENTOR" } as any);
+        router.push("/onboarding");
+        return;
+      }
+      await api.post("/onboarding/role", { role: "MENTOR" });
+      updateUser({ ...user, role: "MENTOR", onboardingRole: "MENTOR" });
+      router.push("/onboarding");
+    } catch (err) {
+      toast("Failed to transition to mentor onboarding.", "error");
+    } finally {
+      setSwitching(false);
+    }
+  };
 
   // Avatar Upload
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -160,7 +187,6 @@ export default function SettingsPage() {
 
   const TABS = [
     { id: "profile", label: "Profile", icon: User },
-    { id: "security", label: "Security", icon: ShieldCheck },
     { id: "notifications", label: "Notifications", icon: Bell },
     { id: "payments", label: "Payments", icon: CreditCard },
   ] as const;
@@ -348,60 +374,30 @@ export default function SettingsPage() {
                 )}
               </form>
             </div>
+
+            {/* Continue as Mentor Section */}
+            <div className="bg-(--fg)/5 border border-(--hairline) rounded-2xl sm:rounded-[2rem] md:rounded-[2.5rem] p-5 sm:p-6 md:p-10 backdrop-blur-xl mt-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-(--fg)/10 rounded-xl">
+                  <Briefcase className="w-5 h-5 text-(--fg)" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold">Continue as Mentor</h3>
+              </div>
+              <p className="text-sm text-(--muted) mb-6">
+                Are you ready to share your expertise, guide other learners, and build your mentor profile? Switch to the mentor panel or start your mentor onboarding.
+              </p>
+              <button
+                type="button"
+                onClick={handleContinueAsMentor}
+                disabled={switching}
+                className="px-6 py-3 bg-(--fg) text-(--bg) rounded-xl font-bold text-sm hover:opacity-90 transition-all disabled:opacity-50 cursor-pointer"
+              >
+                {switching ? "Switching..." : (user?.role === "MENTOR" && mentor) ? "Switch to Mentor Panel" : "Become a Mentor"}
+              </button>
+            </div>
           </>
         )}
 
-        {activeTab === "security" && (
-          <div className="space-y-8 md:space-y-10">
-            <div className="bg-(--fg)/5 border border-(--hairline) rounded-2xl sm:rounded-[2rem] md:rounded-[2.5rem] p-5 sm:p-6 md:p-10 backdrop-blur-xl">
-              <div className="flex items-center gap-3 mb-6 sm:mb-8 md:mb-10">
-                <div className="p-2 sm:p-2.5 bg-(--fg)/10 rounded-xl sm:rounded-2xl">
-                  <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-(--fg)" />
-                </div>
-                <h3 className="text-lg sm:text-xl md:text-2xl font-bold">Authentication</h3>
-              </div>
-
-              <form className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 md:gap-8" onSubmit={(e) => e.preventDefault()}>
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-(--muted) font-bold ml-1">Current Password</label>
-                  <input
-                    type="password"
-                    placeholder="••••••••"
-                    className="w-full bg-(--fg)/5 border border-(--hairline) rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 focus:border-(--fg)/20 focus:bg-(--fg)/10 outline-none transition-all placeholder:text-(--muted) text-sm sm:text-base"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-(--muted) font-bold ml-1">New Password</label>
-                  <input
-                    type="password"
-                    placeholder="At least 8 characters"
-                    className="w-full bg-(--fg)/5 border border-(--hairline) rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 focus:border-(--fg)/20 focus:bg-(--fg)/10 outline-none transition-all placeholder:text-(--muted) text-sm sm:text-base"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-(--muted) font-bold ml-1">Confirm New Password</label>
-                  <input
-                    type="password"
-                    placeholder="Repeat new password"
-                    className="w-full bg-(--fg)/5 border border-(--hairline) rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 focus:border-(--fg)/20 focus:bg-(--fg)/10 outline-none transition-all placeholder:text-(--muted) text-sm sm:text-base"
-                  />
-                </div>
-
-                <div className="md:col-span-2 flex justify-end pt-3 sm:pt-4">
-                  <button
-                    type="button"
-                    className="px-8 sm:px-10 py-3 sm:py-4 bg-(--accent) text-(--accent-fg) rounded-xl sm:rounded-2xl font-bold text-sm hover:opacity-90 active:scale-95 transition-all cursor-pointer"
-                    onClick={() => toast("Password update is disabled for demo accounts.", "info")}
-                  >
-                    Update Password
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
 
         {activeTab === "notifications" && <NotificationSettingsPanel />}
 

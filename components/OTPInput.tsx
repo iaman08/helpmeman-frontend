@@ -5,18 +5,23 @@ import { useEffect, useRef, type KeyboardEvent, type ClipboardEvent } from "reac
 interface OTPInputProps {
   value: string;
   onChange: (value: string) => void;
+  onComplete?: (value: string) => void; // called instantly when all 6 digits entered
   disabled?: boolean;
   error?: boolean;
+  autoFocus?: boolean;
 }
 
 export default function OTPInput({
   value,
   onChange,
+  onComplete,
   disabled = false,
   error = false,
+  autoFocus = true,
 }: OTPInputProps) {
   const length = 6;
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const completedRef = useRef(false); // prevent double-firing onComplete
 
   // Split value into array
   const otpArray = value.split("").slice(0, length);
@@ -24,14 +29,36 @@ export default function OTPInput({
     otpArray.push("");
   }
 
+  // Auto-focus first input on mount
+  useEffect(() => {
+    if (autoFocus && !disabled) {
+      // Small delay so the page transition finishes before focusing
+      const timer = setTimeout(() => inputRefs.current[0]?.focus(), 80);
+      return () => clearTimeout(timer);
+    }
+  }, [autoFocus, disabled]);
+
+  // Reset completed flag when value clears
+  useEffect(() => {
+    if (value.length < length) completedRef.current = false;
+  }, [value]);
+
+  // Fire onComplete when all 6 digits are filled — avoids needing a Submit button
+  useEffect(() => {
+    if (value.length === length && !completedRef.current && onComplete) {
+      completedRef.current = true;
+      onComplete(value);
+    }
+  }, [value, onComplete]);
+
   // Handle single character change
   const handleChange = (val: string, index: number) => {
-    // Only allow numbers
+    if (disabled) return;
     const cleanVal = val.replace(/[^0-9]/g, "");
     if (!cleanVal) return;
 
     const newOtp = [...otpArray];
-    newOtp[index] = cleanVal.substring(cleanVal.length - 1); // take the last entered char
+    newOtp[index] = cleanVal.substring(cleanVal.length - 1);
     const newOtpString = newOtp.join("");
     onChange(newOtpString);
 
@@ -45,13 +72,11 @@ export default function OTPInput({
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>, index: number) => {
     if (e.key === "Backspace") {
       if (!otpArray[index] && index > 0) {
-        // Current is empty, focus previous and clear it
         const newOtp = [...otpArray];
         newOtp[index - 1] = "";
         onChange(newOtp.join(""));
         inputRefs.current[index - 1]?.focus();
       } else {
-        // Clear current
         const newOtp = [...otpArray];
         newOtp[index] = "";
         onChange(newOtp.join(""));
@@ -66,7 +91,7 @@ export default function OTPInput({
     }
   };
 
-  // Handle pasting
+  // Handle pasting — fills all boxes instantly
   const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (disabled) return;
@@ -76,7 +101,6 @@ export default function OTPInput({
 
     if (cleanText.length > 0) {
       onChange(cleanText);
-      // Focus the last filled box or the next empty box
       const targetIndex = Math.min(cleanText.length, length - 1);
       inputRefs.current[targetIndex]?.focus();
     }
@@ -97,9 +121,10 @@ export default function OTPInput({
           onKeyDown={(e) => handleKeyDown(e, i)}
           onPaste={handlePaste}
           disabled={disabled}
+          autoComplete={i === 0 ? "one-time-code" : "off"}
           className={`
             flex-1 min-w-0 aspect-[5/6] max-w-[3.5rem] text-center text-lg sm:text-xl font-semibold rounded-xl outline-none
-            transition-all duration-200 border-2
+            transition-all duration-150 border-2
             ${
               error
                 ? "border-red-500/50 bg-red-500/5 focus:border-red-500 text-red-500"

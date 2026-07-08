@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import api from "./api";
+import { mutate } from "swr";
 import type { AuthResponse, User, OTPResponse } from "./types";
 import { auth as firebaseAuth, googleProvider } from "./firebase";
 import { signInWithPopup } from "firebase/auth";
@@ -109,6 +110,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         localStorage.removeItem(KEYS.mentor);
       }
+      try {
+        document.cookie = `helpmeman.accessToken=${data.accessToken};path=/;max-age=31536000;SameSite=Lax`;
+      } catch {}
       setUser(data.user);
       setMentor(data.mentor ?? null);
       // Backend already syncs user data to Firestore on auth events
@@ -126,7 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         "user@helpmeman.com":   { role: "USER",   name: "Demo User" },
       };
 
-      if (password === "password123" && DEMO_USERS[email]) {
+      if (password === "mock123" && DEMO_USERS[email]) {
         const { role, name } = DEMO_USERS[email];
         const mockUser: User = {
           id: `demo_${role.toLowerCase()}`,
@@ -205,7 +209,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       /* best effort */
     }
-    Object.values(KEYS).forEach((k) => localStorage.removeItem(k));
+    try {
+      mutate(() => true, undefined, { revalidate: false });
+    } catch {}
+    localStorage.clear();
+    sessionStorage.clear();
+    try {
+      document.cookie.split(";").forEach((cookie) => {
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.slice(0, eqPos).trim() : cookie.trim();
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+      });
+    } catch {}
     setUser(null);
     setMentor(null);
   }, []);

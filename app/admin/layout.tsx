@@ -45,6 +45,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [loading, user, isAdmin, router]);
 
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        window.location.reload();
+      }
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, []);
+
   if (loading || !user || !isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -65,7 +75,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       avatarColor="bg-red-500/10 text-red-500"
       onLogout={async () => {
         await logout();
-        router.replace("/signin");
+        window.location.replace("/");
       }}
     >
       {children}

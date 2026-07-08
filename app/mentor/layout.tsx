@@ -70,6 +70,16 @@ export default function MentorLayout({
       .catch(() => { /* keep the dashboard usable during a transient API outage */ });
   }, [loading, user, isMentor, pathname, router]);
 
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        window.location.reload();
+      }
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, []);
+
   if (loading || !user || !isMentor) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -94,7 +104,7 @@ export default function MentorLayout({
       notificationsPath="/mentor/notifications"
       onLogout={async () => {
         await logout();
-        router.replace("/signin");
+        window.location.replace("/");
       }}
     >
       {children}

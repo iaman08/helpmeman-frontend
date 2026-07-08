@@ -62,8 +62,17 @@ api.interceptors.response.use(
     ) {
       const refreshToken = localStorage.getItem("helpmeman.refreshToken");
       if (!refreshToken) {
-        // No refresh token — redirect to login
-        window.location.href = "/signin";
+        // No refresh token — clear session and redirect to landing
+        localStorage.clear();
+        sessionStorage.clear();
+        try {
+          document.cookie.split(";").forEach((cookie) => {
+            const eqPos = cookie.indexOf("=");
+            const name = eqPos > -1 ? cookie.slice(0, eqPos).trim() : cookie.trim();
+            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+          });
+        } catch {}
+        window.location.replace("/");
         return Promise.reject(error);
       }
 
@@ -89,6 +98,7 @@ api.interceptors.response.use(
 
         const newToken = data.accessToken as string;
         localStorage.setItem("helpmeman.accessToken", newToken);
+        document.cookie = `helpmeman.accessToken=${newToken};path=/;max-age=31536000;SameSite=Lax`;
         processQueue(null, newToken);
 
         if (original.headers) {
@@ -97,9 +107,16 @@ api.interceptors.response.use(
         return api(original);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        localStorage.removeItem("helpmeman.accessToken");
-        localStorage.removeItem("helpmeman.refreshToken");
-        window.location.href = "/signin";
+        localStorage.clear();
+        sessionStorage.clear();
+        try {
+          document.cookie.split(";").forEach((cookie) => {
+            const eqPos = cookie.indexOf("=");
+            const name = eqPos > -1 ? cookie.slice(0, eqPos).trim() : cookie.trim();
+            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+          });
+        } catch {}
+        window.location.replace("/");
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

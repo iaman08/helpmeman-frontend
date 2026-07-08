@@ -10,7 +10,7 @@ import api from "@/lib/api";
 import PasswordStrength from "@/components/PasswordStrength";
 
 export default function SignUpPage() {
-  const { register, verifySignupOTP, loginWithGoogle, user, loading } = useAuth();
+  const { register, verifySignupOTP, loginWithGoogle, user, mentor, loading } = useAuth();
   const router = useRouter();
   
   // Form states
@@ -34,9 +34,17 @@ export default function SignUpPage() {
   // Redirect if already logged in (skip during OTP step to avoid racing verifySignupOTP redirect)
   useEffect(() => {
     if (!loading && user && step === 1) {
-      router.replace("/onboarding");
+      let dest = "/onboarding";
+      if (user.role === "ADMIN") {
+        dest = "/admin";
+      } else if (user.role === "MENTOR" && mentor) {
+        dest = "/mentor";
+      } else if (user.onboardingRole === "MENTEE") {
+        dest = "/dashboard";
+      }
+      router.replace(dest);
     }
-  }, [user, loading, router, step]);
+  }, [user, mentor, loading, router, step]);
 
 
 
