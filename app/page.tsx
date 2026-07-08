@@ -19,7 +19,7 @@ import AuthModal from "@/components/AuthModal";
 import "./landing.css";
 
 function LandingPageContent() {
-  const { user, loading } = useAuth();
+  const { user, mentor, loading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const authParam = searchParams.get("auth");
@@ -31,9 +31,17 @@ function LandingPageContent() {
 
   useEffect(() => {
     if (!loading && user) {
-      router.push("/mentors");
+      let dest = "/onboarding";
+      if (user.role === "ADMIN") {
+        dest = "/admin";
+      } else if (user.role === "MENTOR" && mentor) {
+        dest = "/mentor";
+      } else if (user.onboardingRole === "MENTEE") {
+        dest = "/dashboard";
+      }
+      router.push(dest);
     }
-  }, [user, loading, router]);
+  }, [user, mentor, loading, router]);
 
   useEffect(() => {
     if (authParam === "signin" || authParam === "signup") {
