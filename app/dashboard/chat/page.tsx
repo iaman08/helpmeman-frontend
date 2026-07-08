@@ -10,15 +10,15 @@ import { Skeleton } from "@/components/Skeleton";
 import type { ChatThread, ChatMessage } from "@/lib/types";
 
 const getSocketUrl = () => {
-  if (process.env.NEXT_PUBLIC_SOCKET_URL) {
-    return process.env.NEXT_PUBLIC_SOCKET_URL;
-  }
   if (
     typeof window !== "undefined" &&
     (window.location.hostname.includes("vercel.app") ||
       window.location.hostname.includes("helpmeman.com"))
   ) {
     return "https://helpmeman-backend-7r53z.ondigitalocean.app";
+  }
+  if (process.env.NEXT_PUBLIC_SOCKET_URL) {
+    return process.env.NEXT_PUBLIC_SOCKET_URL;
   }
   return "http://localhost:8080";
 };
