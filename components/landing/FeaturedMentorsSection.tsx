@@ -57,14 +57,14 @@ const mentors = [
     img: "/mentor4.jpg",
   },
   {
-    name: "Dr. Neha Gupta",
-    role: "Residency",
-    company: "AIIMS",
-    expertise: ["NEET", "Medical"],
+    name: "Tarun",
+    role: "Software Engineer",
+    company: "Delhi Technical University",
+    expertise: ["Freelancing", "Remote"],
     rating: 5,
     reviews: 55,
     fee: "₹299",
-    img: "https://i.pinimg.com/736x/41/d0/ab/41d0abba8ff870ce4ef1cbea5b56fb29.jpg",
+    img: "/mentor7.jpeg",
   },
 ];
 
