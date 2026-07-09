@@ -25,6 +25,7 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState(""); // optional
   const [showPassword, setShowPassword] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
   // OTP flow states
   const [step, setStep] = useState<"form" | "otp">("form");
@@ -52,6 +53,7 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
       setName("");
       setPhone("");
       setOtp("");
+      setAgreed(false);
     }
   }, [isOpen, initialMode]);
 
@@ -120,6 +122,10 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
     }
     if (password.length < 8) {
       setError("Password must be at least 8 characters.");
+      return;
+    }
+    if (!agreed) {
+      setError("Please agree to the Terms & Conditions and Privacy Policy.");
       return;
     }
 
@@ -443,6 +449,36 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
                         </button>
                       </div>
                       <PasswordStrength password={password} />
+                    </div>
+
+                    {/* Terms & Privacy Consent Checkbox */}
+                    <div className="flex items-start gap-2 select-none pt-1">
+                      <input
+                        id="modal-agree-checkbox"
+                        type="checkbox"
+                        checked={agreed}
+                        onChange={(e) => setAgreed(e.target.checked)}
+                        className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-gray-300 dark:border-zinc-600 accent-[#2563EB] cursor-pointer"
+                      />
+                      <label htmlFor="modal-agree-checkbox" className="text-[11px] text-[var(--muted)] leading-normal cursor-pointer">
+                        I agree to the{" "}
+                        <button
+                          type="button"
+                          onClick={() => { onClose(); window.open("/terms", "_blank"); }}
+                          className="text-[#2563EB] hover:underline font-medium bg-transparent border-none cursor-pointer p-0 text-[11px]"
+                        >
+                          Terms &amp; Conditions
+                        </button>
+                        {" "}and{" "}
+                        <button
+                          type="button"
+                          onClick={() => { onClose(); window.open("/privacy", "_blank"); }}
+                          className="text-[#2563EB] hover:underline font-medium bg-transparent border-none cursor-pointer p-0 text-[11px]"
+                        >
+                          Privacy Policy
+                        </button>
+                        .
+                      </label>
                     </div>
 
                     <button

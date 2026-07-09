@@ -108,13 +108,19 @@ export function FooterSection() {
             &copy; {currentYear} HelpMeMan. All rights reserved.
           </p>
 
-          <div className="flex gap-6 text-[12px] text-[#8E8E93] order-1 sm:order-2">
-            <a href="/privacy" className="hover:text-white transition-colors">
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-[12px] text-[#8E8E93] order-1 sm:order-2 justify-center sm:justify-end">
+            <Link href="/terms" className="hover:text-white transition-colors">
+              Terms & Conditions
+            </Link>
+            <Link href="/privacy" className="hover:text-white transition-colors">
               Privacy Policy
-            </a>
-            <a href="/terms" className="hover:text-white transition-colors">
-              Terms
-            </a>
+            </Link>
+            <Link href="/refund-policy" className="hover:text-white transition-colors">
+              Refund & Cancellation Policy
+            </Link>
+            <Link href="/mentor-terms" className="hover:text-white transition-colors">
+              Mentor Terms & Code of Conduct
+            </Link>
           </div>
         </div>
       </div>

@@ -367,6 +367,14 @@ export default function BookMentorPage() {
                 Secure payment via Razorpay. You&rsquo;ll receive a Google Meet
                 link upon confirmation.
               </p>
+
+              <p className="text-[11px] text-(--muted) text-center leading-relaxed">
+                By proceeding with the payment, the user agrees to the{" "}
+                <Link href="/refund-policy" className="text-[#2563EB] hover:underline font-medium">
+                  Refund & Cancellation Policy
+                </Link>
+                .
+              </p>
             </div>
           </div>
         </div>

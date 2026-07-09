@@ -36,32 +36,32 @@ const NAV = [
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading, logout, isAdmin } = useAuth();
+  const { user, mentor, loading, logout, isMentor, isAdmin } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && (!user || !isAdmin)) {
-      router.replace("/signin");
-    }
-  }, [loading, user, isAdmin, router]);
-
-  useEffect(() => {
-    const handlePageShow = (event: PageTransitionEvent) => {
-      if (event.persisted) {
-        window.location.reload();
+    if (!loading) {
+      if (!user) {
+        router.replace("/signin");
+      } else if (!isAdmin) {
+        const dest = isMentor
+          ? (mentor?.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status")
+          : "/dashboard";
+        router.replace(dest);
       }
-    };
-    window.addEventListener("pageshow", handlePageShow);
-    return () => window.removeEventListener("pageshow", handlePageShow);
-  }, []);
+    }
+  }, [loading, user, isAdmin, isMentor, mentor, router]);
 
-  if (loading || !user || !isAdmin) {
+
+  // Show spinner while auth resolves; render nothing while redirect is in flight
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="h-6 w-6 rounded-full border-2 border-(--fg)/20 border-t-(--fg) animate-spin" />
       </div>
     );
   }
+  if (!user || !isAdmin) return null;
 
   return (
     <SidebarShell

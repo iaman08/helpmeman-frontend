@@ -18,7 +18,12 @@ export const API_BASE = getApiBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE,
-  headers: { "Content-Type": "application/json" },
+  headers: {
+    "Content-Type": "application/json",
+    "Cache-Control": "no-cache, no-store, must-revalidate",
+    "Pragma": "no-cache",
+    "Expires": "0",
+  },
   timeout: 15_000,
 });
 
@@ -55,8 +60,11 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
 
+    const isAuthRoute = original?.url?.includes("/auth/");
+
     if (
       error.response?.status === 401 &&
+      !isAuthRoute &&
       !original._retry &&
       typeof window !== "undefined"
     ) {

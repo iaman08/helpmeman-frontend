@@ -32,7 +32,7 @@ export default function SettingsPage() {
         router.push("/onboarding");
         return;
       }
-      await api.post("/onboarding/role", { role: "MENTOR" });
+      await api.patch("/mentor/onboarding", { role: "MENTOR" });
       updateUser({ ...user, role: "MENTOR", onboardingRole: "MENTOR" });
       router.push("/onboarding");
     } catch (err) {

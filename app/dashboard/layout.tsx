@@ -19,7 +19,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading, logout } = useAuth();
+  const { user, mentor, loading, logout, isMentor, isAdmin } = useAuth();
   const router = useRouter();
 
   const NAV = [
@@ -41,28 +41,29 @@ export default function DashboardLayout({
   ];
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.replace("/signin");
-    }
-  }, [loading, user, router]);
-
-  useEffect(() => {
-    const handlePageShow = (event: PageTransitionEvent) => {
-      if (event.persisted) {
-        window.location.reload();
+    if (!loading) {
+      if (!user) {
+        router.replace("/signin");
+      } else if (!user.onboardingRole) {
+        router.replace("/onboarding");
+      } else if (isMentor) {
+        router.replace(mentor?.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status");
+      } else if (isAdmin) {
+        router.replace("/admin");
       }
-    };
-    window.addEventListener("pageshow", handlePageShow);
-    return () => window.removeEventListener("pageshow", handlePageShow);
-  }, []);
+    }
+  }, [loading, user, isMentor, isAdmin, mentor, router]);
 
-  if (loading || !user) {
+
+  // Show spinner while auth resolves; render nothing while redirect is in flight
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="h-6 w-6 rounded-full border-2 border-(--fg)/20 border-t-(--fg) animate-spin" />
       </div>
     );
   }
+  if (!user) return null;
 
   return (
     <SidebarShell

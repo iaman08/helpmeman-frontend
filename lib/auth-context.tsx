@@ -27,10 +27,10 @@ interface AuthState {
   mentor: MentorMeta | null;
   loading: boolean;
   googleAuthenticating: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
+  login: (email: string, password: string) => Promise<string>;
+  loginWithGoogle: () => Promise<string>;
   register: (name: string, email: string, password: string) => Promise<OTPResponse>;
-  verifySignupOTP: (formData: { name: string; email: string; password: string; phone?: string; otp: string }) => Promise<void>;
+  verifySignupOTP: (formData: { name: string; email: string; password: string; phone?: string; otp: string }) => Promise<string>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   updateUser: (updates: Partial<User>) => void;
@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [googleAuthenticating, setGoogleAuthenticating] = useState(false);
 
-  /* ─── Hydrate from localStorage on mount, then refresh from backend (which reads Firestore) ─── */
+  /* ─── Hydrate from localStorage on mount, then background-refresh from backend ─── */
   useEffect(() => {
     async function hydrate() {
       try {
@@ -75,33 +75,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         setUser(parsedUser);
         if (storedMentor) setMentor(JSON.parse(storedMentor));
-        
-        // Hydrated successfully from local storage; unblock UI rendering immediately.
-        setLoading(false);
-
-        // Refresh user profile asynchronously from backend API
-        if (!parsedUser.id?.startsWith("demo_")) {
-          api.get<{ user: User }>("/users/me")
-            .then(({ data }) => {
-              setUser(data.user);
-              localStorage.setItem(KEYS.user, JSON.stringify(data.user));
-            })
-            .catch(() => {
-              /* backend unavailable — use cached data */
-            });
-        }
-        return; // Already set loading to false above
       } catch {
         /* corrupted storage — ignore */
       }
+      // Unblock the UI immediately using cached data.
+      // Components render right away; background fetch below updates stale fields.
       setLoading(false);
+
+      // Background-refresh from the server (non-blocking).
+      try {
+        const storedUser = localStorage.getItem(KEYS.user);
+        if (!storedUser) return;
+        const parsedUser = JSON.parse(storedUser);
+        if (parsedUser.id?.startsWith("demo_")) return;
+        const token = localStorage.getItem(KEYS.access);
+        if (!token) return;
+        const { data } = await api.get<{ user: User; mentor: MentorMeta | null }>("/users/me");
+        setUser(data.user);
+        localStorage.setItem(KEYS.user, JSON.stringify(data.user));
+        if (data.mentor) {
+          setMentor(data.mentor);
+          localStorage.setItem(KEYS.mentor, JSON.stringify(data.mentor));
+        } else {
+          setMentor(null);
+          localStorage.removeItem(KEYS.mentor);
+        }
+      } catch {
+        /* backend unreachable — cached data already in state */
+      }
     }
     hydrate();
   }, []);
 
-  /* ─── Persist helper ─── */
+  /* ─── Persist helper — stores tokens/user and returns the correct destination path ─── */
   const persist = useCallback(
-    (data: AuthResponse) => {
+    (data: AuthResponse): string => {
       localStorage.setItem(KEYS.access, data.accessToken);
       localStorage.setItem(KEYS.refresh, data.refreshToken);
       localStorage.setItem(KEYS.user, JSON.stringify(data.user));
@@ -115,14 +123,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch {}
       setUser(data.user);
       setMentor(data.mentor ?? null);
-      // Backend already syncs user data to Firestore on auth events
+      // Compute and return the right destination so pages can navigate imperatively.
+      return getLoginDest(data.user, data.mentor ?? null);
     },
     [],
   );
 
-  /* ─── Login ─── */
+  /* ─── Compute destination after a successful auth event ─── */
+  function getLoginDest(u: User, m: MentorMeta | null): string {
+    if (u.role === "ADMIN") return "/admin";
+    if (u.role === "MENTOR" && m) {
+      return m.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status";
+    }
+    if (u.onboardingRole === "MENTEE") return "/dashboard";
+    return "/onboarding";
+  }
+
+  /* ─── Login — returns destination path for imperative navigation ─── */
   const login = useCallback(
-    async (email: string, password: string) => {
+    async (email: string, password: string): Promise<string> => {
       // ─── Demo mock login (works offline) ───
       const DEMO_USERS: Record<string, { role: "ADMIN" | "MENTOR" | "USER"; name: string }> = {
         "admin@helpmeman.com":  { role: "ADMIN",  name: "Demo Admin" },
@@ -147,8 +166,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           user: mockUser,
           mentor: role === "MENTOR" ? { id: "demo_mentor_id", approvalStatus: "APPROVED", isActive: true } : null,
         };
-        persist(mockData);
-        return;
+        return persist(mockData);
       }
 
       // ─── Real backend login (backend syncs to Firestore) ───
@@ -156,13 +174,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email,
         password,
       });
-      persist(data);
+      return persist(data);
     },
     [persist],
   );
 
-  /* ─── Google Login ─── */
-  const loginWithGoogle = useCallback(async () => {
+  /* ─── Google Login — returns destination path ─── */
+  const loginWithGoogle = useCallback(async (): Promise<string> => {
     if (!firebaseAuth) {
       throw new Error("Google login is currently disabled because Firebase configuration is missing.");
     }
@@ -172,7 +190,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const idToken = await result.user.getIdToken();
       // Backend verifies token, creates/finds user, and syncs to Firestore
       const { data } = await api.post<AuthResponse>("/auth/google", { idToken });
-      persist(data);
+      return persist(data);
     } finally {
       setGoogleAuthenticating(false);
     }
@@ -192,11 +210,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  /* ─── Verify Signup OTP ─── */
+  /* ─── Verify Signup OTP — returns destination path ─── */
   const verifySignupOTP = useCallback(
-    async (formData: { name: string; email: string; password: string; phone?: string; otp: string }) => {
+    async (formData: { name: string; email: string; password: string; phone?: string; otp: string }): Promise<string> => {
       const { data } = await api.post<AuthResponse>("/auth/verify-signup-otp", formData);
-      persist(data);
+      return persist(data);
     },
     [persist],
   );
@@ -223,6 +241,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {}
     setUser(null);
     setMentor(null);
+    window.location.replace("/signin");
   }, []);
 
   /* ─── Refresh user profile (from backend, which reads from Firestore) ─── */
@@ -231,9 +250,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user?.id.startsWith("demo_")) return;
 
     try {
-      const { data } = await api.get<{ user: User }>("/users/me");
+      const { data } = await api.get<{ user: User; mentor: MentorMeta | null }>("/users/me");
       setUser(data.user);
       localStorage.setItem(KEYS.user, JSON.stringify(data.user));
+      if (data.mentor) {
+        setMentor(data.mentor);
+        localStorage.setItem(KEYS.mentor, JSON.stringify(data.mentor));
+      } else {
+        setMentor(null);
+        localStorage.removeItem(KEYS.mentor);
+      }
     } catch {
       /* silent */
     }

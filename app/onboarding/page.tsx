@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import {
@@ -102,7 +102,7 @@ function initialState(): State {
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { user, loading, updateUser } = useAuth();
+  const { user, mentor, loading, updateUser } = useAuth();
   const [state, setState] = useState<State | null>(null);
   const [stage, setStage] = useState<Stage>("role");
   const [input, setInput] = useState("");
@@ -130,76 +130,107 @@ export default function OnboardingPage() {
     localStageRef.current = stage;
   }, [stage]);
 
+  const resetOnboarding = useCallback(() => {
+    setState(null);
+    setInput("");
+    setSelected([]);
+    setSending(false);
+    setError("");
+    setLatestRuthMessage("Hi, I'm Ruth. I'll set up your mentor memory in a few focused questions.");
+    setStreamedRuthMessage("");
+    // Clear local storage and session storage onboarding cache
+    localStorage.removeItem("mentor-onboarding");
+    sessionStorage.removeItem("mentor-onboarding");
+  }, []);
+
   useEffect(() => {
     if (loading) return;
     if (!user) {
+      resetOnboarding();
       router.replace("/signin");
       return;
     }
-    if (lastFetchedUserIdRef.current === user.id) return;
 
-    // Reset state before loading new user details to prevent showing old user's data
-    setState(null);
-    setError("");
-
-    if (user.id.startsWith("demo_")) {
-      lastFetchedUserIdRef.current = user.id;
-      if (user.role === "MENTOR") {
-        const next = initialState();
-        setState(next);
-        setStage("name");
-      } else {
-        setState({
-          role: null,
-          status: "NOT_STARTED",
-          currentQuestion: 0,
-          totalQuestions: DEMO_QUESTIONS.length,
-          question: DEMO_QUESTIONS[0],
-          answers: [],
-        });
-        setStage("role");
-      }
+    if (user.role === "ADMIN") {
+      router.replace("/admin");
+      return;
+    }
+    if (user.onboardingRole === "MENTEE") {
+      router.replace("/dashboard");
+      return;
+    }
+    if (user.role === "MENTOR" && mentor) {
+      router.replace(mentor.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status");
       return;
     }
 
-    let cancelled = false;
-    // Set ref immediately so duplicate requests are not fired in Strict Mode
-    lastFetchedUserIdRef.current = user.id;
+    const previousUserId = lastFetchedUserIdRef.current;
+    if (previousUserId !== user.id) {
+      resetOnboarding();
+      lastFetchedUserIdRef.current = user.id;
 
-    api.get<State>("/onboarding/status")
-      .then(({ data }) => {
-        if (cancelled) return;
-        if (data.role === "MENTEE") return router.replace("/dashboard");
-        if (data.status === "COMPLETED") return router.replace("/mentor");
+      if (user.id.startsWith("demo_")) {
+        if (user.role === "MENTOR") {
+          const next = initialState();
+          setState(next);
+          setStage("name");
+        } else {
+          setState({
+            role: null,
+            status: "NOT_STARTED",
+            currentQuestion: 0,
+            totalQuestions: DEMO_QUESTIONS.length,
+            question: DEMO_QUESTIONS[0],
+            answers: [],
+          });
+          setStage("role");
+        }
+        return;
+      }
 
-        setState(data);
-        const current = localStageRef.current;
-        const localOnlyStages: Stage[] = ["preparing", "tour", "name"];
-        if (localOnlyStages.includes(current)) {
-          if (current === "name" && (data.currentQuestion > 0 || data.answers.length > 0)) {
-            setStage("chat");
+      let cancelled = false;
+
+      api.get<State>("/mentor/onboarding")
+        .then(({ data }) => {
+          if (cancelled) return;
+          if (data.role === "MENTEE") return router.replace("/dashboard");
+          if (data.role === "MENTOR" && data.status === "COMPLETED") {
+            if (data.mentor?.approvalStatus === "APPROVED") {
+              return router.replace("/mentor");
+            } else {
+              return router.replace("/mentor/status");
+            }
           }
-          return;
-        }
 
-        if (!data.role) setStage("role");
-        else if (data.currentQuestion === 0 && data.answers.length === 0) setStage("name");
-        else setStage("chat");
+          setState(data);
+          const current = localStageRef.current;
+          const localOnlyStages: Stage[] = ["preparing", "tour", "name"];
+          if (localOnlyStages.includes(current)) {
+            if (current === "name" && (data.currentQuestion > 0 || data.answers.length > 0)) {
+              setStage("chat");
+            }
+            return;
+          }
 
-        if (data.question) setLatestRuthMessage(data.message || data.question.text);
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          lastFetchedUserIdRef.current = null; // Clear so they can retry
-          setError("Ruth couldn't load your conversation. Please try again.");
-        }
-      });
+          if (!data.role) setStage("role");
+          else if (data.currentQuestion === 0 && data.answers.length === 0) setStage("name");
+          else setStage("chat");
 
-    return () => {
-      cancelled = true;
-      lastFetchedUserIdRef.current = null;
-    };
-  }, [user?.id, loading, router]);
+          if (data.question) setLatestRuthMessage(data.message || data.question.text);
+        })
+        .catch((err) => {
+          if (!cancelled) {
+            lastFetchedUserIdRef.current = null; // Clear so they can retry
+            setError("Ruth couldn't load your conversation. Please try again.");
+          }
+        });
+
+      return () => {
+        cancelled = true;
+        lastFetchedUserIdRef.current = null;
+      };
+    }
+  }, [user?.id, loading, router, resetOnboarding]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -233,16 +264,22 @@ export default function OnboardingPage() {
     setError("");
     try {
       if (isDemo) {
-        if (role === "MENTEE") return router.replace("/dashboard");
-        updateUser({ role: "MENTOR" });
+        if (role === "MENTEE") {
+          updateUser({ onboardingRole: "MENTEE" });
+          return router.replace("/dashboard");
+        }
+        updateUser({ role: "MENTOR", onboardingRole: "MENTOR" });
         setState(initialState());
         setStage("name");
         return;
       }
 
-      const { data } = await api.post<State>("/onboarding/role", { role });
+      const { data } = await api.patch<State>("/mentor/onboarding", { role });
+      updateUser({
+        role: role === "MENTOR" ? "MENTOR" : user.role,
+        onboardingRole: role,
+      });
       if (role === "MENTEE") return router.replace("/dashboard");
-      updateUser({ role: "MENTOR" });
       setState(data);
       setStage("name");
     } catch {
@@ -300,7 +337,7 @@ export default function OnboardingPage() {
         return next;
       }
 
-      const { data } = await api.post<State>("/onboarding/answer", { answer: value, skip });
+      const { data } = await api.post<State>("/mentor/onboarding", { answer: value, skip });
       setState(data);
       setLatestRuthMessage(data.message || data.question?.text || "Tell me more.");
       if (data.status === "COMPLETED" && data.mentor) localStorage.setItem("helpmeman.mentor", JSON.stringify(data.mentor));

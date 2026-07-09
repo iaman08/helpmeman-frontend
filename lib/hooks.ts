@@ -1,5 +1,6 @@
 import useSWR from "swr";
 import api from "./api";
+import { useAuth } from "./auth-context";
 import type {
   Mentor,
   MentorSearchResponse,
@@ -10,7 +11,8 @@ import type {
 } from "./types";
 
 /* ─── Generic fetcher ─── */
-async function fetcher<T>(url: string): Promise<T> {
+async function fetcher<T>(urlOrArray: string | [string, string]): Promise<T> {
+  const url = Array.isArray(urlOrArray) ? urlOrArray[0] : urlOrArray;
   const { data } = await api.get<T>(url);
   return data;
 }
@@ -92,10 +94,11 @@ export function useCategories() {
 
 /* ─── User bookings ─── */
 export function useBookings(status?: string, page = 1) {
+  const { user } = useAuth();
   const params = new URLSearchParams();
   if (status) params.set("status", status);
   params.set("page", String(page));
-  const key = `/users/me/bookings?${params}`;
+  const key = user?.id ? [`/users/me/bookings?${params}`, user.id] as [string, string] : null;
   return useSWR<{
     bookings: Booking[];
     total: number;
@@ -106,7 +109,9 @@ export function useBookings(status?: string, page = 1) {
 
 /* ─── Notifications ─── */
 export function useNotifications(type?: string) {
-  const key = type ? `/users/me/notifications?type=${type}` : "/users/me/notifications";
+  const { user } = useAuth();
+  const url = type ? `/users/me/notifications?type=${type}` : "/users/me/notifications";
+  const key = user?.id ? [url, user.id] as [string, string] : null;
   return useSWR<{
     notifications: Notification[];
     total: number;
@@ -117,8 +122,10 @@ export function useNotifications(type?: string) {
 }
 
 export function useNotificationPreferences() {
+  const { user } = useAuth();
+  const key = user?.id ? ["/users/me/notification-preferences", user.id] as [string, string] : null;
   return useSWR<{ preferences: import("./types").NotificationPreferences }>(
-    "/users/me/notification-preferences",
+    key,
     fetcher,
     { revalidateOnFocus: false }
   );

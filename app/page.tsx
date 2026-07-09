@@ -35,7 +35,7 @@ function LandingPageContent() {
       if (user.role === "ADMIN") {
         dest = "/admin";
       } else if (user.role === "MENTOR" && mentor) {
-        dest = "/mentor";
+        dest = mentor.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status";
       } else if (user.onboardingRole === "MENTEE") {
         dest = "/dashboard";
       }

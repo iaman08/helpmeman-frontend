@@ -31,14 +31,14 @@ export default function SignInPage() {
   const [resending, setResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState("");
 
-  // Redirect if already logged in
+  // Redirect if already logged in (page-level guard, only fires on direct URL navigation)
   useEffect(() => {
     if (!loading && user) {
       let dest = "/onboarding";
       if (user.role === "ADMIN") {
         dest = "/admin";
       } else if (user.role === "MENTOR" && mentor) {
-        dest = "/mentor";
+        dest = mentor.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status";
       } else if (user.onboardingRole === "MENTEE") {
         dest = "/dashboard";
       }
@@ -46,7 +46,9 @@ export default function SignInPage() {
     }
   }, [user, mentor, loading, router]);
 
-
+  // Show spinner while auth is resolving; show nothing if user already logged in (redirect in progress)
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="h-6 w-6 rounded-full border-2 border-gray-200 border-t-gray-800 dark:border-zinc-700 dark:border-t-zinc-200 animate-spin" /></div>;
+  if (user) return null;
 
   // Cooldown countdown timer
   useEffect(() => {
@@ -71,7 +73,8 @@ export default function SignInPage() {
 
     setSubmitting(true);
     try {
-      await login(email, password);
+      const dest = await login(email, password);
+      router.replace(dest);
     } catch (err) {
       if (err instanceof AxiosError && err.response?.status === 403 && err.response?.data?.requiresVerification) {
         setUnverifiedEmail(err.response.data.email || email);
@@ -98,12 +101,13 @@ export default function SignInPage() {
 
     setSubmitting(true);
     try {
-      await verifySignupOTP({
+      const dest = await verifySignupOTP({
         name: "", // Not needed as it resolved on backend for existing users
         email: unverifiedEmail.toLowerCase(),
         password,
         otp,
       });
+      router.replace(dest);
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(err.response?.data?.error ?? "Verification failed. Please try again.");
@@ -145,7 +149,8 @@ export default function SignInPage() {
     setError("");
     setSubmitting(true);
     try {
-      await login(demoEmail, demoPassword);
+      const dest = await login(demoEmail, demoPassword);
+      router.replace(dest);
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(err.response?.data?.error ?? "Login failed. Please try again.");
@@ -202,9 +207,17 @@ export default function SignInPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[var(--muted)] uppercase tracking-wider mb-2">
-                  Password
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-semibold text-[var(--muted)] uppercase tracking-wider">
+                    Password
+                  </label>
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs text-[#2563EB] hover:underline font-medium transition-colors"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
 
                 <div className="relative rounded-lg shadow-sm">
                   <input
@@ -223,15 +236,6 @@ export default function SignInPage() {
                   >
                     {/* Eye Icon */}
                   </button>
-                </div>
-
-                <div className="mt-2 flex justify-end">
-                  <Link
-                    href="/forgot-password"
-                    className="text-sm text-[#0000FF] hover:text-zinc-900 dark:hover:text-white transition-colors"
-                  >
-                    Forgot password?
-                  </Link>
                 </div>
               </div>
 
@@ -258,7 +262,8 @@ export default function SignInPage() {
               onClick={async () => {
                 setError("");
                 try {
-                  await loginWithGoogle();
+                  const dest = await loginWithGoogle();
+                  router.replace(dest);
                 } catch (err: unknown) {
                   const msg = err instanceof Error ? err.message : "Google sign-in failed";
                   if (!msg.includes("popup-closed")) setError(msg);

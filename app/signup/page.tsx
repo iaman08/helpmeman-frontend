@@ -20,6 +20,7 @@ export default function SignUpPage() {
   const [phone, setPhone] = useState(""); // optional
   const [otp, setOtp] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   
   // Flow states
   const [step, setStep] = useState<1 | 2>(1);
@@ -38,7 +39,7 @@ export default function SignUpPage() {
       if (user.role === "ADMIN") {
         dest = "/admin";
       } else if (user.role === "MENTOR" && mentor) {
-        dest = "/mentor";
+        dest = mentor.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status";
       } else if (user.onboardingRole === "MENTEE") {
         dest = "/dashboard";
       }
@@ -57,7 +58,9 @@ export default function SignUpPage() {
     return () => clearInterval(timer);
   }, [cooldown]);
 
-  if (loading || (user && step === 1)) return null;
+  // Show a loading spinner while checking auth, hide if redirecting
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="h-6 w-6 rounded-full border-2 border-gray-200 border-t-gray-800 dark:border-zinc-700 dark:border-t-zinc-200 animate-spin" /></div>;
+  if (user && step === 1) return null;
 
   async function handleRegisterSubmit(e: FormEvent) {
     e.preventDefault();
@@ -73,6 +76,10 @@ export default function SignUpPage() {
     }
     if (password.length < 8) {
       setError("Password must be at least 8 characters.");
+      return;
+    }
+    if (!agreed) {
+      setError("Please agree to the Terms & Conditions and Privacy Policy first.");
       return;
     }
 
@@ -107,14 +114,14 @@ export default function SignUpPage() {
 
     setSubmitting(true);
     try {
-      await verifySignupOTP({
+      const dest = await verifySignupOTP({
         name: name.trim(),
         email: email.toLowerCase(),
         password,
         phone: phone ? phone.trim() : undefined,
         otp,
       });
-      router.replace("/onboarding");
+      router.replace(dest);
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(
@@ -246,6 +253,28 @@ export default function SignUpPage() {
                 <PasswordStrength password={password} />
               </div>
 
+              {/* Terms & Privacy Consent Checkbox */}
+              <div className="flex items-start gap-2.5 my-3 select-none">
+                <input
+                  id="agree-checkbox"
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-gray-300 dark:border-zinc-700 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer accent-[#2563EB]"
+                />
+                <label htmlFor="agree-checkbox" className="text-xs text-[var(--muted)] leading-normal cursor-pointer">
+                  I agree to the{" "}
+                  <Link href="/terms" className="text-[#2563EB] hover:underline font-medium">
+                    Terms & Conditions
+                  </Link>{" "}
+                  and{" "}
+                  <Link href="/privacy" className="text-[#2563EB] hover:underline font-medium">
+                    Privacy Policy
+                  </Link>
+                  .
+                </label>
+              </div>
+
               <button
                 type="submit"
                 disabled={submitting}
@@ -267,9 +296,14 @@ export default function SignUpPage() {
             <button
               type="button"
               onClick={async () => {
+                if (!agreed) {
+                  setError("Please agree to the Terms & Conditions and Privacy Policy first.");
+                  return;
+                }
                 setError("");
                 try {
-                  await loginWithGoogle();
+                  const dest = await loginWithGoogle();
+                  router.replace(dest);
                 } catch (err: unknown) {
                   const msg = err instanceof Error ? err.message : "Google sign-up failed";
                   if (!msg.includes("popup-closed")) setError(msg);

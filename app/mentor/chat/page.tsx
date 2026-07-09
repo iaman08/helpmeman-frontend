@@ -69,6 +69,7 @@ function formatAppleMessageHeader(dateStr: string) {
   }
 }
 
+// Format the date/time string for read receipts
 function formatReadReceiptTime(dateStr: string) {
   const date = new Date(dateStr);
   const now = new Date();
@@ -111,12 +112,6 @@ export default function ChatPage() {
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Complaint states
-  const [showComplaintModal, setShowComplaintModal] = useState(false);
-  const [complaintDesc, setComplaintDesc] = useState("");
-  const [complaintFile, setComplaintFile] = useState<File | null>(null);
-  const [complaintSubmitting, setComplaintSubmitting] = useState(false);
-
   // Theme state: imessage, sms, pink, white
   const [chatTheme, setChatTheme] = useState<"imessage" | "sms" | "pink" | "white">(() => {
     if (typeof window !== "undefined") {
@@ -130,7 +125,7 @@ export default function ChatPage() {
     localStorage.setItem("helpmeman.chatTheme", chatTheme);
   }, [chatTheme]);
 
-  // Click outside to close emoji picker
+  // Click to close emoji picker
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
@@ -181,7 +176,7 @@ export default function ChatPage() {
     };
   }, []);
 
-  /* ─── Scroll to bottom on new messages ─── */
+  /* ─── Scroll to bottom ─── */
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -228,40 +223,6 @@ export default function ChatPage() {
     setActiveThread(null);
     setMessages([]);
   }, [activeThread, socketRef]);
-
-  const handleComplaintSubmit = async () => {
-    if (!activeThread?.mentor?.id) return;
-    if (!complaintDesc.trim()) {
-      toast("Please enter a description for your complaint.", "error");
-      return;
-    }
-
-    setComplaintSubmitting(true);
-    try {
-      const formData = new FormData();
-      formData.append("mentorId", activeThread.mentor.id);
-      formData.append("description", complaintDesc.trim());
-      if (complaintFile) {
-        formData.append("proof", complaintFile);
-      }
-
-      await api.post("/users/me/complaints", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      toast("Complaint submitted successfully.", "success");
-      setComplaintDesc("");
-      setComplaintFile(null);
-      setShowComplaintModal(false);
-    } catch (err: any) {
-      const errMsg = err.response?.data?.error || "Failed to submit complaint.";
-      toast(errMsg, "error");
-    } finally {
-      setComplaintSubmitting(false);
-    }
-  };
 
   const isLocked = activeThread?.status === "LOCKED" || activeThread?.status === "CLOSED";
 
@@ -311,16 +272,6 @@ export default function ChatPage() {
               </div>
 
               <div className="flex items-center gap-3 shrink-0">
-                {user?.role !== "MENTOR" && (
-                  <button
-                    type="button"
-                    onClick={() => setShowComplaintModal(true)}
-                    className="text-xs font-medium text-red-500 hover:text-red-400 bg-red-500/10 hover:bg-red-500/15 border border-red-500/20 px-3 py-1.5 rounded-full transition-all cursor-pointer flex items-center gap-1 shadow-sm"
-                  >
-                    <AlertTriangle className="h-3.5 w-3.5" /> Report
-                  </button>
-                )}
-
                 {/* Theme Toggle option showing 4 color options inline */}
                 <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-(--hairline) bg-(--fg)/5 select-none shrink-0 shadow-sm">
                   {[
@@ -462,9 +413,9 @@ export default function ChatPage() {
                       className="flex-1 bg-transparent text-sm outline-none placeholder-(--muted)/60 disabled:opacity-50 text-(--fg)"
                       style={{ 
                         caretColor: 
-                          chatTheme === "imessage" ? "#007aff" : 
-                          chatTheme === "sms" ? "#34c759" : 
-                          chatTheme === "pink" ? "#ff2d55" : "var(--fg)" 
+                        chatTheme === "imessage" ? "#007aff" : 
+                        chatTheme === "sms" ? "#34c759" : 
+                        chatTheme === "pink" ? "#ff2d55" : "var(--fg)" 
                       }}
                     />
                     
@@ -586,132 +537,6 @@ export default function ChatPage() {
           </div>
         )}
       </div>
-
-      {/* Complaint Modal */}
-      {showComplaintModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-[#121214] border border-[#27272a] rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-[#27272a]">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-red-500" />
-                <h3 className="text-lg font-semibold text-white">Report Mentor</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  if (!complaintSubmitting) {
-                    setShowComplaintModal(false);
-                    setComplaintDesc("");
-                    setComplaintFile(null);
-                  }
-                }}
-                className="text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-6 flex flex-col gap-5">
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                  Complaint Details
-                </label>
-                <textarea
-                  value={complaintDesc}
-                  onChange={(e) => setComplaintDesc(e.target.value)}
-                  placeholder="Please explain the issue or inappropriate behavior in detail..."
-                  rows={4}
-                  maxLength={1000}
-                  className="w-full bg-[#1c1c1f] text-sm text-white border border-[#27272a] focus:border-red-500/50 outline-none rounded-xl p-3 placeholder-zinc-500 resize-none transition-colors"
-                />
-                <span className="text-[10px] text-zinc-500 text-right">
-                  {complaintDesc.length}/1000 characters
-                </span>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                  Upload Proof (Optional)
-                </label>
-                
-                {complaintFile ? (
-                  <div className="flex items-center justify-between bg-[#1c1c1f] border border-[#27272a] rounded-xl px-4 py-3 text-sm">
-                    <div className="flex items-center gap-2 text-zinc-300 min-w-0">
-                      <Upload className="h-4 w-4 shrink-0 text-red-500" />
-                      <span className="truncate">{complaintFile.name}</span>
-                      <span className="text-xs text-zinc-500 shrink-0">
-                        ({(complaintFile.size / (1024 * 1024)).toFixed(2)} MB)
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setComplaintFile(null)}
-                      className="text-zinc-500 hover:text-red-400 p-1 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-[#27272a] hover:border-red-500/30 bg-[#1c1c1f]/40 hover:bg-[#1c1c1f]/80 rounded-xl p-6 cursor-pointer transition-all group">
-                    <Upload className="h-8 w-8 text-zinc-500 group-hover:text-red-400 transition-colors" />
-                    <span className="text-xs text-zinc-400 group-hover:text-zinc-300 transition-colors">
-                      Click to upload image or PDF (Max 5MB)
-                    </span>
-                    <input
-                      type="file"
-                      accept="image/*,application/pdf"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          if (file.size > 5 * 1024 * 1024) {
-                            toast("File size exceeds 5MB limit.", "error");
-                          } else {
-                            setComplaintFile(file);
-                          }
-                        }
-                      }}
-                      className="hidden"
-                    />
-                  </label>
-                )}
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="px-6 py-4 bg-[#18181b] border-t border-[#27272a] flex items-center justify-end gap-3">
-              <button
-                type="button"
-                disabled={complaintSubmitting}
-                onClick={() => {
-                  setShowComplaintModal(false);
-                  setComplaintDesc("");
-                  setComplaintFile(null);
-                }}
-                className="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white disabled:opacity-50 transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                disabled={complaintSubmitting || !complaintDesc.trim()}
-                onClick={handleComplaintSubmit}
-                className="bg-red-600 hover:bg-red-500 disabled:bg-zinc-800 text-white disabled:text-zinc-500 px-5 py-2 text-sm font-medium rounded-xl transition-all cursor-pointer shadow-lg shadow-red-950/20 flex items-center gap-1.5"
-              >
-                {complaintSubmitting ? (
-                  <>
-                    <span className="animate-spin rounded-full h-3 w-3 border-2 border-white/30 border-t-white" />
-                    Submitting...
-                  </>
-                ) : (
-                  "Submit Report"
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
