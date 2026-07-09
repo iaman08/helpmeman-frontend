@@ -57,10 +57,10 @@ const mentors = [
     img: "/mentor4.jpg",
   },
   {
-    name: "Tarun",
-    role: "Software Engineer",
+    name: "Omi Shourya",
+    role: "Electrical Engineer",
     company: "Delhi Technical University",
-    expertise: ["Freelancing", "Remote"],
+    expertise: ["Electrical Engineering", "EE Core"],
     rating: 5,
     reviews: 55,
     fee: "₹299",
