@@ -70,12 +70,12 @@ export function NotificationBell({ notificationsPath = "/dashboard/notifications
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-(--hairline) bg-(--fg)/5 text-(--fg) transition hover:bg-(--fg)/10"
+        className="relative flex h-8 w-8 items-center justify-center rounded-full border border-(--hairline) bg-(--fg)/5 text-(--fg) transition hover:bg-(--fg)/10"
         aria-label="Notifications"
       >
         <Bell className="h-4 w-4" />
         {unreadCount > 0 && (
-          <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+          <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}
