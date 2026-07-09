@@ -217,30 +217,33 @@ export function SidebarShell({
       </aside>
 
       {/* Mobile header bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 backdrop-blur-xl bg-(--bg)/80 border-b border-(--hairline)">
-        <Link href="/" className="font-display text-lg tracking-tight">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-4 backdrop-blur-xl bg-(--bg)/80 border-b border-(--hairline)">
+        {/* Left: hamburger / close */}
+        <button
+          type="button"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="cursor-pointer p-1 flex items-center gap-2.5"
+          aria-label="Toggle sidebar"
+        >
+          {mobileOpen ? (
+            <X className="h-5 w-5" />
+          ) : (
+            <>
+              <div className={`h-8 w-8 rounded-full overflow-hidden ${avatarColor} flex items-center justify-center text-[10px] shrink-0`}>
+                {userAvatar ? <img src={userAvatar} className="h-full w-full object-cover" alt={userName} /> : initials}
+              </div>
+              <Menu className="h-5 w-5" />
+            </>
+          )}
+        </button>
+
+        {/* Center: brand */}
+        <Link href="/" className="font-display text-lg tracking-tight absolute left-1/2 -translate-x-1/2">
           HelpMeMan<span className="text-(--muted)">.</span>
         </Link>
-        <div className="flex items-center gap-2">
-          <NotificationBell notificationsPath={notificationsPath} />
-          <button
-            type="button"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="cursor-pointer p-1"
-            aria-label="Toggle sidebar"
-          >
-            {mobileOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <div className="flex items-center gap-3">
-                <div className={`h-8 w-8 rounded-full overflow-hidden ${avatarColor} flex items-center justify-center text-[10px]`}>
-                  {userAvatar ? <img src={userAvatar} className="h-full w-full object-cover" /> : initials}
-                </div>
-                <Menu className="h-5 w-5" />
-              </div>
-            )}
-          </button>
-        </div>
+
+        {/* Right: notification bell */}
+        <NotificationBell notificationsPath={notificationsPath} />
       </div>
 
       {/* Mobile sidebar overlay */}

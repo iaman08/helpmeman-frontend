@@ -49,27 +49,27 @@ export function PushPermissionPrompt() {
         <X className="h-4 w-4" />
       </button>
       <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-(--accent) text-(--accent-fg)">
-          <Bell className="h-5 w-5" />
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-200">
+          <Bell className="h-4 w-4" />
         </div>
         <div>
           <p className="text-sm font-semibold">Stay in the loop</p>
           <p className="mt-1 text-sm leading-6 text-(--muted)">
             Enable push notifications for messages, bookings, and important account updates.
           </p>
-          <div className="mt-4 flex gap-2">
+          <div className="mt-3 flex gap-2">
             <button
               type="button"
               onClick={enablePush}
               disabled={busy}
-              className="rounded-xl bg-(--fg) px-4 py-2 text-sm font-semibold text-(--bg) disabled:opacity-50"
+              className="rounded-xl bg-(--fg) px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-semibold text-(--bg) disabled:opacity-50"
             >
               {busy ? "Enabling..." : "Enable notifications"}
             </button>
             <button
               type="button"
               onClick={dismiss}
-              className="rounded-xl px-4 py-2 text-sm text-(--muted) hover:text-(--fg)"
+              className="rounded-xl px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm text-(--muted) hover:text-(--fg)"
             >
               Not now
             </button>

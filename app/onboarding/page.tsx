@@ -466,8 +466,8 @@ export default function OnboardingPage() {
             placeholder={question?.placeholder || "Enter your name"}
             className="mt-6 sm:mt-10 w-full bg-transparent text-center text-3xl sm:text-5xl md:text-6xl font-semibold tracking-[-.05em] text-fg outline-none placeholder:text-fg/25"
           />
-          <button disabled={!input.trim() || sending} className="mt-6 sm:mt-10 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-fg px-5 py-3.5 sm:px-6 sm:py-4 text-sm font-semibold text-bg transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-35">
-            Continue <ArrowRight className="h-4 w-4" />
+          <button type="submit" disabled={!input.trim() || sending} className="mt-6 sm:mt-10 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-fg px-5 py-3.5 sm:px-6 sm:py-4 text-sm font-semibold text-bg transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-35">
+            {sending ? <><Loader2 className="h-4 w-4 animate-spin" /> Saving…</> : <>Continue <ArrowRight className="h-4 w-4" /></>}
           </button>
           <p className="mt-5 text-xs text-muted">Tip: this becomes the first saved mentor onboarding answer.</p>
         </motion.form>
