@@ -1,0 +1,275 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg: #ffffff;
+  --fg: #0a0a0a;
+  --muted: #5b5b5b;
+  --hairline: rgba(10, 10, 10, 0.15);
+  --accent: #0a0a0a;
+  --accent-fg: #ffffff;
+}
+
+html[data-theme="light"] {
+  --bg: #ffffff;
+  --fg: #0a0a0a;
+  --muted: #5b5b5b;
+  --hairline: rgba(10, 10, 10, 0.15);
+  --accent: #0a0a0a;
+  --accent-fg: #ffffff;
+}
+
+html[data-theme="yellow"] {
+  --bg: #f5c518;
+  --fg: #0a0a0a;
+  --muted: #3a2f00;
+  --hairline: rgba(10, 10, 10, 0.14);
+  --accent: #0a0a0a;
+  --accent-fg: #f5c518;
+}
+
+html[data-theme="dark"] {
+  --bg: #0a0a0a;
+  --fg: #f4f4f4;
+  --muted: #9a9a9a;
+  --hairline: rgba(244, 244, 244, 0.10);
+  --accent: #f4f4f4;
+  --accent-fg: #0a0a0a;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-hairline: var(--hairline);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
+  --font-display: var(--font-playfair);
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color 350ms ease, color 350ms ease;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+.font-display {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-feature-settings: "ss01", "ss02";
+  letter-spacing: -0.02em;
+}
+
+/* Hide scrollbar on filter chips etc */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Hide Next.js dev indicator globally */
+#nextjs-build-indicator,
+nextjs-portal,
+[data-nextjs-toast] {
+  display: none !important;
+}
+
+/* Custom Styles for HelpMeMan Landing Page */
+.serif {
+  font-family: var(--font-playfair), serif;
+}
+
+.glass {
+  background-color: color-mix(in srgb, var(--fg) 3%, transparent);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--hairline);
+}
+
+.mentor-shape {
+  position: absolute;
+  z-index: -1;
+  filter: blur(40px);
+  opacity: 0.4;
+  border-radius: 40px;
+  transition: all 1s ease;
+}
+
+.float-card {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+
+  50% {
+    transform: translateY(-20px) rotate(2deg);
+  }
+}
+
+.grid-bg {
+  background-image: radial-gradient(circle at 2px 2px, color-mix(in srgb, var(--fg) 10%, transparent) 1px, transparent 0);
+  background-size: 40px 40px;
+}
+
+.premium-border {
+  border-image: linear-gradient(to right, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)) 1;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--hairline);
+  border-radius: 10px;
+}
+
+.mentor-carousel-track {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  touch-action: none;
+  cursor: grab;
+  z-index: 15;
+}
+
+.mentor-carousel-track:active {
+  cursor: grabbing;
+}
+
+.mentor-carousel-card {
+  position: absolute;
+  width: clamp(200px, 60vw, 250px);
+  height: clamp(320px, 90vw, 400px);
+  padding: 0;
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+    opacity 0.5s ease,
+    filter 0.5s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+  will-change: transform, opacity;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+}
+
+.mentor-carousel-card:hover {
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.25), 0 0 60px rgba(139, 92, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+@media (min-width: 640px) {
+  .mentor-carousel-card {
+    width: 270px;
+    height: 440px;
+    padding: 0;
+    border-radius: 2rem;
+  }
+}
+
+/* ── Review / Testimonial Cards ── */
+.review-card {
+  padding: 1.5rem;
+  border-radius: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+    box-shadow 0.4s ease,
+    rotate 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  cursor: default;
+}
+
+.review-card:hover {
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18), 0 4px 12px rgba(0, 0, 0, 0.08);
+  z-index: 40 !important;
+  transform: scale(1.04);
+}
+
+/* Green card */
+.review-card-green {
+  background: #b9f5a0;
+  color: #1a2e12;
+}
+
+html[data-theme="dark"] .review-card-green {
+  background: #2d4a1e;
+  color: #d4f5c4;
+}
+
+/* Pink card */
+.review-card-pink {
+  background: #f9b4d2;
+  color: #3a1028;
+}
+
+html[data-theme="dark"] .review-card-pink {
+  background: #4a1e35;
+  color: #f5c8de;
+}
+
+/* Neutral / white card */
+.review-card-neutral {
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--hairline);
+}
+
+html[data-theme="dark"] .review-card-neutral {
+  background: #161616;
+  border-color: rgba(244, 244, 244, 0.1);
+}
+
+/* Star color overrides per card */
+.review-card-green .fill-current {
+  color: #1a2e12;
+}
+
+html[data-theme="dark"] .review-card-green .fill-current {
+  color: #a3e88d;
+}
+
+.review-card-pink .fill-current {
+  color: #3a1028;
+}
+
+html[data-theme="dark"] .review-card-pink .fill-current {
+  color: #f5a0c4;
+}
+
+.review-card-neutral .fill-current {
+  color: #eab308;
+}
