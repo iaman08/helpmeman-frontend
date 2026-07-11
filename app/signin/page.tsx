@@ -32,6 +32,17 @@ export default function SignInPage() {
   const [resending, setResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState("");
 
+  // Pre-warm all possible post-login destinations while the user is on this
+  // page. Next.js starts compiling those route bundles in the background so
+  // the first navigation after login is instant instead of 20+ seconds.
+  useEffect(() => {
+    router.prefetch("/dashboard");
+    router.prefetch("/mentor");
+    router.prefetch("/mentor/status");
+    router.prefetch("/admin");
+    router.prefetch("/onboarding");
+  }, [router]);
+
   // Redirect if already logged in (page-level guard, only fires on direct URL navigation)
   useEffect(() => {
     if (!loading && user) {
@@ -43,9 +54,9 @@ export default function SignInPage() {
       } else if (user.onboardingRole === "MENTEE") {
         dest = "/dashboard";
       }
-      window.location.replace(dest);
+      router.replace(dest);
     }
-  }, [user, mentor, loading]);
+  }, [user, mentor, loading, router]);
 
   // Cooldown countdown timer
   useEffect(() => {
@@ -87,7 +98,10 @@ export default function SignInPage() {
     setSubmitting(true);
     try {
       const dest = await login(email, password);
-      window.location.replace(dest);
+      // Use router.push so Next.js uses the prefetched bundle (instant).
+      // window.location.replace would trigger a full-page reload, bypassing
+      // the prefetch cache and causing 20+ second compile times.
+      router.push(dest);
     } catch (err) {
       if (err instanceof AxiosError && err.response?.status === 403 && err.response?.data?.requiresVerification) {
         setUnverifiedEmail(err.response.data.email || email);
@@ -120,7 +134,7 @@ export default function SignInPage() {
         password,
         otp,
       });
-      window.location.replace(dest);
+      router.push(dest);
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(err.response?.data?.error ?? "Verification failed. Please try again.");
@@ -163,7 +177,7 @@ export default function SignInPage() {
     setSubmitting(true);
     try {
       const dest = await login(demoEmail, demoPassword);
-      window.location.replace(dest);
+      router.push(dest);
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(err.response?.data?.error ?? "Login failed. Please try again.");

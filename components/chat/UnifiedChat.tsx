@@ -54,12 +54,25 @@ export function UnifiedChat() {
 
   const onMessage = useCallback((msg: ChatMessage) => {
     const isCurrent = activeThreadRef.current?.id === msg.threadId;
+    
+    if (isCurrent) {
+      setActiveThread(prev => prev ? {
+        ...prev,
+        status: (msg as any).threadStatus ?? prev.status,
+        userMsgCount: (msg as any).userMsgCount ?? prev.userMsgCount,
+        mentorMsgCount: (msg as any).mentorMsgCount ?? prev.mentorMsgCount,
+      } : null);
+    }
+
     setThreads(prev => prev.map(t =>
       t.id === msg.threadId
         ? {
             ...t,
             messages: [msg],
             updatedAt: msg.createdAt,
+            status: (msg as any).threadStatus ?? t.status,
+            userMsgCount: (msg as any).userMsgCount ?? t.userMsgCount,
+            mentorMsgCount: (msg as any).mentorMsgCount ?? t.mentorMsgCount,
             unreadCount: isCurrent
               ? 0
               : (t.unreadCount ?? 0) + 1,
@@ -109,9 +122,19 @@ export function UnifiedChat() {
     );
   }, []);
 
+  const onThreadUnlocked = useCallback((data: { threadId: string }) => {
+    setActiveThread(prev =>
+      prev?.id === data.threadId ? { ...prev, status: "OPEN" } : prev
+    );
+    setThreads(prev =>
+      prev.map(t => t.id === data.threadId ? { ...t, status: "OPEN" } : t)
+    );
+  }, []);
+
   const onPresenceUpdate = useCallback((data: { userId: string; status: PresenceStatus }) => {
     setPresenceMap(prev => ({ ...prev, [data.userId]: data.status }));
   }, []);
+
 
   const onNewMessageNotification = useCallback((data: { threadId: string; message: ChatMessage }) => {
     if (data.message.senderId !== user?.id) {
@@ -144,6 +167,7 @@ export function UnifiedChat() {
     onTyping,
     onStopTyping,
     onThreadLocked,
+    onThreadUnlocked,
     onPresenceUpdate,
     onNewMessageNotification,
     onReactionAdded: (data) => setLatestReactionAdd(data),

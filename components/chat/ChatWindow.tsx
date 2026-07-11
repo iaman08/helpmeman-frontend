@@ -12,6 +12,7 @@ import { MessageList } from "./MessageList";
 import { ChatInput } from "./ChatInput";
 import { TypingIndicator } from "./TypingIndicator";
 import { useThreadMessages } from "./hooks/useThreadMessages";
+import { Avatar } from "@/components/Avatar";
 
 interface ChatWindowProps {
   thread: ChatThread | null;
@@ -54,24 +55,6 @@ function PresenceLabel({ status }: { status?: string }) {
     return <span className="text-[11px] text-amber-400 font-medium">Away</span>;
   }
   return <span className="text-[11px] text-(--muted)/60">Offline</span>;
-}
-
-function ChatAvatar({ name, avatarUrl }: { name: string; avatarUrl?: string | null }) {
-  const [err, setErr] = useState(false);
-  const initials = name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
-  return avatarUrl && !err ? (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={avatarUrl}
-      alt={name}
-      className="h-9 w-9 rounded-full object-cover border border-(--hairline)"
-      onError={() => setErr(true)}
-    />
-  ) : (
-    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-(--fg)/10 text-sm font-semibold border border-(--hairline) select-none">
-      {initials}
-    </div>
-  );
 }
 
 function EditBanner({
@@ -161,8 +144,8 @@ export function ChatWindow({
   useEffect(() => { messagesRef.current = messages; }, [messages]);
 
   const isMentor = userRole === "MENTOR";
-  const isLocked = thread?.status === "LOCKED" || thread?.status === "CLOSED";
-  const isInputBlocked = thread?.status === "CLOSED" || (!isMentor && thread?.status === "LOCKED");
+  const isLocked = thread?.status === "CLOSED" || (thread?.status === "LOCKED" && (thread?.mentorMsgCount ?? 0) === 0);
+  const isInputBlocked = thread?.status === "CLOSED" || (!isMentor && thread?.status === "LOCKED" && (thread?.mentorMsgCount ?? 0) === 0);
 
   const otherName = isMentor
     ? thread?.user?.name ?? "User"
@@ -460,7 +443,7 @@ export function ChatWindow({
               }
             }}
           >
-            <ChatAvatar name={otherName} avatarUrl={otherAvatar} />
+            <Avatar name={otherName} url={otherAvatar} size="md" />
 
             <div className="flex flex-col min-w-0 flex-1">
               <span className="text-sm font-semibold truncate" style={{ color: "var(--fg, #111)" }}>{otherName}</span>
@@ -477,7 +460,7 @@ export function ChatWindow({
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0">
-          {!isMentor && !isLocked && msgRemaining <= 2 && (
+          {!isMentor && !isLocked && (thread?.mentorMsgCount ?? 0) === 0 && msgRemaining <= 2 && (
             <span
               className="text-[10px] font-bold px-2 py-0.5 rounded-full border select-none hidden sm:inline-flex"
               style={{
@@ -807,23 +790,13 @@ function UserProfileModal({ name, avatarUrl, username, email, role, onClose }: P
 
         <div className="px-6 pb-8 pt-0 flex flex-col items-center -mt-14">
           <div className="relative mb-4">
-            {avatarUrl && !imgErr ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={avatarUrl}
-                alt={name}
-                className="h-24 w-24 rounded-full object-cover border-4 shadow-md"
-                style={{ borderColor: "var(--bg, #fff)" }}
-                onError={() => setImgErr(true)}
-              />
-            ) : (
-              <div 
-                className="flex h-24 w-24 items-center justify-center rounded-full text-2xl font-bold border-4 shadow-md bg-gradient-to-br from-blue-500/10 to-purple-500/10"
-                style={{ borderColor: "var(--bg, #fff)" }}
-              >
-                {initials}
-              </div>
-            )}
+            <Avatar
+              name={name}
+              url={avatarUrl}
+              size="custom"
+              className="h-24 w-24 border-4 shadow-md bg-gradient-to-br from-blue-500/10 to-purple-500/10"
+              style={{ borderColor: "var(--bg, #fff)" }}
+            />
           </div>
 
           <h2 className="text-xl font-bold text-center mb-1" style={{ color: "var(--fg, #111)" }}>{name}</h2>

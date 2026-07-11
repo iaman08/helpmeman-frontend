@@ -11,6 +11,7 @@ export interface ChatSocketCallbacks {
   onTyping: (data: { userId: string }) => void;
   onStopTyping: (data: { userId: string }) => void;
   onThreadLocked: (data: { threadId: string; reason: string }) => void;
+  onThreadUnlocked?: (data: { threadId: string }) => void;
   onPresenceUpdate: (data: { userId: string; status: PresenceStatus }) => void;
   onNewMessageNotification: (data: { threadId: string; message: ChatMessage }) => void;
   onReactionAdded?: (data: { threadId: string; messageId: string; reaction: any }) => void;
@@ -41,6 +42,7 @@ export function useChatSocket(callbacks: ChatSocketCallbacks) {
     const onUserTyping = (data: any) => callbacksRef.current.onTyping(data);
     const onUserStopTyping = (data: any) => callbacksRef.current.onStopTyping(data);
     const onThreadLockedEvent = (data: any) => callbacksRef.current.onThreadLocked(data);
+    const onThreadUnlockedEvent = (data: any) => callbacksRef.current.onThreadUnlocked?.(data);
     const onPresence = (data: any) => callbacksRef.current.onPresenceUpdate(data);
     const onReactionAddedEvent = (data: any) => callbacksRef.current.onReactionAdded?.(data);
     const onReactionRemovedEvent = (data: any) => callbacksRef.current.onReactionRemoved?.(data);
@@ -53,6 +55,7 @@ export function useChatSocket(callbacks: ChatSocketCallbacks) {
     socket.on("user_typing", onUserTyping);
     socket.on("user_stop_typing", onUserStopTyping);
     socket.on("thread_locked", onThreadLockedEvent);
+    socket.on("thread_unlocked", onThreadUnlockedEvent);
     socket.on("presence_update", onPresence);
     socket.on("reaction_added", onReactionAddedEvent);
     socket.on("reaction_removed", onReactionRemovedEvent);
@@ -76,6 +79,7 @@ export function useChatSocket(callbacks: ChatSocketCallbacks) {
       socket.off("user_typing", onUserTyping);
       socket.off("user_stop_typing", onUserStopTyping);
       socket.off("thread_locked", onThreadLockedEvent);
+      socket.off("thread_unlocked", onThreadUnlockedEvent);
       socket.off("presence_update", onPresence);
       socket.off("reaction_added", onReactionAddedEvent);
       socket.off("reaction_removed", onReactionRemovedEvent);

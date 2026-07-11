@@ -175,7 +175,7 @@ export interface ChatThread {
   userId: string;
   user?: Pick<User, "id" | "name" | "username" | "email" | "avatar" | "role">;
   mentorId: string;
-  mentor?: Pick<Mentor, "displayName" | "avatar" | "id">;
+  mentor?: Pick<Mentor, "displayName" | "avatar" | "id" | "userId">;
   status: ThreadStatus;
   userMsgCount: number;
   mentorMsgCount: number;

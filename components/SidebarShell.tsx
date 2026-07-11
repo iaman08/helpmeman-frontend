@@ -7,6 +7,7 @@ import { Menu, X, LogOut, Moon, Sun, Monitor } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useTheme, THEMES } from "./ThemeProvider";
 import { NotificationBell } from "./NotificationBell";
+import { Avatar } from "./Avatar";
 
 interface NavItem {
   href?: string;
@@ -49,11 +50,6 @@ export function SidebarShell({
   const [mobileOpen, setMobileOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const [aiOpen, setAiOpen] = useState(false);
-  const [imageError, setImageError] = useState(false);
-
-  useEffect(() => {
-    setImageError(false);
-  }, [userAvatar]);
 
   useEffect(() => {
     const handleOpen = () => setAiOpen(true);
@@ -88,13 +84,6 @@ export function SidebarShell({
     };
   }, [mobileOpen]);
 
-  const initials = userName
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
   const sidebarContent = (
     <>
       <div className="px-6 py-6 flex items-start justify-between gap-3">
@@ -113,15 +102,7 @@ export function SidebarShell({
 
       <div className="px-6 pb-5">
         <div className="flex items-center gap-3">
-          <div
-            className={`flex h-10 w-10 items-center justify-center rounded-full overflow-hidden text-xs font-medium shrink-0 ${avatarColor}`}
-          >
-            {userAvatar && !imageError ? (
-              <img src={userAvatar} alt={userName} className="h-full w-full object-cover" onError={() => setImageError(true)} />
-            ) : (
-              initials
-            )}
-          </div>
+          <Avatar name={userName} url={userAvatar} size="lg" />
           <div className="flex flex-col min-w-0">
             <span className="text-sm font-medium truncate">{userName}</span>
             {userBadge && (
@@ -259,18 +240,7 @@ export function SidebarShell({
             className="cursor-pointer"
             aria-label="View profile"
           >
-            <div className={`h-8 w-8 rounded-full overflow-hidden ${avatarColor} flex items-center justify-center text-[10px] shrink-0`}>
-              {userAvatar && !imageError ? (
-                <img
-                  src={userAvatar}
-                  className="h-full w-full object-cover"
-                  alt={userName}
-                  onError={() => setImageError(true)}
-                />
-              ) : (
-                initials
-              )}
-            </div>
+            <Avatar name={userName} url={userAvatar} size="sm" />
           </Link>
         </div>
       </div>

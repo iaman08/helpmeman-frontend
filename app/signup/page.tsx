@@ -33,6 +33,15 @@ export default function SignUpPage() {
   const [resending, setResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState("");
 
+  // Pre-warm post-signup destinations — compilation starts while user fills the form
+  useEffect(() => {
+    router.prefetch("/dashboard");
+    router.prefetch("/mentor");
+    router.prefetch("/mentor/status");
+    router.prefetch("/admin");
+    router.prefetch("/onboarding");
+  }, [router]);
+
   // Redirect if already logged in (skip during OTP step to avoid racing verifySignupOTP redirect)
   useEffect(() => {
     if (!loading && user && step === 1) {
@@ -44,9 +53,9 @@ export default function SignUpPage() {
       } else if (user.onboardingRole === "MENTEE") {
         dest = "/dashboard";
       }
-      window.location.replace(dest);
+      router.replace(dest);
     }
-  }, [user, mentor, loading, step]);
+  }, [user, mentor, loading, step, router]);
 
 
 
@@ -128,7 +137,7 @@ export default function SignUpPage() {
         phone: phone ? phone.trim() : undefined,
         otp,
       });
-      window.location.replace(dest);
+      router.push(dest);
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(

@@ -4,6 +4,7 @@ import { MessageCircle, Search, X } from "lucide-react";
 import type { ChatThread } from "@/lib/types";
 import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/Skeleton";
+import { Avatar } from "@/components/Avatar";
 
 interface ThreadListProps {
   threads: ChatThread[];
@@ -35,24 +36,9 @@ function PresenceDot({ status }: { status?: string }) {
 function ThreadAvatar({
   name, avatarUrl, presenceStatus
 }: { name: string; avatarUrl?: string | null; presenceStatus?: string }) {
-  const [imgError, setImgError] = useState(false);
-  const initials = name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
-
   return (
     <div className="relative shrink-0">
-      {avatarUrl && !imgError ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={avatarUrl}
-          alt={name}
-          className="h-11 w-11 rounded-full object-cover border border-(--hairline)"
-          onError={() => setImgError(true)}
-        />
-      ) : (
-        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-(--fg)/10 to-(--fg)/20 text-sm font-semibold border border-(--hairline) select-none">
-          {initials}
-        </div>
-      )}
+      <Avatar name={name} url={avatarUrl} size="xl" />
       {presenceStatus && presenceStatus !== "OFFLINE" && (
         <div className="absolute -bottom-0.5 -right-0.5">
           <PresenceDot status={presenceStatus} />
