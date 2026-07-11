@@ -25,11 +25,23 @@ export default function SignInPage() {
   // General flow states
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   // Resend OTP states
   const [cooldown, setCooldown] = useState(0);
   const [resending, setResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState("");
+
+  // Pre-warm all possible post-login destinations while the user is on this
+  // page. Next.js starts compiling those route bundles in the background so
+  // the first navigation after login is instant instead of 20+ seconds.
+  useEffect(() => {
+    router.prefetch("/dashboard");
+    router.prefetch("/mentor");
+    router.prefetch("/mentor/status");
+    router.prefetch("/admin");
+    router.prefetch("/onboarding");
+  }, [router]);
 
   // Redirect if already logged in (page-level guard, only fires on direct URL navigation)
   useEffect(() => {
@@ -46,10 +58,6 @@ export default function SignInPage() {
     }
   }, [user, mentor, loading, router]);
 
-  // Show spinner while auth is resolving; show nothing if user already logged in (redirect in progress)
-  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="h-6 w-6 rounded-full border-2 border-gray-200 border-t-gray-800 dark:border-zinc-700 dark:border-t-zinc-200 animate-spin" /></div>;
-  if (user) return null;
-
   // Cooldown countdown timer
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -59,8 +67,24 @@ export default function SignInPage() {
     return () => clearInterval(timer);
   }, [cooldown]);
 
+  // Show spinner while auth is resolving; show nothing if user already logged in (redirect in progress)
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="h-6 w-6 rounded-full border-2 border-gray-200 border-t-gray-800 dark:border-zinc-700 dark:border-t-zinc-200 animate-spin" /></div>;
+  if (user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#121214]">
+        <div className="h-6 w-6 rounded-full border-2 border-gray-200 border-t-gray-800 dark:border-zinc-700 dark:border-t-zinc-200 animate-spin" />
+      </div>
+    );
+  }
+
   // Don't render form while checking auth or if already logged in
-  if (loading || user) return null;
+  if (loading || user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#121214]">
+        <div className="h-6 w-6 rounded-full border-2 border-gray-200 border-t-gray-800 dark:border-zinc-700 dark:border-t-zinc-200 animate-spin" />
+      </div>
+    );
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -74,7 +98,10 @@ export default function SignInPage() {
     setSubmitting(true);
     try {
       const dest = await login(email, password);
-      router.replace(dest);
+      // Use router.push so Next.js uses the prefetched bundle (instant).
+      // window.location.replace would trigger a full-page reload, bypassing
+      // the prefetch cache and causing 20+ second compile times.
+      router.push(dest);
     } catch (err) {
       if (err instanceof AxiosError && err.response?.status === 403 && err.response?.data?.requiresVerification) {
         setUnverifiedEmail(err.response.data.email || email);
@@ -107,7 +134,7 @@ export default function SignInPage() {
         password,
         otp,
       });
-      router.replace(dest);
+      router.push(dest);
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(err.response?.data?.error ?? "Verification failed. Please try again.");
@@ -150,7 +177,7 @@ export default function SignInPage() {
     setSubmitting(true);
     try {
       const dest = await login(demoEmail, demoPassword);
-      router.replace(dest);
+      router.push(dest);
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(err.response?.data?.error ?? "Login failed. Please try again.");
@@ -259,25 +286,35 @@ export default function SignInPage() {
 
             <button
               type="button"
+              disabled={!!googleLoading}
               onClick={async () => {
                 setError("");
+                setGoogleLoading(true);
                 try {
-                  const dest = await loginWithGoogle();
-                  router.replace(dest);
+                  await loginWithGoogle();
+                  // redirect is handled by onAuthStateChange in auth-context
                 } catch (err: unknown) {
                   const msg = err instanceof Error ? err.message : "Google sign-in failed";
-                  if (!msg.includes("popup-closed")) setError(msg);
+                  setGoogleLoading(false);
+                  if (!msg.includes("popup-closed") && !msg.includes("cancelled")) setError(msg);
                 }
               }}
-              className="w-full flex items-center justify-center gap-3 rounded-lg border border-gray-300 dark:border-zinc-700 py-3 text-sm font-medium hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer bg-transparent text-[var(--fg)] shadow-sm"
+              className="w-full flex items-center justify-center gap-3 rounded-lg border border-gray-300 dark:border-zinc-700 py-3 text-sm font-medium hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer bg-transparent text-[var(--fg)] shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-              </svg>
-              Continue with Google
+              {googleLoading ? (
+                <svg className="w-5 h-5 animate-spin text-[var(--fg)]" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                </svg>
+              )}
+              {googleLoading ? "Opening Google…" : "Continue with Google"}
             </button>
 
             <p className="text-center text-sm text-[var(--muted)] mt-6 select-none">

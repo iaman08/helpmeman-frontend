@@ -118,7 +118,7 @@ export default function OnboardingPage() {
 
   const question = state?.question;
   const questionType = question?.type || "text";
-  const isDemo = Boolean(user?.id?.startsWith("demo_"));
+  const isDemo = typeof window !== "undefined" ? Boolean(localStorage.getItem("helpmeman.accessToken")?.startsWith("demo_")) : false;
   const completed = state?.status === "COMPLETED";
   const progress = state ? Math.round((state.currentQuestion / state.totalQuestions) * 100) : 0;
   const firstName = useMemo(() => {
@@ -169,7 +169,8 @@ export default function OnboardingPage() {
       resetOnboarding();
       lastFetchedUserIdRef.current = user.id;
 
-      if (user.id.startsWith("demo_")) {
+      const token = localStorage.getItem("helpmeman.accessToken");
+      if (token?.startsWith("demo_")) {
         if (user.role === "MENTOR") {
           const next = initialState();
           setState(next);
@@ -566,7 +567,6 @@ export default function OnboardingPage() {
         </header>
 
         <div ref={scrollRef} className="relative flex-1 overflow-y-auto px-4 py-6 sm:px-6">
-          <div className="pointer-events-none sticky top-0 z-10 -mx-6 -mt-6 h-10 bg-gradient-to-b from-bg to-transparent" />
           <div className="mx-auto max-w-3xl space-y-6 pb-4">
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-start gap-2.5 sm:gap-3">
               <RuthMark size="sm" />

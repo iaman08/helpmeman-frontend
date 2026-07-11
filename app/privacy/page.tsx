@@ -93,19 +93,19 @@ export default function PrivacyPage() {
             </p>
             <ul className="list-disc pl-5 space-y-2 text-zinc-400 text-sm">
               <li>
-                <strong className="text-white">Google Auth (Firebase Auth):</strong> Facilitates account creation and secure logins via Google OAuth.
+                <strong className="text-white">Google Sign-In (OAuth 2.0):</strong> Facilitates account creation and secure logins via Google OAuth without storing your Google credentials.
               </li>
               <li>
                 <strong className="text-white">Google Calendar & Meet:</strong> Automates scheduling and generates unique, secure conference links for video sessions.
               </li>
               <li>
-                <strong className="text-white">Firebase Cloud Messaging (FCM):</strong> Sends real-time device push notifications for session bookings and updates.
+                <strong className="text-white">Web Push Notifications:</strong> Sends real-time device push notifications for session bookings and updates using the standard browser Push API.
               </li>
               <li>
                 <strong className="text-white">Razorpay Payment Gateway:</strong> Securely processes payments, validates receipts, and processes refunds.
               </li>
               <li>
-                <strong className="text-white">Cloudinary Hosting:</strong> Stores and delivers user avatars, mentor display pictures, and identity screening credentials.
+                <strong className="text-white">Supabase Storage:</strong> Stores and delivers user avatars, mentor display pictures, and identity screening credentials.
               </li>
               <li>
                 <strong className="text-white">Brevo SMTP Service:</strong> Dispatches platform transaction emails, signup verification codes, and alerts.

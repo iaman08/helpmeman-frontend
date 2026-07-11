@@ -86,9 +86,9 @@ export function FooterSection() {
               Support & Community
             </h4>
             <div className="flex flex-col gap-2.5 text-[14px] text-[#8E8E93]">
-              <a href="/help" className="hover:text-white transition-colors">
-                Help Center
-              </a>
+              <Link href="/help" className="hover:text-white transition-colors">
+                Help and Guidelines
+              </Link>
               <Link href="/?auth=signup" className="hover:text-white transition-colors">
                 Apply as Mentor
               </Link>

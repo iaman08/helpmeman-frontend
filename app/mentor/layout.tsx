@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   LayoutDashboard,
   CalendarCheck,
@@ -16,26 +16,8 @@ import {
 import { useAuth } from "@/lib/auth-context";
 import { SidebarShell } from "@/components/SidebarShell";
 import api from "@/lib/api";
-
-const NAV = [
-  { href: "/mentor", label: "Overview", icon: LayoutDashboard },
-  { href: "/mentor/bookings", label: "Sessions", icon: CalendarCheck },
-  { href: "/mentor/chat", label: "Chat", icon: MessageCircle },
-  { href: "/mentor/availability", label: "Availability", icon: Clock },
-  { href: "/mentor/earnings", label: "Earnings", icon: DollarSign },
-  { href: "/mentor/reviews", label: "Reviews", icon: Star },
-  { href: "/mentor/notifications", label: "Notifications", icon: Bell },
-  { href: "/mentor/settings", label: "Profile", icon: User },
-  {
-    onClick: () => {
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(new Event("open-ai"));
-      }
-    },
-    label: "Ruth",
-    icon: Sparkles,
-  },
-];
+import { useUnreadChatCount } from "@/lib/hooks";
+import { useSocket } from "@/lib/socket-context";
 
 export default function MentorLayout({
   children,
@@ -45,12 +27,38 @@ export default function MentorLayout({
   const { user, mentor, loading, logout, isMentor } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const { data: unreadData } = useUnreadChatCount();
+  const unreadChatCount = unreadData?.unreadCount ?? 0;
+
+  const NAV = [
+    { href: "/mentor", label: "Overview", icon: LayoutDashboard },
+    { href: "/mentor/bookings", label: "Sessions", icon: CalendarCheck },
+    { href: "/mentor/chat", label: "Chat", icon: MessageCircle, badge: unreadChatCount },
+    { href: "/mentor/availability", label: "Availability", icon: Clock },
+    { href: "/mentor/earnings", label: "Earnings", icon: DollarSign },
+    { href: "/mentor/reviews", label: "Reviews", icon: Star },
+    { href: "/mentor/notifications", label: "Notifications", icon: Bell },
+    { href: "/mentor/settings", label: "Profile", icon: User },
+    {
+      onClick: () => {
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("open-ai"));
+        }
+      },
+      label: "Ruth",
+      icon: Sparkles,
+    },
+  ];
+
+  // Stable ref to prevent double-redirects during transient state updates
+  const hasRedirectedRef = useRef(false);
 
   useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        router.replace("/signin");
-      } else if (!user.onboardingRole) {
+    if (loading) return;
+
+    if (user) {
+      hasRedirectedRef.current = false;
+      if (!user.onboardingRole) {
         router.replace("/onboarding");
       } else if (!isMentor) {
         const dest = user.role === "ADMIN" ? "/admin" : "/dashboard";
@@ -58,19 +66,26 @@ export default function MentorLayout({
       } else if (
         mentor?.approvalStatus !== "APPROVED" &&
         pathname !== "/mentor/status" &&
-        !user.id.startsWith("demo_")
+        !localStorage.getItem("helpmeman.accessToken")?.startsWith("demo_")
       ) {
         router.replace("/mentor/status");
       }
+      return;
+    }
+
+    if (!hasRedirectedRef.current) {
+      hasRedirectedRef.current = true;
+      router.replace("/signin");
     }
   }, [loading, user, isMentor, mentor, pathname, router]);
 
   useEffect(() => {
+    const isDemo = localStorage.getItem("helpmeman.accessToken")?.startsWith("demo_");
     if (
       loading ||
       !user ||
       !isMentor ||
-      user.id.startsWith("demo_") ||
+      isDemo ||
       mentor?.approvalStatus === "APPROVED" ||
       pathname === "/mentor/status"
     )
@@ -81,6 +96,44 @@ export default function MentorLayout({
       })
       .catch(() => { /* keep the dashboard usable during a transient API outage */ });
   }, [loading, user, isMentor, pathname, router]);
+
+  // ─── Real-Time Presence Heartbeat (using global socket) ───
+  const { socket } = useSocket();
+
+  useEffect(() => {
+    if (!user || !socket) return;
+
+    let lastActivity = Date.now();
+
+    const handleActivity = () => {
+      const now = Date.now();
+      // Throttle pings to once every 45s to avoid socket spam
+      if (now - lastActivity > 45000) {
+        lastActivity = now;
+        socket.emit("user_activity");
+      }
+    };
+
+    // Attach interaction listeners
+    window.addEventListener("mousemove", handleActivity);
+    window.addEventListener("keydown", handleActivity);
+    window.addEventListener("click", handleActivity);
+    window.addEventListener("scroll", handleActivity);
+    window.addEventListener("focus", handleActivity);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        handleActivity();
+      }
+    });
+
+    return () => {
+      window.removeEventListener("mousemove", handleActivity);
+      window.removeEventListener("keydown", handleActivity);
+      window.removeEventListener("click", handleActivity);
+      window.removeEventListener("scroll", handleActivity);
+      window.removeEventListener("focus", handleActivity);
+    };
+  }, [user, socket]);
 
 
   // Show spinner while loading or while redirect is in flight
@@ -110,7 +163,6 @@ export default function MentorLayout({
       notificationsPath="/mentor/notifications"
       onLogout={async () => {
         await logout();
-        window.location.replace("/");
       }}
     >
       {children}

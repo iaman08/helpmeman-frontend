@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { useTheme, type Theme, THEMES } from "./ThemeProvider";
 import { useAuth } from "@/lib/auth-context";
 import { LayoutDashboard, LogOut, ChevronDown, Menu, X } from "lucide-react";
+import { Avatar } from "./Avatar";
 
 const links: { id: string; label: string }[] = [];
 
@@ -24,15 +25,6 @@ function getDashboardPath(role?: string) {
   if (role === "ADMIN") return "/admin";
   if (role === "MENTOR") return "/mentor";
   return "/dashboard";
-}
-
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
 }
 
 export function Navbar() {
@@ -87,13 +79,7 @@ export function Navbar() {
                 aria-expanded={dropdownOpen}
                 aria-haspopup="true"
               >
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-(--fg)/8 text-[11px] font-medium overflow-hidden">
-                  {user.avatar ? (
-                    <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" />
-                  ) : (
-                    getInitials(user.name)
-                  )}
-                </div>
+                <Avatar name={user.name} url={user.avatar} size="sm" />
                 <span className="hidden sm:block text-sm max-w-[120px] truncate">
                   {user.name.split(" ")[0]}
                 </span>
@@ -142,7 +128,6 @@ export function Navbar() {
                     onClick={async () => {
                       setDropdownOpen(false);
                       await logout();
-                      window.location.replace("/");
                     }}
                     className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-500/5 transition-colors cursor-pointer"
                   >

@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { useState, useEffect } from "react";
 import { ShareProfileModal } from "@/components/ShareProfileModal";
+import { Avatar } from "@/components/Avatar";
 
 function formatPrice(paise: number): string {
   return `₹${Math.round(paise / 100)}`;
@@ -41,13 +42,13 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 export default function MentorProfilePage() {
-  const { id } = useParams<{ id: string }>();
-  const { data, isLoading, error } = useMentor(id);
+  const { id } = useParams();
+  const { data, isLoading, error } = useMentor(id as string);
   const [reviewPage, setReviewPage] = useState(1);
-  const { data: reviewData, isLoading: reviewsLoading } = useMentorReviews(
-    id,
-    reviewPage,
-  );
+  const {
+    data: reviewData,
+    isLoading: reviewsLoading,
+  } = useMentorReviews(id as string, reviewPage);
   
   const [isShareOpen, setIsShareOpen] = useState(false);
 
@@ -65,99 +66,54 @@ export default function MentorProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen">
-        <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-(--bg)/70">
-          <nav className="mx-auto flex max-w-[1400px] items-center justify-between px-6 sm:px-10 py-5">
-            <Link href="/" className="font-display text-2xl tracking-tight">
-              HelpMeMan<span className="text-(--muted)">.</span>
-            </Link>
-          </nav>
-        </header>
-        <main className="mx-auto max-w-[1400px] px-6 sm:px-10 pt-28 pb-16">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            <div className="lg:col-span-2 flex flex-col gap-6">
-              <div className="flex items-center gap-5">
-                <Skeleton circle className="h-20 w-20" />
-                <div className="flex flex-col gap-2 flex-1">
-                  <Skeleton className="h-7 w-64" />
-                  <Skeleton className="h-4 w-40" />
-                </div>
-              </div>
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-5/6" />
-              <Skeleton className="h-4 w-3/4" />
-            </div>
-            <div className="flex flex-col gap-4">
-              <Skeleton className="h-48 w-full rounded-2xl" />
-            </div>
+      <div className="max-w-[1000px] mx-auto px-6 sm:px-10 py-24 flex flex-col gap-10">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8 pb-6 border-b border-(--hairline)">
+          <Skeleton className="h-28 w-28 rounded-full shrink-0" />
+          <div className="flex-1 flex flex-col gap-3">
+            <Skeleton className="h-8 w-64 rounded-lg" />
+            <Skeleton className="h-5 w-48 rounded-lg" />
+            <Skeleton className="h-5 w-full rounded-lg" />
           </div>
-        </main>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          <div className="lg:col-span-2 flex flex-col gap-6">
+            <Skeleton className="h-24 w-full rounded-2xl" />
+            <Skeleton className="h-48 w-full rounded-2xl" />
+          </div>
+          <Skeleton className="h-64 w-full rounded-2xl" />
+        </div>
       </div>
     );
   }
 
   if (error || !mentor) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-6">
+      <div className="max-w-[1000px] mx-auto px-6 sm:px-10 py-24">
         <EmptyState
+          icon={<Star className="h-8 w-8 text-red-500" />}
           title="Mentor not found"
-          description="This mentor may no longer be available."
-          action={
-            <Link
-              href="/mentors"
-              className="rounded-full bg-(--accent) text-(--accent-fg) px-6 py-3 text-sm"
-            >
-              Browse mentors
-            </Link>
-          }
+          description="The mentor you are looking for does not exist or has deactivated their profile."
+          action={<Link href="/" className="text-sm font-medium text-(--accent) hover:underline">Back to Home</Link>}
         />
       </div>
     );
   }
 
-  const initials = mentor.displayName
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
   return (
-    <div className="min-h-screen">
-      {/* ─── Header ─── */}
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-(--bg)/70">
-        <nav className="mx-auto flex max-w-[1400px] items-center justify-between px-6 sm:px-10 py-5">
-          <Link href="/" className="font-display text-2xl tracking-tight">
-            HelpMeMan<span className="text-(--muted)">.</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/mentors"
-              className="text-sm text-(--fg)/80 hover:text-(--fg) transition-colors"
-            >
-              ← All Mentors
-            </Link>
-          </div>
-        </nav>
-      </header>
-
-      <main className="mx-auto max-w-[1400px] px-6 sm:px-10 pt-28 pb-16">
+    <div className="max-w-[1000px] mx-auto px-6 sm:px-10 py-24">
+      {/* ─── Profile Content ─── */}
+      <div className="flex flex-col gap-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* ─── Left: Profile Details ─── */}
           <div className="lg:col-span-2 flex flex-col gap-8">
             {/* Top Region Styled like Screenshot */}
             <div className="flex flex-col md:flex-row items-start gap-6 md:gap-8 pb-6 border-b border-(--hairline)">
-              {mentor.avatar ? (
-                <img
-                  src={mentor.avatar}
-                  alt={mentor.displayName}
-                  className="h-28 w-28 rounded-2xl object-cover shrink-0 border border-(--hairline) shadow-md"
-                />
-              ) : (
-                <div className="flex h-28 w-28 items-center justify-center rounded-2xl bg-(--fg)/8 text-2xl font-semibold shrink-0 border border-(--hairline)">
-                  {initials}
-                </div>
-              )}
+              <Avatar
+                name={mentor.displayName}
+                url={mentor.avatar}
+                size="custom"
+                className="h-28 w-28 shadow-md"
+              />
               
               <div className="flex flex-col gap-2.5 flex-1 min-w-0">
                 {mentor.rating >= 4.8 && (
@@ -268,7 +224,11 @@ export default function MentorProfilePage() {
                 </div>
                 <div className="col-span-2 border-t border-(--hairline)/30 pt-4 mt-1">
                   <div className="text-xs text-(--muted) uppercase tracking-wider font-semibold">Languages</div>
-                  <div className="text-sm font-bold mt-1 text-(--fg)">{mentor.languages || "English"}</div>
+                  <div className="text-sm font-bold mt-1 text-(--fg)">
+                    {Array.isArray(mentor.languages)
+                      ? mentor.languages.join(", ")
+                      : mentor.languages || "English"}
+                  </div>
                 </div>
               </div>
             </div>
@@ -438,13 +398,13 @@ export default function MentorProfilePage() {
                 Book a session
               </Link>
 
-              <button
-                type="button"
-                className="flex items-center justify-center gap-2 rounded-full bg-(--fg)/5 px-7 py-3.5 text-sm hover:bg-(--fg)/8 transition-colors cursor-pointer"
+              <Link
+                href={`/dashboard/chat?mentorId=${mentor.id}`}
+                className="flex items-center justify-center gap-2 rounded-full bg-(--fg)/5 px-7 py-3.5 text-sm hover:bg-(--fg)/8 transition-colors text-center"
               >
                 <MessageCircle className="h-4 w-4" />
                 Chat first
-              </button>
+              </Link>
 
               <button
                 type="button"
@@ -457,7 +417,7 @@ export default function MentorProfilePage() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
 
       {mentor && (
         <ShareProfileModal

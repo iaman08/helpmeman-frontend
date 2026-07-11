@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Bell, X } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
-import { requestPushPermissionAndRegister } from "@/lib/fcm";
+import { requestPushPermissionAndRegister } from "@/lib/push";
 
 export function PushPermissionPrompt() {
   const { user, loading } = useAuth();
@@ -11,7 +11,8 @@ export function PushPermissionPrompt() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (loading || !user || user.id.startsWith("demo_")) return;
+    const token = localStorage.getItem("helpmeman.accessToken");
+    if (loading || !user || token?.startsWith("demo_")) return;
     const dismissed = localStorage.getItem("helpmeman.pushPromptDismissed");
     const alreadyAsked = localStorage.getItem("helpmeman.pushPromptAsked");
     if (dismissed || alreadyAsked) return;

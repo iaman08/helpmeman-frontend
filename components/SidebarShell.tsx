@@ -7,12 +7,14 @@ import { Menu, X, LogOut, Moon, Sun, Monitor } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useTheme, THEMES } from "./ThemeProvider";
 import { NotificationBell } from "./NotificationBell";
+import { Avatar } from "./Avatar";
 
 interface NavItem {
   href?: string;
   onClick?: () => void;
   label: string;
   icon: LucideIcon;
+  badge?: number;
 }
 
 interface SidebarShellProps {
@@ -82,13 +84,6 @@ export function SidebarShell({
     };
   }, [mobileOpen]);
 
-  const initials = userName
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
   const sidebarContent = (
     <>
       <div className="px-6 py-6 flex items-start justify-between gap-3">
@@ -100,20 +95,14 @@ export function SidebarShell({
             {brandLabel}
           </p>
         </div>
-        <NotificationBell notificationsPath={notificationsPath} />
+        <div className="hidden md:block">
+          <NotificationBell notificationsPath={notificationsPath} />
+        </div>
       </div>
 
       <div className="px-6 pb-5">
         <div className="flex items-center gap-3">
-          <div
-            className={`flex h-10 w-10 items-center justify-center rounded-full overflow-hidden text-xs font-medium shrink-0 ${avatarColor}`}
-          >
-            {userAvatar ? (
-              <img src={userAvatar} alt={userName} className="h-full w-full object-cover" />
-            ) : (
-              initials
-            )}
-          </div>
+          <Avatar name={userName} url={userAvatar} size="lg" />
           <div className="flex flex-col min-w-0">
             <span className="text-sm font-medium truncate">{userName}</span>
             {userBadge && (
@@ -154,7 +143,12 @@ export function SidebarShell({
                   }`}
               >
                 <item.icon className="h-4 w-4 shrink-0" />
-                {item.label}
+                <span className="flex-1 text-left">{item.label}</span>
+                {item.badge !== undefined && item.badge > 0 && (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold px-1.5 shrink-0 animate-in zoom-in duration-200">
+                    {item.badge}
+                  </span>
+                )}
               </button>
             );
           }
@@ -174,7 +168,12 @@ export function SidebarShell({
                 }`}
             >
               <item.icon className="h-4 w-4 shrink-0" />
-              {item.label}
+              <span className="flex-1 text-left">{item.label}</span>
+              {item.badge !== undefined && item.badge > 0 && (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold px-1.5 shrink-0 animate-in zoom-in duration-200">
+                  {item.badge}
+                </span>
+              )}
             </Link>
           );
         })}
@@ -236,16 +235,13 @@ export function SidebarShell({
         {/* Right: avatar + notification bell */}
         <div className="flex items-center gap-2">
           <NotificationBell notificationsPath={notificationsPath} />
-          <button
-            type="button"
-            onClick={() => setMobileOpen(!mobileOpen)}
+          <Link
+            href={rootPath === "/admin" ? "/dashboard/settings" : `${rootPath}/settings`}
             className="cursor-pointer"
-            aria-label="Open menu"
+            aria-label="View profile"
           >
-            <div className={`h-8 w-8 rounded-full overflow-hidden ${avatarColor} flex items-center justify-center text-[10px] shrink-0`}>
-              {userAvatar ? <img src={userAvatar} className="h-full w-full object-cover" alt={userName} /> : initials}
-            </div>
-          </button>
+            <Avatar name={userName} url={userAvatar} size="sm" />
+          </Link>
         </div>
       </div>
 
@@ -265,7 +261,7 @@ export function SidebarShell({
 
       {/* Main content */}
       <main className="md:ml-64 flex-1 min-h-screen min-w-0">
-        <div className="max-w-5xl mx-auto w-full px-4 sm:px-10 py-10 pt-24 md:pt-10">
+        <div className="max-w-5xl mx-auto w-full px-4 sm:px-10 py-10 pt-[72px] md:pt-10">
           {children}
         </div>
       </main>

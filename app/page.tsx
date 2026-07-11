@@ -62,7 +62,11 @@ function LandingPageContent() {
 
   // Prevent flash of content if user is logged in
   if (loading || user) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0B0B0C]">
+        <div className="h-6 w-6 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+      </div>
+    );
   }
 
   return (

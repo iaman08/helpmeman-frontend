@@ -1,28 +1,15 @@
-import { initializeApp, getApps } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+/**
+ * ⛔ FIREBASE HAS BEEN REMOVED FROM HELPMEMAN
+ *
+ * This file is intentionally empty. Firebase SDK is no longer used.
+ *
+ * Replacements:
+ *   - Google Sign-In: Google Identity Services (GIS) in lib/auth-context.tsx
+ *   - Push Notifications: Web Push API in lib/push.ts
+ *
+ * If you see an import of this file, it is a bug. Remove the import.
+ */
 
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-};
-
-let app;
-let auth: any;
-let googleProvider: any;
-let db: any;
-
-if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY && process.env.NEXT_PUBLIC_FIREBASE_API_KEY.length > 0) {
-  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-  auth = getAuth(app);
-  googleProvider = new GoogleAuthProvider();
-  db = getFirestore(app);
-} else {
-  console.warn("Firebase configuration is missing. Google Auth will be disabled.");
-}
-
-export { auth, googleProvider, db };
+export const auth = null;
+export const googleProvider = null;
+export const db = null;
