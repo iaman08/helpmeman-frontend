@@ -13,7 +13,7 @@ const MESSAGES = [
   "Almost there, finalizing onboarding details...",
 ];
 
-export default function GoogleAuthLoader() {
+export default function GoogleAuthLoader({ onCancel }: { onCancel?: () => void }) {
   const [msgIndex, setMsgIndex] = useState(0);
 
   useEffect(() => {
@@ -45,13 +45,17 @@ export default function GoogleAuthLoader() {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/40 dark:bg-black/70 backdrop-blur-[2px] transition-opacity duration-300">
+    <div
+      onClick={onCancel}
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/40 dark:bg-black/70 backdrop-blur-[2px] transition-opacity duration-300 cursor-pointer"
+    >
       {/* Central Professional Card */}
       <motion.div
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
-        className="flex flex-col items-center p-6 sm:p-8 rounded-2xl bg-white dark:bg-[#121214] border border-gray-200/60 dark:border-zinc-800/80 shadow-[0_20px_50px_rgba(0,0,0,0.12)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)] max-w-[340px] sm:max-w-sm w-[90%] sm:w-full mx-4 text-center transform-gpu"
+        onClick={(e) => e.stopPropagation()}
+        className="flex flex-col items-center p-6 sm:p-8 rounded-2xl bg-white dark:bg-[#121214] border border-gray-200/60 dark:border-zinc-800/80 shadow-[0_20px_50px_rgba(0,0,0,0.12)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)] max-w-[340px] sm:max-w-sm w-[90%] sm:w-full mx-4 text-center transform-gpu cursor-default"
       >
         {/* Pulsing and Rotating Spinner */}
         <div className="relative w-16 h-16 sm:w-20 sm:h-20 mb-6 transform-gpu">

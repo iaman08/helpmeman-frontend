@@ -382,7 +382,7 @@ export default function MentorsPage() {
         userAvatar={user.avatar}
         onLogout={async () => {
           await logout();
-          window.location.href = "/signin";
+          window.location.href = "/";
         }}
       >
         {content}

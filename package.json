@@ -11,6 +11,7 @@
   "dependencies": {
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
+    "@supabase/supabase-js": "^2.43.4",
     "axios": "^1.16.0",
     "clsx": "^2.1.1",
     "html-to-image": "^1.11.13",

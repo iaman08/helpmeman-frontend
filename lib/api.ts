@@ -27,8 +27,29 @@ const api = axios.create({
   timeout: 15_000,
 });
 
+let startLoaderCallback: ((show: boolean) => void) | null = null;
+let stopLoaderCallback: ((show: boolean) => void) | null = null;
+
+export function registerApiLoader(
+  start: (show: boolean) => void,
+  stop: (show: boolean) => void
+) {
+  startLoaderCallback = start;
+  stopLoaderCallback = stop;
+}
+
 /* ─── Request interceptor: attach token ─── */
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  const showLoader = config.headers?.["x-show-loader"] === "true";
+
+  if (showLoader) {
+    (config as any)._showLoader = true;
+  }
+
+  if (startLoaderCallback) {
+    startLoaderCallback(showLoader);
+  }
+
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("helpmeman.accessToken");
     if (token && config.headers) {
@@ -54,8 +75,14 @@ function processQueue(error: unknown, token: string | null) {
 }
 
 api.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    const show = res.config && (res.config as any)._showLoader;
+    if (stopLoaderCallback) stopLoaderCallback(show);
+    return res;
+  },
   async (error: AxiosError) => {
+    const show = error?.config && (error.config as any)._showLoader;
+    if (stopLoaderCallback) stopLoaderCallback(show);
     const original = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };
@@ -106,6 +133,9 @@ api.interceptors.response.use(
 
         const newToken = data.accessToken as string;
         localStorage.setItem("helpmeman.accessToken", newToken);
+        if (data.refreshToken) {
+          localStorage.setItem("helpmeman.refreshToken", data.refreshToken);
+        }
         document.cookie = `helpmeman.accessToken=${newToken};path=/;max-age=31536000;SameSite=Lax`;
         processQueue(null, newToken);
 

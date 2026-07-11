@@ -6,8 +6,12 @@ import { AuthProvider } from "@/lib/auth-context";
 import { ToastProvider } from "@/components/Toast";
 import { AIChatWidget } from "@/components/AIChatWidget";
 import { PushPermissionPrompt } from "@/components/PushPermissionPrompt";
+import GoogleAuthOverlay from "@/components/GoogleAuthOverlay";
+import { LoaderProvider } from "@/components/LoaderContext";
 
 import { PublicThemeManager } from "@/components/PublicThemeManager";
+
+import { SocketProvider } from "@/lib/socket-context";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -46,16 +50,22 @@ export default function RootLayout({
       </head>
       <body className="font-sans bg-bg text-fg overflow-x-hidden">
         <ThemeProvider>
-          <PublicThemeManager />
-          <AuthProvider>
-            <ToastProvider>
-              {children}
-              <AIChatWidget />
-              <PushPermissionPrompt />
-            </ToastProvider>
-          </AuthProvider>
+          <LoaderProvider>
+            <PublicThemeManager />
+            <AuthProvider>
+              <GoogleAuthOverlay />
+              <ToastProvider>
+                <SocketProvider>
+                  {children}
+                  <AIChatWidget />
+                  <PushPermissionPrompt />
+                </SocketProvider>
+              </ToastProvider>
+            </AuthProvider>
+          </LoaderProvider>
         </ThemeProvider>
       </body>
     </html>
   );
 }
+

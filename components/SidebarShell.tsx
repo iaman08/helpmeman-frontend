@@ -13,6 +13,7 @@ interface NavItem {
   onClick?: () => void;
   label: string;
   icon: LucideIcon;
+  badge?: number;
 }
 
 interface SidebarShellProps {
@@ -48,6 +49,11 @@ export function SidebarShell({
   const [mobileOpen, setMobileOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const [aiOpen, setAiOpen] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [userAvatar]);
 
   useEffect(() => {
     const handleOpen = () => setAiOpen(true);
@@ -100,7 +106,9 @@ export function SidebarShell({
             {brandLabel}
           </p>
         </div>
-        <NotificationBell notificationsPath={notificationsPath} />
+        <div className="hidden md:block">
+          <NotificationBell notificationsPath={notificationsPath} />
+        </div>
       </div>
 
       <div className="px-6 pb-5">
@@ -108,8 +116,8 @@ export function SidebarShell({
           <div
             className={`flex h-10 w-10 items-center justify-center rounded-full overflow-hidden text-xs font-medium shrink-0 ${avatarColor}`}
           >
-            {userAvatar ? (
-              <img src={userAvatar} alt={userName} className="h-full w-full object-cover" />
+            {userAvatar && !imageError ? (
+              <img src={userAvatar} alt={userName} className="h-full w-full object-cover" onError={() => setImageError(true)} />
             ) : (
               initials
             )}
@@ -154,7 +162,12 @@ export function SidebarShell({
                   }`}
               >
                 <item.icon className="h-4 w-4 shrink-0" />
-                {item.label}
+                <span className="flex-1 text-left">{item.label}</span>
+                {item.badge !== undefined && item.badge > 0 && (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold px-1.5 shrink-0 animate-in zoom-in duration-200">
+                    {item.badge}
+                  </span>
+                )}
               </button>
             );
           }
@@ -174,7 +187,12 @@ export function SidebarShell({
                 }`}
             >
               <item.icon className="h-4 w-4 shrink-0" />
-              {item.label}
+              <span className="flex-1 text-left">{item.label}</span>
+              {item.badge !== undefined && item.badge > 0 && (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold px-1.5 shrink-0 animate-in zoom-in duration-200">
+                  {item.badge}
+                </span>
+              )}
             </Link>
           );
         })}
@@ -236,16 +254,24 @@ export function SidebarShell({
         {/* Right: avatar + notification bell */}
         <div className="flex items-center gap-2">
           <NotificationBell notificationsPath={notificationsPath} />
-          <button
-            type="button"
-            onClick={() => setMobileOpen(!mobileOpen)}
+          <Link
+            href={rootPath === "/admin" ? "/dashboard/settings" : `${rootPath}/settings`}
             className="cursor-pointer"
-            aria-label="Open menu"
+            aria-label="View profile"
           >
             <div className={`h-8 w-8 rounded-full overflow-hidden ${avatarColor} flex items-center justify-center text-[10px] shrink-0`}>
-              {userAvatar ? <img src={userAvatar} className="h-full w-full object-cover" alt={userName} /> : initials}
+              {userAvatar && !imageError ? (
+                <img
+                  src={userAvatar}
+                  className="h-full w-full object-cover"
+                  alt={userName}
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                initials
+              )}
             </div>
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -265,7 +291,7 @@ export function SidebarShell({
 
       {/* Main content */}
       <main className="md:ml-64 flex-1 min-h-screen min-w-0">
-        <div className="max-w-5xl mx-auto w-full px-4 sm:px-10 py-10 pt-24 md:pt-10">
+        <div className="max-w-5xl mx-auto w-full px-4 sm:px-10 py-10 pt-[72px] md:pt-10">
           {children}
         </div>
       </main>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   LayoutDashboard,
   UserCheck,
@@ -39,16 +39,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { user, mentor, loading, logout, isMentor, isAdmin } = useAuth();
   const router = useRouter();
 
+  // Stable ref to prevent double-redirects during transient state updates
+  const hasRedirectedRef = useRef(false);
+
   useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        router.replace("/signin");
-      } else if (!isAdmin) {
+    if (loading) return;
+
+    if (user) {
+      hasRedirectedRef.current = false;
+      if (!isAdmin) {
         const dest = isMentor
           ? (mentor?.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status")
           : "/dashboard";
         router.replace(dest);
       }
+      return;
+    }
+
+    if (!hasRedirectedRef.current) {
+      hasRedirectedRef.current = true;
+      router.replace("/signin");
     }
   }, [loading, user, isAdmin, isMentor, mentor, router]);
 
@@ -75,7 +85,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       avatarColor="bg-red-500/10 text-red-500"
       onLogout={async () => {
         await logout();
-        window.location.replace("/");
       }}
     >
       {children}

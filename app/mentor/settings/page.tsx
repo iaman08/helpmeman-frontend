@@ -1,4 +1,6 @@
 "use client";
+// Force Next.js compiler cache bust after settings state refactoring
+
 
 import { useEffect, useState, useRef, type FormEvent, type ChangeEvent } from "react";
 import {
@@ -13,6 +15,8 @@ import { Skeleton } from "@/components/Skeleton";
 import { useToast } from "@/components/Toast";
 import { ImageCropModal } from "@/components/ImageCropModal";
 import type { Mentor } from "@/lib/types";
+import { CascadingAddressSelect } from "@/components/CascadingAddressSelect";
+import { LanguageMultiSelect } from "@/components/LanguageMultiSelect";
 
 // ─── Indian + English language list ───
 const LANGUAGES = [
@@ -80,6 +84,11 @@ export default function MentorSettingsPage() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
   const [avatarSaving, setAvatarSaving] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [mentor?.avatar, avatarPreview]);
 
   // Form state
   const [displayName, setDisplayName] = useState("");
@@ -90,14 +99,24 @@ export default function MentorSettingsPage() {
   const [pricePerSession, setPricePerSession] = useState("");
   const [sessionDuration, setSessionDuration] = useState("30");
   const [preferredLanguage, setPreferredLanguage] = useState("en");
-
-  // New fields
-  const [location, setLocation] = useState("");
-  const [activeStatus, setActiveStatus] = useState("");
-  const [averageResponseTime, setAverageResponseTime] = useState("");
-  const [languages, setLanguages] = useState("");
   const [experienceYears, setExperienceYears] = useState("");
-  const [isOnline, setIsOnline] = useState(false);
+
+  // Structured Address State
+  const [mentorAddress, setMentorAddress] = useState({
+    country: "",
+    state: "",
+    city: "",
+    locality: "",
+    postalCode: ""
+  });
+
+  // Languages array state
+  const [mentorLanguages, setMentorLanguages] = useState<string[]>([]);
+
+  // Cached calculated stats for read-only display
+  const [responseTimeText, setResponseTimeText] = useState("Usually replies within a day");
+  const [activePresenceStatus, setActivePresenceStatus] = useState("Offline");
+  const [isOnlineIndicator, setIsOnlineIndicator] = useState(false);
 
   // Skills / Expertise
   const [skills, setSkills] = useState<string[]>([]);
@@ -119,12 +138,30 @@ export default function MentorSettingsPage() {
         setPricePerSession(String(Math.round((m.pricePerSession ?? 0) / 100)));
         setSessionDuration(String(m.sessionDuration ?? 30));
         setSkills((m.expertise ?? []) as string[]);
-        setLocation(m.location ?? "");
-        setActiveStatus(m.activeStatus ?? "");
-        setAverageResponseTime(m.averageResponseTime ?? "");
-        setLanguages(m.languages ?? "");
+        
+        // Structured Location
+        setMentorAddress({
+          country: m.country ?? "",
+          state: m.state ?? "",
+          city: m.city ?? "",
+          locality: m.locality ?? "",
+          postalCode: m.postalCode ?? ""
+        });
+
+        // Languages
+        const langsArray = Array.isArray(m.languages)
+          ? m.languages
+          : typeof m.languages === 'string'
+          ? (m.languages as string).split(',').map(s => s.trim()).filter(Boolean)
+          : [];
+        setMentorLanguages(langsArray);
+
+        // Read-only automatic metrics
+        setResponseTimeText(m.averageResponseTime ?? "Usually replies within a day");
+        setActivePresenceStatus(m.activeStatus ?? "Offline");
+        setIsOnlineIndicator(m.isOnline ?? false);
+
         setExperienceYears(m.experienceYears !== undefined && m.experienceYears !== null ? String(m.experienceYears) : "");
-        setIsOnline(m.isOnline ?? false);
         if (m.avatar) setAvatarPreview(m.avatar);
       })
       .catch(() => toast("Failed to load profile", "error"))
@@ -225,12 +262,13 @@ export default function MentorSettingsPage() {
         pricePerSession: Number(pricePerSession) * 100,
         sessionDuration: Number(sessionDuration),
         preferredLanguage,
-        location,
-        activeStatus,
-        averageResponseTime,
-        languages,
+        country: mentorAddress.country,
+        state: mentorAddress.state,
+        city: mentorAddress.city,
+        locality: mentorAddress.locality,
+        postalCode: mentorAddress.postalCode,
+        languages: mentorLanguages,
         experienceYears: experienceYears ? Number(experienceYears) : null,
-        isOnline,
       });
       toast("Profile updated successfully!", "success");
     } catch (err) {
@@ -281,7 +319,7 @@ export default function MentorSettingsPage() {
           {/* ─── Card: Mentor Information ─── */}
           <div className="rounded-2xl border border-(--fg)/10 bg-(--fg)/[0.02] overflow-hidden">
             {/* Card header */}
-            <div className="px-6 py-4 border-b border-(--fg)/10 flex items-center justify-between bg-(--fg)/[0.02]">
+            <div className="px-4 sm:px-6 py-4 border-b border-(--fg)/10 flex items-center justify-between bg-(--fg)/[0.02]">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-orange-500/10 rounded-lg">
                   <User size={18} className="text-orange-500" />
@@ -296,18 +334,18 @@ export default function MentorSettingsPage() {
               </div>
             </div>
 
-            <div className="p-6 flex flex-col gap-8">
+            <div className="p-4 sm:p-6 flex flex-col gap-8">
               {/* ─── Photo Section ─── */}
               <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-(--fg)/10">
                 <div className="relative group shrink-0">
-                  <div className="w-28 h-28 rounded-2xl overflow-hidden bg-(--fg)/8 border-2 border-dashed border-(--fg)/20 flex items-center justify-center ring-4 ring-orange-500/10 group-hover:border-orange-500/40 transition-all">
-                    {currentAvatar ? (
-                      <img src={currentAvatar} alt="Avatar" className="w-full h-full object-cover" />
+                  <div className="w-28 h-28 rounded-full overflow-hidden bg-(--fg)/8 border-2 border-dashed border-(--fg)/20 flex items-center justify-center ring-4 ring-orange-500/10 group-hover:border-orange-500/40 transition-all">
+                    {currentAvatar && !imageError ? (
+                      <img src={currentAvatar} alt="Avatar" className="w-full h-full object-cover" onError={() => setImageError(true)} />
                     ) : (
                       <span className="text-3xl font-bold text-(--fg)/30">{initials}</span>
                     )}
                     {/* Hover overlay */}
-                    <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer transition-opacity rounded-2xl">
+                    <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer transition-opacity rounded-full">
                       <Camera size={22} className="text-white mb-1" />
                       <span className="text-[10px] font-bold text-white uppercase tracking-wider">Change</span>
                       <input
@@ -324,13 +362,13 @@ export default function MentorSettingsPage() {
                     <button
                       type="button"
                       onClick={() => setAvatarPreview(null)}
-                      className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transition-colors"
+                      className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transition-colors"
                     >
                       <X size={11} />
                     </button>
                   )}
                   {avatarSaving && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-2xl">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full">
                       <div className="h-5 w-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
                     </div>
                   )}
@@ -444,76 +482,68 @@ export default function MentorSettingsPage() {
                 </Field>
               </div>
 
-              {/* ─── Location & Languages ─── */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <Field label="Location" description="e.g. Bangalore, India or Remote">
-                  <div className="relative">
-                    <Globe size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-(--muted)" />
-                    <input
-                      type="text"
-                      placeholder="e.g. Bangalore, India"
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      className={`${inputCls()} pl-10`}
-                    />
-                  </div>
-                </Field>
-
-                <Field label="Languages Spoken" description="e.g. Speaks English and Hindi">
-                  <div className="relative">
-                    <Languages size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-(--muted)" />
-                    <input
-                      type="text"
-                      placeholder="e.g. Speaks English and Hindi"
-                      value={languages}
-                      onChange={(e) => setLanguages(e.target.value)}
-                      className={`${inputCls()} pl-10`}
-                    />
-                  </div>
-                </Field>
-              </div>
-
-              {/* ─── Active Status & Average Response Time ─── */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <Field label="Active Status" description="e.g. Active today or Active this week">
-                  <div className="relative">
-                    <Clock size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-(--muted)" />
-                    <input
-                      type="text"
-                      placeholder="e.g. Active today"
-                      value={activeStatus}
-                      onChange={(e) => setActiveStatus(e.target.value)}
-                      className={`${inputCls()} pl-10`}
-                    />
-                  </div>
-                </Field>
-
-                <Field label="Average Response Time" description="e.g. Usually responds in half a day">
-                  <div className="relative">
-                    <Zap size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-(--muted)" />
-                    <input
-                      type="text"
-                      placeholder="e.g. Usually responds in half a day"
-                      value={averageResponseTime}
-                      onChange={(e) => setAverageResponseTime(e.target.value)}
-                      className={`${inputCls()} pl-10`}
-                    />
-                  </div>
-                </Field>
-              </div>
-
-              {/* ─── Online Presence ─── */}
-              <div className="flex items-center gap-3 bg-(--fg)/[0.02] border border-(--hairline)/50 rounded-2xl p-4 my-2">
-                <input
-                  id="isOnline"
-                  type="checkbox"
-                  checked={isOnline}
-                  onChange={(e) => setIsOnline(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+              {/* ─── Geographic Address ─── */}
+              <div className="flex flex-col gap-1.5 border border-(--fg)/10 p-5 rounded-2xl bg-(--fg)/[0.01]">
+                <h3 className="font-bold text-sm text-(--fg) flex items-center gap-2 mb-2">
+                  <Globe size={16} className="text-orange-500" />
+                  Geographic Location
+                </h3>
+                <CascadingAddressSelect
+                  value={mentorAddress}
+                  onChange={(updatedFields) => {
+                    setMentorAddress(prev => ({ ...prev, ...updatedFields }));
+                  }}
                 />
-                <label htmlFor="isOnline" className="text-sm font-semibold text-(--fg) cursor-pointer select-none">
-                  Show Online Status on Profile (Green Dot badge)
-                </label>
+              </div>
+
+              {/* ─── Languages Spoken ─── */}
+              <Field label="Languages Spoken" description="Select all languages you speak fluently. Popular choices are shown first.">
+                <LanguageMultiSelect
+                  selectedLanguages={mentorLanguages}
+                  onChange={(langs) => setMentorLanguages(langs)}
+                />
+              </Field>
+
+              {/* ─── Presence & Performance Read-only Card ─── */}
+              <div className="rounded-2xl border border-(--fg)/10 bg-(--fg)/[0.02] overflow-hidden my-4">
+                <div className="px-4 sm:px-6 py-4 border-b border-(--fg)/10 flex items-center gap-3 bg-(--fg)/[0.02]">
+                  <div className="p-2 bg-emerald-500/10 rounded-lg">
+                    <Zap size={18} className="text-emerald-500" />
+                  </div>
+                  <h2 className="font-bold text-base text-(--fg)">Presence & Performance Metrics</h2>
+                </div>
+                <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  <div className="flex flex-col gap-1 p-4 rounded-xl bg-(--fg)/5 border border-(--fg)/5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-(--muted)">Presence Status</span>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className={`h-2.5 w-2.5 rounded-full ${isOnlineIndicator ? 'bg-emerald-500' : 'bg-gray-400'}`} />
+                      <span className="text-sm font-bold text-(--fg)">{activePresenceStatus}</span>
+                    </div>
+                    <p className="text-[10px] text-(--muted) mt-2 leading-relaxed">
+                      Automatically updated based on active browser page focus and mouse interactions.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-1 p-4 rounded-xl bg-(--fg)/5 border border-(--fg)/5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-(--muted)">Avg. Response Time</span>
+                    <span className="text-sm font-bold mt-2 text-(--fg)">{responseTimeText}</span>
+                    <p className="text-[10px] text-(--muted) mt-2 leading-relaxed">
+                      Calculated as the average interval between a student's first message and your first reply.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-1 p-4 rounded-xl bg-(--fg)/5 border border-(--fg)/5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-(--muted)">Platform Verification</span>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-emerald-500 text-xs font-bold bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-md">
+                        {mentor?.approvalStatus === 'APPROVED' ? 'Verified Partner' : 'Pending Review'}
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-(--muted) mt-2 leading-relaxed">
+                      Managed directly by the platform administration team.
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {/* ─── Preferred Language ─── */}
@@ -625,7 +655,7 @@ export default function MentorSettingsPage() {
             </div>
 
             {/* ─── Footer / Save ─── */}
-            <div className="px-6 py-4 border-t border-(--fg)/10 bg-(--fg)/[0.01] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="px-4 sm:px-6 py-4 border-t border-(--fg)/10 bg-(--fg)/[0.01] flex flex-col sm:flex-row items-center justify-between gap-4">
               <button
                 type="submit"
                 disabled={saving}

@@ -117,7 +117,12 @@ export function useNotifications(type?: string) {
     total: number;
     unreadCount: number;
   }>(key, fetcher, {
-    refreshInterval: 30_000,
+    // Notifications are updated in real-time via socket events (mutate calls).
+    // Polling and focus-refetch cause duplicate /me/notifications calls on every
+    // tab switch — confirmed by terminal logs showing 2+ calls on each tab return.
+    revalidateOnFocus: false,
+    // Remove refreshInterval — let socket events drive unread count updates instead.
+    // This eliminates the background polling that was causing periodic API bursts.
   });
 }
 
@@ -129,4 +134,15 @@ export function useNotificationPreferences() {
     fetcher,
     { revalidateOnFocus: false }
   );
+}
+
+export function useUnreadChatCount() {
+  const { user } = useAuth();
+  const key = user?.id ? ["/chat/unread-count", user.id] as [string, string] : null;
+  return useSWR<{ unreadCount: number }>(key, fetcher, {
+    // Must be false — revalidateOnFocus: true was causing a /chat/unread-count
+    // API call on every single tab switch. The count is kept fresh via socket
+    // events (mutate(['/chat/unread-count', userId])) in socket-context.tsx.
+    revalidateOnFocus: false,
+  });
 }

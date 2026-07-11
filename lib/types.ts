@@ -1,5 +1,3 @@
-/* ─── Enums ─── */
-
 export type Role = "USER" | "MENTOR" | "ADMIN";
 export type InstitutionType = "COLLEGE" | "COMPANY" | "STARTUP";
 export type ApprovalStatus = "PENDING" | "APPROVED" | "REJECTED";
@@ -12,6 +10,16 @@ export type BookingStatus =
 export type PaymentStatus = "UNPAID" | "PAID" | "REFUNDED";
 export type ThreadStatus = "OPEN" | "LOCKED" | "BOOKED" | "CLOSED";
 export type SenderRole = "USER" | "MENTOR";
+export type MessageStatus = "SENDING" | "SENT" | "DELIVERED" | "READ";
+export type PresenceStatus = "ONLINE" | "AWAY" | "OFFLINE";
+
+export interface ChatAttachment {
+  url: string;
+  name: string;
+  type: string;
+  size: number;
+  isImage?: boolean;
+}
 
 /* ─── Models ─── */
 
@@ -64,9 +72,14 @@ export interface Mentor {
   totalSessions: number;
   rating: number;
   location?: string | null;
+  country?: string | null;
+  state?: string | null;
+  city?: string | null;
+  locality?: string | null;
+  postalCode?: string | null;
   activeStatus?: string | null;
   averageResponseTime?: string | null;
-  languages?: string | null;
+  languages?: string[] | string | null;
   experienceYears?: number | null;
   isOnline: boolean;
   reviews?: Review[];
@@ -160,7 +173,7 @@ export interface Earning {
 export interface ChatThread {
   id: string;
   userId: string;
-  user?: Pick<User, "name" | "avatar">;
+  user?: Pick<User, "id" | "name" | "username" | "email" | "avatar" | "role">;
   mentorId: string;
   mentor?: Pick<Mentor, "displayName" | "avatar" | "id">;
   status: ThreadStatus;
@@ -174,6 +187,14 @@ export interface ChatThread {
   updatedAt: string;
 }
 
+export interface MessageReaction {
+  id: string;
+  messageId: string;
+  userId: string;
+  emoji: string;
+  createdAt: string;
+}
+
 export interface ChatMessage {
   id: string;
   threadId: string;
@@ -181,8 +202,20 @@ export interface ChatMessage {
   senderRole: SenderRole;
   body: string;
   isRead: boolean;
+  status: MessageStatus;
+  replyToId?: string | null;
+  replyTo?: Pick<ChatMessage, "id" | "body" | "senderId" | "senderRole" | "deletedAt"> | null;
+  attachments?: ChatAttachment[] | null;
+  editedAt?: string | null;
+  deletedAt?: string | null;
   createdAt: string;
+  reactions?: MessageReaction[];
+  // Optimistic UI fields (client-only)
+  _tempId?: string;
+  _sending?: boolean;
+  _failed?: boolean;
 }
+
 
 /* ─── API Response Shapes ─── */
 

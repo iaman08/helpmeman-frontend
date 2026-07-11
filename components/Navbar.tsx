@@ -41,6 +41,11 @@ export function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [user?.avatar]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -88,8 +93,8 @@ export function Navbar() {
                 aria-haspopup="true"
               >
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-(--fg)/8 text-[11px] font-medium overflow-hidden">
-                  {user.avatar ? (
-                    <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" />
+                  {user.avatar && !imageError ? (
+                    <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" onError={() => setImageError(true)} />
                   ) : (
                     getInitials(user.name)
                   )}
@@ -142,7 +147,6 @@ export function Navbar() {
                     onClick={async () => {
                       setDropdownOpen(false);
                       await logout();
-                      window.location.replace("/");
                     }}
                     className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-500/5 transition-colors cursor-pointer"
                   >

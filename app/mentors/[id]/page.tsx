@@ -50,8 +50,13 @@ export default function MentorProfilePage() {
   );
   
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const mentor = data?.mentor;
+
+  useEffect(() => {
+    setImageError(false);
+  }, [mentor?.avatar]);
 
   // Auto-open share modal if ?share=true query param is present
   useEffect(() => {
@@ -147,14 +152,15 @@ export default function MentorProfilePage() {
           <div className="lg:col-span-2 flex flex-col gap-8">
             {/* Top Region Styled like Screenshot */}
             <div className="flex flex-col md:flex-row items-start gap-6 md:gap-8 pb-6 border-b border-(--hairline)">
-              {mentor.avatar ? (
+              {mentor.avatar && !imageError ? (
                 <img
                   src={mentor.avatar}
                   alt={mentor.displayName}
-                  className="h-28 w-28 rounded-2xl object-cover shrink-0 border border-(--hairline) shadow-md"
+                  className="h-28 w-28 rounded-full object-cover shrink-0 border border-(--hairline) shadow-md"
+                  onError={() => setImageError(true)}
                 />
               ) : (
-                <div className="flex h-28 w-28 items-center justify-center rounded-2xl bg-(--fg)/8 text-2xl font-semibold shrink-0 border border-(--hairline)">
+                <div className="flex h-28 w-28 items-center justify-center rounded-full bg-(--fg)/8 text-2xl font-semibold shrink-0 border border-(--hairline)">
                   {initials}
                 </div>
               )}
@@ -268,7 +274,11 @@ export default function MentorProfilePage() {
                 </div>
                 <div className="col-span-2 border-t border-(--hairline)/30 pt-4 mt-1">
                   <div className="text-xs text-(--muted) uppercase tracking-wider font-semibold">Languages</div>
-                  <div className="text-sm font-bold mt-1 text-(--fg)">{mentor.languages || "English"}</div>
+                  <div className="text-sm font-bold mt-1 text-(--fg)">
+                    {Array.isArray(mentor.languages)
+                      ? mentor.languages.join(", ")
+                      : mentor.languages || "English"}
+                  </div>
                 </div>
               </div>
             </div>
@@ -438,13 +448,13 @@ export default function MentorProfilePage() {
                 Book a session
               </Link>
 
-              <button
-                type="button"
-                className="flex items-center justify-center gap-2 rounded-full bg-(--fg)/5 px-7 py-3.5 text-sm hover:bg-(--fg)/8 transition-colors cursor-pointer"
+              <Link
+                href={`/dashboard/chat?mentorId=${mentor.id}`}
+                className="flex items-center justify-center gap-2 rounded-full bg-(--fg)/5 px-7 py-3.5 text-sm hover:bg-(--fg)/8 transition-colors text-center"
               >
                 <MessageCircle className="h-4 w-4" />
                 Chat first
-              </button>
+              </Link>
 
               <button
                 type="button"

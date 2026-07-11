@@ -127,13 +127,13 @@ const LOGOS: LogoCard[] = [
   /* ── Meta ── */
   {
     name: "Meta",
-    bg: "#000000ff",
+    bg: "#ffffffff",
     icon: (
       <svg
         width="52"
         height="32"
         viewBox="0 0 24 24"
-        fill="white"
+        fill="blue"
         xmlns="http://www.w3.org/2000/svg"
       >
         <title>Meta</title>
@@ -334,6 +334,7 @@ export function LogoStack() {
                   boxShadow:
                     "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
                   transformOrigin: "center bottom",
+                  zIndex: pos.zIndex,
                 }}
                 initial={{
                   y: -38,
@@ -344,7 +345,6 @@ export function LogoStack() {
                   y: pos.y,
                   scale: pos.scale,
                   opacity: pos.opacity,
-                  zIndex: pos.zIndex,
                   filter:
                     stackPos >= 2
                       ? `blur(${stackPos === 2 ? 0.5 : 1}px)`
@@ -375,9 +375,6 @@ export function LogoStack() {
                   filter: {
                     duration: 0.4,
                     ease: "easeInOut",
-                  },
-                  zIndex: {
-                    duration: 0,
                   },
                 }}
               >
