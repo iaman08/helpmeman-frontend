@@ -168,14 +168,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         syncInFlight.current = true;
         lastSyncedToken.current = token;
 
+        const maskedToken = token ? `${token.substring(0, 15)}...[len=${token.length}]` : "null";
+        console.log(`[AUTH] Initiating Google session sync. Token (masked): ${maskedToken}`);
+
         try {
           const t0 = Date.now();
+          console.log("[AUTH] POSTing token to backend at /auth/google...");
           const { data } = await api.post<AuthResponse>("/auth/google", {
             accessToken: token,
           }, {
             headers: { "x-show-loader": "true" }
           });
-          console.log(`[AUTH] Google sync completed in ${Date.now() - t0}ms`);
+          console.log(`[AUTH] Google sync completed successfully in ${Date.now() - t0}ms`);
 
           // Persist tokens & user
           localStorage.setItem(KEYS.access, data.accessToken);
@@ -194,8 +198,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Redirect immediately — don't wait for anything else
           const dest = getLoginDest(data.user, data.mentor ?? null);
           window.location.replace(dest);
-        } catch (err) {
+        } catch (err: any) {
           console.error("[AUTH] Failed to sync Google session:", err);
+          if (err.response) {
+            console.error("[AUTH] Backend Error Response Status:", err.response.status);
+            console.error("[AUTH] Backend Error Response Data:", JSON.stringify(err.response.data, null, 2));
+            console.error("[AUTH] Backend Error Response Headers:", err.response.headers);
+          } else if (err.request) {
+            console.error("[AUTH] No response received from backend. Request was:", err.request);
+          } else {
+            console.error("[AUTH] Error setting up sync request:", err.message);
+          }
           lastSyncedToken.current = null; // allow retry
         } finally {
           syncInFlight.current = false;
