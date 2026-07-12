@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from "react";
+import React, { createContext, useContext, useState, useCallback, useRef, useEffect, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { registerApiLoader } from "@/lib/api";
 
@@ -93,14 +93,9 @@ export function LoaderProvider({ children }: { children: React.ReactNode }) {
     );
   }, [startLoading, stopLoading]);
 
-  // Intercept Navigation / Route Changes
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    // When route change completes, stop loader
+  const handleRouteComplete = useCallback(() => {
     stopLoading("route-change");
-  }, [pathname, searchParams, stopLoading]);
+  }, [stopLoading]);
 
   useEffect(() => {
     const handleAnchorClick = (e: MouseEvent) => {
@@ -131,9 +126,24 @@ export function LoaderProvider({ children }: { children: React.ReactNode }) {
   return (
     <LoaderContext.Provider value={{ startLoading, stopLoading, setProgress }}>
       <TopLoader progress={progress} />
+      <Suspense fallback={null}>
+        <RouteChangeListener onRouteComplete={handleRouteComplete} />
+      </Suspense>
       {children}
     </LoaderContext.Provider>
   );
+}
+
+// ─── Subcomponent to Isolate useSearchParams() ────────────────────────────────
+function RouteChangeListener({ onRouteComplete }: { onRouteComplete: () => void }) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    onRouteComplete();
+  }, [pathname, searchParams, onRouteComplete]);
+
+  return null;
 }
 
 export function useLoader() {
