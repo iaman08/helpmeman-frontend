@@ -44,8 +44,8 @@ const CATEGORIES = [
               ["Go Live", "After successful verification, your mentor profile goes live on HelpMeMan within 24 hours."],
             ].map(([step, desc], i) => (
               <li key={i} className="flex gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#2563EB]/20 text-[#2563EB] text-xs font-bold mt-0.5">{i + 1}</span>
-                <span><strong className="text-white">{step} — </strong><span className="text-zinc-400">{desc}</span></span>
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-white text-xs font-bold mt-0.5">{i + 1}</span>
+                <span><strong className="text-zinc-950">{step} — </strong><span className="text-zinc-600">{desc}</span></span>
               </li>
             ))}
           </ol>
@@ -163,8 +163,8 @@ const CATEGORIES = [
               ["No Commitments", "No fixed working hours or long-term lock-in periods."],
             ].map(([title, desc]) => (
               <li key={title} className="flex gap-2">
-                <span className="text-amber-400 mt-0.5 shrink-0">✦</span>
-                <span><strong className="text-zinc-200">{title}:</strong> <span className="text-zinc-400">{desc}</span></span>
+                <span className="text-zinc-900 mt-0.5 shrink-0">✦</span>
+                <span><strong className="text-zinc-950">{title}:</strong> <span className="text-zinc-600">{desc}</span></span>
               </li>
             ))}
           </ul>
@@ -208,25 +208,25 @@ function FaqItem({ q, a, isOpen, onClick }: {
 }) {
   return (
     <div
-      className="border border-zinc-800/70 rounded-2xl overflow-hidden transition-all duration-200"
-      style={{ background: isOpen ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.01)" }}
+      className="border border-zinc-200 rounded-2xl overflow-hidden transition-all duration-200"
+      style={{ background: isOpen ? "#f4f4f5" : "#fafafa" }}
     >
       <button
         type="button"
         onClick={onClick}
         className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left cursor-pointer group"
       >
-        <span className={`text-sm font-medium leading-snug transition-colors duration-200 ${isOpen ? "text-white" : "text-zinc-300 group-hover:text-white"}`}>
+        <span className={`text-sm font-medium leading-snug transition-colors duration-200 ${isOpen ? "text-zinc-900" : "text-zinc-700 group-hover:text-zinc-900"}`}>
           {q}
         </span>
         <span
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-zinc-700/60 transition-all duration-300"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-zinc-200 transition-all duration-300"
           style={{
-            background: isOpen ? "rgba(255,255,255,0.08)" : "transparent",
+            background: isOpen ? "rgba(0,0,0,0.04)" : "transparent",
             transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
           }}
         >
-          <ChevronDown className="h-3.5 w-3.5 text-zinc-400" />
+          <ChevronDown className="h-3.5 w-3.5 text-zinc-500" />
         </span>
       </button>
 
@@ -237,7 +237,7 @@ function FaqItem({ q, a, isOpen, onClick }: {
           opacity: isOpen ? 1 : 0,
         }}
       >
-        <div className="px-5 pb-5 text-sm text-zinc-400 leading-relaxed border-t border-zinc-800/50 pt-4">
+        <div className="px-5 pb-5 text-sm text-zinc-600 leading-relaxed border-t border-zinc-200/50 pt-4">
           {a}
         </div>
       </div>
@@ -263,8 +263,8 @@ function CategorySection({ category, defaultOpen }: {
         >
           <Icon className="h-4 w-4" style={{ color: category.color }} />
         </div>
-        <h2 className="text-base font-semibold text-white">{category.label}</h2>
-        <span className="text-xs text-zinc-600 ml-auto">{category.faqs.length} questions</span>
+        <h2 className="text-base font-semibold text-zinc-900">{category.label}</h2>
+        <span className="text-xs text-zinc-500 ml-auto">{category.faqs.length} questions</span>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -292,21 +292,21 @@ export default function HelpPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A0A0B]">
+    <div className="min-h-screen flex flex-col bg-white">
       {/* ── Navbar ── */}
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[#0A0A0B]/80 border-b border-zinc-800/80">
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/80 border-b border-zinc-200">
         <nav className="mx-auto flex max-w-[1100px] items-center justify-between px-6 sm:px-10 py-4">
-          <Link href="/" className="font-bold text-lg tracking-tight text-white flex items-center gap-2 select-none">
-            <img src="/logo.svg" alt="HelpMeMan Logo" className="w-6 h-6 object-contain brightness-0 invert" />
+          <Link href="/" className="font-bold text-lg tracking-tight text-zinc-900 flex items-center gap-2 select-none">
+            <img src="/logo.svg" alt="HelpMeMan Logo" className="w-6 h-6 object-contain" />
             <span>HelpMeMan</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/signin" className="text-sm text-zinc-400 hover:text-white transition-colors">
+            <Link href="/signin" className="text-sm text-zinc-500 hover:text-zinc-800 transition-colors">
               Sign in
             </Link>
             <Link
               href="/"
-              className="text-sm text-zinc-400 hover:text-white transition-colors flex items-center gap-1"
+              className="text-sm text-zinc-500 hover:text-zinc-800 transition-colors flex items-center gap-1"
             >
               ← Home
             </Link>
@@ -317,17 +317,17 @@ export default function HelpPage() {
       <main className="flex-1 mx-auto max-w-[1100px] w-full px-6 sm:px-10 pt-28 pb-20">
         {/* ── Hero ── */}
         <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#2563EB]/30 bg-[#2563EB]/10 px-4 py-1.5 mb-6">
-            <HelpCircle className="h-3.5 w-3.5 text-[#2563EB]" />
-            <span className="text-xs font-medium text-[#2563EB] uppercase tracking-wider">Support & Guidelines</span>
+          <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-4 py-1.5 mb-6">
+            <HelpCircle className="h-3.5 w-3.5 text-zinc-500" />
+            <span className="text-xs font-semibold text-zinc-600 uppercase tracking-wider">Support & Guidelines</span>
           </div>
-          <h1 className="font-bold text-4xl sm:text-5xl text-white tracking-tight mb-4">
+          <h1 className="font-bold text-4xl sm:text-5xl text-zinc-900 tracking-tight mb-4">
             How can we help?
           </h1>
-          <p className="text-zinc-400 text-base max-w-xl mx-auto leading-relaxed">
+          <p className="text-zinc-600 text-base max-w-xl mx-auto leading-relaxed">
             Everything you need to know about HelpMeMan — for mentors and students alike.
             Can't find your answer?{" "}
-            <a href="mailto:support@helpmeman.com" className="text-[#2563EB] hover:underline">
+            <a href="mailto:support@helpmeman.com" className="text-zinc-900 hover:text-zinc-700 underline font-semibold">
               Email us →
             </a>
           </p>
@@ -345,9 +345,9 @@ export default function HelpPage() {
                 onClick={() => scrollTo(cat.id)}
                 className="flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-all duration-200 cursor-pointer"
                 style={{
-                  borderColor: isActive ? cat.color : "rgba(255,255,255,0.08)",
-                  background: isActive ? cat.bg : "rgba(255,255,255,0.02)",
-                  color: isActive ? cat.color : "#a1a1aa",
+                  borderColor: isActive ? cat.color : "#e4e4e7",
+                  background: isActive ? cat.bg : "#f4f4f5",
+                  color: isActive ? cat.color : "#52525b",
                 }}
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -366,31 +366,31 @@ export default function HelpPage() {
 
         {/* ── Still need help CTA ── */}
         <div
-          className="mt-16 rounded-3xl border border-zinc-800/60 p-8 sm:p-12 text-center"
-          style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(37,99,235,0.08) 0%, transparent 70%)" }}
+          className="mt-16 rounded-3xl border border-zinc-200 p-8 sm:p-12 text-center bg-zinc-50"
+          style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(0,0,0,0.02) 0%, transparent 70%)" }}
         >
           <div className="flex items-center justify-center gap-2 mb-4">
             <MessageCircle className="h-5 w-5 text-zinc-500" />
             <span className="text-xs uppercase tracking-[0.2em] text-zinc-500 font-semibold">Still need help?</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
+          <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 mb-3">
             We're here for you.
           </h2>
-          <p className="text-zinc-400 text-sm leading-relaxed mb-8 max-w-md mx-auto">
+          <p className="text-zinc-600 text-sm leading-relaxed mb-8 max-w-md mx-auto">
             Our support team replies within 24 hours on business days. You can also ask Ruth AI — she's available 24/7 inside the platform.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
             <a
               href="mailto:support@helpmeman.com"
-              className="inline-flex items-center gap-2 rounded-full bg-white text-black text-sm font-semibold px-6 py-3 hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-2 rounded-full bg-zinc-900 text-white text-sm font-semibold px-6 py-3 hover:bg-zinc-800 transition-colors shadow-sm"
             >
               Email Support <ArrowRight className="h-4 w-4" />
             </a>
             <Link
               href="/signin"
-              className="inline-flex items-center gap-2 rounded-full border border-zinc-700 text-zinc-300 text-sm font-semibold px-6 py-3 hover:border-zinc-500 hover:text-white transition-all"
+              className="inline-flex items-center gap-2 rounded-full border border-zinc-300 text-zinc-700 text-sm font-semibold px-6 py-3 hover:bg-zinc-50 transition-colors"
             >
-              <Sparkles className="h-4 w-4 text-pink-400" />
+              <Sparkles className="h-4 w-4 text-pink-500" />
               Ask Ruth AI
             </Link>
           </div>
