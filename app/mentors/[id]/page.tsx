@@ -44,12 +44,11 @@ function StarRating({ rating }: { rating: number }) {
 export default function MentorProfilePage() {
   const { id } = useParams();
   const { data, isLoading, error } = useMentor(id as string);
+  const [reviewPage, setReviewPage] = useState(1);
   const {
     data: reviewData,
     isLoading: reviewsLoading,
-    size,
-    setSize,
-  } = useMentorReviews(id as string, 5);
+  } = useMentorReviews(id as string, reviewPage);
   
   const [isShareOpen, setIsShareOpen] = useState(false);
 
@@ -94,8 +93,14 @@ export default function MentorProfilePage() {
           icon={<Star className="h-8 w-8 text-red-500" />}
           title="Mentor not found"
           description="The mentor you are looking for does not exist or has deactivated their profile."
-          actionLabel="Back to Home"
-          actionHref="/"
+          action={
+            <Link
+              href="/"
+              className="rounded-full bg-(--accent) text-(--accent-fg) px-6 py-2.5 text-sm hover:opacity-90 transition-opacity"
+            >
+              Back to Home
+            </Link>
+          }
         />
       </div>
     );

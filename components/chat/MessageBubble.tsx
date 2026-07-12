@@ -161,7 +161,7 @@ function DeleteConfirmModal({
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-center" style={{ display: 'flex', justifycontent: 'center' }}>
+        <div className="flex justify-center" style={{ display: 'flex', justifyContent: 'center' }}>
           <div 
             className="p-3.5 rounded-full"
             style={{
@@ -178,7 +178,7 @@ function DeleteConfirmModal({
         
         <div>
           <h3 className="text-lg font-bold" style={{ fontSize: '18px', fontWeight: 700, color: '#111827', margin: 0 }}>Delete Message?</h3>
-          <p className="text-xs text-gray-500 mt-1.5 leading-relaxed" style={{ fontSize: '12px', color: '#6b7280', marginTop: '6px', leadingheight: 1.5 }}>
+          <p className="text-xs text-gray-500 mt-1.5 leading-relaxed" style={{ fontSize: '12px', color: '#6b7280', marginTop: '6px', lineHeight: 1.5 }}>
             Choose whether to remove this message just for yourself or for all participants in the chat.
           </p>
         </div>
