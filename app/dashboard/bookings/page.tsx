@@ -7,6 +7,7 @@ import { useBookings } from "@/lib/hooks";
 import { StatusBadge } from "@/components/StatusBadge";
 import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/Skeleton";
+import { formatCurrency } from "@/lib/currency-context";
 
 const TABS = [
   { value: undefined, label: "All" },
@@ -32,9 +33,7 @@ function formatTime(d: string) {
   });
 }
 
-function formatPrice(paise: number) {
-  return `₹${Math.round(paise / 100)}`;
-}
+function formatPrice(p: number, currency = "INR") { return formatCurrency(p, currency); }
 
 export default function BookingsPage() {
   const [statusFilter, setStatusFilter] = useState<string | undefined>(
@@ -113,7 +112,7 @@ export default function BookingsPage() {
                     </div>
                   </div>
                   <div className="flex items-center justify-between w-full sm:w-auto mt-4 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-0 border-(--hairline)">
-                    <span className="text-base sm:text-lg font-bold sm:mr-6">{formatPrice(booking.amountPaid)}</span>
+                    <span className="text-base sm:text-lg font-bold sm:mr-6">{formatPrice(booking.amountPaid, booking.currency)}</span>
                     <StatusBadge status={booking.status} />
                   </div>
                 </Link>

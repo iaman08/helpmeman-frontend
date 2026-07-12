@@ -8,6 +8,7 @@ import { AIChatWidget } from "@/components/AIChatWidget";
 import { PushPermissionPrompt } from "@/components/PushPermissionPrompt";
 import GoogleAuthOverlay from "@/components/GoogleAuthOverlay";
 import { LoaderProvider } from "@/components/LoaderContext";
+import { CurrencyProvider } from "@/lib/currency-context";
 
 import { PublicThemeManager } from "@/components/PublicThemeManager";
 
@@ -53,14 +54,16 @@ export default function RootLayout({
           <LoaderProvider>
             <PublicThemeManager />
             <AuthProvider>
-              <GoogleAuthOverlay />
-              <ToastProvider>
-                <SocketProvider>
-                  {children}
-                  <AIChatWidget />
-                  <PushPermissionPrompt />
-                </SocketProvider>
-              </ToastProvider>
+              <CurrencyProvider>
+                <GoogleAuthOverlay />
+                <ToastProvider>
+                  <SocketProvider>
+                    {children}
+                    <AIChatWidget />
+                    <PushPermissionPrompt />
+                  </SocketProvider>
+                </ToastProvider>
+              </CurrencyProvider>
             </AuthProvider>
           </LoaderProvider>
         </ThemeProvider>
