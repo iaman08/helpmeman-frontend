@@ -11,6 +11,7 @@ import { SidebarShell } from "@/components/SidebarShell";
 import { useAuth } from "@/lib/auth-context";
 import { ShareProfileModal } from "@/components/ShareProfileModal";
 import type { Mentor } from "@/lib/types";
+import { useCurrency, CURRENCY_CONFIGS } from "@/lib/currency-context";
 
 const SORT_OPTIONS = [
   { value: "rating", label: "Top Rated" },
@@ -28,6 +29,8 @@ const INSTITUTION_TYPES = [
 
 export default function MentorsPage() {
   const { user, logout } = useAuth();
+  const { currency, rates } = useCurrency();
+  const symbol = CURRENCY_CONFIGS[currency]?.symbol || currency;
   const [filters, setFilters] = useState<MentorFilters>({
     page: 1,
     limit: 12,
@@ -182,36 +185,36 @@ export default function MentorsPage() {
 
               {/* Min Price */}
               <div className="flex flex-col gap-2">
-                <label className="text-[10px] uppercase tracking-[0.2em] text-(--muted) font-bold ml-1">Min Price (₹)</label>
+                <label className="text-[10px] uppercase tracking-[0.2em] text-(--muted) font-bold ml-1">Min Price ({symbol})</label>
                 <input
                   type="number"
                   min={0}
                   placeholder="0"
-                  value={filters.minPrice ? filters.minPrice / 100 : ""}
-                  onChange={(e) =>
-                    updateFilter(
-                      "minPrice",
-                      e.target.value ? Number(e.target.value) * 100 : undefined,
-                    )
-                  }
+                  value={filters.minPrice ? Math.round((filters.minPrice / 100) * rates[currency]) : ""}
+                  onChange={(e) => {
+                    const localVal = e.target.value ? Number(e.target.value) : undefined;
+                    const inrVal = localVal !== undefined ? (localVal / rates[currency]) : undefined;
+                    const inrPaise = inrVal !== undefined ? Math.round(inrVal * 100) : undefined;
+                    updateFilter("minPrice", inrPaise);
+                  }}
                   className="w-full bg-(--bg) border border-(--hairline) rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 outline-none text-sm focus:border-(--fg)/20 transition-all placeholder:text-(--muted)"
                 />
               </div>
 
               {/* Max Price */}
               <div className="flex flex-col gap-2">
-                <label className="text-[10px] uppercase tracking-[0.2em] text-(--muted) font-bold ml-1">Max Price (₹)</label>
+                <label className="text-[10px] uppercase tracking-[0.2em] text-(--muted) font-bold ml-1">Max Price ({symbol})</label>
                 <input
                   type="number"
                   min={0}
                   placeholder="Any"
-                  value={filters.maxPrice ? filters.maxPrice / 100 : ""}
-                  onChange={(e) =>
-                    updateFilter(
-                      "maxPrice",
-                      e.target.value ? Number(e.target.value) * 100 : undefined,
-                    )
-                  }
+                  value={filters.maxPrice ? Math.round((filters.maxPrice / 100) * rates[currency]) : ""}
+                  onChange={(e) => {
+                    const localVal = e.target.value ? Number(e.target.value) : undefined;
+                    const inrVal = localVal !== undefined ? (localVal / rates[currency]) : undefined;
+                    const inrPaise = inrVal !== undefined ? Math.round(inrVal * 100) : undefined;
+                    updateFilter("maxPrice", inrPaise);
+                  }}
                   className="w-full bg-(--bg) border border-(--hairline) rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 outline-none text-sm focus:border-(--fg)/20 transition-all placeholder:text-(--muted)"
                 />
               </div>

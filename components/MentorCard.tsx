@@ -9,9 +9,7 @@ type Props = {
   onShare?: (mentor: Mentor) => void;
 };
 
-function formatPrice(paise: number): string {
-  return `₹${Math.round(paise / 100)}`;
-}
+import { PriceDisplay } from "./PriceDisplay";
 
 function CompanyLogo({ company }: { company: string }) {
   const [error, setError] = useState(false);
@@ -138,7 +136,7 @@ export function MentorCard({ mentor, onShare }: Props) {
           </span>
         </div>
         <span className="font-display text-lg text-(--accent)">
-          {formatPrice(mentor.pricePerSession)}
+          <PriceDisplay amountInPaise={mentor.pricePerSession} />
         </span>
       </div>
     </Link>

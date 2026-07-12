@@ -3,11 +3,12 @@
 import { motion, useInView } from "motion/react";
 import { useRef } from "react";
 import { Check } from "lucide-react";
+import { PriceDisplay } from "@/components/PriceDisplay";
 
 const pricingTiers = [
   {
     name: "Starter",
-    price: "₹129",
+    priceInPaise: 12900,
     duration: "Per Session",
     description: "Ideal for 11th & 12th standard students looking for academic direction.",
     features: [
@@ -21,7 +22,7 @@ const pricingTiers = [
   },
   {
     name: "Undergrad",
-    price: "₹199",
+    priceInPaise: 19900,
     duration: "Per Session",
     description: "Best for college students seeking internship and specialization guidance.",
     features: [
@@ -35,7 +36,7 @@ const pricingTiers = [
   },
   {
     name: "Career",
-    price: "₹249",
+    priceInPaise: 24900,
     duration: "Per Session",
     description: "Designed for job seekers and early career transitions.",
     features: [
@@ -49,7 +50,7 @@ const pricingTiers = [
   },
   {
     name: "Premium Elite",
-    price: "₹499",
+    priceInPaise: 49900,
     duration: "Per Session",
     description: "Exclusive access to top founders, FAANG leaders, and senior directors.",
     features: [
@@ -111,7 +112,7 @@ export function PricingSection() {
                 </h3>
                 <div className="mt-3 flex items-baseline gap-1.5">
                   <span className="text-[40px] font-semibold tracking-[-0.02em] leading-none">
-                    {tier.price}
+                    <PriceDisplay amountInPaise={tier.priceInPaise} />
                   </span>
                   <span className={`text-[13px] ${tier.popular ? "text-[#9CA3AF]" : "text-[#6B7280] dark:text-[#A1A1AA]"}`}>
                     / {tier.duration}

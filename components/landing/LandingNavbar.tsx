@@ -57,7 +57,7 @@ export function LandingNavbar() {
           ))}
         </div>
 
-        {/* Right Side: CTA buttons (appear on scroll) */}
+        {/* Right side: CTA buttons (appear on scroll) */}
         <div className="flex items-center gap-2.5">
           <div
             className={`hidden md:flex items-center gap-2.5 transition-all duration-300 origin-right ${

@@ -34,6 +34,7 @@ export interface User {
   onboardingRole?: string | null;
   currentRole?: string | null;
   isEmailVerified: boolean;
+  currency?: string | null;
   createdAt: string;
 }
 
@@ -109,6 +110,8 @@ export interface Booking {
   paymentId?: string | null;
   paymentStatus: PaymentStatus;
   amountPaid: number;
+  currency: string;
+  amountPaidINR?: number | null;
   userNotes?: string | null;
   mentorNotes?: string | null;
   review?: Review | null;

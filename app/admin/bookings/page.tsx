@@ -13,6 +13,7 @@ interface AdminBooking {
   durationMinutes: number;
   status: string;
   amountPaid: number;
+  currency: string;
   user: { name: string; email: string };
   mentor: { displayName: string };
 }
@@ -20,7 +21,8 @@ interface AdminBooking {
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 }
-function formatPrice(p: number) { return `₹${Math.round(p / 100)}`; }
+import { formatCurrency } from "@/lib/currency-context";
+function formatPrice(p: number, currency = "INR") { return formatCurrency(p, currency); }
 
 export default function AdminBookingsPage() {
   const [bookings, setBookings] = useState<AdminBooking[]>([]);
@@ -62,7 +64,7 @@ export default function AdminBookingsPage() {
               <span className="col-span-2 truncate font-medium">{b.mentor?.displayName}</span>
               <span className="col-span-2 text-(--muted)">{formatDate(b.scheduledAt)}</span>
               <span className="col-span-1 text-(--muted)">{b.durationMinutes}</span>
-              <span className="col-span-1">{formatPrice(b.amountPaid)}</span>
+              <span className="col-span-1">{formatPrice(b.amountPaid, b.currency)}</span>
               <div className="col-span-2">
                 <StatusBadge status={b.status} />
               </div>

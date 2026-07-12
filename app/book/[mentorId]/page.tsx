@@ -11,6 +11,8 @@ import { InstitutionBadge } from "@/components/InstitutionBadge";
 import { Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { AxiosError } from "axios";
+import { PriceDisplay } from "@/components/PriceDisplay";
+import { useCurrency } from "@/lib/currency-context";
 
 declare global {
   interface Window {
@@ -20,9 +22,7 @@ declare global {
   }
 }
 
-function formatPrice(paise: number) {
-  return `₹${Math.round(paise / 100)}`;
-}
+// formatPrice is replaced by PriceDisplay component
 
 function generateTimeSlots(): string[] {
   const slots: string[] = [];
@@ -56,6 +56,7 @@ export default function BookMentorPage() {
   const { mentorId } = useParams<{ mentorId: string }>();
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const { currency } = useCurrency();
   const { data, isLoading } = useMentor(mentorId);
   const mentor = data?.mentor;
 
@@ -99,6 +100,7 @@ export default function BookMentorPage() {
         mentorId: mentor.id,
         scheduledAt: scheduledAt.toISOString(),
         durationMinutes: mentor.sessionDuration,
+        currency,
       });
 
       const { booking: bookingData, order, razorpayKeyId } = res.data;
@@ -229,7 +231,7 @@ export default function BookMentorPage() {
               institutionType={mentor.institutionType}
             />
             <span className="text-sm text-(--muted)">
-              {formatPrice(mentor.pricePerSession)} / {mentor.sessionDuration}{" "}
+              <PriceDisplay amountInPaise={mentor.pricePerSession} /> / {mentor.sessionDuration}{" "}
               min
             </span>
           </div>
@@ -344,7 +346,7 @@ export default function BookMentorPage() {
               <div className="flex items-baseline justify-between">
                 <span className="text-sm text-(--muted)">Total</span>
                 <span className="font-display text-2xl">
-                  {formatPrice(mentor.pricePerSession)}
+                  <PriceDisplay amountInPaise={mentor.pricePerSession} />
                 </span>
               </div>
 

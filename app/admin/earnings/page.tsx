@@ -6,7 +6,7 @@ import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
 
-function formatPrice(p: number) { return `₹${Math.round(p / 100).toLocaleString("en-IN")}`; }
+import { PriceDisplay } from "@/components/PriceDisplay";
 function formatDate(d: string) { return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }); }
 
 export default function AdminEarningsPage() {
@@ -28,7 +28,7 @@ export default function AdminEarningsPage() {
 
       <div className="rounded-2xl bg-(--fg)/[0.02] p-5 flex flex-col gap-2 max-w-xs">
         <span className="text-xs uppercase tracking-[0.18em] text-(--muted)">Total Revenue</span>
-        <span className="font-display text-3xl">{loading ? <Skeleton className="h-9 w-20" /> : formatPrice(total)}</span>
+        <span className="font-display text-3xl">{loading ? <Skeleton className="h-9 w-20" /> : <PriceDisplay amountInPaise={total} />}</span>
       </div>
 
       {loading ? (
@@ -44,7 +44,7 @@ export default function AdminEarningsPage() {
           {earnings.map((e) => (
             <div key={e.id} className="grid grid-cols-12 gap-4 items-center rounded-xl bg-(--fg)/[0.02] px-5 py-3 text-sm">
               <span className="col-span-3 truncate font-medium">{e.mentor?.displayName ?? "—"}</span>
-              <span className="col-span-2">{formatPrice(e.amount)}</span>
+              <span className="col-span-2"><PriceDisplay amountInPaise={e.amount} /></span>
               <div className="col-span-2">
                 <span className={`text-xs rounded-full px-2.5 py-0.5 ${e.status === "PAID" ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600"}`}>{e.status}</span>
               </div>

@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/Skeleton";
 import type { Booking } from "@/lib/types";
 import { AxiosError } from "axios";
+import { formatCurrency } from "@/lib/currency-context";
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
@@ -15,7 +16,7 @@ function formatDate(d: string) {
 function formatTime(d: string) {
   return new Date(d).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
 }
-function formatPrice(p: number) { return `₹${Math.round(p / 100)}`; }
+function formatPrice(p: number, currency = "INR") { return formatCurrency(p, currency); }
 
 const TABS = [
   { value: "", label: "All" },
@@ -96,7 +97,7 @@ export default function MentorBookingsPage() {
                   <div className="flex flex-col gap-0.5">
                     <span className="font-medium">{b.user?.name ?? "Student"}</span>
                     <span className="text-xs text-(--muted)">
-                      {formatDate(b.scheduledAt)} at {formatTime(b.scheduledAt)} · {b.durationMinutes} min · {formatPrice(b.amountPaid)}
+                      {formatDate(b.scheduledAt)} at {formatTime(b.scheduledAt)} · {b.durationMinutes} min · {formatPrice(b.amountPaid, b.currency)}
                     </span>
                   </div>
                 </div>
