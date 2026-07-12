@@ -9,12 +9,14 @@ import api from "@/lib/api";
 import { AxiosError } from "axios";
 import { ImageCropModal } from "@/components/ImageCropModal";
 import { NotificationSettingsPanel } from "@/components/NotificationSettingsPanel";
+import { useCurrency, CURRENCY_CONFIGS } from "@/lib/currency-context";
 
 
 export default function SettingsPage() {
   const { user, mentor, refreshUser, updateUser } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+  const { currency: activeCurrency, setCurrency } = useCurrency();
   const [activeTab, setActiveTab] = useState<"profile" | "payments" | "notifications">("profile");
   const [switching, setSwitching] = useState(false);
 
@@ -366,6 +368,21 @@ export default function SettingsPage() {
                     placeholder="e.g. Software Engineer, Product Manager"
                     className="w-full bg-(--fg)/5 border border-(--hairline) rounded-xl px-4 py-2.5 focus:border-(--fg)/20 focus:bg-(--fg)/10 outline-none transition-all placeholder:text-(--muted) text-xs sm:text-sm font-medium"
                   />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] uppercase tracking-[0.15em] text-(--muted) font-semibold ml-1">Preferred Currency</label>
+                  <select
+                    value={activeCurrency}
+                    onChange={(e) => setCurrency(e.target.value, true)}
+                    className="w-full bg-(--fg)/5 border border-(--hairline) rounded-xl px-4 py-2.5 focus:border-(--fg)/20 focus:bg-(--fg)/10 outline-none transition-all text-xs sm:text-sm font-medium cursor-pointer"
+                  >
+                    {Object.entries(CURRENCY_CONFIGS).map(([code, config]) => (
+                      <option key={code} value={code} className="bg-(--bg) text-(--fg)">
+                        {code} ({config.symbol}) - {config.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 {hasChanges && (

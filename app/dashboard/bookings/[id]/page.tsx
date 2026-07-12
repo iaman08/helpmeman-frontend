@@ -16,6 +16,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { Skeleton } from "@/components/Skeleton";
 import type { Booking } from "@/lib/types";
 import { AxiosError } from "axios";
+import { formatCurrency } from "@/lib/currency-context";
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-IN", {
@@ -33,9 +34,7 @@ function formatTime(d: string) {
   });
 }
 
-function formatPrice(paise: number) {
-  return `₹${Math.round(paise / 100)}`;
-}
+function formatPrice(p: number, currency = "INR") { return formatCurrency(p, currency); }
 
 export default function BookingDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -210,7 +209,7 @@ export default function BookingDetailPage() {
 
           <div className="flex items-baseline justify-between">
             <span className="font-display text-2xl">
-              {formatPrice(booking.amountPaid)}
+              {formatPrice(booking.amountPaid, booking.currency)}
             </span>
             <StatusBadge status={booking.paymentStatus} />
           </div>

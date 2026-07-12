@@ -24,9 +24,7 @@ interface UpcomingBooking {
   user: { name: string };
 }
 
-function formatPrice(paise: number) {
-  return `₹${Math.round(paise / 100).toLocaleString("en-IN")}`;
-}
+import { PriceDisplay } from "@/components/PriceDisplay";
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-IN", {
@@ -69,7 +67,7 @@ export default function MentorOverviewPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: "Total Sessions", value: stats?.totalBookings, icon: CalendarCheck, format: (v: number) => String(v) },
-          { label: "Total Earnings", value: stats?.totalEarnings, icon: DollarSign, format: formatPrice },
+          { label: "Total Earnings", value: stats?.totalEarnings, icon: DollarSign, format: () => "" },
           { label: "Avg Rating", value: stats?.avgRating, icon: Star, format: (v: number) => v > 0 ? v.toFixed(1) : "New" },
           { label: "Reviews", value: stats?.totalReviews, icon: Users, format: (v: number) => String(v) },
         ].map((card) => (
@@ -79,7 +77,13 @@ export default function MentorOverviewPage() {
               <span className="text-xs uppercase tracking-[0.18em]">{card.label}</span>
             </div>
             <span className="font-display text-3xl">
-              {loading ? <Skeleton className="h-9 w-16" /> : card.format(card.value ?? 0)}
+              {loading ? (
+                <Skeleton className="h-9 w-16" />
+              ) : card.label === "Total Earnings" ? (
+                <PriceDisplay amountInPaise={card.value ?? 0} />
+              ) : (
+                card.format(card.value ?? 0)
+              )}
             </span>
           </div>
         ))}

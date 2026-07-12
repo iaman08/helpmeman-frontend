@@ -7,9 +7,7 @@ import { Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
 import type { Earning } from "@/lib/types";
 
-function formatPrice(paise: number) {
-  return `₹${Math.round(paise / 100).toLocaleString("en-IN")}`;
-}
+import { PriceDisplay } from "@/components/PriceDisplay";
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
@@ -53,7 +51,7 @@ export default function EarningsPage() {
               <span className="text-xs uppercase tracking-[0.18em]">{card.label}</span>
             </div>
             <span className={`font-display text-3xl ${card.color}`}>
-              {loading ? <Skeleton className="h-9 w-20" /> : formatPrice(card.value)}
+              {loading ? <Skeleton className="h-9 w-20" /> : <PriceDisplay amountInPaise={card.value} />}
             </span>
           </div>
         ))}
@@ -75,7 +73,7 @@ export default function EarningsPage() {
             {earnings.map((e) => (
               <div key={e.id} className="flex items-center justify-between rounded-xl bg-(--fg)/[0.02] px-5 py-3">
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-sm font-medium">{formatPrice(e.amount)}</span>
+                  <span className="text-sm font-medium"><PriceDisplay amountInPaise={e.amount} /></span>
                   <span className="text-xs text-(--muted)">{formatDate(e.createdAt)}</span>
                 </div>
                 <span className={`text-xs rounded-full px-3 py-1 ${

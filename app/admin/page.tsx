@@ -21,9 +21,7 @@ interface DashboardData {
   }>;
 }
 
-function formatPrice(paise: number) {
-  return `₹${Math.round(paise / 100).toLocaleString("en-IN")}`;
-}
+import { PriceDisplay } from "@/components/PriceDisplay";
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
@@ -44,7 +42,7 @@ export default function AdminDashboardPage() {
     { label: "Total Users", value: data?.totalUsers ?? 0, icon: Users, format: String },
     { label: "Total Mentors", value: data?.totalMentors ?? 0, icon: Users, format: String },
     { label: "Total Bookings", value: data?.totalBookings ?? 0, icon: CalendarCheck, format: String },
-    { label: "Platform Revenue", value: data?.totalRevenue ?? 0, icon: DollarSign, format: formatPrice },
+    { label: "Platform Revenue", value: data?.totalRevenue ?? 0, icon: DollarSign, format: String },
     { label: "Pending Approvals", value: data?.pendingApprovals ?? 0, icon: UserCheck, format: String, highlight: true },
   ];
 
@@ -68,7 +66,13 @@ export default function AdminDashboardPage() {
               <span className="text-[10px] uppercase tracking-[0.18em]">{s.label}</span>
             </div>
             <span className="font-display text-2xl">
-              {loading ? <Skeleton className="h-8 w-12" /> : s.format(s.value)}
+              {loading ? (
+                <Skeleton className="h-8 w-12" />
+              ) : s.label === "Platform Revenue" ? (
+                <PriceDisplay amountInPaise={s.value} />
+              ) : (
+                s.format(s.value)
+              )}
             </span>
           </div>
         ))}

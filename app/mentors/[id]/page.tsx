@@ -12,9 +12,7 @@ import { useState, useEffect } from "react";
 import { ShareProfileModal } from "@/components/ShareProfileModal";
 import { Avatar } from "@/components/Avatar";
 
-function formatPrice(paise: number): string {
-  return `₹${Math.round(paise / 100)}`;
-}
+import { PriceDisplay } from "@/components/PriceDisplay";
 
 function formatDate(d: string): string {
   return new Date(d).toLocaleDateString("en-IN", {
@@ -370,7 +368,7 @@ export default function MentorProfilePage() {
             <div className="sticky top-28 rounded-2xl bg-(--fg)/[0.02] p-6 flex flex-col gap-5">
               <div className="flex items-baseline justify-between">
                 <span className="font-display text-3xl">
-                  {formatPrice(mentor.pricePerSession)}
+                  <PriceDisplay amountInPaise={mentor.pricePerSession} />
                 </span>
                 <span className="text-xs text-(--muted)">
                   / {mentor.sessionDuration} min
