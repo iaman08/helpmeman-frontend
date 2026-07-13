@@ -368,6 +368,18 @@ export default function SignInPage() {
               >
                 {submitting ? "Verifying…" : "Verify & Sign In"}
               </button>
+
+              <a
+                href="https://mail.google.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-gray-300 dark:border-zinc-700 rounded-lg shadow-sm text-sm font-semibold text-[var(--fg)] hover:bg-gray-50 dark:hover:bg-zinc-800 transition-all cursor-pointer text-center bg-transparent mt-2"
+              >
+                <svg className="w-5 h-5 text-[#EA4335]" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+                </svg>
+                Open Gmail
+              </a>
             </form>
 
             <div className="flex flex-col items-center gap-4 text-sm mt-6 border-t border-gray-200 dark:border-zinc-800 pt-6 animate-fade-in">
