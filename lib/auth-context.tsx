@@ -83,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem(KEYS.mentor);
     }
     try {
-      document.cookie = `helpmeman.accessToken=${data.accessToken};path=/;max-age=31536000;SameSite=Lax`;
+      document.cookie = `helpmeman.accessToken=${data.accessToken};path=/;max-age=31536000;SameSite=Lax;Secure`;
     } catch {}
     setUser(data.user);
     setMentor(data.mentor ?? null);
@@ -93,16 +93,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /* ─── Hydrate from localStorage on mount ─── */
   useEffect(() => {
     async function hydrate() {
+      const isCallback = typeof window !== "undefined" && (
+        window.location.hash.includes("access_token=") ||
+        window.location.search.includes("code=")
+      );
+
       try {
         const storedUser = localStorage.getItem(KEYS.user);
         const storedMentor = localStorage.getItem(KEYS.mentor);
         const token = localStorage.getItem(KEYS.access);
-        if (!storedUser || !token) { setLoading(false); return; }
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-        if (storedMentor) setMentor(JSON.parse(storedMentor));
+        if (!isCallback && storedUser && token) {
+          const parsedUser = JSON.parse(storedUser);
+          setUser(parsedUser);
+          if (storedMentor) setMentor(JSON.parse(storedMentor));
+        }
       } catch { /* corrupted storage */ }
-      setLoading(false);
+
+      if (!isCallback) {
+        setLoading(false);
+      } else {
+        setGoogleAuthenticating(true);
+        // Fallback timer: if Supabase doesn't trigger state change within 5s, reset loading state
+        setTimeout(() => {
+          setLoading((currLoading) => {
+            if (currLoading) {
+              console.warn("[AUTH] Callback timeout exceeded. Resetting loading state.");
+              setGoogleAuthenticating(false);
+              return false;
+            }
+            return currLoading;
+          });
+        }, 5000);
+      }
 
       // Background-refresh profile (non-blocking, fire-and-forget)
       try {
@@ -111,6 +133,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const token = localStorage.getItem(KEYS.access);
         if (token?.startsWith("demo_")) return;
         if (!token) return;
+        if (isCallback) return; // Skip background fetch if callback is running
+
         const { data } = await api.get<{ user: User; mentor: MentorMeta | null }>("/users/me");
         setUser(data.user);
         localStorage.setItem(KEYS.user, JSON.stringify(data.user));
@@ -154,6 +178,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // it via the email match or the lastSyncedToken sentinel below.
             if (parsedUser?.email === session.user?.email && !googleAuthenticating) {
               console.log("[AUTH] Skipping Google sync — session already established for this user.");
+              setLoading(false);
+              setGoogleAuthenticating(false);
               return;
             }
           } catch { /* ignore parse errors */ }
@@ -172,6 +198,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log(`[AUTH] Initiating Google session sync. Token (masked): ${maskedToken}`);
 
         try {
+          setLoading(true);
+          setGoogleAuthenticating(true);
+
           const t0 = Date.now();
           console.log("[AUTH] POSTing token to backend at /auth/google...");
           const { data } = await api.post<AuthResponse>("/auth/google", {
@@ -190,7 +219,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           } else {
             localStorage.removeItem(KEYS.mentor);
           }
-          document.cookie = `helpmeman.accessToken=${data.accessToken};path=/;max-age=31536000;SameSite=Lax`;
+          document.cookie = `helpmeman.accessToken=${data.accessToken};path=/;max-age=31536000;SameSite=Lax;Secure`;
 
           setUser(data.user);
           setMentor(data.mentor ?? null);
@@ -210,9 +239,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             console.error("[AUTH] Error setting up sync request:", err.message);
           }
           lastSyncedToken.current = null; // allow retry
+          setLoading(false);
+          setGoogleAuthenticating(false);
         } finally {
           syncInFlight.current = false;
-          setGoogleAuthenticating(false);
         }
       }
     );
@@ -268,9 +298,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          // After OAuth redirect, land on onboarding; the onAuthStateChange
-          // listener will redirect to the correct dashboard automatically.
-          redirectTo: `${window.location.origin}/onboarding`,
+          // After OAuth redirect, land on signin page to perform the sync
+          redirectTo: `${window.location.origin}/signin`,
           queryParams: {
             // Prompt the account picker every time so the UX feels immediate
             prompt: "select_account",

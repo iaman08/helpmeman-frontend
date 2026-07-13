@@ -96,6 +96,6 @@ export default async function getCroppedImg(
       } else {
         reject(new Error("Canvas is empty"));
       }
-    }, "image/jpeg");
+    }, "image/jpeg", 0.8);
   });
 }

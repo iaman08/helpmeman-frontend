@@ -1,8 +1,26 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import { Search, SlidersHorizontal, X, LayoutDashboard, CalendarCheck, MessageCircle, Settings, Search as SearchIcon, Sparkles } from "lucide-react";
-import { useMentors, useCategories, type MentorFilters } from "@/lib/hooks";
+import {
+  Search,
+  SlidersHorizontal,
+  X,
+  LayoutDashboard,
+  CalendarCheck,
+  MessageCircle,
+  Settings,
+  Search as SearchIcon,
+  Sparkles,
+  Bell,
+  Clock,
+  DollarSign,
+  Star,
+  User,
+  UserCheck,
+  Users,
+  FolderTree,
+} from "lucide-react";
+import { useMentors, useCategories, useUnreadChatCount, type MentorFilters } from "@/lib/hooks";
 import { MentorCard } from "@/components/MentorCard";
 import { MentorCardSkeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
@@ -28,7 +46,9 @@ const INSTITUTION_TYPES = [
 ];
 
 export default function MentorsPage() {
-  const { user, logout } = useAuth();
+  const { user, logout, isMentor, isAdmin } = useAuth();
+  const { data: unreadData } = useUnreadChatCount();
+  const unreadChatCount = unreadData?.unreadCount ?? 0;
   const { currency, rates } = useCurrency();
   const symbol = CURRENCY_CONFIGS[currency]?.symbol || currency;
   const [filters, setFilters] = useState<MentorFilters>({
@@ -358,31 +378,86 @@ export default function MentorsPage() {
   );
 
   if (user) {
-    const NAV = [
-      { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-      { href: "/dashboard/bookings", label: "Bookings", icon: CalendarCheck },
-      { href: "/dashboard/chat", label: "Chat", icon: MessageCircle },
-      {
-        onClick: () => {
-          if (typeof window !== "undefined") {
-            window.dispatchEvent(new Event("open-ai"));
-          }
+    let NAV: any[] = [];
+    let rootPath = "/dashboard";
+    let brandLabel = "Dashboard";
+    let notificationsPath: string | undefined = "/dashboard/notifications";
+
+    if (isAdmin) {
+      rootPath = "/admin";
+      brandLabel = "Admin Panel";
+      notificationsPath = undefined;
+      NAV = [
+        { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+        { href: "/admin/approvals", label: "Approvals", icon: UserCheck },
+        { href: "/admin/mentors", label: "All Mentors", icon: Users },
+        { href: "/admin/users", label: "Users", icon: Users },
+        { href: "/admin/bookings", label: "Bookings", icon: CalendarCheck },
+        { href: "/admin/categories", label: "Categories", icon: FolderTree },
+        { href: "/admin/earnings", label: "Earnings", icon: DollarSign },
+        { href: "/admin/reviews", label: "Reviews", icon: Star },
+        {
+          onClick: () => {
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new Event("open-ai"));
+            }
+          },
+          label: "Ruth",
+          icon: Sparkles,
         },
-        label: "Ruth",
-        icon: Sparkles,
-      },
-      { href: "/mentors", label: "Browse Mentors", icon: SearchIcon },
-      { href: "/dashboard/settings", label: "Settings", icon: Settings },
-    ];
+      ];
+    } else if (isMentor) {
+      rootPath = "/mentor";
+      brandLabel = "Mentor Panel";
+      notificationsPath = "/mentor/notifications";
+      NAV = [
+        { href: "/mentor", label: "Overview", icon: LayoutDashboard },
+        { href: "/mentor/bookings", label: "Sessions", icon: CalendarCheck },
+        { href: "/mentor/chat", label: "Chat", icon: MessageCircle, badge: unreadChatCount },
+        { href: "/mentor/availability", label: "Availability", icon: Clock },
+        { href: "/mentor/earnings", label: "Earnings", icon: DollarSign },
+        { href: "/mentor/reviews", label: "Reviews", icon: Star },
+        { href: "/mentor/notifications", label: "Notifications", icon: Bell },
+        { href: "/mentor/settings", label: "Profile", icon: User },
+        {
+          onClick: () => {
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new Event("open-ai"));
+            }
+          },
+          label: "Ruth",
+          icon: Sparkles,
+        },
+      ];
+    } else {
+      NAV = [
+        { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
+        { href: "/dashboard/bookings", label: "Bookings", icon: CalendarCheck },
+        { href: "/dashboard/chat", label: "Chat", icon: MessageCircle, badge: unreadChatCount },
+        { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
+        {
+          onClick: () => {
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new Event("open-ai"));
+            }
+          },
+          label: "Ruth",
+          icon: Sparkles,
+        },
+        { href: "/mentors", label: "Browse Mentors", icon: SearchIcon },
+        { href: "/dashboard/settings", label: "Settings", icon: Settings },
+      ];
+    }
 
     return (
       <SidebarShell
         navItems={NAV}
-        rootPath="/dashboard"
-        brandLabel="Dashboard"
+        rootPath={rootPath}
+        brandLabel={brandLabel}
         userName={user.name}
         userEmail={user.email}
         userAvatar={user.avatar}
+        notificationsPath={notificationsPath}
         onLogout={async () => {
           await logout();
           window.location.href = "/";

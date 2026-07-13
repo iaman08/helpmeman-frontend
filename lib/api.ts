@@ -136,7 +136,7 @@ api.interceptors.response.use(
         if (data.refreshToken) {
           localStorage.setItem("helpmeman.refreshToken", data.refreshToken);
         }
-        document.cookie = `helpmeman.accessToken=${newToken};path=/;max-age=31536000;SameSite=Lax`;
+        document.cookie = `helpmeman.accessToken=${newToken};path=/;max-age=31536000;SameSite=Lax;Secure`;
         processQueue(null, newToken);
 
         if (original.headers) {

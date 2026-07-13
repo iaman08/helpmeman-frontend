@@ -91,37 +91,68 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
 
   // 2. Detect user's local currency based on IP or browser locale
   const detectCurrency = useCallback(async (): Promise<string> => {
+    let detected: string | null = null;
+    
     try {
       // Call public IP-to-Geo API
       const res = await fetch("https://ipapi.co/json/");
       if (res.ok) {
         const data = await res.json();
-        const detected = data.currency;
-        if (detected && CURRENCY_CONFIGS[detected.toUpperCase()]) {
-          return detected.toUpperCase();
-        }
+        detected = data.currency;
       }
     } catch {
-      // Ignore GeoIP errors and fall back to browser locale / timezone
+      // Ignore GeoIP error, fallback to next API
     }
 
-    // Fallback: Detect via browser locale / timezone
+    // Fallback API if ipapi.co fails/rate-limits
+    if (!detected) {
+      try {
+        const res = await fetch("https://ipinfo.io/json");
+        if (res.ok) {
+          const data = await res.json();
+          const country = data.country;
+          if (country === "IN") detected = "INR";
+          else if (country === "US") detected = "USD";
+          else if (country === "GB") detected = "GBP";
+          else if (country === "JP") detected = "JPY";
+          else if (country === "CA") detected = "CAD";
+          else if (country === "AU") detected = "AUD";
+          else if (["DE", "FR", "IT", "ES", "NL", "BE", "AT", "IE", "FI", "PT", "GR"].includes(country)) detected = "EUR";
+        }
+      } catch {
+        // Ignore fallback GeoIP errors
+      }
+    }
+
+    if (detected && CURRENCY_CONFIGS[detected.toUpperCase()]) {
+      return detected.toUpperCase();
+    }
+
+    // Fallback: Detect via timezone resolved options (most reliable client-side fallback)
     try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (tz) {
+        const tzLower = tz.toLowerCase();
+        if (tzLower.includes("kolkata") || tzLower.includes("calcutta") || tzLower.includes("india")) return "INR";
+        if (tzLower.includes("london") || tzLower.includes("europe/london")) return "GBP";
+        if (tzLower.includes("tokyo")) return "JPY";
+        if (tzLower.includes("toronto") || tzLower.includes("vancouver") || tzLower.includes("montreal")) return "CAD";
+        if (tzLower.includes("sydney") || tzLower.includes("melbourne") || tzLower.includes("brisbane") || tzLower.includes("adelaide")) return "AUD";
+        if (tzLower.includes("europe") || tzLower.includes("berlin") || tzLower.includes("paris") || tzLower.includes("rome") || tzLower.includes("madrid") || tzLower.includes("brussels") || tzLower.includes("amsterdam")) {
+          return "EUR";
+        }
+      }
+
+      // Check browser locale language
       const locale = navigator.language || "en-US";
       if (locale.includes("IN")) return "INR";
       if (locale.includes("GB")) return "GBP";
       if (locale.includes("JP")) return "JPY";
       if (locale.includes("CA")) return "CAD";
       if (locale.includes("AU")) return "AUD";
-      
-      // Check European timezones
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      if (tz && (tz.includes("Europe") || tz.includes("Berlin") || tz.includes("Paris") || tz.includes("Rome") || tz.includes("Madrid"))) {
-        return "EUR";
-      }
     } catch {}
 
-    return "USD"; // Ultimate global fallback
+    return "INR"; // Ultimate global fallback (using INR as default)
   }, []);
 
   // 3. Set Active Currency (manual vs automatic)

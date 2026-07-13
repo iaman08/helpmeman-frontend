@@ -1,15 +1,52 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
-import { Clock, CheckCircle, XCircle } from "lucide-react";
+import { Clock, CheckCircle, XCircle, Sparkles } from "lucide-react";
+import api from "@/lib/api";
 
 export default function MentorStatusPage() {
   const { mentor } = useAuth();
+  const [onboardingStatus, setOnboardingStatus] = useState<string>("LOADING");
 
-  const status = mentor?.approvalStatus ?? "PENDING";
+  useEffect(() => {
+    const isDemo = typeof window !== "undefined" ? localStorage.getItem("helpmeman.accessToken")?.startsWith("demo_") : false;
+    if (isDemo) {
+      setOnboardingStatus("COMPLETED");
+      return;
+    }
+
+    api.get<{ role: string | null; status: string }>("/mentor/onboarding")
+      .then(({ data }) => {
+        setOnboardingStatus(data.status);
+      })
+      .catch(() => {
+        // Fallback to COMPLETED on error to avoid blocking the user
+        setOnboardingStatus("COMPLETED");
+      });
+  }, []);
+
+  if (onboardingStatus === "LOADING") {
+    return (
+      <main className="min-h-screen flex flex-col items-center justify-center gap-6 px-6 text-center">
+        <div className="h-6 w-6 rounded-full border-2 border-(--fg)/20 border-t-(--fg) animate-spin" />
+      </main>
+    );
+  }
+
+  const mentorStatus = mentor?.approvalStatus ?? "PENDING";
+  const displayStatus = onboardingStatus === "COMPLETED" ? mentorStatus : "INCOMPLETE";
 
   const config = {
+    INCOMPLETE: {
+      icon: <Sparkles className="h-8 w-8 text-amber-500" />,
+      bg: "bg-amber-500/10",
+      title: "Please complete your onboarding first.",
+      description:
+        "You started your onboarding conversation with Ruth AI, but haven't finished answering the questions. Please complete it first to submit your application for review.",
+      cta: { label: "Complete Onboarding", href: "/onboarding" },
+    },
     PENDING: {
       icon: <Clock className="h-8 w-8 text-amber-500" />,
       bg: "bg-amber-500/10",
@@ -36,7 +73,7 @@ export default function MentorStatusPage() {
     },
   };
 
-  const c = config[status as keyof typeof config] ?? config.PENDING;
+  const c = config[displayStatus as keyof typeof config] ?? config.PENDING;
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center gap-6 px-6 text-center">

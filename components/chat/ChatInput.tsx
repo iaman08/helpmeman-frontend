@@ -4,6 +4,7 @@ import { Smile, ArrowUp, Paperclip, X, Reply, FileText, Image, Loader2 } from "l
 import api from "@/lib/api";
 import type { ChatMessage, ChatAttachment } from "@/lib/types";
 import { useToast } from "@/components/Toast";
+import { compressImage } from "@/lib/compressImage";
 
 interface ChatInputProps {
   threadId: string;
@@ -148,8 +149,9 @@ export function ChatInput({
     }
     setUploading(true);
     try {
+      const compressedFile = await compressImage(file);
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", compressedFile);
       const res = await api.post(`/chat/threads/${threadId}/upload`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });

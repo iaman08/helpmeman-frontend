@@ -7,6 +7,7 @@ import {
 import api from "@/lib/api";
 import { useToast } from "@/components/Toast";
 import { useRouter } from "next/navigation";
+import { compressImage } from "@/lib/compressImage";
 import type { ChatThread, ChatMessage, ChatAttachment } from "@/lib/types";
 import { MessageList } from "./MessageList";
 import { ChatInput } from "./ChatInput";
@@ -387,7 +388,10 @@ export function ChatWindow({
       const fd = new FormData();
       fd.append("mentorId", thread.mentor.id);
       fd.append("description", complaintDesc.trim());
-      if (complaintFile) fd.append("proof", complaintFile);
+      if (complaintFile) {
+        const compressedFile = await compressImage(complaintFile);
+        fd.append("proof", compressedFile);
+      }
       await api.post("/users/me/complaints", fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
