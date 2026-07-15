@@ -12,6 +12,7 @@ import {
   Sparkles,
   Bell,
   MessageCircle,
+  Calendar,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { SidebarShell } from "@/components/SidebarShell";
@@ -37,7 +38,7 @@ export default function MentorLayout({
     { href: "/mentor/availability", label: "Availability", icon: Clock },
     { href: "/mentor/earnings", label: "Earnings", icon: DollarSign },
     { href: "/mentor/reviews", label: "Reviews", icon: Star },
-    { href: "/mentor/notifications", label: "Notifications", icon: Bell },
+    { href: "/mentor/calendar", label: "Calendar", icon: Calendar },
     { href: "/mentor/settings", label: "Profile", icon: User },
     {
       onClick: () => {
@@ -154,6 +155,8 @@ export default function MentorLayout({
       brandLabel="Mentor Panel"
       brandColor="text-amber-500"
       userName={user.name}
+      userEmail={user.email}
+      userAvatar={user.avatar}
       userBadge={
         mentor?.approvalStatus === "APPROVED"
           ? "Verified Mentor"

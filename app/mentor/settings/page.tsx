@@ -17,6 +17,8 @@ import { ImageCropModal } from "@/components/ImageCropModal";
 import type { Mentor } from "@/lib/types";
 import { CascadingAddressSelect } from "@/components/CascadingAddressSelect";
 import { LanguageMultiSelect } from "@/components/LanguageMultiSelect";
+import { useAuth } from "@/lib/auth-context";
+
 
 // ─── Indian + English language list ───
 const LANGUAGES = [
@@ -75,6 +77,8 @@ export default function MentorSettingsPage() {
   const router = useRouter();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { updateUser } = useAuth();
+
 
   const [mentor, setMentor] = useState<Mentor | null>(null);
   const [loading, setLoading] = useState(true);
@@ -189,18 +193,24 @@ export default function MentorSettingsPage() {
     try {
       const form = new FormData();
       form.append("avatar", croppedFile);
-      await api.put("/mentor/me", form, {
+      const { data } = await api.put("/mentor/me", form, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+      const newUrl = data.avatar || data.mentor?.avatar || preview;
+      setAvatarPreview(newUrl);
+      updateUser({ avatar: newUrl });
       toast("Profile photo updated!", "success");
     } catch {
       // fallback: try users/me endpoint
       try {
         const form2 = new FormData();
         form2.append("avatar", croppedFile);
-        await api.put("/users/me", form2, {
+        const { data } = await api.put("/users/me", form2, {
           headers: { "Content-Type": "multipart/form-data" },
         });
+        const newUrl = data.avatar || preview;
+        setAvatarPreview(newUrl);
+        updateUser({ avatar: newUrl });
         toast("Profile photo updated!", "success");
       } catch {
         setAvatarPreview(mentor?.avatar ?? null);
@@ -270,6 +280,7 @@ export default function MentorSettingsPage() {
         languages: mentorLanguages,
         experienceYears: experienceYears ? Number(experienceYears) : null,
       });
+      updateUser({ name: displayName });
       toast("Profile updated successfully!", "success");
     } catch (err) {
       if (err instanceof AxiosError) {

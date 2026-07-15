@@ -17,6 +17,8 @@ import { Skeleton } from "@/components/Skeleton";
 import type { Booking } from "@/lib/types";
 import { AxiosError } from "axios";
 import { formatCurrency } from "@/lib/currency-context";
+import { CountdownTimer, isJoinable } from "@/components/CountdownTimer";
+import { useState as useLiveState, useEffect as useLiveEffect } from "react";
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-IN", {
@@ -50,6 +52,8 @@ export default function BookingDetailPage() {
   const [rescheduleOpen, setRescheduleOpen] = useState(false);
   const [newDate, setNewDate] = useState("");
   const [rescheduling, setRescheduling] = useState(false);
+  // Live join-ability state (re-evaluated every 30s)
+  const [joinable, setJoinable] = useLiveState(false);
 
   useEffect(() => {
     api
@@ -58,6 +62,15 @@ export default function BookingDetailPage() {
       .catch(() => setError("Failed to load booking"))
       .finally(() => setLoading(false));
   }, [id]);
+
+  // Re-check join-ability every 30s
+  useLiveEffect(() => {
+    if (!booking) return;
+    const check = () => setJoinable(isJoinable(booking.scheduledAt, booking.durationMinutes));
+    check();
+    const t = setInterval(check, 30_000);
+    return () => clearInterval(t);
+  }, [booking?.scheduledAt, booking?.durationMinutes]);
 
   async function handleReschedule() {
     if (!newDate) return alert("Please select a date and time");
@@ -189,15 +202,36 @@ export default function BookingDetailPage() {
           </div>
 
           {booking.meetLink && booking.status === "CONFIRMED" && (
-            <a
-              href={booking.meetLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-full bg-(--accent) text-(--accent-fg) px-6 py-3 text-sm hover:opacity-90 transition-opacity"
-            >
-              <Video className="h-4 w-4" />
-              Join Google Meet
-            </a>
+            <div className="flex flex-col gap-2">
+              {/* Live Countdown */}
+              <CountdownTimer
+                scheduledAt={booking.scheduledAt}
+                durationMinutes={booking.durationMinutes}
+              />
+              {/* Join Button — active only 15min before */}
+              <a
+                href={booking.meetLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Join Google Meet"
+                className={`flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-all ${
+                  joinable
+                    ? "bg-green-500 text-white hover:bg-green-600 shadow-lg shadow-green-500/20"
+                    : "bg-(--fg)/8 text-(--muted) opacity-60 cursor-not-allowed"
+                }`}
+                onClick={!joinable ? (e) => e.preventDefault() : undefined}
+                title={!joinable ? "Join button opens 15 minutes before the session" : "Join Google Meet"}
+              >
+                <Video className="h-4 w-4" />
+                {joinable ? "Join Google Meet" : "Opens 15 min before"}
+                {joinable && <ExternalLink className="h-3.5 w-3.5 opacity-70" />}
+              </a>
+            </div>
+          )}
+          {booking.status === "CONFIRMED" && !booking.meetLink && (
+            <div className="rounded-xl bg-amber-500/8 border border-amber-500/20 px-4 py-3 text-xs text-amber-600">
+              ⏳ Google Meet link will be available after the mentor connects their Google Calendar.
+            </div>
           )}
         </div>
 

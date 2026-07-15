@@ -8,6 +8,7 @@ import type {
   Category,
   Booking,
   Notification,
+  BlockedDate,
 } from "./types";
 
 /* ─── Generic fetcher ─── */
@@ -146,3 +147,38 @@ export function useUnreadChatCount() {
     revalidateOnFocus: false,
   });
 }
+
+/* ─── Google Calendar Connection Status (mentor only) ─── */
+export function useGoogleCalendarStatus() {
+  const { user } = useAuth();
+  const isMentor = user?.role === "MENTOR";
+  const key = isMentor && user?.id ? ["/mentor/me/google/status", user.id] as [string, string] : null;
+  return useSWR<{ connected: boolean; timezone: string }>(key, fetcher, {
+    revalidateOnFocus: false,
+  });
+}
+
+/* ─── Upcoming confirmed meetings for mentee ─── */
+export function useUpcomingMeetings() {
+  const { user } = useAuth();
+  const key = user?.id
+    ? [`/users/me/bookings?status=CONFIRMED&page=1&limit=20`, user.id] as [string, string]
+    : null;
+  return useSWR<{ bookings: Booking[]; total: number; page: number; totalPages: number }>(
+    key,
+    fetcher,
+    { revalidateOnFocus: false }
+  );
+}
+
+/* ─── Mentor blocked dates ─── */
+export function useMentorBlockedDates() {
+  const { user } = useAuth();
+  const key = user?.role === "MENTOR" && user?.id
+    ? ["/mentor/me/blocked-dates", user.id] as [string, string]
+    : null;
+  return useSWR<{ blockedDates: BlockedDate[] }>(key, fetcher, {
+    revalidateOnFocus: false,
+  });
+}
+

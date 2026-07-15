@@ -83,6 +83,8 @@ export interface Mentor {
   languages?: string[] | string | null;
   experienceYears?: number | null;
   isOnline: boolean;
+  googleCalendarConnected?: boolean;
+  googleCalendarTimezone?: string | null;
   reviews?: Review[];
   verificationDocs?: VerificationDoc[];
   createdAt: string;
@@ -161,6 +163,14 @@ export interface NotificationPreferences {
   messages: boolean;
   mentorUpdates: boolean;
   updatedAt: string;
+}
+
+export interface BlockedDate {
+  id: string;
+  mentorId: string;
+  date: string;
+  reason?: string | null;
+  createdAt: string;
 }
 
 export interface Earning {

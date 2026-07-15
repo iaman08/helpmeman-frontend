@@ -10,6 +10,7 @@ import {
   Search,
   Sparkles,
   Bell,
+  Video,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { SidebarShell } from "@/components/SidebarShell";
@@ -28,6 +29,7 @@ export default function DashboardLayout({
   const NAV = [
     { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
     { href: "/dashboard/bookings", label: "Bookings", icon: CalendarCheck },
+    { href: "/dashboard/meetings", label: "Meetings", icon: Video },
     { href: "/dashboard/chat", label: "Chat", icon: MessageCircle, badge: unreadChatCount },
     { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
     {

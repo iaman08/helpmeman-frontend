@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CalendarCheck, DollarSign, Star, Users, TrendingUp } from "lucide-react";
+import { CalendarCheck, DollarSign, Star, Users, TrendingUp, AlertTriangle } from "lucide-react";
 import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { StatusBadge } from "@/components/StatusBadge";
 import Link from "next/link";
+import { useGoogleCalendarStatus } from "@/lib/hooks";
+import { useToast } from "@/components/Toast";
+
 
 interface MentorStats {
   totalBookings: number;
@@ -40,6 +43,9 @@ export default function MentorOverviewPage() {
   const [stats, setStats] = useState<MentorStats | null>(null);
   const [bookings, setBookings] = useState<UpcomingBooking[]>([]);
   const [loading, setLoading] = useState(true);
+  const { data: calStatus, mutate: mutateStatus } = useGoogleCalendarStatus();
+  const { toast } = useToast();
+  const [connecting, setConnecting] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -54,14 +60,53 @@ export default function MentorOverviewPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  async function handleInstantConnect() {
+    setConnecting(true);
+    try {
+      const { data } = await api.get("/google/oauth/url");
+      window.location.href = data.url;
+    } catch {
+      toast("Failed to start Google authorization. Please try again.", "error");
+      setConnecting(false);
+    }
+  }
+
+  const calendarConnected = calStatus?.connected ?? false;
+
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-8">
+      {/* ─── Google Calendar Warning Banner ─── */}
+      {!calendarConnected && !loading && (
+        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm animate-pulse-subtle">
+          <div className="flex items-start gap-3">
+            <div className="p-2 bg-amber-500/10 rounded-xl text-amber-600 shrink-0">
+              <AlertTriangle size={20} />
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <h4 className="font-bold text-base text-amber-800">Action Required: Connect Google Calendar</h4>
+              <p className="text-xs text-amber-700 leading-relaxed">
+                 Mentees cannot receive auto-scheduled Google Meet links for your sessions until you connect. Please link your Google Calendar now.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleInstantConnect}
+            disabled={connecting}
+            className="w-full md:w-auto bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs px-5 py-2.5 rounded-xl transition-all cursor-pointer shadow-sm shadow-amber-600/10 shrink-0 disabled:opacity-50"
+          >
+            {connecting ? "Connecting…" : "Connect Calendar Now"}
+          </button>
+        </div>
+      )}
+
       <div className="flex flex-col gap-2">
         <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">
           Mentor Dashboard
         </p>
         <h1 className="font-display text-4xl leading-tight">Your overview.</h1>
       </div>
+
 
       {/* ─── Stats Grid ─── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

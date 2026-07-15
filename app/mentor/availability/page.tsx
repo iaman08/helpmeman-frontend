@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { Clock, Plus, Trash2 } from "lucide-react";
+import { Clock, Plus, Trash2, AlertTriangle } from "lucide-react";
 import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import type { Availability } from "@/lib/types";
+import { useGoogleCalendarStatus } from "@/lib/hooks";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -13,11 +14,14 @@ export default function AvailabilityPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
+  const { data: calStatus } = useGoogleCalendarStatus();
+  const [connecting, setConnecting] = useState(false);
 
   // New slot form
   const [newDay, setNewDay] = useState(1);
   const [newStart, setNewStart] = useState("09:00");
   const [newEnd, setNewEnd] = useState("17:00");
+
 
   useEffect(() => {
     api.get("/mentor/me/availability")
@@ -64,8 +68,46 @@ export default function AvailabilityPage() {
     }
   }
 
+  async function handleInstantConnect() {
+    setConnecting(true);
+    try {
+      const { data } = await api.get("/google/oauth/url");
+      window.location.href = data.url;
+    } catch {
+      alert("Failed to start Google authorization.");
+      setConnecting(false);
+    }
+  }
+
+  const calendarConnected = calStatus?.connected ?? false;
+
   return (
     <div className="flex flex-col gap-8">
+      {/* Google Calendar Warning Banner */}
+      {!calendarConnected && (
+        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm animate-pulse-subtle">
+          <div className="flex items-start gap-3">
+            <div className="p-2 bg-amber-500/10 rounded-xl text-amber-600 shrink-0">
+              <AlertTriangle size={20} />
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <h4 className="font-bold text-base text-amber-800 font-display">Calendar Access Required</h4>
+              <p className="text-xs text-amber-700 leading-relaxed">
+                Please connect your Google Calendar to enable scheduling and auto-generation of Google Meet links for bookings.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleInstantConnect}
+            disabled={connecting}
+            className="w-full md:w-auto bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs px-5 py-2.5 rounded-xl transition-all cursor-pointer shadow-sm shrink-0 disabled:opacity-50"
+          >
+            {connecting ? "Connecting…" : "Connect Calendar Now"}
+          </button>
+        </div>
+      )}
+
       <div className="flex flex-col gap-2">
         <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">Availability</p>
         <h1 className="font-display text-4xl leading-tight">Set your schedule.</h1>
@@ -73,6 +115,7 @@ export default function AvailabilityPage() {
           Define when students can book sessions with you.
         </p>
       </div>
+
 
       {/* ─── Current Slots ─── */}
       <div>
