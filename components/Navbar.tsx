@@ -53,15 +53,20 @@ export function Navbar() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-(--bg)/70">
       <nav className="mx-auto flex max-w-[1400px] items-center justify-between px-6 sm:px-10 py-5">
-        {/* Logo */}
-        <button
-          type="button"
-          onClick={() => scrollToId("hero")}
-          className="font-display text-2xl tracking-tight cursor-pointer"
+        <Link
+          href="/"
+          className="font-display text-2xl tracking-tight cursor-pointer no-underline text-(--fg)"
           aria-label="HelpMeMan home"
         >
           HelpMeMan<span className="text-(--muted)">.</span>
-        </button>
+        </Link>
+
+        {/* Desktop Links */}
+        <div className="hidden md:flex items-center gap-6 ml-10 mr-auto">
+          <Link href="/mentors" className="text-sm font-medium text-(--muted) hover:text-(--fg) transition-colors no-underline">
+            Mentors
+          </Link>
+        </div>
 
 
         {/* Right side */}
@@ -112,10 +117,12 @@ export function Navbar() {
                   <Link
                     href="/mentors"
                     onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-(--fg)/80 hover:bg-(--fg)/5 transition-colors"
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-(--fg)/80 hover:bg-(--fg)/5 transition-colors no-underline"
                   >
                     Browse Mentors
                   </Link>
+
+
 
                   <div
                     aria-hidden
@@ -179,11 +186,20 @@ export function Navbar() {
         >
 
 
+          <Link
+            href="/mentors"
+            onClick={() => setMobileOpen(false)}
+            className="text-sm text-(--fg)/80 hover:text-(--fg) py-1 no-underline"
+          >
+            Browse Mentors
+          </Link>
+
+
           {!user && (
             <Link
               href="/signin"
               onClick={() => setMobileOpen(false)}
-              className="text-sm text-(--fg)/80 hover:text-(--fg) py-1 sm:hidden"
+              className="text-sm text-(--fg)/80 hover:text-(--fg) py-1 sm:hidden no-underline"
             >
               Sign in
             </Link>

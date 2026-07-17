@@ -69,6 +69,9 @@ export function FooterSection() {
               <Link href="/?auth=signup" className="hover:text-white transition-colors">
                 Browse Mentors
               </Link>
+              <Link href="/team" className="hover:text-white transition-colors">
+                Our Team
+              </Link>
               <a href="#success" className="hover:text-white transition-colors">
                 Success Stories
               </a>
