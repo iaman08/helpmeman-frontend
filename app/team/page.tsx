@@ -631,8 +631,8 @@ export default function TeamPage() {
                   <div className="space-y-2">
                     <h4 className="text-[10px] uppercase tracking-wider font-extrabold text-zinc-400 select-none">Journey</h4>
                     <div className="p-5 bg-zinc-900 text-zinc-100 border border-zinc-950 rounded-2xl shadow-sm text-xs sm:text-sm leading-relaxed whitespace-pre-line font-medium italic relative overflow-hidden">
-                      <div className="absolute top-0 right-0 p-8 text-zinc-800/40 text-7xl font-serif pointer-events-none select-none">“</div>
-                      <span className="relative z-10">"{selectedMember.story}"</span>
+                      <div className="absolute top-0 right-0 p-8 text-zinc-800/40 text-7xl font-serif pointer-events-none select-none">&ldquo;</div>
+                      <span className="relative z-10">&ldquo;{selectedMember.story}&rdquo;</span>
                     </div>
                   </div>
                 )}

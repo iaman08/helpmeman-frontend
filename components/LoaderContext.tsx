@@ -47,9 +47,32 @@ export function LoaderProvider({ children }: { children: React.ReactNode }) {
   const [progress, setProgressState] = useState(0);
   const activeLoaders = useRef<Set<string>>(new Set());
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const safetyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clear timers on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (safetyTimeoutRef.current) clearTimeout(safetyTimeoutRef.current);
+    };
+  }, []);
 
   const startLoading = useCallback((key: string) => {
     activeLoaders.current.add(key);
+
+    // Set safety auto-cleanup timeout (10 seconds)
+    if (safetyTimeoutRef.current) clearTimeout(safetyTimeoutRef.current);
+    safetyTimeoutRef.current = setTimeout(() => {
+      console.warn(`Loader safety timeout triggered for key "${key}". Force cleaning up loader.`);
+      activeLoaders.current.clear();
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      setProgressState(100);
+      setTimeout(() => setProgressState(0), 400);
+    }, 10000);
+
     if (activeLoaders.current.size === 1) {
       setProgressState(10);
       if (timerRef.current) clearInterval(timerRef.current);
@@ -68,6 +91,10 @@ export function LoaderProvider({ children }: { children: React.ReactNode }) {
   const stopLoading = useCallback((key: string) => {
     activeLoaders.current.delete(key);
     if (activeLoaders.current.size === 0) {
+      if (safetyTimeoutRef.current) {
+        clearTimeout(safetyTimeoutRef.current);
+        safetyTimeoutRef.current = null;
+      }
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;

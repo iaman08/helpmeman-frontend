@@ -698,62 +698,34 @@ export default function AdminTeamPage() {
                 </div>
               </div>
 
-              {/* 2. Image uploads (Avatar & Cover) */}
+              {/* 2. Image uploads (Avatar) */}
               <div className="space-y-4">
                 <h3 className="text-xs uppercase tracking-wider font-bold text-(--muted) border-b border-(--hairline) pb-1">
                   Media uploads (Cropping & Compression)
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {/* Profile Picture */}
-                  <div className="flex flex-col gap-2">
-                    <label className="text-xs font-semibold text-(--muted)">Profile Avatar Picture (1:1 Ratio)</label>
-                    <div className="flex items-center gap-4">
-                      <div className="w-20 h-20 rounded-xl bg-zinc-100 border border-(--hairline) overflow-hidden flex-shrink-0 relative group">
-                        {imagePreview ? (
-                          <img src={imagePreview} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-zinc-300">
-                            <User className="w-8 h-8" />
-                          </div>
-                        )}
-                      </div>
-                      <label className="px-4 py-2 border border-(--hairline) hover:border-(--fg)/30 rounded-xl text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5">
-                        <Upload className="w-3.5 h-3.5" />
-                        Upload Profile
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => handleFileChange(e, "image")}
-                        />
-                      </label>
+                {/* Profile Picture */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-semibold text-(--muted)">Profile Avatar Picture (1:1 Ratio)</label>
+                  <div className="flex items-center gap-4">
+                    <div className="w-20 h-20 rounded-xl bg-zinc-100 border border-(--hairline) overflow-hidden flex-shrink-0 relative group">
+                      {imagePreview ? (
+                        <img src={imagePreview} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-zinc-300">
+                          <User className="w-8 h-8" />
+                        </div>
+                      )}
                     </div>
-                  </div>
-
-                  {/* Cover Picture */}
-                  <div className="flex flex-col gap-2">
-                    <label className="text-xs font-semibold text-(--muted)">Banner Cover Image (16:9 Ratio)</label>
-                    <div className="flex items-center gap-4">
-                      <div className="h-14 w-32 rounded-xl bg-zinc-100 border border-(--hairline) overflow-hidden flex-shrink-0 relative">
-                        {coverPreview ? (
-                          <img src={coverPreview} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-zinc-300">
-                            <ImageIcon className="w-6 h-6" />
-                          </div>
-                        )}
-                      </div>
-                      <label className="px-4 py-2 border border-(--hairline) hover:border-(--fg)/30 rounded-xl text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5">
-                        <Upload className="w-3.5 h-3.5" />
-                        Upload Cover
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => handleFileChange(e, "cover")}
-                        />
-                      </label>
-                    </div>
+                    <label className="px-4 py-2 border border-(--hairline) hover:border-(--fg)/30 rounded-xl text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5">
+                      <Upload className="w-3.5 h-3.5" />
+                      Upload Profile
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleFileChange(e, "image")}
+                      />
+                    </label>
                   </div>
                 </div>
               </div>
