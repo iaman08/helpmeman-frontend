@@ -54,9 +54,9 @@ export default function SignInPage() {
       } else if (user.onboardingRole === "MENTEE") {
         dest = "/dashboard";
       }
-      router.replace(dest);
+      window.location.replace(dest);
     }
-  }, [user, mentor, loading, router]);
+  }, [user, mentor, loading]);
 
   // Cooldown countdown timer
   useEffect(() => {
@@ -98,10 +98,7 @@ export default function SignInPage() {
     setSubmitting(true);
     try {
       const dest = await login(email, password);
-      // Use router.push so Next.js uses the prefetched bundle (instant).
-      // window.location.replace would trigger a full-page reload, bypassing
-      // the prefetch cache and causing 20+ second compile times.
-      router.push(dest);
+      window.location.replace(dest);
     } catch (err) {
       if (err instanceof AxiosError && err.response?.status === 403 && err.response?.data?.requiresVerification) {
         setUnverifiedEmail(err.response.data.email || email);
@@ -134,7 +131,7 @@ export default function SignInPage() {
         password,
         otp,
       });
-      router.push(dest);
+      window.location.replace(dest);
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(err.response?.data?.error ?? "Verification failed. Please try again.");
@@ -177,7 +174,7 @@ export default function SignInPage() {
     setSubmitting(true);
     try {
       const dest = await login(demoEmail, demoPassword);
-      router.push(dest);
+      window.location.replace(dest);
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(err.response?.data?.error ?? "Login failed. Please try again.");

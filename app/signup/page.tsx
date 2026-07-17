@@ -53,9 +53,9 @@ export default function SignUpPage() {
       } else if (user.onboardingRole === "MENTEE") {
         dest = "/dashboard";
       }
-      router.replace(dest);
+      window.location.replace(dest);
     }
-  }, [user, mentor, loading, step, router]);
+  }, [user, mentor, loading, step]);
 
 
 
@@ -137,7 +137,7 @@ export default function SignUpPage() {
         phone: phone ? phone.trim() : undefined,
         otp,
       });
-      router.push(dest);
+      window.location.replace(dest);
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(
