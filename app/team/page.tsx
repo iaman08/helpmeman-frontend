@@ -574,32 +574,44 @@ export default function TeamPage() {
 
                 {/* Name, Badges, & Role details */}
                 <div className="flex-grow pb-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-xl font-bold tracking-tight text-zinc-900 leading-tight">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 leading-tight">
                       {selectedMember.fullName}
                     </h3>
-
+                    
                     {selectedMember.isVerified && (
-                      <span className="inline-flex" title="Verified HelpMeMan Member">
+                      <span className="inline-flex shrink-0" title="Verified HelpMeMan Member">
                         <CheckCircle2 className="w-4 h-4 text-indigo-600 fill-indigo-50" />
-                      </span>
-                    )}
-
-                    {selectedMember.isFounder && (
-                      <span className="text-[9px] bg-zinc-900 text-white px-2 py-0.5 rounded-md font-bold uppercase tracking-wider">
-                        Founder
-                      </span>
-                    )}
-                    {selectedMember.isLeadership && !selectedMember.isFounder && (
-                      <span className="text-[9px] bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded-md font-bold uppercase tracking-wider border border-zinc-200">
-                        Leadership
                       </span>
                     )}
                   </div>
 
-                  <p className="text-xs font-semibold text-zinc-500 mt-1">
-                    {selectedMember.role} · <span className="text-zinc-850 font-bold uppercase tracking-wider text-[10px] bg-zinc-100/80 px-2 py-0.5 rounded border border-zinc-200/50">{selectedMember.department}</span>
-                  </p>
+                  <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                    <span className="text-xs sm:text-sm font-semibold text-zinc-500">
+                      {selectedMember.role}
+                    </span>
+                    
+                    <span className="text-zinc-300 select-none">·</span>
+                    
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {/* Department Capsule */}
+                      <span className="text-[9px] sm:text-[10px] bg-zinc-50 text-zinc-700 font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border border-zinc-200">
+                        {selectedMember.department}
+                      </span>
+
+                      {/* Leadership / Founder Capsule */}
+                      {selectedMember.isFounder && (
+                        <span className="text-[9px] sm:text-[10px] bg-zinc-900 text-white px-2 py-0.5 rounded-md font-bold uppercase tracking-wider">
+                          Founder
+                        </span>
+                      )}
+                      {selectedMember.isLeadership && !selectedMember.isFounder && (
+                        <span className="text-[9px] sm:text-[10px] bg-zinc-50 text-zinc-700 font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border border-zinc-200">
+                          Leadership
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -681,47 +693,7 @@ export default function TeamPage() {
                   </div>
                 )}
 
-                {/* Skills, Languages, Interests Grid tag blocks */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-                  {selectedMember.skills?.length > 0 && (
-                    <div>
-                      <h4 className="text-[10px] uppercase tracking-wider font-extrabold text-zinc-400 mb-2 select-none">Skills</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {selectedMember.skills.map((s: string) => (
-                          <span key={s} className="text-[10px] bg-zinc-50 border border-zinc-200/60 text-zinc-700 font-semibold px-2 py-0.5 rounded-md">
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
 
-                  {selectedMember.languages?.length > 0 && (
-                    <div>
-                      <h4 className="text-[10px] uppercase tracking-wider font-extrabold text-zinc-400 mb-2 select-none">Languages</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {selectedMember.languages.map((l: string) => (
-                          <span key={l} className="text-[10px] bg-zinc-50 border border-zinc-200/60 text-zinc-750 font-semibold px-2 py-0.5 rounded-md">
-                            {l}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {selectedMember.interests?.length > 0 && (
-                    <div>
-                      <h4 className="text-[10px] uppercase tracking-wider font-extrabold text-zinc-400 mb-2 select-none">Interests</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {selectedMember.interests.map((i: string) => (
-                          <span key={i} className="text-[10px] bg-zinc-50 border border-zinc-200/60 text-zinc-700 font-semibold px-2 py-0.5 rounded-md">
-                            {i}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
 
                 {/* Meta details footer line */}
                 <div className="flex flex-wrap gap-x-6 gap-y-2 text-[10px] font-bold text-zinc-450 border-t border-zinc-100 pt-4 select-none">
