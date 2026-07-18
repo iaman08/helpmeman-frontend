@@ -155,10 +155,26 @@ export default function TeamPage() {
 
   // Timeline
   const milestones = [
-    { year: "2024", title: "Foundation", desc: "Established with the mission to build the world's most trusted, instant help exchange." },
-    { year: "Late 2024", title: "Alpha Deployment", desc: "Rolled out initial real-time socket chat, connecting our first cohort of mentors." },
-    { year: "2025", title: "Scale to 1K Bookings", desc: "Expanded subject fields and deployed AI copilot pipelines to guide users." },
-    { year: "2026", title: "Direct Integrations", desc: "Released direct Firebase notification triggers and AWS-S3 document verification." },
+    {
+      year: "2025",
+      title: "The Problem",
+      desc: "Faced the challenge of finding a mentor who had overcome the same JEE Chemistry struggles and reached a top IIT. Realized personalized mentor matching didn't exist."
+    },
+    {
+      year: "May 2026",
+      title: "Research & Discovery",
+      desc: "Conducted 100+ Google Meet conversations with students and professionals to understand the biggest gaps in mentorship and career guidance."
+    },
+    {
+      year: "June 2026",
+      title: "Idea Validation",
+      desc: "Successfully matched 40+ mentor-mentee pairs through my network and introduced an AI Copilot during Google Meet sessions to improve the mentorship experience."
+    },
+    {
+      year: "July 2026",
+      title: "Building HelpMeMan",
+      desc: "Started building HelpMeMan"
+    },
   ];
 
   const formatDate = (dateStr: string) => {
