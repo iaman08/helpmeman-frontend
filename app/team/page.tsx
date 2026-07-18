@@ -367,39 +367,6 @@ export default function TeamPage() {
         )}
       </section>
 
-      {/* ─── Team Statistics ─── */}
-      <section className="border-t border-b border-zinc-200 py-16 px-6 sm:px-10 bg-white select-none">
-        <div className="max-w-[1100px] mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-x-4 gap-y-8 md:gap-8 text-center md:divide-x md:divide-zinc-200">
-            {stats.map((stat, i) => (
-              <div key={i} className={`flex flex-col items-center justify-center px-4 ${i === 4 ? 'col-span-2 md:col-span-1' : ''}`}>
-                <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-900">
-                  <Counter value={stat.value} />
-                </span>
-                <span className="mt-2 text-[9px] font-bold text-zinc-400 uppercase tracking-wider">{stat.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Company Values ─── */}
-      <section className="max-w-[1200px] mx-auto px-6 sm:px-10 py-20 border-b border-zinc-200 select-none">
-        <div className="text-left mb-16">
-          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-400">Values</p>
-          <h2 className="text-2xl sm:text-3xl font-bold mt-2 font-display text-zinc-900">Our Operating Code</h2>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 border-t border-l border-zinc-200 bg-white shadow-sm rounded-2xl overflow-hidden">
-          {values.map((v, i) => (
-            <div key={i} className="border-r border-b border-zinc-200 p-8 hover:bg-zinc-50 transition-colors">
-              <span className="text-xs font-mono font-bold text-amber-500">0{i + 1}.</span>
-              <h3 className="font-bold text-base mt-2 text-zinc-900">{v.name}</h3>
-              <p className="mt-2 text-xs sm:text-sm text-zinc-500 leading-relaxed">{v.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* ─── Journey Timeline ─── */}
       <section className="max-w-[1200px] mx-auto px-6 sm:px-10 py-20 border-b border-zinc-200 select-none">
