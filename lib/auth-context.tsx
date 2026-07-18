@@ -75,16 +75,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const lastSyncedToken = useRef<string | null>(null);
   // Track whether the OAuth callback has been handled (prevents double processing)
   const callbackHandled = useRef(false);
-  // Track when an email/password login is in progress.
-  // The backend login() calls supabase.auth.signInWithPassword, which stores a
-  // Supabase session that the frontend Supabase client detects and fires SIGNED_IN
-  // for — BEFORE persist() has finished writing the user to localStorage.
-  // Without this guard, onAuthStateChange fires syncGoogleSession, which calls
-  // setLoading(true) and eventually window.location.replace — causing the loading
-  // loop and hard reload observed on admin login.
-  const emailPasswordInProgress = useRef(false);
 
   /* ─── Persist helper ─── */
+
   const persist = useCallback((data: AuthResponse): string => {
     localStorage.setItem(KEYS.access, data.accessToken);
     if (data.refreshToken) localStorage.setItem(KEYS.refresh, data.refreshToken);
@@ -255,11 +248,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session: Session | null) => {
-        console.log(`[AUTH] onAuthStateChange: event=${event}, hasSession=${!!session}, isOAuthFlow=${googleAuthRef.current}`);
+        const isOAuthCallback = googleAuthRef.current || (
+          typeof window !== "undefined" && (
+            window.location.hash.includes("access_token=") ||
+            window.location.search.includes("code=")
+          )
+        );
+
+        console.log(`[AUTH] onAuthStateChange: event=${event}, hasSession=${!!session}, isOAuthCallback=${isOAuthCallback}`);
 
         if (!session) return;
-
-        const isOAuthCallback = googleAuthRef.current;
 
         // ─── Event Filtering ───
         // INITIAL_SESSION: Only accept during an active OAuth callback.
@@ -274,46 +272,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        // ─── Email/password login guard ───
-        // The backend login calls supabase.auth.signInWithPassword, which makes
-        // the Supabase client-side SDK fire SIGNED_IN as soon as it detects the
-        // access_token in localStorage — potentially BEFORE persist() has written
-        // the helpmeman.user key. This causes the dedup check below to miss,
-        // syncGoogleSession fires, sets loading=true, and a hard reload follows.
-        // Skip the entire handler during any in-progress email/password login.
-        if (emailPasswordInProgress.current) {
-          console.log(`[AUTH] Skipping SIGNED_IN — email/password login in progress.`);
-          return;
+        // ─── Sync or Resolve Loader ───
+        if (isOAuthCallback) {
+          await syncGoogleSession(session.access_token, session.refresh_token ?? undefined);
+        } else {
+          // Non-OAuth background event (e.g. token refresh, local login, tab refocus)
+          // Ensure loader states are cleared
+          setLoading(false);
+          setGoogleAuthenticating(false);
         }
-
-        // ─── Deduplication for background SIGNED_IN events ───
-        // When NOT in an active OAuth callback, skip sync if we already have
-        // a matching session. Prevents redundant backend calls on tab refocus,
-        // window focus, or Supabase token-refresh events.
-        if (!isOAuthCallback) {
-          const existingStoredUser = localStorage.getItem(KEYS.user);
-          const existingToken = localStorage.getItem(KEYS.access);
-          if (existingStoredUser && existingToken) {
-            try {
-              const parsedUser = JSON.parse(existingStoredUser);
-              if (parsedUser?.email === session.user?.email) {
-                console.log("[AUTH] Skipping sync — session already established for this user.");
-                setLoading(false);
-                setGoogleAuthenticating(false);
-                return;
-              }
-            } catch { /* ignore parse errors */ }
-          }
-        }
-
-        // ─── Sync with backend ───
-        await syncGoogleSession(session.access_token, session.refresh_token ?? undefined);
       }
     );
 
     return () => subscription.unsubscribe();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [syncGoogleSession]);
+
 
   /* ─── Login (email / password) ─── */
   const login = useCallback(
@@ -344,25 +318,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
         return persist(mockData);
       }
-      // Block onAuthStateChange from processing the Supabase SIGNED_IN event
-      // that fires when the backend's supabase.auth.signInWithPassword creates
-      // a session. The event fires before persist() writes the user to
-      // localStorage, so the dedup check misses and syncGoogleSession would
-      // be called unnecessarily, causing setLoading(true) + hard reload.
-      emailPasswordInProgress.current = true;
-      try {
-        const { data } = await api.post<AuthResponse>("/auth/login", { email, password }, {
-          headers: { "x-show-loader": "true" }
-        });
-        return persist(data);
-      } finally {
-        // Clear the flag after persist() has written all keys to localStorage,
-        // so future SIGNED_IN events (e.g. token refresh) are handled normally.
-        emailPasswordInProgress.current = false;
-      }
+      const { data } = await api.post<AuthResponse>("/auth/login", { email, password }, {
+        headers: { "x-show-loader": "true" }
+      });
+      return persist(data);
     },
     [persist],
   );
+
 
 
   /* ─── Google Login — triggers full-page redirect to Google OAuth ─── */
