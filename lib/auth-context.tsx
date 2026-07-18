@@ -67,10 +67,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // true while Google OAuth is in progress (popup opened → backend sync done)
   const [googleAuthenticating, setGoogleAuthenticating] = useState(false);
 
+  // Ref to track intentional Google OAuth flow (accessible without stale closures)
+  const googleAuthRef = useRef(false);
   // Prevent duplicate concurrent /auth/google backend calls
   const syncInFlight = useRef(false);
   // Track the last token we synced so we skip identical repeat events
   const lastSyncedToken = useRef<string | null>(null);
+  // Track whether the OAuth callback has been handled (prevents double processing)
+  const callbackHandled = useRef(false);
 
   /* ─── Persist helper ─── */
   const persist = useCallback((data: AuthResponse): string => {
@@ -85,10 +89,81 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       document.cookie = `helpmeman.accessToken=${data.accessToken};path=/;max-age=31536000;SameSite=Lax;Secure`;
     } catch {}
+    // [DEBUG] setUser() is scheduled here — React will commit it asynchronously.
+    // If window.location.replace() fires before the next render cycle, this
+    // state update will be discarded (the component unmounts mid-batch).
+    console.log(`[AUTH:persist] setUser() SCHEDULED for ${data.user.email} (role: ${data.user.role}). React has NOT committed this yet.`);
     setUser(data.user);
     setMentor(data.mentor ?? null);
-    return getLoginDest(data.user, data.mentor ?? null);
+    const dest = getLoginDest(data.user, data.mentor ?? null);
+    console.log(`[AUTH:persist] Computed dest: ${dest}. Returning to caller.`);
+    return dest;
   }, []);
+
+  // [DEBUG] This effect fires ONLY when React has committed user state to the DOM.
+  // If navigation (window.location.replace) happens before this log prints,
+  // it proves the state update was discarded. After the fix (router.push),
+  // this log should appear BEFORE the destination page mounts.
+  useEffect(() => {
+    if (user) {
+      console.log(`[AUTH:committed] user state committed to React: ${user.email} (role: ${user.role})`);
+    } else {
+      console.log(`[AUTH:committed] user state committed to React: null`);
+    }
+  }, [user]);
+
+  /** Sync a Supabase/Google session with the HelpMeMan backend */
+  const syncGoogleSession = useCallback(
+    async (accessToken: string, refreshToken?: string) => {
+      // Guards: prevent duplicate/concurrent calls
+      if (callbackHandled.current) return;
+      if (syncInFlight.current) return;
+      if (lastSyncedToken.current === accessToken) return;
+
+      callbackHandled.current = true;
+      syncInFlight.current = true;
+      lastSyncedToken.current = accessToken;
+
+      console.log(`[AUTH] Syncing Google session. Token: ${accessToken.substring(0, 15)}...`);
+
+      try {
+        setLoading(true);
+        setGoogleAuthenticating(true);
+        googleAuthRef.current = true;
+
+        const t0 = Date.now();
+        const { data } = await api.post<AuthResponse>("/auth/google", {
+          accessToken,
+        }, {
+          headers: { "x-show-loader": "true" }
+        });
+        console.log(`[AUTH] Backend sync done in ${Date.now() - t0}ms. User: ${data.user.email}`);
+
+        // Persist tokens, user, mentor and compute redirect destination
+        const dest = persist({
+          ...data,
+          refreshToken: refreshToken || data.refreshToken,
+        });
+
+        console.log(`[AUTH] Redirecting to: ${dest}`);
+        window.location.replace(dest);
+      } catch (err: any) {
+        console.error("[AUTH] Backend sync failed:", err);
+        if (err.response) {
+          console.error("[AUTH] Response:", err.response.status, JSON.stringify(err.response.data, null, 2));
+        }
+        // Reset flags to allow retry
+        callbackHandled.current = false;
+        lastSyncedToken.current = null;
+        setLoading(false);
+        setGoogleAuthenticating(false);
+        googleAuthRef.current = false;
+      } finally {
+        syncInFlight.current = false;
+      }
+    },
+    [persist],
+  );
 
   /* ─── Hydrate from localStorage on mount ─── */
   useEffect(() => {
@@ -112,17 +187,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!isCallback) {
         setLoading(false);
       } else {
+        console.log("[AUTH] OAuth callback detected in URL");
         setGoogleAuthenticating(true);
-        // Fallback timer: if Supabase doesn't trigger state change within 5s, reset loading state
-        setTimeout(() => {
-          setLoading((currLoading) => {
-            if (currLoading) {
-              console.warn("[AUTH] Callback timeout exceeded. Resetting loading state.");
+        googleAuthRef.current = true;
+
+        // Fallback: if onAuthStateChange doesn't handle the callback within 5s,
+        // try getting the session directly from Supabase as a safety net.
+        setTimeout(async () => {
+          if (callbackHandled.current) return; // Already handled
+
+          console.warn("[AUTH] Fallback: onAuthStateChange didn't fire, checking session directly");
+          try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.access_token && !callbackHandled.current) {
+              console.log("[AUTH] Fallback: Found valid session, syncing");
+              await syncGoogleSession(session.access_token, session.refresh_token ?? undefined);
+            } else if (!callbackHandled.current) {
+              console.warn("[AUTH] Fallback: No session found");
               setGoogleAuthenticating(false);
-              return false;
+              googleAuthRef.current = false;
+              setLoading(false);
             }
-            return currLoading;
-          });
+          } catch (err) {
+            console.error("[AUTH] Fallback recovery failed:", err);
+            if (!callbackHandled.current) {
+              setGoogleAuthenticating(false);
+              googleAuthRef.current = false;
+              setLoading(false);
+            }
+          }
         }, 5000);
       }
 
@@ -154,102 +247,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session: Session | null) => {
-        // Only sync with the backend on an actual user-initiated sign-in.
-        // TOKEN_REFRESHED fires every time the tab regains focus — we must ignore it.
-        // INITIAL_SESSION fires on every page load — we must ignore it.
-        // USER_UPDATED may fire on profile changes — also skip unless it's a fresh login.
-        if (event !== "SIGNED_IN") return;
+        console.log(`[AUTH] onAuthStateChange: event=${event}, hasSession=${!!session}, isOAuthFlow=${googleAuthRef.current}`);
+
         if (!session) return;
 
-        // Key insight: deduplicate by Supabase user ID (sub), not by token.
-        // Supabase issues a NEW access_token on every token refresh, so using the
-        // token as a dedup key causes the guard to be bypassed on every tab return.
-        const supabaseUserId = session.user?.id;
+        const isOAuthCallback = googleAuthRef.current;
 
-        // If we already have a helpmeman session for this exact Supabase user,
-        // skip the backend sync. This covers: tab refocus, window focus, token refresh.
-        const existingStoredUser = localStorage.getItem(KEYS.user);
-        const existingToken = localStorage.getItem(KEYS.access);
-        if (existingStoredUser && existingToken && supabaseUserId) {
-          try {
-            const parsedUser = JSON.parse(existingStoredUser);
-            // If the stored user was synced from the same Supabase account, skip.
-            // The user.id in our DB is different from supabaseUserId but we track
-            // it via the email match or the lastSyncedToken sentinel below.
-            if (parsedUser?.email === session.user?.email && !googleAuthenticating) {
-              console.log("[AUTH] Skipping Google sync — session already established for this user.");
-              setLoading(false);
-              setGoogleAuthenticating(false);
-              return;
-            }
-          } catch { /* ignore parse errors */ }
+        // ─── Event Filtering ───
+        // INITIAL_SESSION: Only accept during an active OAuth callback.
+        //   Handles the race where Supabase processed URL tokens before
+        //   this listener was registered (the SIGNED_IN event was missed).
+        // SIGNED_IN: Always accept (subject to dedup for background events).
+        // All other events (TOKEN_REFRESHED, SIGNED_OUT, etc.): Ignore.
+        if (event === "INITIAL_SESSION") {
+          if (!isOAuthCallback) return;
+          console.log("[AUTH] Accepting INITIAL_SESSION during active OAuth callback");
+        } else if (event !== "SIGNED_IN") {
+          return;
         }
 
-        // Deduplicate: skip if a sync is already in flight
-        if (syncInFlight.current) return;
-        // Deduplicate: skip if this exact token was already synced in this session
-        const token = session.access_token;
-        if (lastSyncedToken.current === token) return;
-
-        syncInFlight.current = true;
-        lastSyncedToken.current = token;
-
-        const maskedToken = token ? `${token.substring(0, 15)}...[len=${token.length}]` : "null";
-        console.log(`[AUTH] Initiating Google session sync. Token (masked): ${maskedToken}`);
-
-        try {
-          setLoading(true);
-          setGoogleAuthenticating(true);
-
-          const t0 = Date.now();
-          console.log("[AUTH] POSTing token to backend at /auth/google...");
-          const { data } = await api.post<AuthResponse>("/auth/google", {
-            accessToken: token,
-          }, {
-            headers: { "x-show-loader": "true" }
-          });
-          console.log(`[AUTH] Google sync completed successfully in ${Date.now() - t0}ms`);
-
-          // Persist tokens & user
-          localStorage.setItem(KEYS.access, data.accessToken);
-          if (session.refresh_token) localStorage.setItem(KEYS.refresh, session.refresh_token);
-          localStorage.setItem(KEYS.user, JSON.stringify(data.user));
-          if (data.mentor) {
-            localStorage.setItem(KEYS.mentor, JSON.stringify(data.mentor));
-          } else {
-            localStorage.removeItem(KEYS.mentor);
+        // ─── Deduplication for background SIGNED_IN events ───
+        // When NOT in an active OAuth callback, skip sync if we already have
+        // a matching session. Prevents redundant backend calls on tab refocus,
+        // window focus, or Supabase token-refresh events.
+        if (!isOAuthCallback) {
+          const existingStoredUser = localStorage.getItem(KEYS.user);
+          const existingToken = localStorage.getItem(KEYS.access);
+          if (existingStoredUser && existingToken) {
+            try {
+              const parsedUser = JSON.parse(existingStoredUser);
+              if (parsedUser?.email === session.user?.email) {
+                console.log("[AUTH] Skipping sync — session already established for this user.");
+                setLoading(false);
+                setGoogleAuthenticating(false);
+                return;
+              }
+            } catch { /* ignore parse errors */ }
           }
-          document.cookie = `helpmeman.accessToken=${data.accessToken};path=/;max-age=31536000;SameSite=Lax;Secure`;
-
-          setUser(data.user);
-          setMentor(data.mentor ?? null);
-
-          // Redirect immediately — don't wait for anything else
-          const dest = getLoginDest(data.user, data.mentor ?? null);
-          window.location.replace(dest);
-        } catch (err: any) {
-          console.error("[AUTH] Failed to sync Google session:", err);
-          if (err.response) {
-            console.error("[AUTH] Backend Error Response Status:", err.response.status);
-            console.error("[AUTH] Backend Error Response Data:", JSON.stringify(err.response.data, null, 2));
-            console.error("[AUTH] Backend Error Response Headers:", err.response.headers);
-          } else if (err.request) {
-            console.error("[AUTH] No response received from backend. Request was:", err.request);
-          } else {
-            console.error("[AUTH] Error setting up sync request:", err.message);
-          }
-          lastSyncedToken.current = null; // allow retry
-          setLoading(false);
-          setGoogleAuthenticating(false);
-        } finally {
-          syncInFlight.current = false;
         }
+
+        // ─── Sync with backend ───
+        await syncGoogleSession(session.access_token, session.refresh_token ?? undefined);
       }
     );
 
     return () => subscription.unsubscribe();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [syncGoogleSession]);
 
   /* ─── Login (email / password) ─── */
   const login = useCallback(
@@ -288,30 +332,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [persist],
   );
 
-  /* ─── Google Login — popup opens instantly, modal can close immediately ─── */
+  /* ─── Google Login — triggers full-page redirect to Google OAuth ─── */
   const loginWithGoogle = useCallback(async (): Promise<void> => {
     // Signal that Google auth is in progress so the overlay shows
     setGoogleAuthenticating(true);
-    lastSyncedToken.current = null; // allow the upcoming SIGNED_IN event through
+    googleAuthRef.current = true;
+    lastSyncedToken.current = null;
+    callbackHandled.current = false;
 
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          // After OAuth redirect, land on signin page to perform the sync
           redirectTo: `${window.location.origin}/signin`,
           queryParams: {
-            // Prompt the account picker every time so the UX feels immediate
             prompt: "select_account",
           },
         },
       });
       if (error) throw error;
-      // signInWithOAuth with a popup resolves immediately after the popup opens.
-      // The actual auth result arrives via onAuthStateChange.
+      // signInWithOAuth triggers a full-page redirect to Google.
+      // After the user authenticates, Google redirects back to /signin.
+      // The onAuthStateChange listener (or the fallback timer) handles the rest.
     } catch (err) {
-      // If popup was blocked or closed, reset state
       setGoogleAuthenticating(false);
+      googleAuthRef.current = false;
       throw err;
     }
   }, []);

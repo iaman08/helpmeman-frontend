@@ -97,8 +97,16 @@ export default function SignInPage() {
 
     setSubmitting(true);
     try {
+      console.log(`[SIGNIN] login() called for ${email}`);
       const dest = await login(email, password);
-      window.location.replace(dest);
+      // [DEBUG] login() returned — persist() has called setUser() but React
+      // has NOT yet committed that state update to the DOM.
+      // BEFORE FIX: window.location.replace() would fire here, unmounting
+      //             AuthProvider before React could commit setUser().
+      // AFTER FIX:  router.push() is a soft navigation — AuthProvider stays
+      //             mounted, React commits the setUser() update, then navigates.
+      console.log(`[SIGNIN] login() resolved. dest=${dest}. Calling router.push() — React will commit setUser() before navigating.`);
+      router.push(dest);
     } catch (err) {
       if (err instanceof AxiosError && err.response?.status === 403 && err.response?.data?.requiresVerification) {
         setUnverifiedEmail(err.response.data.email || email);
@@ -125,13 +133,15 @@ export default function SignInPage() {
 
     setSubmitting(true);
     try {
+      console.log(`[SIGNIN] verifySignupOTP() called for ${unverifiedEmail}`);
       const dest = await verifySignupOTP({
         name: "", // Not needed as it resolved on backend for existing users
         email: unverifiedEmail.toLowerCase(),
         password,
         otp,
       });
-      window.location.replace(dest);
+      console.log(`[SIGNIN] verifySignupOTP() resolved. dest=${dest}. Calling router.push().`);
+      router.push(dest);
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(err.response?.data?.error ?? "Verification failed. Please try again.");
@@ -173,8 +183,10 @@ export default function SignInPage() {
     setError("");
     setSubmitting(true);
     try {
+      console.log(`[SIGNIN] demo login() called for ${demoEmail}`);
       const dest = await login(demoEmail, demoPassword);
-      window.location.replace(dest);
+      console.log(`[SIGNIN] demo login() resolved. dest=${dest}. Calling router.push().`);
+      router.push(dest);
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(err.response?.data?.error ?? "Login failed. Please try again.");

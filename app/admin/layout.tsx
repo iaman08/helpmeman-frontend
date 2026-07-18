@@ -43,6 +43,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   // Stable ref to prevent double-redirects during transient state updates
   const hasRedirectedRef = useRef(false);
+  // [DEBUG] Log what user value AdminLayout receives on its very first render.
+  // Before fix: user=null (state discarded by window.location.replace).
+  // After fix:  user=<email> (React committed state before router.push navigated).
+  const mountLoggedRef = useRef(false);
+  if (!mountLoggedRef.current) {
+    mountLoggedRef.current = true;
+    console.log(`[ADMIN:mount] AdminLayout first render — loading=${loading}, user=${user ? user.email : "null"}`);
+    console.log(`[ADMIN:mount] If user=null here, persist()'s setUser() was discarded by window.location.replace().`);
+  }
 
   useEffect(() => {
     if (loading) return;
