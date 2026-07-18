@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useEffect, type FormEvent } from "react";
+import { useState, useEffect, useRef, type FormEvent } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { AxiosError } from "axios";
 import OTPInput from "@/components/OTPInput";
@@ -27,6 +27,17 @@ export default function SignInPage() {
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
+  // Track when a form-handler has already initiated navigation so the redirect
+  // useEffect below doesn't fire a competing window.location.replace() on top
+  // of the router.push() that handleSubmit/handleDemoAccess already called.
+  // Without this guard: router.push("/admin") starts soft-nav → React commits
+  // setUser() → useEffect fires window.location.replace("/admin") → hard reload
+  // → AuthProvider re-mounts from scratch → loading loop.
+  // Stable React ref — survives re-renders. A plain object literal
+  // ({ current: false }) would be recreated on every render, resetting
+  // the flag and making the guard useless.
+  const isNavigatingRef = useRef(false);
+
   // Resend OTP states
   const [cooldown, setCooldown] = useState(0);
   const [resending, setResending] = useState(false);
@@ -43,8 +54,15 @@ export default function SignInPage() {
     router.prefetch("/onboarding");
   }, [router]);
 
-  // Redirect if already logged in (page-level guard, only fires on direct URL navigation)
+  // Redirect if already logged in — fires on direct URL navigation (/signin
+  // visited while already authenticated). Also fires after form submission when
+  // React commits setUser(), but isNavigatingRef guards against that case.
   useEffect(() => {
+    // Form handler has already called router.push() — don't race it with
+    // window.location.replace(). The router.push() soft navigation preserves
+    // the mounted AuthProvider and its committed user state.
+    if (isNavigatingRef.current) return;
+
     if (!loading && user) {
       let dest = "/onboarding";
       if (user.role === "ADMIN") {
@@ -54,8 +72,11 @@ export default function SignInPage() {
       } else if (user.onboardingRole === "MENTEE") {
         dest = "/dashboard";
       }
-      window.location.replace(dest);
+      // Use router.replace (soft nav) so AuthProvider stays mounted.
+      // This handles the "visit /signin while already logged in" case.
+      router.replace(dest);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, mentor, loading]);
 
   // Cooldown countdown timer
@@ -99,13 +120,10 @@ export default function SignInPage() {
     try {
       console.log(`[SIGNIN] login() called for ${email}`);
       const dest = await login(email, password);
-      // [DEBUG] login() returned — persist() has called setUser() but React
-      // has NOT yet committed that state update to the DOM.
-      // BEFORE FIX: window.location.replace() would fire here, unmounting
-      //             AuthProvider before React could commit setUser().
-      // AFTER FIX:  router.push() is a soft navigation — AuthProvider stays
-      //             mounted, React commits the setUser() update, then navigates.
-      console.log(`[SIGNIN] login() resolved. dest=${dest}. Calling router.push() — React will commit setUser() before navigating.`);
+      // Mark navigation as in-flight BEFORE router.push so the redirect
+      // useEffect (which fires when React commits setUser()) is suppressed.
+      isNavigatingRef.current = true;
+      console.log(`[SIGNIN] login() resolved. dest=${dest}. isNavigatingRef=true. Calling router.push().`);
       router.push(dest);
     } catch (err) {
       if (err instanceof AxiosError && err.response?.status === 403 && err.response?.data?.requiresVerification) {
@@ -140,6 +158,7 @@ export default function SignInPage() {
         password,
         otp,
       });
+      isNavigatingRef.current = true;
       console.log(`[SIGNIN] verifySignupOTP() resolved. dest=${dest}. Calling router.push().`);
       router.push(dest);
     } catch (err) {
@@ -185,6 +204,7 @@ export default function SignInPage() {
     try {
       console.log(`[SIGNIN] demo login() called for ${demoEmail}`);
       const dest = await login(demoEmail, demoPassword);
+      isNavigatingRef.current = true;
       console.log(`[SIGNIN] demo login() resolved. dest=${dest}. Calling router.push().`);
       router.push(dest);
     } catch (err) {
