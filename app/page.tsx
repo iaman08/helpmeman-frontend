@@ -30,20 +30,6 @@ function LandingPageContent() {
   });
 
   useEffect(() => {
-    if (!loading && user) {
-      let dest = "/onboarding";
-      if (user.role === "ADMIN") {
-        dest = "/admin";
-      } else if (user.role === "MENTOR" && mentor) {
-        dest = mentor.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status";
-      } else if (user.onboardingRole === "MENTEE") {
-        dest = "/dashboard";
-      }
-      router.push(dest);
-    }
-  }, [user, mentor, loading, router]);
-
-  useEffect(() => {
     if (authParam === "signin" || authParam === "signup") {
       setAuthModal({
         isOpen: true,
@@ -60,14 +46,8 @@ function LandingPageContent() {
     router.replace("/", { scroll: false });
   };
 
-  // Prevent flash of content if user is logged in
-  if (loading || user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0B0B0C]">
-        <div className="h-6 w-6 rounded-full border-2 border-white/20 border-t-white animate-spin" />
-      </div>
-    );
-  }
+  // The homepage is ALWAYS public. No redirect, no spinner.
+  // Authenticated users see the landing page content.
 
   return (
     <div className="landing-page" style={{ background: '#0B0B0C' }}>

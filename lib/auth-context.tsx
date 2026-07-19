@@ -51,9 +51,13 @@ const KEYS = {
   mentor: "helpmeman.mentor",
 } as const;
 
+/** Maximum time to wait for auth to resolve before forcing loading=false */
+const AUTH_LOADING_TIMEOUT_MS = 10_000;
+
 /** Compute the destination route after a successful login */
 function getLoginDest(u: User, m: MentorMeta | null): string {
-  if (u.role === "SUPER_ADMIN" || u.role === "ADMIN") return "/admin";
+  if (u.role === "SUPER_ADMIN") return "/superadmin";
+  if (u.role === "ADMIN") return "/admin";
   if (u.role === "MENTOR" && m) {
     return m.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status";
   }
@@ -92,28 +96,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       document.cookie = `helpmeman.accessToken=${data.accessToken};path=/;max-age=31536000;SameSite=Lax;Secure`;
     } catch {}
-    // [DEBUG] setUser() is scheduled here — React will commit it asynchronously.
-    // If window.location.replace() fires before the next render cycle, this
-    // state update will be discarded (the component unmounts mid-batch).
-    console.log(`[AUTH:persist] setUser() SCHEDULED for ${data.user.email} (role: ${data.user.role}). React has NOT committed this yet.`);
     setUser(data.user);
     setMentor(data.mentor ?? null);
     const dest = getLoginDest(data.user, data.mentor ?? null);
-    console.log(`[AUTH:persist] Computed dest: ${dest}. Returning to caller.`);
     return dest;
   }, []);
-
-  // [DEBUG] This effect fires ONLY when React has committed user state to the DOM.
-  // If navigation (window.location.replace) happens before this log prints,
-  // it proves the state update was discarded. After the fix (router.push),
-  // this log should appear BEFORE the destination page mounts.
-  useEffect(() => {
-    if (user) {
-      console.log(`[AUTH:committed] user state committed to React: ${user.email} (role: ${user.role})`);
-    } else {
-      console.log(`[AUTH:committed] user state committed to React: null`);
-    }
-  }, [user]);
 
   /** Sync a Supabase/Google session with the HelpMeMan backend */
   const syncGoogleSession = useCallback(
@@ -127,20 +114,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       syncInFlight.current = true;
       lastSyncedToken.current = accessToken;
 
-      console.log(`[AUTH] Syncing Google session. Token: ${accessToken.substring(0, 15)}...`);
-
       try {
         setLoading(true);
         setGoogleAuthenticating(true);
         googleAuthRef.current = true;
 
-        const t0 = Date.now();
         const { data } = await api.post<AuthResponse>("/auth/google", {
           accessToken,
         }, {
           headers: { "x-show-loader": "true" }
         });
-        console.log(`[AUTH] Backend sync done in ${Date.now() - t0}ms. User: ${data.user.email}`);
 
         // Persist tokens, user, mentor and compute redirect destination
         const dest = persist({
@@ -148,13 +131,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           refreshToken: refreshToken || data.refreshToken,
         });
 
-        console.log(`[AUTH] Redirecting to: ${dest}`);
-        window.location.replace(dest);
+        // Use router.push instead of window.location.replace to prevent
+        // discarding the React state update. router.push is async-safe and
+        // lets React commit the setUser() call before navigating.
+        setLoading(false);
+        setGoogleAuthenticating(false);
+        router.push(dest);
       } catch (err: any) {
         console.error("[AUTH] Backend sync failed:", err);
-        if (err.response) {
-          console.error("[AUTH] Response:", err.response.status, JSON.stringify(err.response.data, null, 2));
-        }
         // Reset flags to allow retry
         callbackHandled.current = false;
         lastSyncedToken.current = null;
@@ -165,8 +149,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         syncInFlight.current = false;
       }
     },
-    [persist],
+    [persist, router],
   );
+
+  /* ─── Loading timeout safety net ─── */
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading((prev) => {
+        if (prev) {
+          console.warn("[AUTH] Loading timeout reached, forcing loading=false");
+          return false;
+        }
+        return prev;
+      });
+      setGoogleAuthenticating(false);
+    }, AUTH_LOADING_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, []);
 
   /* ─── Hydrate from localStorage on mount ─── */
   useEffect(() => {
@@ -190,7 +189,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!isCallback) {
         setLoading(false);
       } else {
-        console.log("[AUTH] OAuth callback detected in URL");
         setGoogleAuthenticating(true);
         googleAuthRef.current = true;
 
@@ -203,10 +201,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           try {
             const { data: { session } } = await supabase.auth.getSession();
             if (session?.access_token && !callbackHandled.current) {
-              console.log("[AUTH] Fallback: Found valid session, syncing");
               await syncGoogleSession(session.access_token, session.refresh_token ?? undefined);
             } else if (!callbackHandled.current) {
-              console.warn("[AUTH] Fallback: No session found");
               setGoogleAuthenticating(false);
               googleAuthRef.current = false;
               setLoading(false);
@@ -244,6 +240,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch { /* backend unreachable */ }
     }
     hydrate();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /* ─── Supabase Auth State Listener (Google OAuth) ─── */
@@ -257,29 +254,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           )
         );
 
-        console.log(`[AUTH] onAuthStateChange: event=${event}, hasSession=${!!session}, isOAuthCallback=${isOAuthCallback}`);
-
         if (!session) return;
 
-        // ─── Event Filtering ───
         // INITIAL_SESSION: Only accept during an active OAuth callback.
-        //   Handles the race where Supabase processed URL tokens before
-        //   this listener was registered (the SIGNED_IN event was missed).
         // SIGNED_IN: Always accept (subject to dedup for background events).
-        // All other events (TOKEN_REFRESHED, SIGNED_OUT, etc.): Ignore.
+        // All other events: Ignore.
         if (event === "INITIAL_SESSION") {
           if (!isOAuthCallback) return;
-          console.log("[AUTH] Accepting INITIAL_SESSION during active OAuth callback");
         } else if (event !== "SIGNED_IN") {
           return;
         }
 
-        // ─── Sync or Resolve Loader ───
         if (isOAuthCallback) {
           await syncGoogleSession(session.access_token, session.refresh_token ?? undefined);
         } else {
-          // Non-OAuth background event (e.g. token refresh, local login, tab refocus)
-          // Ensure loader states are cleared
+          // Non-OAuth background event
           setLoading(false);
           setGoogleAuthenticating(false);
         }
@@ -294,33 +283,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /* ─── Login (email / password) ─── */
   const login = useCallback(
     async (email: string, password: string): Promise<string> => {
-      const DEMO_USERS: Record<string, { role: "SUPER_ADMIN" | "ADMIN" | "MENTOR" | "STUDENT"; name: string }> = {
-        "official.diljha@gmail.com": { role: "SUPER_ADMIN", name: "Super Admin" },
-        "admin@helpmeman.com":  { role: "ADMIN",  name: "Demo Admin" },
-        "mentor@helpmeman.com": { role: "MENTOR", name: "Demo Mentor" },
-        "student@helpmeman.com": { role: "STUDENT",  name: "Demo Student" },
-      };
-      const isDemoPassword = password === "mock123" || password === "password123";
-      if (isDemoPassword && DEMO_USERS[email.toLowerCase()]) {
-        const { role, name } = DEMO_USERS[email.toLowerCase()];
-        const mockUser: User = {
-          id: `demo_${role.toLowerCase()}`,
-          name,
-          email: email.toLowerCase(),
-          role,
-          avatar: null,
-          isEmailVerified: true,
-          createdAt: new Date().toISOString(),
-        };
-        const tokenRole = role === "STUDENT" ? "student" : role.toLowerCase();
-        const mockData: AuthResponse = {
-          accessToken: `demo_${tokenRole}_token`,
-          refreshToken: "demo_refresh_token",
-          user: mockUser,
-          mentor: role === "MENTOR" ? { id: "demo_mentor_id", approvalStatus: "APPROVED", isActive: true } : null,
-        };
-        return persist(mockData);
-      }
       const { data } = await api.post<AuthResponse>("/auth/login", { email, password }, {
         headers: { "x-show-loader": "true" }
       });
@@ -422,7 +384,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem(KEYS.mentor);
       }
     } catch { /* silent */ }
-  }, [user]);
+  }, []);
 
   /* ─── Update user locally (optimistic) ─── */
   const updateUser = useCallback((updates: Partial<User>) => {

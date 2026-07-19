@@ -203,25 +203,6 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
     }
   }
 
-  const handleDemoAccess = async (demoEmail: string, demoPassword: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPassword);
-    setError("");
-    setSubmitting(true);
-    try {
-      await login(demoEmail, demoPassword);
-      onClose();
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        setError(err.response?.data?.error ?? "Login failed. Please try again.");
-      } else {
-        setError("Something went wrong. Please try again.");
-      }
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">

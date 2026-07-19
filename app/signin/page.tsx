@@ -28,14 +28,9 @@ export default function SignInPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
 
   // Track when a form-handler has already initiated navigation so the redirect
-  // useEffect below doesn't fire a competing window.location.replace() on top
-  // of the router.push() that handleSubmit/handleDemoAccess already called.
-  // Without this guard: router.push("/admin") starts soft-nav → React commits
-  // setUser() → useEffect fires window.location.replace("/admin") → hard reload
-  // → AuthProvider re-mounts from scratch → loading loop.
-  // Stable React ref — survives re-renders. A plain object literal
-  // ({ current: false }) would be recreated on every render, resetting
-  // the flag and making the guard useless.
+  // useEffect below doesn't fire a competing router.replace() on top of
+  // the router.push() that handleSubmit already called.
+  // Stable React ref — survives re-renders without triggering re-renders.
   const isNavigatingRef = useRef(false);
 
   // Resend OTP states
@@ -65,7 +60,9 @@ export default function SignInPage() {
 
     if (!loading && user) {
       let dest = "/onboarding";
-      if (user.role === "ADMIN") {
+      if (user.role === "SUPER_ADMIN") {
+        dest = "/superadmin";
+      } else if (user.role === "ADMIN") {
         dest = "/admin";
       } else if (user.role === "MENTOR" && mentor) {
         dest = mentor.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status";
@@ -118,12 +115,10 @@ export default function SignInPage() {
 
     setSubmitting(true);
     try {
-      console.log(`[SIGNIN] login() called for ${email}`);
       const dest = await login(email, password);
       // Mark navigation as in-flight BEFORE router.push so the redirect
       // useEffect (which fires when React commits setUser()) is suppressed.
       isNavigatingRef.current = true;
-      console.log(`[SIGNIN] login() resolved. dest=${dest}. isNavigatingRef=true. Calling router.push().`);
       router.push(dest);
     } catch (err) {
       if (err instanceof AxiosError && err.response?.status === 403 && err.response?.data?.requiresVerification) {
@@ -151,7 +146,6 @@ export default function SignInPage() {
 
     setSubmitting(true);
     try {
-      console.log(`[SIGNIN] verifySignupOTP() called for ${unverifiedEmail}`);
       const dest = await verifySignupOTP({
         name: "", // Not needed as it resolved on backend for existing users
         email: unverifiedEmail.toLowerCase(),
@@ -159,7 +153,6 @@ export default function SignInPage() {
         otp,
       });
       isNavigatingRef.current = true;
-      console.log(`[SIGNIN] verifySignupOTP() resolved. dest=${dest}. Calling router.push().`);
       router.push(dest);
     } catch (err) {
       if (err instanceof AxiosError) {
@@ -196,27 +189,7 @@ export default function SignInPage() {
     }
   }
 
-  const handleDemoAccess = async (demoEmail: string, demoPassword: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPassword);
-    setError("");
-    setSubmitting(true);
-    try {
-      console.log(`[SIGNIN] demo login() called for ${demoEmail}`);
-      const dest = await login(demoEmail, demoPassword);
-      isNavigatingRef.current = true;
-      console.log(`[SIGNIN] demo login() resolved. dest=${dest}. Calling router.push().`);
-      router.push(dest);
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        setError(err.response?.data?.error ?? "Login failed. Please try again.");
-      } else {
-        setError("Something went wrong. Please try again.");
-      }
-    } finally {
-      setSubmitting(false);
-    }
-  };
+
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-[#0A0A0B] flex flex-col justify-center items-center py-12 px-6 sm:px-6 lg:px-8 transition-colors duration-300">

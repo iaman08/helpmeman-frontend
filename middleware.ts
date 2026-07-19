@@ -5,7 +5,7 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get("helpmeman.accessToken")?.value;
   const { pathname } = request.nextUrl;
 
-  const protectedPaths = ["/dashboard", "/mentor", "/admin", "/onboarding"];
+  const protectedPaths = ["/dashboard", "/mentor", "/admin", "/superadmin", "/onboarding"];
   const isProtected = protectedPaths.some(
     (path) => pathname === path || pathname.startsWith(`${path}/`)
   );
@@ -36,6 +36,7 @@ export const config = {
     "/dashboard/:path*",
     "/mentor/:path*",
     "/admin/:path*",
+    "/superadmin/:path*",
     "/onboarding/:path*",
   ],
 };

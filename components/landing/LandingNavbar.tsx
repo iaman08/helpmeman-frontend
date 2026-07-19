@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
 
 const navLinks = [
   { label: "Mentors", id: "mentors" },
@@ -14,6 +15,18 @@ const navLinks = [
 export function LandingNavbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { user, mentor, loading } = useAuth();
+
+  /** Compute the correct dashboard path for the current user */
+  const dashboardPath = useMemo(() => {
+    if (!user) return "/dashboard";
+    if (user.role === "SUPER_ADMIN") return "/superadmin";
+    if (user.role === "ADMIN") return "/admin";
+    if (user.role === "MENTOR" && mentor) {
+      return mentor.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status";
+    }
+    return "/dashboard";
+  }, [user, mentor]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,6 +41,8 @@ export function LandingNavbar() {
     setMobileOpen(false);
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
+
+  const isLoggedIn = !loading && user;
 
   return (
     <nav className={`landing-nav-capsule ${scrolled ? "nav-scrolled" : ""}`}>
@@ -57,27 +72,38 @@ export function LandingNavbar() {
           ))}
         </div>
 
-        {/* Right side: CTA buttons (appear on scroll) */}
+        {/* Right side: CTA buttons */}
         <div className="flex items-center gap-2.5">
           <div
             className={`hidden md:flex items-center gap-2.5 transition-all duration-300 origin-right ${
               scrolled
-                ? "opacity-100 translate-x-0 pointer-events-auto w-auto max-w-[200px]"
+                ? "opacity-100 translate-x-0 pointer-events-auto w-auto max-w-[250px]"
                 : "opacity-0 translate-x-3 pointer-events-none w-0 max-w-0 overflow-hidden"
             }`}
           >
-            <Link
-              href="/?auth=signin"
-              className="text-[13px] font-medium text-[var(--muted)] hover:text-[var(--fg)] transition-colors no-underline px-2 py-1 whitespace-nowrap"
-            >
-              Log in
-            </Link>
-            <Link
-              href="/?auth=signup"
-              className="text-[12px] font-semibold text-[var(--bg)] bg-[var(--fg)] px-4 py-2 rounded-full hover:opacity-90 active:scale-[0.98] transition-all no-underline whitespace-nowrap"
-            >
-              Join for free
-            </Link>
+            {isLoggedIn ? (
+              <Link
+                href={dashboardPath}
+                className="text-[12px] font-semibold text-[var(--bg)] bg-[var(--fg)] px-4 py-2 rounded-full hover:opacity-90 active:scale-[0.98] transition-all no-underline whitespace-nowrap"
+              >
+                Go to Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/?auth=signin"
+                  className="text-[13px] font-medium text-[var(--muted)] hover:text-[var(--fg)] transition-colors no-underline px-2 py-1 whitespace-nowrap"
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/?auth=signup"
+                  className="text-[12px] font-semibold text-[var(--bg)] bg-[var(--fg)] px-4 py-2 rounded-full hover:opacity-90 active:scale-[0.98] transition-all no-underline whitespace-nowrap"
+                >
+                  Join for free
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Hamburger */}
@@ -105,18 +131,29 @@ export function LandingNavbar() {
               ))}
             </div>
             <div className="border-t border-[var(--hairline)] mt-2 pt-3 flex gap-2">
-              <Link
-                href="/?auth=signin"
-                className="flex-1 text-center py-2.5 text-[13px] font-medium text-[var(--fg)] border border-[var(--hairline)] rounded-lg no-underline"
-              >
-                Log in
-              </Link>
-              <Link
-                href="/?auth=signup"
-                className="flex-1 text-center py-2.5 text-[13px] font-semibold text-[var(--bg)] bg-[var(--fg)] rounded-lg no-underline"
-              >
-                Join for free
-              </Link>
+              {isLoggedIn ? (
+                <Link
+                  href={dashboardPath}
+                  className="flex-1 text-center py-2.5 text-[13px] font-semibold text-[var(--bg)] bg-[var(--fg)] rounded-lg no-underline"
+                >
+                  Go to Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/?auth=signin"
+                    className="flex-1 text-center py-2.5 text-[13px] font-medium text-[var(--fg)] border border-[var(--hairline)] rounded-lg no-underline"
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    href="/?auth=signup"
+                    className="flex-1 text-center py-2.5 text-[13px] font-semibold text-[var(--bg)] bg-[var(--fg)] rounded-lg no-underline"
+                  >
+                    Join for free
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}
