@@ -47,6 +47,17 @@ export default function SignInPage() {
     router.prefetch("/mentor/status");
     router.prefetch("/admin");
     router.prefetch("/onboarding");
+
+    // Auto-fix corrupted OAuth states
+    if (typeof window !== "undefined" && window.location.search.includes("bad_oauth_state")) {
+      console.warn("Detected bad_oauth_state. Clearing corrupted local data.");
+      localStorage.clear();
+      sessionStorage.clear();
+      document.cookie = "helpmeman.accessToken=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+      // Remove the error from the URL so it doesn't loop
+      window.history.replaceState({}, document.title, window.location.pathname);
+      window.location.reload();
+    }
   }, [router]);
 
   // Redirect if already logged in — fires on direct URL navigation (/signin
