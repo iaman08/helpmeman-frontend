@@ -1,4 +1,4 @@
-export type Role = "USER" | "MENTOR" | "ADMIN";
+export type Role = "SUPER_ADMIN" | "ADMIN" | "MENTOR" | "STUDENT";
 export type InstitutionType = "COLLEGE" | "COMPANY" | "STARTUP";
 export type ApprovalStatus = "PENDING" | "APPROVED" | "REJECTED";
 export type BookingStatus =

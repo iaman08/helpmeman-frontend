@@ -36,8 +36,10 @@ interface AuthState {
   refreshUser: () => Promise<void>;
   updateUser: (updates: Partial<User>) => void;
   isUser: boolean;
+  isStudent: boolean;
   isMentor: boolean;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
 }
 
 const AuthCtx = createContext<AuthState | null>(null);
@@ -51,7 +53,7 @@ const KEYS = {
 
 /** Compute the destination route after a successful login */
 function getLoginDest(u: User, m: MentorMeta | null): string {
-  if (u.role === "ADMIN") return "/admin";
+  if (u.role === "SUPER_ADMIN" || u.role === "ADMIN") return "/admin";
   if (u.role === "MENTOR" && m) {
     return m.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status";
   }
@@ -292,10 +294,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /* ─── Login (email / password) ─── */
   const login = useCallback(
     async (email: string, password: string): Promise<string> => {
-      const DEMO_USERS: Record<string, { role: "ADMIN" | "MENTOR" | "USER"; name: string }> = {
+      const DEMO_USERS: Record<string, { role: "SUPER_ADMIN" | "ADMIN" | "MENTOR" | "STUDENT"; name: string }> = {
+        "official.diljha@gmail.com": { role: "SUPER_ADMIN", name: "Super Admin" },
         "admin@helpmeman.com":  { role: "ADMIN",  name: "Demo Admin" },
         "mentor@helpmeman.com": { role: "MENTOR", name: "Demo Mentor" },
-        "student@helpmeman.com": { role: "USER",  name: "Demo Student" },
+        "student@helpmeman.com": { role: "STUDENT",  name: "Demo Student" },
       };
       const isDemoPassword = password === "mock123" || password === "password123";
       if (isDemoPassword && DEMO_USERS[email.toLowerCase()]) {
@@ -309,7 +312,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           isEmailVerified: true,
           createdAt: new Date().toISOString(),
         };
-        const tokenRole = role === "USER" ? "student" : role.toLowerCase();
+        const tokenRole = role === "STUDENT" ? "student" : role.toLowerCase();
         const mockData: AuthResponse = {
           accessToken: `demo_${tokenRole}_token`,
           refreshToken: "demo_refresh_token",
@@ -444,9 +447,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       logout,
       refreshUser,
       updateUser,
-      isUser: user?.role === "USER",
+      isUser: user?.role === "STUDENT",
+      isStudent: user?.role === "STUDENT",
       isMentor: user?.role === "MENTOR",
-      isAdmin: user?.role === "ADMIN",
+      isAdmin: user?.role === "ADMIN" || user?.role === "SUPER_ADMIN",
+      isSuperAdmin: user?.role === "SUPER_ADMIN",
     }),
     [user, mentor, loading, googleAuthenticating, login, loginWithGoogle, register, verifySignupOTP, logout, refreshUser, updateUser],
   );
