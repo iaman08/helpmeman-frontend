@@ -46,8 +46,28 @@ function LandingPageContent() {
     router.replace("/", { scroll: false });
   };
 
-  // The homepage is ALWAYS public. No redirect, no spinner.
-  // Authenticated users see the landing page content.
+  // On Mobile & Tablet (< 1024px), authenticated users bypass the landing page
+  // and are redirected directly to their dashboard. On Desktop (>= 1024px), they view the landing page.
+  useEffect(() => {
+    const checkMobileRedirect = () => {
+      if (!loading && user && typeof window !== "undefined" && window.innerWidth < 1024) {
+        let dest = "/dashboard";
+        if (user.role === "SUPER_ADMIN") dest = "/superadmin";
+        else if (user.role === "ADMIN") dest = "/admin";
+        else if (user.role === "MENTOR" && mentor) {
+          dest = mentor.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status";
+        } else if (user.onboardingRole === "MENTEE") dest = "/dashboard";
+        else dest = "/onboarding";
+        router.replace(dest);
+      }
+    };
+
+    checkMobileRedirect();
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", checkMobileRedirect);
+      return () => window.removeEventListener("resize", checkMobileRedirect);
+    }
+  }, [user, mentor, loading, router]);
 
   return (
     <div className="landing-page" style={{ background: '#0B0B0C' }}>

@@ -9,6 +9,8 @@ import PasswordStrength from "@/components/PasswordStrength";
 import { X, Eye, EyeOff } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
+import { useRouter } from "next/navigation";
+
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -16,6 +18,7 @@ interface AuthModalProps {
 }
 
 export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalProps) {
+  const router = useRouter();
   const { login, register, verifySignupOTP, loginWithGoogle } = useAuth();
   const [mode, setMode] = useState<"signin" | "signup">(initialMode);
 
@@ -92,8 +95,11 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
 
     setSubmitting(true);
     try {
-      await login(email, password);
+      const dest = await login(email, password);
       onClose();
+      if (dest) {
+        router.push(dest);
+      }
     } catch (err) {
       if (err instanceof AxiosError && err.response?.status === 403 && err.response?.data?.requiresVerification) {
         setUnverifiedEmail(err.response.data.email || email);
@@ -160,7 +166,7 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
 
     setSubmitting(true);
     try {
-      await verifySignupOTP({
+      const dest = await verifySignupOTP({
         name: mode === "signup" ? name.trim() : "",
         email: unverifiedEmail.toLowerCase(),
         password,
@@ -168,6 +174,9 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
         otp,
       });
       onClose();
+      if (dest) {
+        router.push(dest);
+      }
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(err.response?.data?.error ?? "Verification failed. Please try again.");

@@ -381,93 +381,95 @@ export default function AdminTeamPage() {
     }
 
     return (
-      <div className="flex flex-col gap-2">
-        {/* Table Head */}
-        <div className="grid grid-cols-12 gap-4 px-5 py-2 text-[10px] uppercase tracking-[0.22em] text-(--muted) font-semibold select-none">
-          <span className="col-span-3">Name</span>
-          <span className="col-span-3">Role / Department</span>
-          <span className="col-span-2">Presence State</span>
-          <span className="col-span-2">Mentorship / Verified</span>
-          <span className="col-span-2 text-right">Actions</span>
-        </div>
-
-        {/* Rows */}
-        {list.map((m: any) => (
-          <div
-            key={m.id}
-            className="grid grid-cols-12 gap-4 items-center rounded-xl bg-(--fg)/[0.02] border border-(--hairline)/30 hover:border-(--hairline) px-5 py-3.5 text-sm transition-all"
-          >
-            <div className="col-span-3 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg overflow-hidden bg-zinc-100 border border-(--hairline) shrink-0">
-                <img
-                  src={m.imageUrl || "/avatar_placeholder.jpg"}
-                  alt={m.fullName}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="truncate">
-                <p className="font-semibold text-(--fg) truncate flex items-center gap-1">
-                  {m.fullName}
-                  {m.isFounder && <span className="text-[9px] bg-amber-500/10 text-amber-600 px-1.5 py-0.5 rounded">F</span>}
-                </p>
-                <p className="text-[11px] text-(--muted) truncate">@{m.username}</p>
-              </div>
-            </div>
-
-            <div className="col-span-3 truncate">
-              <p className="font-medium text-(--fg) truncate">{m.role}</p>
-              <p className="text-xs text-(--muted) font-medium">{m.department}</p>
-            </div>
-
-            <span className="col-span-2 flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${
-                m.status === "ONLINE" ? "bg-emerald-500" :
-                m.status === "AWAY" ? "bg-amber-500" : "bg-zinc-400"
-              }`} />
-              <span className="text-xs font-semibold text-(--fg)/80">{m.status}</span>
-            </span>
-
-            <div className="col-span-2 flex flex-col gap-1">
-              <button
-                onClick={() => handleToggleVerify(m.id, m.isVerified)}
-                className={`text-[10px] font-bold px-2 py-0.5 rounded self-start flex items-center gap-1 cursor-pointer transition-colors ${
-                  m.isVerified
-                    ? "bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20"
-                    : "bg-(--fg)/5 text-(--muted) hover:bg-(--fg)/10"
-                }`}
-              >
-                {m.isVerified ? "✓ Verified" : "Verify"}
-              </button>
-              <span className="text-[10px] text-(--muted) font-semibold pl-2">
-                {m.availableForMentorship ? "Bookable" : "Not Bookable"}
-              </span>
-            </div>
-
-            <div className="col-span-2 flex items-center justify-end gap-2">
-              <button
-                onClick={() => handleOpenEdit(m)}
-                className="p-1.5 rounded-lg hover:bg-(--fg)/5 text-(--muted) hover:text-(--fg) transition-all cursor-pointer"
-                title="Edit member"
-              >
-                <Edit2 className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => handleToggleArchive(m.id, m.isActive)}
-                className="p-1.5 rounded-lg hover:bg-(--fg)/5 text-(--muted) hover:text-amber-600 transition-all cursor-pointer"
-                title={m.isActive ? "Archive profile" : "Restore profile"}
-              >
-                <Archive className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => handleDelete(m.id)}
-                className="p-1.5 rounded-lg hover:bg-red-500/5 text-(--muted) hover:text-red-500 transition-all cursor-pointer"
-                title="Delete permanently"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
+      <div className="w-full overflow-x-auto pb-2">
+        <div className="min-w-[750px] flex flex-col gap-2">
+          {/* Table Head */}
+          <div className="grid grid-cols-12 gap-4 px-5 py-2 text-[10px] uppercase tracking-[0.22em] text-(--muted) font-semibold select-none">
+            <span className="col-span-3">Name</span>
+            <span className="col-span-3">Role / Department</span>
+            <span className="col-span-2">Presence State</span>
+            <span className="col-span-2">Mentorship / Verified</span>
+            <span className="col-span-2 text-right">Actions</span>
           </div>
-        ))}
+
+          {/* Rows */}
+          {list.map((m: any) => (
+            <div
+              key={m.id}
+              className="grid grid-cols-12 gap-4 items-center rounded-xl bg-(--fg)/[0.02] border border-(--hairline)/30 hover:border-(--hairline) px-5 py-3.5 text-sm transition-all"
+            >
+              <div className="col-span-3 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg overflow-hidden bg-zinc-100 border border-(--hairline) shrink-0">
+                  <img
+                    src={m.imageUrl || "/avatar_placeholder.jpg"}
+                    alt={m.fullName}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="truncate">
+                  <p className="font-semibold text-(--fg) truncate flex items-center gap-1">
+                    {m.fullName}
+                    {m.isFounder && <span className="text-[9px] bg-amber-500/10 text-amber-600 px-1.5 py-0.5 rounded">F</span>}
+                  </p>
+                  <p className="text-[11px] text-(--muted) truncate">@{m.username}</p>
+                </div>
+              </div>
+
+              <div className="col-span-3 truncate">
+                <p className="font-medium text-(--fg) truncate">{m.role}</p>
+                <p className="text-xs text-(--muted) font-medium">{m.department}</p>
+              </div>
+
+              <span className="col-span-2 flex items-center gap-2">
+                <span className={`w-2 h-2 rounded-full ${
+                  m.status === "ONLINE" ? "bg-emerald-500" :
+                  m.status === "AWAY" ? "bg-amber-500" : "bg-zinc-400"
+                }`} />
+                <span className="text-xs font-semibold text-(--fg)/80">{m.status}</span>
+              </span>
+
+              <div className="col-span-2 flex flex-col gap-1">
+                <button
+                  onClick={() => handleToggleVerify(m.id, m.isVerified)}
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded self-start flex items-center gap-1 cursor-pointer transition-colors ${
+                    m.isVerified
+                      ? "bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20"
+                      : "bg-(--fg)/5 text-(--muted) hover:bg-(--fg)/10"
+                  }`}
+                >
+                  {m.isVerified ? "✓ Verified" : "Verify"}
+                </button>
+                <span className="text-[10px] text-(--muted) font-semibold pl-2">
+                  {m.availableForMentorship ? "Bookable" : "Not Bookable"}
+                </span>
+              </div>
+
+              <div className="col-span-2 flex items-center justify-end gap-2">
+                <button
+                  onClick={() => handleOpenEdit(m)}
+                  className="p-1.5 rounded-lg hover:bg-(--fg)/5 text-(--muted) hover:text-(--fg) transition-all cursor-pointer"
+                  title="Edit member"
+                >
+                  <Edit2 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleToggleArchive(m.id, m.isActive)}
+                  className="p-1.5 rounded-lg hover:bg-(--fg)/5 text-(--muted) hover:text-amber-600 transition-all cursor-pointer"
+                  title={m.isActive ? "Archive profile" : "Restore profile"}
+                >
+                  <Archive className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleDelete(m.id)}
+                  className="p-1.5 rounded-lg hover:bg-red-500/5 text-(--muted) hover:text-red-500 transition-all cursor-pointer"
+                  title="Delete permanently"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   };

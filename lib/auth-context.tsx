@@ -54,8 +54,14 @@ const KEYS = {
 /** Maximum time to wait for auth to resolve before forcing loading=false */
 const AUTH_LOADING_TIMEOUT_MS = 10_000;
 
-/** Compute the destination route after a successful login */
+/** Compute the destination route after a successful login based on screen size */
 function getLoginDest(u: User, m: MentorMeta | null): string {
+  const isDesktop = typeof window !== "undefined" && window.innerWidth >= 1024;
+  if (isDesktop) {
+    return "/"; // On Desktop (>= 1024px), redirect to Landing Page
+  }
+
+  // On Mobile & Tablet (< 1024px), redirect directly to Dashboard
   if (u.role === "SUPER_ADMIN") return "/superadmin";
   if (u.role === "ADMIN") return "/admin";
   if (u.role === "MENTOR" && m) {

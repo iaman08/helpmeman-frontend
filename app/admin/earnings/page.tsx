@@ -34,23 +34,25 @@ export default function AdminEarningsPage() {
       {loading ? (
         <div className="flex flex-col gap-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-14 w-full rounded-xl" />)}</div>
       ) : earnings.length > 0 ? (
-        <div className="flex flex-col gap-2">
-          <div className="grid grid-cols-12 gap-4 px-5 py-2 text-[10px] uppercase tracking-[0.22em] text-(--muted)">
-            <span className="col-span-3">Mentor</span>
-            <span className="col-span-2">Amount</span>
-            <span className="col-span-2">Status</span>
-            <span className="col-span-3">Date</span>
-          </div>
-          {earnings.map((e) => (
-            <div key={e.id} className="grid grid-cols-12 gap-4 items-center rounded-xl bg-(--fg)/[0.02] px-5 py-3 text-sm">
-              <span className="col-span-3 truncate font-medium">{e.mentor?.displayName ?? "—"}</span>
-              <span className="col-span-2"><PriceDisplay amountInPaise={e.amount} /></span>
-              <div className="col-span-2">
-                <span className={`text-xs rounded-full px-2.5 py-0.5 ${e.status === "PAID" ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600"}`}>{e.status}</span>
-              </div>
-              <span className="col-span-3 text-(--muted)">{formatDate(e.createdAt)}</span>
+        <div className="w-full overflow-x-auto pb-2">
+          <div className="min-w-[600px] flex flex-col gap-2">
+            <div className="grid grid-cols-12 gap-4 px-5 py-2 text-[10px] uppercase tracking-[0.22em] text-(--muted)">
+              <span className="col-span-3">Mentor</span>
+              <span className="col-span-2">Amount</span>
+              <span className="col-span-2">Status</span>
+              <span className="col-span-3">Date</span>
             </div>
-          ))}
+            {earnings.map((e) => (
+              <div key={e.id} className="grid grid-cols-12 gap-4 items-center rounded-xl bg-(--fg)/[0.02] px-5 py-3 text-sm">
+                <span className="col-span-3 truncate font-medium">{e.mentor?.displayName ?? "—"}</span>
+                <span className="col-span-2"><PriceDisplay amountInPaise={e.amount} /></span>
+                <div className="col-span-2">
+                  <span className={`text-xs rounded-full px-2.5 py-0.5 ${e.status === "PAID" ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600"}`}>{e.status}</span>
+                </div>
+                <span className="col-span-3 text-(--muted)">{formatDate(e.createdAt)}</span>
+              </div>
+            ))}
+          </div>
         </div>
       ) : (
         <EmptyState icon={<DollarSign className="h-6 w-6" />} title="No earnings" description="Revenue data will appear as bookings complete." />

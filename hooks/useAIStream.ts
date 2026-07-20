@@ -6,6 +6,7 @@ interface UseAIStreamOptions {
   endpoint: string;
   token?: string | null;
   onToken: (text: string) => void;
+  onSession?: (sessionId: string) => void;
   onMeta?: (meta: any) => void;
   onError?: (err: string) => void;
   onCompleted?: () => void;
@@ -15,6 +16,7 @@ export function useAIStream({
   endpoint,
   token,
   onToken,
+  onSession,
   onMeta,
   onError,
   onCompleted
@@ -109,6 +111,10 @@ export function useAIStream({
               try {
                 const data = JSON.parse(trimmedLine.slice(6));
 
+                if (currentEvent === "session" && data.sessionId) {
+                  if (onSession) onSession(data.sessionId);
+                }
+
                 if (currentEvent === "token") {
                   rawTokenBuffer += data.text;
                 }
@@ -151,6 +157,13 @@ export function useAIStream({
       if (rafIdRef.current) {
         cancelAnimationFrame(rafIdRef.current);
         rafIdRef.current = null;
+      }
+      // Guarantee final buffer is flushed to UI
+      const parts = rawTokenBuffer.split('[META]');
+      const extractedText = parts[0];
+      if (extractedText && extractedText !== lastFlushedText) {
+        lastFlushedText = extractedText;
+        onToken(extractedText);
       }
       setStreamState(prev => prev === "error" ? "error" : "completed");
       abortControllerRef.current = null;

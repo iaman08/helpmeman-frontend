@@ -48,6 +48,17 @@ export function Navbar() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  // Close mobile menu on resize to desktop
+  useEffect(() => {
+    function handleResize() {
+      if (window.innerWidth >= 1024) {
+        setMobileOpen(false);
+      }
+    }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const dashboardPath = getDashboardPath(user?.role);
 
   return (
@@ -61,8 +72,8 @@ export function Navbar() {
           HelpMeMan<span className="text-(--muted)">.</span>
         </Link>
 
-        {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-6 ml-10 mr-auto">
+        {/* Desktop Links — visible at lg: (≥1024px) */}
+        <div className="hidden lg:flex items-center gap-6 ml-10 mr-auto">
           <Link href="/mentors" className="text-sm font-medium text-(--muted) hover:text-(--fg) transition-colors no-underline">
             Mentors
           </Link>
@@ -75,75 +86,87 @@ export function Navbar() {
           {loading ? (
             <div className="h-8 w-8 rounded-full bg-(--fg)/5 animate-pulse" />
           ) : user ? (
-            /* ─── Logged in: Avatar dropdown ─── */
-            <div className="relative" ref={dropdownRef}>
-              <button
-                type="button"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-2 cursor-pointer"
-                aria-expanded={dropdownOpen}
-                aria-haspopup="true"
+            /* ─── Logged in ─── */
+            <>
+              {/* "Go to Dashboard" button — Desktop ONLY (≥1024px) */}
+              <Link
+                href={dashboardPath}
+                className="hidden lg:inline-flex items-center gap-2 text-sm font-semibold rounded-full bg-(--accent) text-(--accent-fg) px-5 py-2.5 hover:opacity-90 transition-opacity no-underline"
               >
-                <Avatar name={user.name} url={user.avatar} size="sm" />
-                <span className="hidden sm:block text-sm max-w-[120px] truncate">
-                  {user.name.split(" ")[0]}
-                </span>
-                <ChevronDown
-                  className={`h-3.5 w-3.5 text-(--muted) transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
-                />
-              </button>
+                <LayoutDashboard className="h-4 w-4" />
+                Go to Dashboard
+              </Link>
 
-              {dropdownOpen && (
-                <div
-                  className="absolute right-0 top-full mt-2 w-56 rounded-xl py-2 shadow-lg border border-(--hairline)"
-                  style={{ background: "var(--bg)" }}
+              {/* Avatar dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center gap-2 cursor-pointer"
+                  aria-expanded={dropdownOpen}
+                  aria-haspopup="true"
                 >
-                  <div className="px-4 py-2 border-b border-(--hairline)">
-                    <p className="text-sm font-medium truncate">{user.name}</p>
-                    <p className="text-[11px] text-(--muted) truncate">
-                      {user.email}
-                    </p>
-                  </div>
-
-                  <Link
-                    href={dashboardPath}
-                    onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-(--fg)/80 hover:bg-(--fg)/5 transition-colors"
-                  >
-                    <LayoutDashboard className="h-4 w-4" />
-                    Dashboard
-                  </Link>
-
-                  <Link
-                    href="/mentors"
-                    onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-(--fg)/80 hover:bg-(--fg)/5 transition-colors no-underline"
-                  >
-                    Browse Mentors
-                  </Link>
-
-
-
-                  <div
-                    aria-hidden
-                    className="my-1 mx-4 h-px"
-                    style={{ background: "var(--hairline)" }}
+                  <Avatar name={user.name} url={user.avatar} size="sm" />
+                  <span className="hidden sm:block text-sm max-w-[120px] truncate">
+                    {user.name.split(" ")[0]}
+                  </span>
+                  <ChevronDown
+                    className={`h-3.5 w-3.5 text-(--muted) transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
                   />
+                </button>
 
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      setDropdownOpen(false);
-                      await logout();
-                    }}
-                    className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-500/5 transition-colors cursor-pointer"
+                {dropdownOpen && (
+                  <div
+                    className="absolute right-0 top-full mt-2 w-56 rounded-xl py-2 shadow-lg border border-(--hairline)"
+                    style={{ background: "var(--bg)" }}
                   >
-                    <LogOut className="h-4 w-4" />
-                    Sign out
-                  </button>
-                </div>
-              )}
-            </div>
+                    <div className="px-4 py-2 border-b border-(--hairline)">
+                      <p className="text-sm font-medium truncate">{user.name}</p>
+                      <p className="text-[11px] text-(--muted) truncate">
+                        {user.email}
+                      </p>
+                    </div>
+
+                    <Link
+                      href={dashboardPath}
+                      onClick={() => setDropdownOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-(--fg)/80 hover:bg-(--fg)/5 transition-colors"
+                    >
+                      <LayoutDashboard className="h-4 w-4" />
+                      Dashboard
+                    </Link>
+
+                    <Link
+                      href="/mentors"
+                      onClick={() => setDropdownOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-(--fg)/80 hover:bg-(--fg)/5 transition-colors no-underline"
+                    >
+                      Browse Mentors
+                    </Link>
+
+
+
+                    <div
+                      aria-hidden
+                      className="my-1 mx-4 h-px"
+                      style={{ background: "var(--hairline)" }}
+                    />
+
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setDropdownOpen(false);
+                        await logout();
+                      }}
+                      className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-500/5 transition-colors cursor-pointer"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sign out
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
           ) : (
             /* ─── Not logged in ─── */
             <>
@@ -162,11 +185,11 @@ export function Navbar() {
             </>
           )}
 
-          {/* Mobile hamburger */}
+          {/* Mobile hamburger — visible below lg: (<1024px) */}
           <button
             type="button"
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden cursor-pointer"
+            className="lg:hidden cursor-pointer"
             aria-label="Toggle menu"
           >
             {mobileOpen ? (
@@ -178,14 +201,12 @@ export function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — visible below lg: (<1024px) */}
       {mobileOpen && (
         <div
-          className="md:hidden border-t border-(--hairline) px-6 py-4 flex flex-col gap-3"
+          className="lg:hidden border-t border-(--hairline) px-6 py-4 flex flex-col gap-3"
           style={{ background: "var(--bg)" }}
         >
-
-
           <Link
             href="/mentors"
             onClick={() => setMobileOpen(false)}
@@ -194,6 +215,7 @@ export function Navbar() {
             Browse Mentors
           </Link>
 
+          {/* NO "Go to Dashboard" in mobile menu — mobile users auto-redirect to dashboard after login */}
 
           {!user && (
             <Link

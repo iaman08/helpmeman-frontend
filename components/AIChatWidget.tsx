@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Bot, X, Trash2, Sparkles, Clock, ChevronRight, MessageSquare, RotateCcw, Plus, History, Calendar, Video, Edit2, Check, Smile, Mic, ArrowUp, Star, BadgeCheck } from "lucide-react";
+import { Bot, X, Trash2, Sparkles, Clock, ChevronRight, MessageSquare, RotateCcw, Plus, History, Calendar, Video, Edit2, Check, Smile, Mic, ArrowUp, Star, BadgeCheck, Zap } from "lucide-react";
 import api, { API_BASE } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import Link from "next/link";
@@ -185,7 +185,7 @@ function formatAIContent(content: string, mentors?: MentorData[], isStreaming?: 
 function parseNormalText(text: string, mentors?: MentorData[]): React.ReactNode[] {
   const result: React.ReactNode[] = [];
   const lines = text.split('\n');
-  
+
   let i = 0;
   while (i < lines.length) {
     const line = lines[i];
@@ -194,7 +194,7 @@ function parseNormalText(text: string, mentors?: MentorData[]): React.ReactNode[
     if (trimmed.startsWith('|') && i + 1 < lines.length && lines[i + 1].trim().startsWith('|') && lines[i + 1].trim().includes('-')) {
       const headerRow = trimmed;
       const headers = headerRow.split('|').map(s => s.trim()).filter((_, idx, arr) => idx > 0 && idx < arr.length - 1);
-      
+
       const rows: string[][] = [];
       let j = i + 2;
       while (j < lines.length && lines[j].trim().startsWith('|')) {
@@ -353,14 +353,14 @@ const ChatMessageItem = React.memo(({
         <div className="flex flex-col max-w-[85%] sm:max-w-[75%]">
           <div
             className={`rounded-[18px] px-4 py-2.5 text-[15px] leading-relaxed shadow-sm ${msg.role === "user"
-                ? chatTheme === "imessage"
-                  ? "bg-[#007aff] text-white rounded-br-[4px]"
-                  : chatTheme === "sms"
-                    ? "bg-[#34c759] text-white rounded-br-[4px]"
-                    : chatTheme === "pink"
-                      ? "bg-[#ff2d55] text-white rounded-br-[4px]"
-                      : "bg-white dark:bg-zinc-100 text-zinc-900 border border-zinc-200/60 rounded-br-[4px]"
-                : "bg-(--fg)/5 border border-(--hairline)/25 text-(--fg) rounded-bl-[4px]"
+              ? chatTheme === "imessage"
+                ? "bg-[#007aff] text-white rounded-br-[4px]"
+                : chatTheme === "sms"
+                  ? "bg-[#34c759] text-white rounded-br-[4px]"
+                  : chatTheme === "pink"
+                    ? "bg-[#ff2d55] text-white rounded-br-[4px]"
+                    : "bg-white dark:bg-zinc-100 text-zinc-900 border border-zinc-200/60 rounded-br-[4px]"
+              : "bg-(--fg)/5 border border-(--hairline)/25 text-(--fg) rounded-bl-[4px]"
               }`}
           >
             {msg.role === "assistant" ? (
@@ -730,8 +730,8 @@ function BookingModalInChat({
                   type="button"
                   onClick={() => setSelectedDate(d)}
                   className={`flex flex-col items-center justify-center shrink-0 w-12 h-14 rounded-xl text-xs font-medium transition-all cursor-pointer border ${active
-                      ? "bg-(--fg) text-(--bg) border-(--fg)"
-                      : "border-(--hairline) text-(--muted) hover:border-(--fg)/20 hover:text-(--fg)"
+                    ? "bg-(--fg) text-(--bg) border-(--fg)"
+                    : "border-(--hairline) text-(--muted) hover:border-(--fg)/20 hover:text-(--fg)"
                     }`}
                 >
                   <span className="text-[10px] font-semibold">{dayNames[d.getDay()]}</span>
@@ -755,8 +755,8 @@ function BookingModalInChat({
                   type="button"
                   onClick={() => setSelectedTime(slot)}
                   className={`text-xs py-1.5 rounded-lg font-medium transition-all cursor-pointer border ${active
-                      ? "bg-(--fg) text-(--bg) border-(--fg)"
-                      : "border-(--hairline) text-(--muted) hover:border-(--fg)/20 hover:text-(--fg)"
+                    ? "bg-(--fg) text-(--bg) border-(--fg)"
+                    : "border-(--hairline) text-(--muted) hover:border-(--fg)/20 hover:text-(--fg)"
                     }`}
                 >
                   {slot}
@@ -926,15 +926,46 @@ function BookingSuccessInChat({ info }: { info: BookingSuccess }) {
 export function AIChatWidget() {
   const { user } = useAuth();
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"chat" | "history" | "meetings">("chat");
+
+  // Drawer & tab state — persisted in localStorage
+  const [isOpen, setIsOpen] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("helpmeman.aiChatOpen") === "true";
+    }
+    return false;
+  });
+
+  const [activeTab, setActiveTab] = useState<"chat" | "history" | "meetings">(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("helpmeman.aiActiveTab");
+      if (saved === "chat" || saved === "history" || saved === "meetings") return saved;
+    }
+    return "chat";
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("helpmeman.aiChatOpen", String(isOpen));
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("helpmeman.aiActiveTab", activeTab);
+    }
+  }, [activeTab]);
 
   // Chat state
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("helpmeman.aiSessionId");
+    }
+    return null;
+  });
   const [sessionTitle, setSessionTitle] = useState<string | null>(null);
   const [resumeBanner, setResumeBanner] = useState<string | null>(null);
   const [sessionLoading, setSessionLoading] = useState(false);
@@ -969,6 +1000,12 @@ export function AIChatWidget() {
   const { streamState, error: streamError, startStream, stopStream } = useAIStream({
     endpoint: `${API_BASE}/ai/chat/stream`,
     token: typeof window !== "undefined" ? localStorage.getItem("helpmeman.accessToken") : null,
+    onSession: (sid) => {
+      setSessionId(sid);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("helpmeman.aiSessionId", sid);
+      }
+    },
     onToken: (text) => {
       const currentStreamingId = streamingMessageIdRef.current;
       if (!currentStreamingId) return;
@@ -990,11 +1027,13 @@ export function AIChatWidget() {
     },
     onMeta: (data) => {
       const currentStreamingId = streamingMessageIdRef.current;
-      if (!currentStreamingId) return;
 
       const { response: parsedResponse, mentors, sessionId: metaSessionId } = data;
-      if (metaSessionId && !sessionId) {
+      if (metaSessionId) {
         setSessionId(metaSessionId);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("helpmeman.aiSessionId", metaSessionId);
+        }
       }
 
       if (mentors && mentors.length > 0) {
@@ -1012,15 +1051,32 @@ export function AIChatWidget() {
         if (target) setBookingMentor(target);
       }
 
-      setMessages(prev => prev.map(m =>
-        m.id === currentStreamingId
-          ? {
-              ...m,
-              content: parsedResponse || m.content,
-              mentors: mentors && mentors.length > 0 ? mentors : undefined,
-            }
-          : m
-      ));
+      if (currentStreamingId) {
+        setMessages(prev => {
+          const hasStreamingBubble = prev.some(m => m.id === currentStreamingId);
+          if (!hasStreamingBubble) {
+            return [
+              ...prev,
+              {
+                id: currentStreamingId,
+                role: "assistant",
+                content: parsedResponse || "I couldn't generate a response.",
+                createdAt: new Date().toISOString(),
+                mentors: mentors && mentors.length > 0 ? mentors : undefined,
+              }
+            ];
+          }
+          return prev.map(m =>
+            m.id === currentStreamingId
+              ? {
+                ...m,
+                content: parsedResponse || m.content,
+                mentors: mentors && mentors.length > 0 ? mentors : undefined,
+              }
+              : m
+          );
+        });
+      }
     },
     onError: (err) => {
       setError(err);
@@ -1047,6 +1103,33 @@ export function AIChatWidget() {
     localStorage.setItem("helpmeman.chatTheme", chatTheme);
   }, [chatTheme]);
 
+  // Ruthless Mode state — persisted in localStorage
+  const [ruthlessMode, setRuthlessMode] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("helpmeman.ruthlessMode") === "true";
+    }
+    return false;
+  });
+
+  // Mode-switch toast (auto-dismisses after 2.5s)
+  const [modeToast, setModeToast] = useState<"ruthless" | "normal" | null>(null);
+  const modeToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleModeToggle = useCallback((next: boolean) => {
+    setRuthlessMode(next);
+    if (modeToastTimerRef.current) clearTimeout(modeToastTimerRef.current);
+    setModeToast(next ? "ruthless" : "normal");
+    modeToastTimerRef.current = setTimeout(() => setModeToast(null), 2500);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("helpmeman.ruthlessMode", String(ruthlessMode));
+  }, [ruthlessMode]);
+
+  useEffect(() => () => {
+    if (modeToastTimerRef.current) clearTimeout(modeToastTimerRef.current);
+  }, []);
+
   // Click outside to close emoji picker
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -1058,11 +1141,21 @@ export function AIChatWidget() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ─── Open/close event listeners and route change ───────────────────────────
+  // ─── Open/close event listeners ──────────────────────────────────────────────
 
   useEffect(() => {
-    const handleOpen = () => setIsOpen(true);
-    const handleClose = () => setIsOpen(false);
+    const handleOpen = () => {
+      setIsOpen(true);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("helpmeman.aiChatOpen", "true");
+      }
+    };
+    const handleClose = () => {
+      setIsOpen(false);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("helpmeman.aiChatOpen", "false");
+      }
+    };
     window.addEventListener("open-ai", handleOpen);
     window.addEventListener("close-ai", handleClose);
     return () => {
@@ -1070,11 +1163,6 @@ export function AIChatWidget() {
       window.removeEventListener("close-ai", handleClose);
     };
   }, []);
-
-  // Close AI Chat drawer on route change
-  useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
 
   // Body scroll lock
   useEffect(() => {
@@ -1162,7 +1250,7 @@ export function AIChatWidget() {
 
   // ─── Resume a past session ─────────────────────────────────────────────────
 
-  const resumeSession = useCallback(async (sid: string, initialTitle: string | null) => {
+  const resumeSession = useCallback(async (sid: string, initialTitle: string | null = null) => {
     setActiveTab("chat");
     setSessionLoading(true);
     setMessages([]);
@@ -1171,6 +1259,9 @@ export function AIChatWidget() {
     try {
       const { data } = await api.get(`/ai/sessions/${sid}/resume`);
       setSessionId(sid);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("helpmeman.aiSessionId", sid);
+      }
       setSessionTitle(data.session.title || initialTitle || "Untitled chat");
       setMessages(
         data.messages.map((m: Message) => ({
@@ -1180,13 +1271,34 @@ export function AIChatWidget() {
           createdAt: m.createdAt,
         }))
       );
-      setResumeBanner(`Resuming chat: ${data.session.title || initialTitle || "Untitled chat"}`);
+      if (data.session.title || initialTitle) {
+        setResumeBanner(`Resuming chat: ${data.session.title || initialTitle}`);
+      }
     } catch {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("helpmeman.aiSessionId");
+      }
       setError("Failed to load session.");
     } finally {
       setSessionLoading(false);
     }
   }, []);
+
+  // ─── Auto-resume active session on mount if logged in ────────────────────────
+  const hasAutoResumedRef = useRef(false);
+  useEffect(() => {
+    if (user && !hasAutoResumedRef.current) {
+      hasAutoResumedRef.current = true;
+      const savedSid = typeof window !== "undefined" ? localStorage.getItem("helpmeman.aiSessionId") : null;
+      if (savedSid) {
+        resumeSession(savedSid, null).catch(() => {
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("helpmeman.aiSessionId");
+          }
+        });
+      }
+    }
+  }, [user, resumeSession]);
 
   const startMeetingChat = useCallback(async (bookingId: string, mentorName: string, scheduledAt: string) => {
     setActiveTab("chat");
@@ -1198,6 +1310,9 @@ export function AIChatWidget() {
     try {
       const { data } = await api.post(`/ai/meetings/${bookingId}/session`);
       setSessionId(data.session.id);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("helpmeman.aiSessionId", data.session.id);
+      }
       setSessionTitle(data.session.title || defaultTitle);
       setMessages(
         data.messages.map((m: Message) => ({
@@ -1219,6 +1334,9 @@ export function AIChatWidget() {
 
   const handleClose = useCallback(async () => {
     setIsOpen(false);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("helpmeman.aiChatOpen", "false");
+    }
     window.dispatchEvent(new Event("close-ai"));
     // End session async
     if (sessionId && messages.length > 0) {
@@ -1233,6 +1351,9 @@ export function AIChatWidget() {
       api.post(`/ai/sessions/${sessionId}/end`).catch(() => { });
     }
     setSessionId(null);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("helpmeman.aiSessionId");
+    }
     setSessionTitle(null);
     setMessages([]);
     setResumeBanner(null);
@@ -1326,8 +1447,8 @@ export function AIChatWidget() {
     setStreamingMessageId(streamingId);
     streamingMessageIdRef.current = streamingId;
 
-    startStream(msg, { sessionId: sessionId || undefined });
-  }, [input, loading, sessionId, startStream]);
+    startStream(msg, { sessionId: sessionId || undefined, ruthlessMode });
+  }, [input, loading, sessionId, startStream, ruthlessMode]);
 
 
   const handleRetry = useCallback(() => {
@@ -1513,8 +1634,8 @@ export function AIChatWidget() {
                     type="button"
                     onClick={() => setChatTheme(t.id as any)}
                     className={`h-2.5 w-2.5 rounded-full transition-all duration-200 cursor-pointer mx-0.5 hover:scale-120 ${chatTheme === t.id
-                        ? "ring-2 ring-(--fg) ring-offset-1 ring-offset-(--bg) scale-110"
-                        : "opacity-60 hover:opacity-100"
+                      ? "ring-2 ring-(--fg) ring-offset-1 ring-offset-(--bg) scale-110"
+                      : "opacity-60 hover:opacity-100"
                       }`}
                     style={{
                       backgroundColor: t.color,
@@ -1524,6 +1645,58 @@ export function AIChatWidget() {
                   />
                 ))}
               </div>
+            )}
+
+            {/* AI Mode selector — chat tab only */}
+            {activeTab === "chat" && (
+              <>
+                {/* Mobile: compact icon toggle (<640px) */}
+                <button
+                  type="button"
+                  id="ai-mode-toggle-mobile"
+                  onClick={() => handleModeToggle(!ruthlessMode)}
+                  aria-pressed={ruthlessMode}
+                  title={ruthlessMode ? "Ruthless Mode — tap to switch to Normal" : "Normal Mode — tap to enable Ruthless Mode"}
+                  className={`sm:hidden flex items-center justify-center h-[30px] w-[30px] rounded-full border border-(--hairline) shrink-0 transition-all duration-200 cursor-pointer ${ruthlessMode
+                      ? "bg-(--fg) text-(--bg)"
+                      : "bg-(--fg)/[0.03] text-(--muted) hover:text-(--fg)"
+                    }`}
+                >
+                  <Zap className="h-3 w-3 shrink-0" />
+                </button>
+
+                {/* Desktop: full segmented pill (≥640px) */}
+                <div
+                  id="ai-mode-selector"
+                  role="group"
+                  aria-label="AI response mode"
+                  className="hidden sm:flex items-center h-[30px] rounded-full border border-(--hairline) bg-(--fg)/[0.03] p-[3px] shrink-0 select-none gap-px"
+                >
+                  <button
+                    type="button"
+                    onClick={() => handleModeToggle(false)}
+                    aria-pressed={!ruthlessMode}
+                    className={`flex items-center h-full px-2.5 rounded-full text-[11px] font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap ${!ruthlessMode
+                        ? "bg-(--fg) text-(--bg) shadow-sm"
+                        : "text-(--muted) hover:text-(--fg)"
+                      }`}
+                  >
+                    Normal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleModeToggle(true)}
+                    aria-pressed={ruthlessMode}
+                    className={`flex items-center gap-1 h-full px-2.5 rounded-full text-[11px] font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap ${ruthlessMode
+                        ? "bg-(--fg) text-(--bg) shadow-sm"
+                        : "text-(--muted) hover:text-(--fg)"
+                      }`}
+                  >
+                    <Zap className="h-2.5 w-2.5 shrink-0" />
+                    Ruthless
+                  </button>
+                </div>
+              </>
             )}
 
             <button
@@ -1587,7 +1760,6 @@ export function AIChatWidget() {
       {activeTab === "chat" && (
         <div className="relative flex-1 flex flex-col overflow-hidden">
           {/* Resume banner */}
-
           {resumeBanner && (
             <div className="shrink-0 bg-(--accent)/10 border-b border-(--accent)/20 px-4 sm:px-6 py-2.5">
               <div className="max-w-4xl w-full mx-auto flex items-center justify-between">
@@ -1602,6 +1774,29 @@ export function AIChatWidget() {
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
+              </div>
+            </div>
+          )}
+
+          {/* AI mode switch toast — self-dismissing, 2.5s */}
+          {modeToast && (
+            <div
+              key={modeToast}
+              className="shrink-0 border-b border-(--hairline) px-4 sm:px-6 py-2 animate-in fade-in slide-in-from-top-1 duration-200"
+              style={{ background: "var(--bg)" }}
+            >
+              <div className="max-w-4xl w-full mx-auto flex items-center gap-2.5">
+                <Zap className="h-3 w-3 shrink-0 text-(--muted)" />
+                <div>
+                  <p className="text-xs font-semibold text-(--fg) leading-none">
+                    {modeToast === "ruthless" ? "Ruthless Mode Enabled" : "Normal Mode Enabled"}
+                  </p>
+                  <p className="text-[10px] text-(--muted) mt-0.5 leading-snug">
+                    {modeToast === "ruthless"
+                      ? "Ruth will now respond with unpredictable, hilarious, and candid feedback."
+                      : "Ruth is back to her professional, balanced default."}
+                  </p>
+                </div>
               </div>
             </div>
           )}
@@ -1766,12 +1961,12 @@ export function AIChatWidget() {
               {/* Input Wrapper */}
               <div
                 className={`flex-1 flex items-center bg-(--fg)/5 rounded-full px-3.5 py-2 sm:py-2.5 border transition-all ${chatTheme === "imessage"
-                    ? "border-(--hairline)/45 focus-within:border-[#007aff]/60 focus-within:bg-(--fg)/8"
-                    : chatTheme === "sms"
-                      ? "border-(--hairline)/45 focus-within:border-[#34c759]/60 focus-within:bg-(--fg)/8"
-                      : chatTheme === "pink"
-                        ? "border-(--hairline)/45 focus-within:border-[#ff2d55]/60 focus-within:bg-(--fg)/8"
-                        : "border-(--hairline)/45 focus-within:border-(--fg)/40 focus-within:bg-(--fg)/8"
+                  ? "border-(--hairline)/45 focus-within:border-[#007aff]/60 focus-within:bg-(--fg)/8"
+                  : chatTheme === "sms"
+                    ? "border-(--hairline)/45 focus-within:border-[#34c759]/60 focus-within:bg-(--fg)/8"
+                    : chatTheme === "pink"
+                      ? "border-(--hairline)/45 focus-within:border-[#ff2d55]/60 focus-within:bg-(--fg)/8"
+                      : "border-(--hairline)/45 focus-within:border-(--fg)/40 focus-within:bg-(--fg)/8"
                   }`}
               >
                 <input

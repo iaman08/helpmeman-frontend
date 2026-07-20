@@ -55,7 +55,7 @@ export function LandingNavbar() {
 
         {/* Desktop Navigation Links */}
         <div
-          className={`hidden md:flex items-center gap-5 transition-all duration-500 ease-in-out ${
+          className={`hidden lg:flex items-center gap-5 transition-all duration-500 ease-in-out ${
             scrolled
               ? "absolute left-1/2 -translate-x-1/2"
               : "ml-auto mr-4"
@@ -74,17 +74,11 @@ export function LandingNavbar() {
 
         {/* Right side: CTA buttons */}
         <div className="flex items-center gap-2.5">
-          <div
-            className={`hidden md:flex items-center gap-2.5 transition-all duration-300 origin-right ${
-              scrolled
-                ? "opacity-100 translate-x-0 pointer-events-auto w-auto max-w-[250px]"
-                : "opacity-0 translate-x-3 pointer-events-none w-0 max-w-0 overflow-hidden"
-            }`}
-          >
+          <div className="hidden lg:flex items-center gap-2.5">
             {isLoggedIn ? (
               <Link
                 href={dashboardPath}
-                className="text-[12px] font-semibold text-[var(--bg)] bg-[var(--fg)] px-4 py-2 rounded-full hover:opacity-90 active:scale-[0.98] transition-all no-underline whitespace-nowrap"
+                className="text-[12px] font-semibold text-[var(--bg)] bg-[var(--fg)] px-4 py-2 rounded-full hover:opacity-90 active:scale-[0.98] transition-all no-underline whitespace-nowrap shadow-sm"
               >
                 Go to Dashboard
               </Link>
@@ -109,7 +103,7 @@ export function LandingNavbar() {
           {/* Mobile Hamburger */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden bg-transparent border-none cursor-pointer text-[var(--fg)] p-1 flex items-center justify-center"
+            className="lg:hidden bg-transparent border-none cursor-pointer text-[var(--fg)] p-1 flex items-center justify-center"
             aria-label="Toggle menu"
           >
             {mobileOpen ? <X size={18} /> : <Menu size={18} />}
@@ -118,7 +112,7 @@ export function LandingNavbar() {
 
         {/* Mobile Dropdown Panel */}
         {mobileOpen && (
-          <div className="mobile-dropdown-panel">
+          <div className="mobile-dropdown-panel lg:hidden">
             <div className="flex flex-col gap-1">
               {navLinks.map((link) => (
                 <button
@@ -130,31 +124,22 @@ export function LandingNavbar() {
                 </button>
               ))}
             </div>
-            <div className="border-t border-[var(--hairline)] mt-2 pt-3 flex gap-2">
-              {isLoggedIn ? (
+            {!isLoggedIn && (
+              <div className="border-t border-[var(--hairline)] mt-2 pt-3 flex gap-2">
                 <Link
-                  href={dashboardPath}
+                  href="/?auth=signin"
+                  className="flex-1 text-center py-2.5 text-[13px] font-medium text-[var(--fg)] border border-[var(--hairline)] rounded-lg no-underline"
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/?auth=signup"
                   className="flex-1 text-center py-2.5 text-[13px] font-semibold text-[var(--bg)] bg-[var(--fg)] rounded-lg no-underline"
                 >
-                  Go to Dashboard
+                  Join for free
                 </Link>
-              ) : (
-                <>
-                  <Link
-                    href="/?auth=signin"
-                    className="flex-1 text-center py-2.5 text-[13px] font-medium text-[var(--fg)] border border-[var(--hairline)] rounded-lg no-underline"
-                  >
-                    Log in
-                  </Link>
-                  <Link
-                    href="/?auth=signup"
-                    className="flex-1 text-center py-2.5 text-[13px] font-semibold text-[var(--bg)] bg-[var(--fg)] rounded-lg no-underline"
-                  >
-                    Join for free
-                  </Link>
-                </>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
       </div>
