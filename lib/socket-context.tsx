@@ -44,14 +44,17 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     if (socketRef.current?.connected) return;
 
     const getSocketUrl = () => {
-      if (typeof window === "undefined") return "http://localhost:8080";
+      if (process.env.NEXT_PUBLIC_SOCKET_URL) {
+        return process.env.NEXT_PUBLIC_SOCKET_URL.replace(/\/+$/, '');
+      }
       if (
-        window.location.hostname.includes("vercel.app") ||
-        window.location.hostname.includes("helpmeman.com")
+        typeof window !== "undefined" &&
+        (window.location.hostname.includes("vercel.app") ||
+          window.location.hostname.includes("helpmeman.com"))
       ) {
         return "https://helpmeman-backend-7r53z.ondigitalocean.app";
       }
-      return process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:8080";
+      return "http://localhost:8080";
     };
 
     const socket = io(getSocketUrl(), {

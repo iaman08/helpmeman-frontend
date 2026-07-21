@@ -54,14 +54,8 @@ const KEYS = {
 /** Maximum time to wait for auth to resolve before forcing loading=false */
 const AUTH_LOADING_TIMEOUT_MS = 10_000;
 
-/** Compute the destination route after a successful login based on screen size */
+/** Compute the destination route after a successful login */
 function getLoginDest(u: User, m: MentorMeta | null): string {
-  const isDesktop = typeof window !== "undefined" && window.innerWidth >= 1024;
-  if (isDesktop) {
-    return "/"; // On Desktop (>= 1024px), redirect to Landing Page
-  }
-
-  // On Mobile & Tablet (< 1024px), redirect directly to Dashboard
   if (u.role === "SUPER_ADMIN") return "/superadmin";
   if (u.role === "ADMIN") return "/admin";
   if (u.role === "MENTOR" && m) {
@@ -100,7 +94,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem(KEYS.mentor);
     }
     try {
-      document.cookie = `helpmeman.accessToken=${data.accessToken};path=/;max-age=31536000;SameSite=Lax;Secure`;
+      const isHttps = typeof window !== "undefined" && window.location.protocol === "https:";
+      const secureFlag = isHttps ? ";Secure" : "";
+      document.cookie = `helpmeman.accessToken=${data.accessToken};path=/;max-age=31536000;SameSite=Lax${secureFlag}`;
     } catch {}
     setUser(data.user);
     setMentor(data.mentor ?? null);

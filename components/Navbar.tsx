@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { useTheme, type Theme, THEMES } from "./ThemeProvider";
 import { useAuth } from "@/lib/auth-context";
-import { LayoutDashboard, LogOut, ChevronDown, Menu, X } from "lucide-react";
+import { LogOut, ChevronDown, Menu, X } from "lucide-react";
 import { Avatar } from "./Avatar";
 
 const links: { id: string; label: string }[] = [];
@@ -88,14 +88,6 @@ export function Navbar() {
           ) : user ? (
             /* ─── Logged in ─── */
             <>
-              {/* "Go to Dashboard" button — Desktop ONLY (≥1024px) */}
-              <Link
-                href={dashboardPath}
-                className="hidden lg:inline-flex items-center gap-2 text-sm font-semibold rounded-full bg-(--accent) text-(--accent-fg) px-5 py-2.5 hover:opacity-90 transition-opacity no-underline"
-              >
-                <LayoutDashboard className="h-4 w-4" />
-                Go to Dashboard
-              </Link>
 
               {/* Avatar dropdown */}
               <div className="relative" ref={dropdownRef}>

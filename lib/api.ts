@@ -1,15 +1,15 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 
-const getApiBaseUrl = () => {
+export const getApiBaseUrl = () => {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, '');
+  }
   if (
     typeof window !== "undefined" &&
     (window.location.hostname.includes("vercel.app") ||
       window.location.hostname.includes("helpmeman.com"))
   ) {
     return "https://helpmeman-backend-7r53z.ondigitalocean.app/api";
-  }
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL;
   }
   return "http://localhost:8080/api";
 };
@@ -18,6 +18,7 @@ export const API_BASE = getApiBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
     "Cache-Control": "no-cache, no-store, must-revalidate",
@@ -38,7 +39,7 @@ export function registerApiLoader(
   stopLoaderCallback = stop;
 }
 
-/* ─── Request interceptor: attach token ─── */
+/* ─── Request interceptor: attach token & dynamic baseURL ─── */
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const showLoader = config.headers?.["x-show-loader"] === "true";
 
@@ -48,6 +49,11 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 
   if (startLoaderCallback) {
     startLoaderCallback(showLoader);
+  }
+
+  // Ensure baseURL is resolved dynamically if on client
+  if (typeof window !== "undefined" && config.baseURL !== getApiBaseUrl()) {
+    config.baseURL = getApiBaseUrl();
   }
 
   if (typeof window !== "undefined") {
@@ -89,9 +95,13 @@ api.interceptors.response.use(
 
     const isAuthRoute = original?.url?.includes("/auth/");
 
+    // If request failed on an auth route (e.g. /auth/login), do not trigger auto-logout
+    if (isAuthRoute) {
+      return Promise.reject(error);
+    }
+
     if (
       error.response?.status === 401 &&
-      !isAuthRoute &&
       !original._retry &&
       typeof window !== "undefined"
     ) {
@@ -127,8 +137,11 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const { data } = await axios.post(`${API_BASE}/auth/refresh`, {
+        const baseUrl = getApiBaseUrl();
+        const { data } = await axios.post(`${baseUrl}/auth/refresh`, {
           refreshToken,
+        }, {
+          withCredentials: true
         });
 
         const newToken = data.accessToken as string;
@@ -136,7 +149,9 @@ api.interceptors.response.use(
         if (data.refreshToken) {
           localStorage.setItem("helpmeman.refreshToken", data.refreshToken);
         }
-        document.cookie = `helpmeman.accessToken=${newToken};path=/;max-age=31536000;SameSite=Lax;Secure`;
+        const isHttps = typeof window !== "undefined" && window.location.protocol === "https:";
+        const secureFlag = isHttps ? ";Secure" : "";
+        document.cookie = `helpmeman.accessToken=${newToken};path=/;max-age=31536000;SameSite=Lax${secureFlag}`;
         processQueue(null, newToken);
 
         if (original.headers) {

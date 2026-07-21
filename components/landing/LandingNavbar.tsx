@@ -74,31 +74,22 @@ export function LandingNavbar() {
 
         {/* Right side: CTA buttons */}
         <div className="flex items-center gap-2.5">
-          <div className="hidden lg:flex items-center gap-2.5">
-            {isLoggedIn ? (
+          {!isLoggedIn && (
+            <div className="hidden lg:flex items-center gap-2.5">
               <Link
-                href={dashboardPath}
-                className="text-[12px] font-semibold text-[var(--bg)] bg-[var(--fg)] px-4 py-2 rounded-full hover:opacity-90 active:scale-[0.98] transition-all no-underline whitespace-nowrap shadow-sm"
+                href="/?auth=signin"
+                className="text-[13px] font-medium text-[var(--muted)] hover:text-[var(--fg)] transition-colors no-underline px-2 py-1 whitespace-nowrap"
               >
-                Go to Dashboard
+                Log in
               </Link>
-            ) : (
-              <>
-                <Link
-                  href="/?auth=signin"
-                  className="text-[13px] font-medium text-[var(--muted)] hover:text-[var(--fg)] transition-colors no-underline px-2 py-1 whitespace-nowrap"
-                >
-                  Log in
-                </Link>
-                <Link
-                  href="/?auth=signup"
-                  className="text-[12px] font-semibold text-[var(--bg)] bg-[var(--fg)] px-4 py-2 rounded-full hover:opacity-90 active:scale-[0.98] transition-all no-underline whitespace-nowrap"
-                >
-                  Join for free
-                </Link>
-              </>
-            )}
-          </div>
+              <Link
+                href="/?auth=signup"
+                className="text-[12px] font-semibold text-[var(--bg)] bg-[var(--fg)] px-4 py-2 rounded-full hover:opacity-90 active:scale-[0.98] transition-all no-underline whitespace-nowrap"
+              >
+                Join for free
+              </Link>
+            </div>
+          )}
 
           {/* Mobile Hamburger */}
           <button
