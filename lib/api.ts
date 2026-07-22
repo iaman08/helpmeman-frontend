@@ -87,6 +87,33 @@ api.interceptors.response.use(
     return res;
   },
   async (error: AxiosError) => {
+    // Detailed Axios Error Diagnostics
+    if (typeof window !== "undefined") {
+      const isNetworkError = !error.response;
+      const isTimeout = error.code === "ECONNABORTED" || error.message?.toLowerCase().includes("timeout");
+      const url = (error.config?.baseURL || "") + (error.config?.url || "");
+      const method = error.config?.method?.toUpperCase() || "UNKNOWN";
+      
+      console.groupCollapsed(`🚨 [API Error] ${method} ${url}`);
+      console.error(`Error Message: ${error.message}`);
+      console.error(`Error Code: ${error.code || "N/A"}`);
+      console.log("Axios Config:", error.config);
+      
+      if (error.response) {
+        console.error(`Status Code: ${error.response.status}`);
+        console.log("Response Headers:", error.response.headers);
+        console.log("Response Body:", error.response.data);
+      } else if (isTimeout) {
+        console.error("Diagnosis: Request Timed Out. The server took too long to respond.");
+      } else if (isNetworkError) {
+        console.error("Diagnosis: Network Error. Possible causes:\n" +
+          "1. DNS resolution failure (e.g., net::ERR_NAME_NOT_RESOLVED)\n" +
+          "2. Backend server is completely offline / unreachable\n" +
+          "3. CORS policy blocked the request (Preflight failed or disallowed origin)");
+      }
+      console.groupEnd();
+    }
+
     const show = error?.config && (error.config as any)._showLoader;
     if (stopLoaderCallback) stopLoaderCallback(show);
     const original = error.config as InternalAxiosRequestConfig & {

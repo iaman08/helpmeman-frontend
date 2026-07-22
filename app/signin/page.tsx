@@ -80,7 +80,7 @@ export default function SignInPage() {
           dest = "/admin";
         } else if (user.role === "MENTOR" && mentor) {
           dest = mentor.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status";
-        } else if (user.onboardingRole === "MENTEE") {
+        } else if (user.onboardingRole === "MENTEE" || user.role === "STUDENT") {
           dest = "/dashboard";
         } else {
           dest = "/onboarding";

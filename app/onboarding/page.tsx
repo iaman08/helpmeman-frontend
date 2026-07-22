@@ -155,7 +155,7 @@ export default function OnboardingPage() {
       router.replace("/admin");
       return;
     }
-    if (user.onboardingRole === "MENTEE") {
+    if (user.onboardingRole === "MENTEE" || user.role === "STUDENT") {
       router.replace("/dashboard");
       return;
     }

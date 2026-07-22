@@ -61,7 +61,7 @@ function getLoginDest(u: User, m: MentorMeta | null): string {
   if (u.role === "MENTOR" && m) {
     return m.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status";
   }
-  if (u.onboardingRole === "MENTEE") return "/dashboard";
+  if (u.onboardingRole === "MENTEE" || u.role === "STUDENT") return "/dashboard";
   return "/onboarding";
 }
 
