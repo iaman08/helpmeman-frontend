@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { useTheme, type Theme, THEMES } from "./ThemeProvider";
 import { useAuth } from "@/lib/auth-context";
-import { LogOut, ChevronDown, Menu, X } from "lucide-react";
+import { LogOut, ChevronDown, Menu, X, LayoutDashboard } from "lucide-react";
 import { Avatar } from "./Avatar";
 
 const links: { id: string; label: string }[] = [];
