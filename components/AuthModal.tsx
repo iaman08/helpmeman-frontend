@@ -9,8 +9,6 @@ import PasswordStrength from "@/components/PasswordStrength";
 import { X, Eye, EyeOff } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
-import { useRouter } from "next/navigation";
-
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -18,7 +16,6 @@ interface AuthModalProps {
 }
 
 export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalProps) {
-  const router = useRouter();
   const { login, register, verifySignupOTP, loginWithGoogle } = useAuth();
   const [mode, setMode] = useState<"signin" | "signup">(initialMode);
 
@@ -98,7 +95,9 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
       const dest = await login(email, password);
       onClose();
       if (dest) {
-        router.push(dest);
+        // Hard navigation so the middleware fires at the edge and the
+        // dashboard loads directly — no landing-page flash, no React delay.
+        window.location.replace(dest);
       }
     } catch (err) {
       if (err instanceof AxiosError && err.response?.status === 403 && err.response?.data?.requiresVerification) {
@@ -175,7 +174,8 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
       });
       onClose();
       if (dest) {
-        router.push(dest);
+        // Hard navigation — same reasoning as handleLoginSubmit
+        window.location.replace(dest);
       }
     } catch (err) {
       if (err instanceof AxiosError) {

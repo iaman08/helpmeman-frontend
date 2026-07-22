@@ -29,6 +29,11 @@ function LandingPageContent() {
     mode: "signin",
   });
 
+  // Detect if a token exists in localStorage so we can show a skeleton
+  // instead of the landing page while auth hydrates (avoids the ~5s flash).
+  const hasStoredToken =
+    typeof window !== "undefined" && !!localStorage.getItem("helpmeman.accessToken");
+
   useEffect(() => {
     if (authParam === "signin" || authParam === "signup") {
       setAuthModal({
@@ -68,6 +73,54 @@ function LandingPageContent() {
       return () => window.removeEventListener("resize", checkMobileRedirect);
     }
   }, [user, mentor, loading, router]);
+
+  // Show a skeleton screen while auth is hydrating and we know the user is logged in.
+  // The middleware handles the actual redirect; this just prevents the landing page flash.
+  if (loading && hasStoredToken) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100dvh",
+          background: "#0B0B0C",
+          flexDirection: "column",
+          gap: "16px",
+        }}
+      >
+        {/* Animated logo pulse */}
+        <div
+          style={{
+            width: 56,
+            height: 56,
+            borderRadius: "50%",
+            background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+            animation: "hmm-spin 1.1s cubic-bezier(0.4,0,0.6,1) infinite",
+            boxShadow: "0 0 0 0 rgba(99,102,241,0.4)",
+          }}
+        />
+        <p
+          style={{
+            color: "rgba(255,255,255,0.45)",
+            fontSize: 14,
+            fontFamily: "var(--font-inter, sans-serif)",
+            letterSpacing: "0.02em",
+            margin: 0,
+          }}
+        >
+          Loading your dashboard…
+        </p>
+        <style>{`
+          @keyframes hmm-spin {
+            0%   { transform: scale(1);   opacity: 1; }
+            50%  { transform: scale(0.7); opacity: 0.5; }
+            100% { transform: scale(1);   opacity: 1; }
+          }
+        `}</style>
+      </div>
+    );
+  }
 
   return (
     <div className="landing-page" style={{ background: '#0B0B0C' }}>

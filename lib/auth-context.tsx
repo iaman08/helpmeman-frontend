@@ -97,6 +97,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const isHttps = typeof window !== "undefined" && window.location.protocol === "https:";
       const secureFlag = isHttps ? ";Secure" : "";
       document.cookie = `helpmeman.accessToken=${data.accessToken};path=/;max-age=31536000;SameSite=Lax${secureFlag}`;
+      // Role cookie — read by the middleware to redirect instantly without JS
+      document.cookie = `helpmeman.role=${data.user.role};path=/;max-age=31536000;SameSite=Lax${secureFlag}`;
     } catch {}
     setUser(data.user);
     setMentor(data.mentor ?? null);
@@ -346,7 +348,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [persist],
   );
 
-  /* ─── Logout ─── */
   const logout = useCallback(async () => {
     const refreshToken = localStorage.getItem(KEYS.refresh);
     try { 
