@@ -11,6 +11,8 @@ import { EmptyState } from "@/components/EmptyState";
 import { useState, useEffect } from "react";
 import { ShareProfileModal } from "@/components/ShareProfileModal";
 import { Avatar } from "@/components/Avatar";
+import { ReviewCard } from "@/components/ReviewCard";
+import { MentorRatingStatsDisplay } from "@/components/MentorRatingStats";
 
 import { PriceDisplay } from "@/components/PriceDisplay";
 
@@ -293,45 +295,48 @@ export default function MentorProfilePage() {
             )}
 
             {/* ─── Reviews Section ─── */}
-            <div id="reviews" className="mt-4 scroll-mt-24">
-              <h2 className="text-xs uppercase tracking-[0.22em] text-(--muted) mb-5">
-                Reviews
+            <div id="reviews" className="mt-4 scroll-mt-24 flex flex-col gap-6">
+              <h2 className="text-xs uppercase tracking-[0.22em] text-(--muted)">
+                Ratings & Reviews
               </h2>
+
+              {/* Rating Stats Summary */}
+              {mentor && (
+                <MentorRatingStatsDisplay
+                  stats={{
+                    avgRating: (mentor as unknown as { avgRating?: number }).avgRating ?? mentor.rating ?? 0,
+                    totalReviews: (mentor as unknown as { totalReviews?: number }).totalReviews ?? 0,
+                    distribution: (mentor as unknown as { ratingDistribution?: Record<string, number> }).ratingDistribution ?? { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 },
+                  }}
+                />
+              )}
 
               {reviewsLoading ? (
                 <div className="flex flex-col gap-4">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex flex-col gap-2 py-4">
-                      <Skeleton className="h-4 w-32" />
-                      <Skeleton className="h-3 w-full" />
-                      <Skeleton className="h-3 w-3/4" />
-                    </div>
+                    <Skeleton key={i} className="h-24 w-full rounded-2xl" />
                   ))}
                 </div>
               ) : reviewData && reviewData.reviews.length > 0 ? (
-                <div className="flex flex-col divide-y divide-(--hairline)">
-                  {reviewData.reviews.map((review) => (
-                    <div key={review.id} className="py-5 first:pt-0 flex flex-col gap-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-(--fg)/8 text-xs font-medium">
-                            {review.user?.name?.[0]?.toUpperCase() ?? "?"}
-                          </div>
-                          <span className="text-sm font-medium">
-                            {review.user?.name ?? "Anonymous"}
-                          </span>
-                        </div>
-                        <span className="text-xs text-(--muted)">
-                          {formatDate(review.createdAt)}
-                        </span>
-                      </div>
-                      <StarRating rating={review.rating} />
-                      {review.comment && (
-                        <p className="text-sm text-(--fg)/80 leading-relaxed">
-                          {review.comment}
-                        </p>
-                      )}
-                    </div>
+                <div className="flex flex-col gap-4">
+                  {reviewData.reviews.map((rev) => (
+                    <ReviewCard
+                      key={rev.id}
+                      review={{
+                        id: rev.id,
+                        bookingId: rev.bookingId || "",
+                        mentorId: id as string,
+                        userId: rev.userId || "",
+                        rating: rev.rating,
+                        feedback: rev.feedback || (rev as unknown as { comment?: string }).comment || null,
+                        tags: rev.tags || [],
+                        anonymous: Boolean(rev.anonymous),
+                        createdAt: rev.createdAt,
+                        updatedAt: rev.createdAt,
+                        userName: rev.userName || rev.user?.name || null,
+                        userAvatar: rev.userAvatar || rev.user?.avatar || null,
+                      }}
+                    />
                   ))}
                 </div>
               ) : (
@@ -340,7 +345,7 @@ export default function MentorProfilePage() {
 
               {/* Review Pagination */}
               {reviewData && reviewData.totalPages > 1 && (
-                <div className="flex items-center gap-2 mt-4">
+                <div className="flex items-center gap-2 mt-2">
                   {Array.from(
                     { length: reviewData.totalPages },
                     (_, i) => i + 1,

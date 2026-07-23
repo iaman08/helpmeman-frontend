@@ -132,6 +132,37 @@ export interface Review {
   createdAt: string;
 }
 
+export interface MentorReview {
+  id: string;
+  bookingId: string;
+  mentorId: string;
+  userId: string;
+  rating: number;
+  feedback?: string | null;
+  tags: string[];
+  anonymous: boolean;
+  createdAt: string;
+  updatedAt: string;
+  userName?: string | null;
+  userAvatar?: string | null;
+  user?: Pick<User, "name" | "avatar">;
+}
+
+export interface MentorRatingStats {
+  avgRating: number;
+  totalReviews: number;
+  distribution: Record<string, number>;
+}
+
+export interface PendingReview {
+  bookingId: string;
+  scheduledAt: string;
+  durationMinutes: number;
+  displayName: string;
+  avatar?: string | null;
+  mentorId: string;
+}
+
 export interface VerificationDoc {
   id: string;
   mentorId: string;

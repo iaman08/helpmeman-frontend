@@ -16,6 +16,7 @@ interface MeetingCardProps {
   viewAs: "mentee" | "mentor";
   onCancel?: (id: string) => void;
   onReschedule?: (id: string) => void;
+  onRateSession?: (booking: Booking & { mentor?: { displayName?: string; avatar?: string | null } }) => void;
   compact?: boolean;
 }
 
@@ -42,7 +43,7 @@ function formatTimeLocal(d: string, tz?: string | null) {
  * Shows session details, live countdown, join button (active 15min before),
  * and quick actions.
  */
-export function MeetingCard({ booking, viewAs, onCancel, onReschedule, compact = false }: MeetingCardProps) {
+export function MeetingCard({ booking, viewAs, onCancel, onReschedule, onRateSession, compact = false }: MeetingCardProps) {
   const [joinable, setJoinable] = useState(false);
 
   // Re-check joinability every 30 seconds
@@ -60,6 +61,7 @@ export function MeetingCard({ booking, viewAs, onCancel, onReschedule, compact =
 
   const isPast = new Date(booking.scheduledAt).getTime() + booking.durationMinutes * 60_000 < Date.now();
   const canCancel = !isPast && booking.status !== "CANCELLED" && booking.status !== "COMPLETED";
+  const canRate = booking.status === "COMPLETED" && viewAs === "mentee" && !booking.review;
 
   if (compact) {
     return (
@@ -167,6 +169,18 @@ export function MeetingCard({ booking, viewAs, onCancel, onReschedule, compact =
         >
           View Details
         </Link>
+        {canRate && onRateSession && (
+          <button
+            type="button"
+            onClick={() => onRateSession(booking)}
+            className="flex-1 text-center rounded-lg bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-600 border border-yellow-500/20 py-2 text-xs font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="#EAB308" stroke="#EAB308">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+            Rate Session
+          </button>
+        )}
         {canCancel && onReschedule && (
           <button
             type="button"

@@ -74,12 +74,12 @@ export function useMentorReviews(
   page = 1,
 ) {
   return useSWR<{
-    reviews: import("./types").Review[];
+    reviews: import("./types").MentorReview[];
     total: number;
     page: number;
     totalPages: number;
   }>(
-    id ? `/mentors/${id}/reviews?page=${page}` : null,
+    id ? `/reviews/mentor/${id}?page=${page}` : null,
     fetcher,
     { revalidateOnFocus: false },
   );
