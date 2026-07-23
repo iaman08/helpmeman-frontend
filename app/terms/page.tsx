@@ -712,54 +712,32 @@ export default function TermsPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "#0a0a0f" }}>
+    <div className="min-h-screen flex flex-col bg-white text-zinc-900">
+      <style>{`
+        .terms-toc-sidebar::-webkit-scrollbar { width: 3px; }
+        .terms-toc-sidebar::-webkit-scrollbar-track { background: transparent; }
+        .terms-toc-sidebar::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 99px; }
+      `}</style>
+
       {/* Header */}
-      <header
-        className="fixed top-0 left-0 right-0 z-50 border-b"
-        style={{
-          background: "rgba(10,10,15,0.85)",
-          backdropFilter: "blur(16px)",
-          borderColor: "#1a1a2e",
-        }}
-      >
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/80 border-b border-zinc-200">
         <nav className="mx-auto flex max-w-[1200px] items-center justify-between px-6 sm:px-10 py-4">
           <Link
             href="/"
-            className="font-bold text-xl tracking-tight flex items-center gap-2 select-none"
-            style={{ color: "#fff" }}
+            className="font-bold text-xl tracking-tight text-zinc-900 flex items-center gap-2 select-none"
           >
             <img
               src="/logo.svg"
               alt="HelpMeMan Logo"
-              className="w-7 h-7 object-contain brightness-0 invert"
+              className="w-7 h-7 object-contain"
             />
             <span>HelpMeMan</span>
           </Link>
           <Link
             href="/"
-            className="text-sm transition-colors flex items-center gap-1.5 px-4 py-2 rounded-full border"
-            style={{
-              color: "#8E8E93",
-              borderColor: "#2a2a3e",
-              background: "rgba(255,255,255,0.03)",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.color = "#fff";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.color = "#8E8E93";
-            }}
+            className="text-sm text-zinc-600 hover:text-zinc-900 transition-all flex items-center gap-1.5 px-4 py-2 rounded-full border border-zinc-200 bg-zinc-50/50 hover:bg-zinc-100"
           >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="m15 18-6-6 6-6" />
             </svg>
             Back to home
@@ -768,50 +746,30 @@ export default function TermsPage() {
       </header>
 
       {/* Hero Section */}
-      <div
-        className="pt-24 pb-12 px-6 sm:px-10 text-center relative overflow-hidden"
-        style={{ borderBottom: "1px solid #1a1a2e" }}
-      >
+      <div className="pt-28 pb-12 px-6 sm:px-10 text-center relative overflow-hidden bg-zinc-50/50 border-b border-zinc-200">
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(ellipse 60% 50% at 50% 0%, rgba(99,102,241,0.12) 0%, transparent 70%)",
+              "radial-gradient(ellipse 60% 50% at 50% 0%, rgba(0,0,0,0.03) 0%, transparent 70%)",
           }}
         />
         <div className="relative z-10 max-w-3xl mx-auto">
-          <div
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold mb-6 tracking-widest uppercase"
-            style={{
-              background: "rgba(99,102,241,0.12)",
-              border: "1px solid rgba(99,102,241,0.3)",
-              color: "#818cf8",
-            }}
-          >
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-            >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold mb-6 tracking-widest uppercase bg-zinc-100 border border-zinc-200 text-zinc-700">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
               <polyline points="14 2 14 8 20 8" />
             </svg>
             Legal Agreement
           </div>
-          <h1
-            className="font-bold text-4xl sm:text-5xl lg:text-6xl tracking-tight mb-4"
-            style={{ color: "#fff" }}
-          >
+          <h1 className="font-bold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-zinc-900 mb-4">
             Terms &amp; Conditions
           </h1>
-          <p className="text-base sm:text-lg leading-relaxed mb-6" style={{ color: "#8E8E93" }}>
+          <p className="text-base sm:text-lg leading-relaxed text-zinc-600 mb-6">
             Please read these terms carefully before using the HelpMeMan Platform.
             By continuing to use our services, you agree to be legally bound by all provisions herein.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-6 text-sm" style={{ color: "#6b7280" }}>
+          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-zinc-500">
             <span className="flex items-center gap-1.5">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
@@ -843,44 +801,27 @@ export default function TermsPage() {
         <div className="flex gap-8 lg:gap-12 items-start">
 
           {/* Sidebar ToC */}
-          <aside className="hidden lg:block w-60 shrink-0 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto">
-            <p
-              className="text-xs uppercase tracking-[0.18em] font-bold mb-4"
-              style={{ color: "#6b7280" }}
-            >
+          <aside className="terms-toc-sidebar hidden lg:block w-56 shrink-0 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto pr-1">
+            <p className="text-xs uppercase tracking-[0.18em] font-bold text-zinc-400 mb-4">
               Contents
             </p>
-            <nav className="flex flex-col gap-1">
+            <nav className="flex flex-col gap-0.5">
               {parts.map((part) => (
                 <div key={part.id} className="mb-3">
-                  <div
-                    className="text-xs font-bold uppercase tracking-wider mb-1.5 px-2"
-                    style={{ color: "#818cf8" }}
-                  >
+                  <div className="text-xs font-bold uppercase tracking-wider text-zinc-900 mb-1.5 px-2">
                     {part.title}
                   </div>
                   {part.clauses.map((clause) => (
                     <button
                       key={clause.id}
                       onClick={() => scrollToClause(clause.id)}
-                      className="w-full text-left text-xs px-2 py-1 rounded-md transition-all"
-                      style={{
-                        color: activeClause === clause.id ? "#fff" : "#6b7280",
-                        background:
-                          activeClause === clause.id
-                            ? "rgba(99,102,241,0.15)"
-                            : "transparent",
-                      }}
-                      onMouseEnter={(e) => {
-                        if (activeClause !== clause.id)
-                          (e.currentTarget as HTMLButtonElement).style.color = "#a1a1aa";
-                      }}
-                      onMouseLeave={(e) => {
-                        if (activeClause !== clause.id)
-                          (e.currentTarget as HTMLButtonElement).style.color = "#6b7280";
-                      }}
+                      className={`w-full text-left text-xs px-2.5 py-1.5 rounded-md transition-all ${
+                        activeClause === clause.id
+                          ? "bg-zinc-900 text-white font-medium shadow-xs"
+                          : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"
+                      }`}
                     >
-                      <span style={{ color: "#4b5563", marginRight: "4px" }}>
+                      <span className="text-zinc-400 mr-1">
                         {clause.number}.
                       </span>
                       {clause.heading}
@@ -896,80 +837,39 @@ export default function TermsPage() {
             {parts.map((part, partIdx) => (
               <section key={part.id} id={part.id} className="mb-14">
                 {/* Part header */}
-                <div
-                  className="flex items-center gap-3 mb-8 pb-4"
-                  style={{ borderBottom: "1px solid #1a1a2e" }}
-                >
-                  <div
-                    className="flex items-center justify-center w-8 h-8 rounded-lg text-xs font-bold shrink-0"
-                    style={{
-                      background: "rgba(99,102,241,0.15)",
-                      border: "1px solid rgba(99,102,241,0.3)",
-                      color: "#818cf8",
-                    }}
-                  >
+                <div className="flex items-center gap-3 mb-8 pb-5 border-b border-zinc-200">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg text-xs font-bold shrink-0 bg-zinc-900 text-white shadow-xs">
                     {partIdx + 1}
                   </div>
                   <div>
-                    <p
-                      className="text-xs font-bold uppercase tracking-widest"
-                      style={{ color: "#818cf8" }}
-                    >
+                    <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">
                       {part.title}
                     </p>
-                    <h2
-                      className="text-lg sm:text-xl font-bold"
-                      style={{ color: "#e5e7eb" }}
-                    >
+                    <h2 className="text-lg sm:text-xl font-bold text-zinc-900">
                       {part.subtitle}
                     </h2>
                   </div>
                 </div>
 
                 {/* Clauses */}
-                <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-5">
                   {part.clauses.map((clause) => (
                     <article
                       key={clause.id}
                       id={clause.id}
-                      className="rounded-xl p-6 sm:p-7 transition-all duration-200"
-                      style={{
-                        background: "#111118",
-                        border: "1px solid #1e1e2e",
-                      }}
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLElement).style.borderColor =
-                          "rgba(99,102,241,0.25)";
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLElement).style.borderColor =
-                          "#1e1e2e";
-                      }}
+                      className="rounded-xl p-6 sm:p-7 bg-white border border-zinc-200/80 shadow-xs hover:shadow-sm hover:border-zinc-300 transition-all duration-200"
                     >
                       <div className="flex items-start gap-4">
-                        <span
-                          className="shrink-0 flex items-center justify-center w-8 h-8 rounded-lg text-xs font-bold mt-0.5"
-                          style={{
-                            background: "rgba(99,102,241,0.1)",
-                            color: "#6366f1",
-                            border: "1px solid rgba(99,102,241,0.2)",
-                          }}
-                        >
+                        <span className="shrink-0 flex items-center justify-center w-7 h-7 rounded-md text-xs font-bold mt-0.5 bg-zinc-100 text-zinc-700 border border-zinc-200">
                           {clause.number}
                         </span>
                         <div className="flex-1 min-w-0">
-                          <h3
-                            className="text-base sm:text-lg font-semibold mb-3"
-                            style={{ color: "#f3f4f6" }}
-                          >
+                          <h3 className="text-base sm:text-[17px] font-semibold text-zinc-900 mb-3">
                             {clause.heading}
                           </h3>
 
                           {clause.content && (
-                            <p
-                              className="text-sm sm:text-[15px] leading-relaxed mb-3 whitespace-pre-line"
-                              style={{ color: "#9ca3af" }}
-                            >
+                            <p className="text-sm sm:text-[15px] leading-relaxed text-zinc-600 mb-3 whitespace-pre-line">
                               {clause.content}
                             </p>
                           )}
@@ -980,13 +880,9 @@ export default function TermsPage() {
                               {(clause.list as string[]).map((item, i) => (
                                 <li
                                   key={i}
-                                  className="flex items-start gap-2 text-sm sm:text-[15px]"
-                                  style={{ color: "#9ca3af" }}
+                                  className="flex items-start gap-2.5 text-sm sm:text-[15px] text-zinc-600"
                                 >
-                                  <span
-                                    className="mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full"
-                                    style={{ background: "#6366f1" }}
-                                  />
+                                  <span className="mt-2 shrink-0 w-1.5 h-1.5 rounded-full bg-zinc-400" />
                                   {item}
                                 </li>
                               ))}
@@ -995,27 +891,20 @@ export default function TermsPage() {
 
                           {/* Sub-sections */}
                           {"subSections" in clause && clause.subSections && (
-                            <div className="mb-3 flex flex-col gap-4">
+                            <div className="mb-3 flex flex-col gap-5">
                               {(clause.subSections as { title: string; items: string[] }[]).map(
                                 (sub, si) => (
                                   <div key={si}>
-                                    <p
-                                      className="text-xs font-semibold uppercase tracking-wider mb-2"
-                                      style={{ color: "#6366f1" }}
-                                    >
+                                    <p className="text-xs font-bold uppercase tracking-wider text-zinc-900 mb-2">
                                       {sub.title}
                                     </p>
-                                    <ul className="flex flex-col gap-1">
+                                    <ul className="flex flex-col gap-1.5">
                                       {sub.items.map((item, ii) => (
                                         <li
                                           key={ii}
-                                          className="flex items-start gap-2 text-sm"
-                                          style={{ color: "#9ca3af" }}
+                                          className="flex items-start gap-2.5 text-sm text-zinc-600"
                                         >
-                                          <span
-                                            className="mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full"
-                                            style={{ background: "#4b5563" }}
-                                          />
+                                          <span className="mt-2 shrink-0 w-1.5 h-1.5 rounded-full bg-zinc-400" />
                                           {item}
                                         </li>
                                       ))}
@@ -1028,10 +917,7 @@ export default function TermsPage() {
 
                           {/* List suffix */}
                           {"listSuffix" in clause && clause.listSuffix && (
-                            <p
-                              className="text-sm sm:text-[15px] leading-relaxed"
-                              style={{ color: "#9ca3af" }}
-                            >
+                            <p className="text-sm sm:text-[15px] leading-relaxed text-zinc-600">
                               {clause.listSuffix as string}
                             </p>
                           )}
@@ -1043,24 +929,15 @@ export default function TermsPage() {
               </section>
             ))}
 
-            {/* Contact footer note */}
-            <div
-              className="rounded-xl p-6 sm:p-8 mb-10 text-center"
-              style={{
-                background: "linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.08))",
-                border: "1px solid rgba(99,102,241,0.25)",
-              }}
-            >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-4"
-                style={{ background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.3)" }}
-              >
+            {/* Contact CTA */}
+            <div className="rounded-2xl p-8 sm:p-10 mb-10 text-center bg-zinc-50 border border-zinc-200">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4 bg-white border border-zinc-200 shadow-xs text-zinc-800">
                 <svg
-                  width="18"
-                  height="18"
+                  width="20"
+                  height="20"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#818cf8"
+                  stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1068,23 +945,18 @@ export default function TermsPage() {
                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
                 </svg>
               </div>
-              <h3 className="font-bold text-lg mb-2" style={{ color: "#f3f4f6" }}>
+              <h3 className="font-bold text-xl text-zinc-900 mb-2">
                 Questions about these Terms?
               </h3>
-              <p className="text-sm mb-5" style={{ color: "#6b7280" }}>
+              <p className="text-sm text-zinc-600 mb-6 max-w-md mx-auto">
                 For questions, grievances, complaints, or legal notices, reach out to us.
                 Our Grievance Officer will respond within timelines prescribed under applicable law.
               </p>
               <a
                 href="mailto:hello@helpmeman.com"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all"
-                style={{
-                  background: "rgba(99,102,241,0.2)",
-                  border: "1px solid rgba(99,102,241,0.4)",
-                  color: "#818cf8",
-                }}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold bg-zinc-900 hover:bg-zinc-800 text-white shadow-sm transition-all"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                   <polyline points="22,6 12,13 2,6" />
                 </svg>
@@ -1103,20 +975,7 @@ export default function TermsPage() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-xs px-4 py-2 rounded-full border transition-all"
-                  style={{
-                    color: "#6b7280",
-                    borderColor: "#1e1e2e",
-                    background: "rgba(255,255,255,0.02)",
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLAnchorElement).style.color = "#fff";
-                    (e.currentTarget as HTMLAnchorElement).style.borderColor = "#4b5563";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLAnchorElement).style.color = "#6b7280";
-                    (e.currentTarget as HTMLAnchorElement).style.borderColor = "#1e1e2e";
-                  }}
+                  className="text-xs px-4 py-2 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-600 hover:text-zinc-900 transition-all"
                 >
                   {link.label}
                 </Link>
