@@ -27,7 +27,8 @@ const BASE_NAV = [
   { href: "/admin/bookings", label: "Bookings", icon: CalendarCheck },
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
   { href: "/admin/earnings", label: "Earnings", icon: DollarSign },
-  { href: "/admin/reviews", label: "Reviews", icon: Star },
+  { href: "/admin/reviews", label: "Session Reviews", icon: Star },
+  { href: "/admin/platform-reviews", label: "Platform Reviews", icon: Star },
   {
     onClick: () => {
       if (typeof window !== "undefined") {

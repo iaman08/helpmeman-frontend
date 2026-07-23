@@ -13,6 +13,7 @@ import { CurrencyProvider } from "@/lib/currency-context";
 import { PublicThemeManager } from "@/components/PublicThemeManager";
 
 import { SocketProvider } from "@/lib/socket-context";
+import { PlatformReviewTrigger } from "@/components/PlatformReviewTrigger";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -61,6 +62,7 @@ export default function RootLayout({
                     {children}
                     <AIChatWidget />
                     <PushPermissionPrompt />
+                    <PlatformReviewTrigger />
                   </SocketProvider>
                 </ToastProvider>
               </CurrencyProvider>

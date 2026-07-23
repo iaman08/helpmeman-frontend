@@ -14,7 +14,9 @@ import {
   MessageCircle,
   HelpCircle,
   ArrowRight,
+  Star,
 } from "lucide-react";
+import { PlatformReviewTrigger } from "@/components/PlatformReviewTrigger";
 
 /* ─── FAQ Data ─────────────────────────────────────────────────────── */
 const CATEGORIES = [
@@ -393,6 +395,17 @@ export default function HelpPage() {
               <Sparkles className="h-4 w-4 text-pink-500" />
               Ask Ruth AI
             </Link>
+            <button
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new Event("open-platform-review-modal"));
+                }
+              }}
+              className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 text-amber-800 bg-amber-50 text-sm font-semibold px-6 py-3 hover:bg-amber-100 transition-colors shadow-xs cursor-pointer"
+            >
+              <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
+              Give Feedback
+            </button>
           </div>
         </div>
       </main>

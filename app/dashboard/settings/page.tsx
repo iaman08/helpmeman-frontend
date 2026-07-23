@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, type ChangeEvent } from "react";
-import { User, Camera, CreditCard, Bell, Briefcase } from "lucide-react";
+import { User, Camera, CreditCard, Bell, Briefcase, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/components/Toast";
@@ -424,6 +424,34 @@ export default function SettingsPage() {
                 className="px-4 py-2 bg-(--fg) text-(--bg) rounded-xl font-bold text-xs hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer shadow-sm"
               >
                 {switching ? "Switching..." : (user?.role === "MENTOR" && mentor) ? "Switch to Mentor Panel" : "Become a Mentor"}
+              </button>
+            </div>
+
+            {/* Platform Review Section */}
+            <div className="bg-(--fg)/[0.02] border border-(--hairline) rounded-3xl p-6 md:p-8 backdrop-blur-xl mt-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-amber-500/10 text-amber-500 rounded-xl border border-amber-500/20">
+                  <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold">Platform Review & Feedback</h3>
+                  <p className="text-xs text-(--muted) mt-0.5">Share your experience to help us improve HelpMeMan.</p>
+                </div>
+              </div>
+              <p className="text-xs sm:text-sm text-(--muted) mb-6 leading-relaxed">
+                Your feedback directly influences platform features and helps other mentees make informed decisions.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    window.dispatchEvent(new Event("open-platform-review-modal"));
+                  }
+                }}
+                className="px-4 py-2 bg-(--fg) text-(--bg) rounded-xl font-bold text-xs hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer shadow-sm flex items-center gap-2"
+              >
+                <Star className="w-3.5 h-3.5 fill-current" />
+                <span>Leave or Edit Review</span>
               </button>
             </div>
           </>

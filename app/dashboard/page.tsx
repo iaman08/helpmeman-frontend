@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/Skeleton";
 import { RatingModal } from "@/components/RatingModal";
 import api from "@/lib/api";
 import type { PendingReview } from "@/lib/types";
+import { MenteePlatformReviewCard } from "@/components/MenteePlatformReviewCard";
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-IN", {
@@ -93,6 +94,9 @@ export default function DashboardPage() {
           </button>
         </div>
       )}
+
+      {/* ─── Platform Review Card ─── */}
+      <MenteePlatformReviewCard />
 
       {/* ─── Quick Stats ─── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

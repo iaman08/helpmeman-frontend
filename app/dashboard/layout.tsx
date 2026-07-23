@@ -11,9 +11,11 @@ import {
   Sparkles,
   Bell,
   Video,
+  Star,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { SidebarShell } from "@/components/SidebarShell";
+import { PlatformReviewTrigger } from "@/components/PlatformReviewTrigger";
 import { useUnreadChatCount } from "@/lib/hooks";
 
 export default function DashboardLayout({
@@ -42,24 +44,26 @@ export default function DashboardLayout({
       icon: Sparkles,
     },
     { href: "/mentors", label: "Browse Mentors", icon: Search },
+    {
+      onClick: () => {
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("open-platform-review-modal"));
+        }
+      },
+      label: "Rate HelpMeMan",
+      icon: Star,
+    },
     { href: "/dashboard/settings", label: "Settings", icon: Settings },
   ];
 
-  // Stable ref to prevent double-redirects during transient state updates.
-  // When Supabase fires SIGNED_IN and setUser() is called, there's a brief
-  // window where user is being updated. Without this ref, the guard fires
-  // on every dependency change, potentially redirecting during that window.
   const hasRedirectedRef = useRef(false);
 
   useEffect(() => {
-    // Don't act while auth is still loading
     if (loading) return;
 
-    // Reset redirect flag when user is confirmed present
     if (user) {
       hasRedirectedRef.current = false;
 
-      // Redirect mentors and admins away from the user dashboard
       if (isMentor) {
         router.replace(mentor?.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status");
       } else if (isAdmin) {
@@ -70,16 +74,12 @@ export default function DashboardLayout({
       return;
     }
 
-    // user is null and loading is done — genuine unauthenticated state
-    // Only redirect once to prevent redirect loops
     if (!hasRedirectedRef.current) {
       hasRedirectedRef.current = true;
       router.replace("/signin");
     }
   }, [loading, user, isMentor, isAdmin, mentor, router]);
 
-
-  // Show spinner while auth resolves; render nothing while redirect is in flight
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
