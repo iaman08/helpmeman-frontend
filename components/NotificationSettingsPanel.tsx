@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, Mail, Smartphone } from "lucide-react";
+import { Bell, Mail, Smartphone, Volume2 } from "lucide-react";
 import { mutate } from "swr";
 import api from "@/lib/api";
 import { useNotificationPreferences } from "@/lib/hooks";
 import { useToast } from "@/components/Toast";
 import { requestPushPermissionAndRegister } from "@/lib/fcm";
+import { chatSoundService } from "@/lib/chatSoundService";
 
 type PrefKey =
   | "emailNotifications"
@@ -14,7 +15,8 @@ type PrefKey =
   | "marketingEmails"
   | "accountUpdates"
   | "messages"
-  | "mentorUpdates";
+  | "mentorUpdates"
+  | "chatSounds";
 
 const TOGGLES: { key: PrefKey; label: string; description: string }[] = [
   { key: "emailNotifications", label: "Email notifications", description: "Receive transactional emails for important activity." },
@@ -23,6 +25,7 @@ const TOGGLES: { key: PrefKey; label: string; description: string }[] = [
   { key: "accountUpdates", label: "Account updates", description: "Security alerts, profile changes, and booking confirmations." },
   { key: "messages", label: "Messages", description: "New chat messages and mentor replies." },
   { key: "mentorUpdates", label: "Mentor updates", description: "Application status, approvals, and mentor-specific alerts." },
+  { key: "chatSounds", label: "Message sounds", description: "Play subtle audio cues for sent and received chat messages." },
 ];
 
 export function NotificationSettingsPanel() {
@@ -33,6 +36,11 @@ export function NotificationSettingsPanel() {
 
   useEffect(() => {
     if (data?.preferences) {
+      const soundPref =
+        typeof data.preferences.chatSounds === "boolean"
+          ? data.preferences.chatSounds
+          : chatSoundService.isEnabled();
+
       setPrefs({
         emailNotifications: data.preferences.emailNotifications,
         pushNotifications: data.preferences.pushNotifications,
@@ -40,7 +48,10 @@ export function NotificationSettingsPanel() {
         accountUpdates: data.preferences.accountUpdates,
         messages: data.preferences.messages,
         mentorUpdates: data.preferences.mentorUpdates,
+        chatSounds: soundPref,
       });
+
+      chatSoundService.setEnabled(soundPref);
     }
   }, [data]);
 
@@ -49,6 +60,11 @@ export function NotificationSettingsPanel() {
     const next = { ...prefs, [key]: !prefs[key] };
     setPrefs(next);
     setSaving(true);
+
+    if (key === "chatSounds") {
+      chatSoundService.setEnabled(next.chatSounds);
+    }
+
     try {
       if (key === "pushNotifications" && next.pushNotifications) {
         const result = await requestPushPermissionAndRegister();
@@ -94,7 +110,9 @@ export function NotificationSettingsPanel() {
             >
               <span>
                 <span className="flex items-center gap-2 text-sm font-semibold">
-                  {item.key.includes("email") || item.key === "marketingEmails" ? (
+                  {item.key === "chatSounds" ? (
+                    <Volume2 className="h-4 w-4 text-(--muted)" />
+                  ) : item.key.includes("email") || item.key === "marketingEmails" ? (
                     <Mail className="h-4 w-4 text-(--muted)" />
                   ) : (
                     <Smartphone className="h-4 w-4 text-(--muted)" />

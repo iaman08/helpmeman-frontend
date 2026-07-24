@@ -70,6 +70,9 @@ export function SidebarShell({
   useEffect(() => {
     setMobileOpen(false);
     setAiOpen(false);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("close-ai"));
+    }
   }, [pathname]);
 
   // Prevent body scroll when mobile sidebar is open
@@ -162,6 +165,11 @@ export function SidebarShell({
             <Link
               key={item.href || item.label}
               href={item.href!}
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new Event("close-ai"));
+                }
+              }}
               className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${active
                   ? "bg-(--fg)/8 text-(--fg)"
                   : "text-(--muted) hover:text-(--fg) hover:bg-(--fg)/4"

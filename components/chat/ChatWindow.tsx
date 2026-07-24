@@ -14,6 +14,7 @@ import { ChatInput } from "./ChatInput";
 import { TypingIndicator } from "./TypingIndicator";
 import { useThreadMessages } from "./hooks/useThreadMessages";
 import { Avatar } from "@/components/Avatar";
+import { chatSoundService } from "@/lib/chatSoundService";
 
 interface ChatWindowProps {
   thread: ChatThread | null;
@@ -342,6 +343,7 @@ export function ChatWindow({
         const realMsg: ChatMessage = res.data.message;
         confirmOptimistic(tempId, realMsg);
         socketActions.markSeenId(realMsg.id);
+        chatSoundService.playSendSound();
 
         if (res.data.thread?.status) {
           onThreadLockChange(thread.id, res.data.thread.status);

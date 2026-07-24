@@ -8,6 +8,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AxiosError } from "axios";
 import { useAIStream } from "@/hooks/useAIStream";
+import { chatSoundService } from "@/lib/chatSoundService";
 
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -568,6 +569,11 @@ function MentorCardInChat({ mentor, onBook }: { mentor: MentorData; onBook: (men
       <div className="flex gap-2 px-4 pb-4">
         <Link
           href={`/mentors/${mentor.id}`}
+          onClick={() => {
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new Event("close-ai"));
+            }
+          }}
           className="flex-1 text-center text-xs font-semibold py-2 rounded-xl border border-(--hairline) text-(--muted) hover:text-(--fg) hover:border-(--fg)/20 transition-colors"
         >
           View Profile
@@ -905,12 +911,22 @@ function BookingSuccessInChat({ info }: { info: BookingSuccess }) {
       <div className="flex gap-2 px-4 pb-4">
         <Link
           href="/dashboard/bookings"
+          onClick={() => {
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new Event("close-ai"));
+            }
+          }}
           className="flex-1 text-center text-xs font-semibold py-2 rounded-xl bg-(--fg) text-(--bg) hover:opacity-90 transition-opacity"
         >
           View Booking
         </Link>
         <Link
           href="/dashboard/chat"
+          onClick={() => {
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new Event("close-ai"));
+            }
+          }}
           className="flex-1 text-center text-xs font-semibold py-2 rounded-xl border border-(--hairline) text-(--muted) hover:text-(--fg) transition-colors"
         >
           Open Chat
@@ -954,6 +970,14 @@ export function AIChatWidget() {
       localStorage.setItem("helpmeman.aiActiveTab", activeTab);
     }
   }, [activeTab]);
+
+  // Automatically close Ruth AI drawer on route change
+  useEffect(() => {
+    setIsOpen(false);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("helpmeman.aiChatOpen", "false");
+    }
+  }, [pathname]);
 
   // Chat state
   const [messages, setMessages] = useState<Message[]>([]);
@@ -1085,6 +1109,7 @@ export function AIChatWidget() {
       setLoading(false);
       setStreamingMessageId(null);
       streamingMessageIdRef.current = null;
+      chatSoundService.playReceiveSound();
     }
   });
 
@@ -1447,6 +1472,7 @@ export function AIChatWidget() {
     setStreamingMessageId(streamingId);
     streamingMessageIdRef.current = streamingId;
 
+    chatSoundService.playSendSound();
     startStream(msg, { sessionId: sessionId || undefined, ruthlessMode });
   }, [input, loading, sessionId, startStream, ruthlessMode]);
 
@@ -1537,7 +1563,7 @@ export function AIChatWidget() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-y-0 right-0 left-0 md:left-64 z-[9999] flex flex-col overflow-hidden bg-(--bg) border-l border-(--hairline) animate-in slide-in-from-bottom md:slide-in-from-right duration-300">
+    <div data-ai-chat-open="true" className="fixed inset-y-0 right-0 left-0 md:left-64 z-[9999] flex flex-col overflow-hidden bg-(--bg) border-l border-(--hairline) animate-in slide-in-from-bottom md:slide-in-from-right duration-300">
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div className="shrink-0 border-b border-(--hairline) bg-(--bg)/80 backdrop-blur-md sticky top-0 z-10 pt-safe-top md:pt-0">

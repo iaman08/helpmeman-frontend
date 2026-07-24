@@ -44,15 +44,6 @@ export default function DashboardLayout({
       icon: Sparkles,
     },
     { href: "/mentors", label: "Browse Mentors", icon: Search },
-    {
-      onClick: () => {
-        if (typeof window !== "undefined") {
-          window.dispatchEvent(new Event("open-platform-review-modal"));
-        }
-      },
-      label: "Rate HelpMeMan",
-      icon: Star,
-    },
     { href: "/dashboard/settings", label: "Settings", icon: Settings },
   ];
 

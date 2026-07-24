@@ -5,6 +5,7 @@ import { io, Socket } from "socket.io-client";
 import { useAuth } from "./auth-context";
 import { mutate } from "swr";
 import { useToast } from "@/components/Toast";
+import { chatSoundService } from "@/lib/chatSoundService";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -18,6 +19,11 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const socketRef = useRef<Socket | null>(null);
   const [connected, setConnected] = useState(false);
   const { toast } = useToast();
+
+  // Preload sound service listeners on mount
+  useEffect(() => {
+    chatSoundService.preloadSounds();
+  }, []);
 
   // Keep toast in a stable ref so it never triggers a socket reconnect
   const toastRef = useRef(toast);
@@ -96,6 +102,9 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
       // Only alert if the message is NOT sent by us
       if (data.message.senderId !== userId) {
+        // Play receive sound if chat page is active
+        chatSoundService.playReceiveSound(data.message.id);
+
         const isChatOpen = window.location.pathname.includes("/chat");
         const isTabInactive = document.hidden;
 

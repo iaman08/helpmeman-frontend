@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/components/Toast";
 import type { ChatThread, ChatMessage, PresenceStatus } from "@/lib/types";
 import { mutate } from "swr";
+import { chatSoundService } from "@/lib/chatSoundService";
 
 import { ThreadList } from "./ThreadList";
 import { ChatWindow } from "./ChatWindow";
@@ -21,6 +22,10 @@ const THEMES = [
 export function UnifiedChat() {
   const { user } = useAuth();
   const { toast } = useToast();
+
+  useEffect(() => {
+    chatSoundService.preloadSounds();
+  }, []);
 
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [activeThread, setActiveThread] = useState<ChatThread | null>(null);
@@ -54,6 +59,10 @@ export function UnifiedChat() {
 
   const onMessage = useCallback((msg: ChatMessage) => {
     const isCurrent = activeThreadRef.current?.id === msg.threadId;
+
+    if (msg.senderId !== user?.id) {
+      chatSoundService.playReceiveSound(msg.id);
+    }
     
     if (isCurrent) {
       setActiveThread(prev => prev ? {
