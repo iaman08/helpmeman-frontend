@@ -30,6 +30,7 @@ interface SidebarShellProps {
   avatarColor?: string;
   notificationsPath?: string;
   onLogout: () => void;
+  className?: string;
 }
 
 export function SidebarShell({
@@ -45,6 +46,7 @@ export function SidebarShell({
   avatarColor = "bg-(--fg)/8 text-(--fg)",
   notificationsPath = "/dashboard/notifications",
   onLogout,
+  className,
 }: SidebarShellProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -269,7 +271,7 @@ export function SidebarShell({
 
       {/* Main content */}
       <main className="md:ml-64 flex-1 min-h-screen min-w-0">
-        <div className="max-w-5xl mx-auto w-full px-4 sm:px-10 py-10 pt-[72px] md:pt-10">
+        <div className={className || "max-w-5xl mx-auto w-full px-4 sm:px-10 py-10 pt-[72px] md:pt-10"}>
           {children}
         </div>
       </main>

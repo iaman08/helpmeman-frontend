@@ -273,3 +273,85 @@ html[data-theme="dark"] .review-card-pink .fill-current {
 .review-card-neutral .fill-current {
   color: #eab308;
 }
+
+/* ─── Swipe / Discover Page ─── */
+
+/* Prevent body scroll when discover page is active */
+.discover-page-active {
+  overflow: hidden;
+  height: 100dvh;
+}
+
+/* Card throw animation */
+@keyframes cardThrowRight {
+  to { transform: translateX(120vw) rotate(25deg); opacity: 0; }
+}
+@keyframes cardThrowLeft {
+  to { transform: translateX(-120vw) rotate(-25deg); opacity: 0; }
+}
+@keyframes cardThrowUp {
+  to { transform: translateY(-120vh) scale(0.8); opacity: 0; }
+}
+
+/* Confetti pieces */
+@keyframes confettiFall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
+/* Glowing ring around Priority Match button */
+.priority-glow {
+  box-shadow: 0 0 20px rgba(245,158,11,0.5), 0 0 40px rgba(245,158,11,0.2);
+}
+
+/* Card stack depth effect */
+.swipe-card-stack {
+  perspective: 1200px;
+  perspective-origin: center center;
+}
+
+/* Swipe stamp text */
+.swipe-stamp {
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 1.1rem;
+  border-radius: 0.75rem;
+  padding: 0.4rem 1rem;
+  border-width: 3px;
+  border-style: solid;
+}
+
+.swipe-stamp-interested {
+  border-color: #22c55e;
+  color: #22c55e;
+  background: rgba(34,197,94,0.1);
+  transform: rotate(-12deg);
+}
+
+.swipe-stamp-skip {
+  border-color: #ef4444;
+  color: #ef4444;
+  background: rgba(239,68,68,0.1);
+  transform: rotate(12deg);
+}
+
+.swipe-stamp-priority {
+  border-color: #f59e0b;
+  color: #f59e0b;
+  background: rgba(245,158,11,0.1);
+}
+
+/* Action button pulse on hover */
+.action-btn-interested:hover {
+  box-shadow: 0 0 30px rgba(34,197,94,0.4), 0 0 60px rgba(34,197,94,0.15);
+}
+
+.action-btn-skip:hover {
+  box-shadow: 0 0 30px rgba(239,68,68,0.4), 0 0 60px rgba(239,68,68,0.15);
+}
+
+.action-btn-priority:hover {
+  box-shadow: 0 0 30px rgba(245,158,11,0.5), 0 0 60px rgba(245,158,11,0.2);
+}

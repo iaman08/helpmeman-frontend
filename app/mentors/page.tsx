@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, Suspense } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   Search,
   SlidersHorizontal,
@@ -22,6 +24,7 @@ import {
 } from "lucide-react";
 import { useMentors, useCategories, useUnreadChatCount, type MentorFilters } from "@/lib/hooks";
 import { MentorCard } from "@/components/MentorCard";
+import { SwipeArena } from "@/components/matching/SwipeArena";
 import { MentorCardSkeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { Navbar } from "@/components/Navbar";
@@ -45,12 +48,15 @@ const INSTITUTION_TYPES = [
   { value: "STARTUP", label: "Startup" },
 ];
 
-export default function MentorsPage() {
+function MentorsContent() {
   const { user, logout, isMentor, isAdmin } = useAuth();
   const { data: unreadData } = useUnreadChatCount();
   const unreadChatCount = unreadData?.unreadCount ?? 0;
   const { currency, rates } = useCurrency();
   const symbol = CURRENCY_CONFIGS[currency]?.symbol || currency;
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get("tab") === "discover" ? "discover" : "grid";
+  const [activeTab, setActiveTab] = useState<"grid" | "discover">(initialTab);
   const [filters, setFilters] = useState<MentorFilters>({
     page: 1,
     limit: 12,
@@ -94,18 +100,53 @@ export default function MentorsPage() {
 
   const content = (
     <div className={`w-full ${user ? '' : 'max-w-[1400px] mx-auto px-5 sm:px-10 pt-24 sm:pt-28'} pb-10`}>
-      {/* ─── Page Title ─── */}
-      <div className="flex flex-col gap-2 mb-6 sm:mb-8">
-        <p className="text-[10px] sm:text-xs uppercase tracking-[0.22em] text-(--muted) font-bold">
-          Explore mentors
-        </p>
-        <h1 className="font-display text-2xl sm:text-3xl md:text-4xl leading-tight">
-          Find the right mentor
-          <span className="italic"> for your stage.</span>
-        </h1>
+      {/* ─── Page Title + View Toggle Tabs ─── */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 border-b border-(--hairline) pb-4">
+        <div className="flex flex-col gap-2">
+          <p className="text-[10px] sm:text-xs uppercase tracking-[0.22em] text-(--muted) font-bold">
+            Explore mentors
+          </p>
+          <h1 className="font-display text-2xl sm:text-3xl md:text-4xl leading-tight">
+            Find the right mentor
+            <span className="italic"> for your stage.</span>
+          </h1>
+        </div>
+        
+        {/* Tabs switcher */}
+        <div className="flex bg-(--fg)/5 p-1 rounded-xl border border-(--hairline) self-start md:self-auto">
+          <button
+            type="button"
+            onClick={() => setActiveTab("grid")}
+            className={`px-5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              activeTab === "grid"
+                ? "bg-(--bg) text-(--fg) shadow-sm"
+                : "text-(--muted) hover:text-(--fg)"
+            }`}
+          >
+            Directory List
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("discover")}
+            className={`flex items-center gap-1.5 px-5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              activeTab === "discover"
+                ? "bg-(--bg) text-(--fg) shadow-sm"
+                : "text-(--muted) hover:text-(--fg)"
+            }`}
+          >
+            <span>✦</span>
+            Matchmaker Swipe
+          </button>
+        </div>
       </div>
 
-      {/* ─── Search + Filter Bar ─── */}
+      {activeTab === "discover" ? (
+        <div className="-mx-5 sm:-mx-10" style={{ height: "calc(100vh - 280px)", minHeight: "560px" }}>
+          <SwipeArena />
+        </div>
+      ) : (
+        <>
+          {/* ─── Search + Filter Bar ─── */}
       <div className="flex flex-col gap-3 mb-6 sm:mb-8">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div className="relative flex-1 group">
@@ -363,6 +404,8 @@ export default function MentorsPage() {
           }
         />
       )}
+        </>
+      )}
 
       {selectedShareMentor && (
         <ShareProfileModal
@@ -473,5 +516,20 @@ export default function MentorsPage() {
       <Navbar />
       <main>{content}</main>
     </div>
+  );
+}
+
+export default function MentorsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-(--bg) text-(--fg)">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 rounded-full border-2 border-(--accent) border-t-transparent animate-spin" />
+          <p className="text-xs text-(--muted)">Loading explore page...</p>
+        </div>
+      </div>
+    }>
+      <MentorsContent />
+    </Suspense>
   );
 }
