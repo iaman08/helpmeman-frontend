@@ -61,13 +61,18 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-8 pb-10">
       {/* ─── Greeting Section ─── */}
-      <div className="flex flex-col gap-1.5 border-b border-(--hairline) pb-6">
-        <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-(--muted)">
-          Dashboard
-        </p>
-        <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-(--fg)">
-          Welcome back, {user?.name?.split(" ")[0] || "Dilkhush"}.
-        </h1>
+      <div className="flex items-center gap-4 border-b border-(--hairline) pb-6">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-(--fg)/4 border border-(--hairline) shrink-0 shadow-xs">
+          <img src="/logo.svg" alt="HelpMeMan Logo" className="w-7 h-7 object-contain" />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-(--muted) leading-none">
+            Dashboard
+          </p>
+          <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-(--fg) leading-none">
+            Welcome back, {user?.name?.split(" ")[0] || "Dilkhush"}.
+          </h1>
+        </div>
       </div>
 
       {/* ─── Pending Review Banner ─── */}

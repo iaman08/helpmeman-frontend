@@ -193,6 +193,7 @@ export interface NotificationPreferences {
   accountUpdates: boolean;
   messages: boolean;
   mentorUpdates: boolean;
+  chatSounds?: boolean;
   updatedAt: string;
 }
 
