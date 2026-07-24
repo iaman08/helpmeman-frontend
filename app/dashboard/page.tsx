@@ -61,15 +61,13 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-8 pb-10">
       {/* ─── Greeting Section ─── */}
-      <div className="flex items-center gap-4 border-b border-(--hairline) pb-6">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-(--fg)/4 border border-(--hairline) shrink-0 shadow-xs">
-          <img src="/logo.svg" alt="HelpMeMan Logo" className="w-7 h-7 object-contain" />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-(--muted) leading-none">
+      <div className="flex items-center gap-3.5 border-b border-(--hairline) pb-4 sm:pb-6">
+        <img src="/logo.svg" alt="HelpMeMan Logo" className="w-9 h-9 sm:w-11 sm:h-11 object-contain shrink-0" />
+        <div className="flex flex-col gap-1 min-w-0">
+          <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.22em] text-(--muted) leading-none">
             Dashboard
           </p>
-          <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-(--fg) leading-none">
+          <h1 className="font-display text-xl sm:text-3xl font-extrabold tracking-tight text-(--fg) leading-tight truncate">
             Welcome back, {user?.name?.split(" ")[0] || "Dilkhush"}.
           </h1>
         </div>
@@ -106,56 +104,59 @@ export default function DashboardPage() {
       </div>
 
       {/* ─── Premium Stats Grid ─── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
         {/* Stat Item 1 */}
-        <div className="group relative overflow-hidden rounded-2xl border border-black/5 dark:border-white/5 bg-white/40 dark:bg-white/[0.02] p-5 backdrop-blur-md hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex items-center justify-between">
-          <div className="flex flex-col gap-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-(--muted)">
-              Total Bookings
-            </span>
-            <span className="font-display text-3xl font-extrabold tracking-tight text-(--fg)">
+        <div className="group relative overflow-hidden rounded-2xl border border-black/5 dark:border-white/5 bg-white/40 dark:bg-white/[0.02] p-3.5 sm:p-5 backdrop-blur-md hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex items-center justify-between">
+          <div className="flex flex-col gap-1 min-w-0">
+            <span className="font-display text-xl sm:text-3xl font-extrabold tracking-tight text-(--fg)">
               {bookingsLoading ? (
-                <Skeleton className="h-9 w-12" />
+                <Skeleton className="h-6 w-8 sm:h-9 sm:w-12" />
               ) : (
                 bookingData?.total ?? 0
               )}
             </span>
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-(--muted) truncate">
+              <span className="sm:hidden">Bookings</span>
+              <span className="hidden sm:inline">Total Bookings</span>
+            </span>
           </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-md shadow-orange-500/20 transition-transform group-hover:scale-105 duration-300">
+          <div className="hidden sm:flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-md shadow-orange-500/20 transition-transform group-hover:scale-105 duration-300 shrink-0">
             <CalendarCheck className="h-5 w-5" />
           </div>
         </div>
 
         {/* Stat Item 2 */}
-        <div className="group relative overflow-hidden rounded-2xl border border-black/5 dark:border-white/5 bg-white/40 dark:bg-white/[0.02] p-5 backdrop-blur-md hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex items-center justify-between">
-          <div className="flex flex-col gap-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-(--muted)">
-              Upcoming Sessions
-            </span>
-            <span className="font-display text-3xl font-extrabold tracking-tight text-emerald-500 dark:text-emerald-400">
+        <div className="group relative overflow-hidden rounded-2xl border border-black/5 dark:border-white/5 bg-white/40 dark:bg-white/[0.02] p-3.5 sm:p-5 backdrop-blur-md hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex items-center justify-between">
+          <div className="flex flex-col gap-1 min-w-0">
+            <span className="font-display text-xl sm:text-3xl font-extrabold tracking-tight text-emerald-500 dark:text-emerald-400">
               {bookingsLoading ? (
-                <Skeleton className="h-9 w-12" />
+                <Skeleton className="h-6 w-8 sm:h-9 sm:w-12" />
               ) : (
                 upcomingBookings.length
               )}
             </span>
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-(--muted) truncate">
+              <span className="sm:hidden">Upcoming</span>
+              <span className="hidden sm:inline">Upcoming Sessions</span>
+            </span>
           </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-500 text-white shadow-md shadow-emerald-500/20 transition-transform group-hover:scale-105 duration-300">
+          <div className="hidden sm:flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-500 text-white shadow-md shadow-emerald-500/20 transition-transform group-hover:scale-105 duration-300 shrink-0">
             <Clock className="h-5 w-5" />
           </div>
         </div>
 
         {/* Stat Item 3 */}
-        <div className="group relative overflow-hidden rounded-2xl border border-black/5 dark:border-white/5 bg-white/40 dark:bg-white/[0.02] p-5 backdrop-blur-md hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex items-center justify-between">
-          <div className="flex flex-col gap-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-(--muted)">
-              Unread Messages
-            </span>
-            <span className="font-display text-3xl font-extrabold tracking-tight text-indigo-500 dark:text-indigo-400">
+        <div className="group relative overflow-hidden rounded-2xl border border-black/5 dark:border-white/5 bg-white/40 dark:bg-white/[0.02] p-3.5 sm:p-5 backdrop-blur-md hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex items-center justify-between">
+          <div className="flex flex-col gap-1 min-w-0">
+            <span className="font-display text-xl sm:text-3xl font-extrabold tracking-tight text-indigo-500 dark:text-indigo-400">
               {notifData?.unreadCount ?? 0}
             </span>
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-(--muted) truncate">
+              <span className="sm:hidden">Unread</span>
+              <span className="hidden sm:inline">Unread Messages</span>
+            </span>
           </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 text-white shadow-md shadow-indigo-500/20 transition-transform group-hover:scale-105 duration-300">
+          <div className="hidden sm:flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 text-white shadow-md shadow-indigo-500/20 transition-transform group-hover:scale-105 duration-300 shrink-0">
             <MessageCircle className="h-5 w-5" />
           </div>
         </div>
@@ -212,9 +213,9 @@ export default function DashboardPage() {
             ))}
           </div>
         ) : (
-          <div className="relative overflow-hidden rounded-2xl border border-dashed border-(--hairline) bg-white/20 dark:bg-white/[0.01] p-10 text-center flex flex-col items-center justify-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-500">
-              <CalendarCheck className="h-6 w-6" />
+          <div className="relative overflow-hidden rounded-2xl border border-dashed border-(--hairline) bg-white/20 dark:bg-white/[0.01] p-6 sm:p-10 text-center flex flex-col items-center justify-center gap-4">
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-indigo-500/10 text-indigo-500 shrink-0">
+              <CalendarCheck className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
             <div className="flex flex-col gap-1">
               <p className="text-sm font-bold text-(--fg)">
@@ -226,7 +227,7 @@ export default function DashboardPage() {
             </div>
             <Link
               href="/mentors"
-              className="inline-flex items-center gap-2 rounded-xl bg-(--fg) text-(--bg) px-6 py-3 text-xs font-bold hover:opacity-90 active:scale-95 transition-all shadow-md cursor-pointer mt-1"
+              className="inline-flex items-center gap-2 rounded-xl bg-(--fg) text-(--bg) px-5 py-2.5 sm:px-6 sm:py-3 text-xs font-bold hover:opacity-90 active:scale-95 transition-all shadow-md cursor-pointer mt-1"
             >
               Browse mentors <ArrowRight className="h-3.5 w-3.5" />
             </Link>
