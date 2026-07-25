@@ -35,7 +35,7 @@ import { Navbar } from "@/components/Navbar";
 import { InstitutionBadge } from "@/components/InstitutionBadge";
 import { Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { ShareProfileModal } from "@/components/ShareProfileModal";
 import { Avatar } from "@/components/Avatar";
 import { ReviewCard } from "@/components/ReviewCard";
@@ -79,6 +79,15 @@ export default function MentorProfilePage() {
     data: reviewData,
     isLoading: reviewsLoading,
   } = useMentorReviews(id as string, reviewPage);
+
+  const uniqueReviews = useMemo(() => {
+    const seen = new Set<string>();
+    return (reviewData?.reviews ?? []).filter((r: any) => {
+      if (!r.id || seen.has(r.id)) return false;
+      seen.add(r.id);
+      return true;
+    });
+  }, [reviewData?.reviews]);
   
   const [isShareOpen, setIsShareOpen] = useState(false);
 
@@ -301,12 +310,71 @@ export default function MentorProfilePage() {
                 href={mentor.linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-(--muted) hover:text-(--fg) transition-colors font-bold"
+                className="inline-flex items-center gap-2 text-sm text-(--muted) hover:text-(--fg) transition-colors font-bold mb-4 block w-fit"
               >
                 <ExternalLink className="h-4 w-4" />
                 LinkedIn Profile
               </a>
             )}
+
+            {/* Reviews Section */}
+            <div className="flex flex-col gap-6 pt-8 border-t border-(--hairline) mt-6">
+              <h2 className="text-[10px] uppercase tracking-[0.22em] font-extrabold text-(--muted)">
+                Student Reviews ({reviewData?.total ?? 0})
+              </h2>
+
+              {/* Rating Stats Display */}
+              {reviewData && (reviewData.total ?? 0) > 0 && (
+                <MentorRatingStatsDisplay
+                  stats={{
+                    avgRating: mentor.rating,
+                    totalReviews: reviewData.total,
+                    distribution: mentor.ratingDistribution || { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 }
+                  }}
+                />
+              )}
+
+              {/* Reviews List */}
+              {reviewsLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <Skeleton className="h-32 rounded-2xl" />
+                  <Skeleton className="h-32 rounded-2xl" />
+                </div>
+              ) : uniqueReviews.length > 0 ? (
+                <div className="flex flex-col gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
+                    {uniqueReviews.map((rev: any) => (
+                      <ReviewCard key={rev.id} review={rev} />
+                    ))}
+                  </div>
+
+                  {/* Pagination */}
+                  {reviewData && reviewData.totalPages > 1 && (
+                    <div className="flex items-center gap-2 mt-4 flex-wrap">
+                      {Array.from({ length: reviewData.totalPages }).map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setReviewPage(i + 1)}
+                          className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-colors cursor-pointer ${
+                            reviewPage === i + 1
+                              ? "bg-(--fg) text-(--bg) border-(--fg)"
+                              : "bg-(--bg) text-(--fg) border-(--hairline) hover:bg-(--fg)/5"
+                          }`}
+                        >
+                          {i + 1}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <EmptyState
+                  icon={<Star className="h-6 w-6 text-(--muted)" />}
+                  title="No reviews yet"
+                  description="This mentor has not received any session reviews yet."
+                />
+              )}
+            </div>
 
           </div>
 

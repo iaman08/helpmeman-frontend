@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   X,
@@ -92,6 +93,17 @@ export function ExpandedMentorPanel({ mentor, onClose, onAction }: ExpandedMento
     : [];
 
   const reviews = mentor.reviews ?? [];
+
+  const uniquePanelReviews = useMemo(() => {
+    const seen = new Set<string>();
+    return reviews.filter((r: any) => {
+      const name = r.userName || r.user?.name || "Mentee";
+      const key = r.id || r.comment || `${name}-${r.createdAt}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [reviews]);
 
   return (
     <AnimatePresence>
@@ -278,12 +290,18 @@ export function ExpandedMentorPanel({ mentor, onClose, onAction }: ExpandedMento
               </div>
 
               {/* Reviews */}
-              {reviews.length > 0 && (
-                <Section title={`Reviews (${reviews.length})`}>
+              {uniquePanelReviews.length > 0 && (
+                <Section title={`Reviews (${uniquePanelReviews.length})`}>
                   <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
-                    {reviews.slice(0, 5).map((rev) => (
-                      <ReviewCard key={rev.id} review={rev} />
-                    ))}
+                    {uniquePanelReviews.slice(0, 5).map((rev: any) => {
+                      const mappedRev = {
+                        ...rev,
+                        userName: rev.userName || rev.user?.name || "Mentee"
+                      };
+                      return (
+                        <ReviewCard key={rev.id || rev.comment || `${mappedRev.userName}-${rev.createdAt}`} review={mappedRev} />
+                      );
+                    })}
                   </div>
                 </Section>
               )}

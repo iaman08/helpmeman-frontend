@@ -355,3 +355,11 @@ html[data-theme="dark"] .review-card-pink .fill-current {
 .action-btn-priority:hover {
   box-shadow: 0 0 30px rgba(245,158,11,0.5), 0 0 60px rgba(245,158,11,0.2);
 }
+
+/* Custom Line Clamp Utilities */
+.custom-line-clamp {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  -webkit-line-clamp: 3 !important;
+}

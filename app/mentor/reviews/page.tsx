@@ -13,55 +13,84 @@ export default function MentorReviewsAnalyticsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
     // Fetch current logged in mentor's reviews
     api.get("/mentor/me/stats")
       .then(async (statsRes) => {
+        if (!isMounted) return;
         const mentorId = statsRes.data?.mentorId || statsRes.data?.id;
         if (mentorId) {
           const revRes = await api.get(`/reviews/mentor/${mentorId}?limit=50`);
-          setReviews(revRes.data?.reviews ?? []);
+          if (isMounted) {
+            setReviews(revRes.data?.reviews ?? []);
+          }
         } else {
           // fallback
           const revRes = await api.get("/mentor/me/reviews");
-          setReviews(revRes.data?.reviews ?? []);
+          if (isMounted) {
+            setReviews(revRes.data?.reviews ?? []);
+          }
         }
       })
       .catch(() => {
+        if (!isMounted) return;
         api.get("/mentor/me/reviews")
-          .then((res) => setReviews(res.data?.reviews ?? []))
+          .then((res) => {
+            if (isMounted) {
+              setReviews(res.data?.reviews ?? []);
+            }
+          })
           .catch(() => {});
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (isMounted) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
+  // Deduplicate reviews by id to prevent duplicate rendering
+  const uniqueReviews = useMemo(() => {
+    const seen = new Set<string>();
+    return reviews.filter((r) => {
+      if (!r.id || seen.has(r.id)) return false;
+      seen.add(r.id);
+      return true;
+    });
+  }, [reviews]);
+
   // Compute analytics
-  const total = reviews.length;
+  const total = uniqueReviews.length;
 
   const avgRating = useMemo(() => {
     if (total === 0) return "0.0";
-    const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
+    const sum = uniqueReviews.reduce((acc, r) => acc + r.rating, 0);
     return (sum / total).toFixed(1);
-  }, [reviews, total]);
+  }, [uniqueReviews, total]);
 
   const fiveStarPercent = useMemo(() => {
     if (total === 0) return 0;
-    const count = reviews.filter((r) => r.rating === 5).length;
+    const count = uniqueReviews.filter((r) => r.rating === 5).length;
     return Math.round((count / total) * 100);
-  }, [reviews, total]);
+  }, [uniqueReviews, total]);
 
   const distribution = useMemo(() => {
     const dist: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-    reviews.forEach((r) => {
+    uniqueReviews.forEach((r) => {
       dist[r.rating] = (dist[r.rating] || 0) + 1;
     });
     return dist;
-  }, [reviews]);
+  }, [uniqueReviews]);
 
   const { positiveTags, negativeTags } = useMemo(() => {
     const posCounts: Record<string, number> = {};
     const negCounts: Record<string, number> = {};
 
-    reviews.forEach((r) => {
+    uniqueReviews.forEach((r) => {
       if (r.tags && Array.isArray(r.tags)) {
         r.tags.forEach((tag) => {
           if (r.rating > 3) {
@@ -81,7 +110,7 @@ export default function MentorReviewsAnalyticsPage() {
       .slice(0, 6);
 
     return { positiveTags: posSorted, negativeTags: negSorted };
-  }, [reviews]);
+  }, [uniqueReviews]);
 
   return (
     <div className="flex flex-col gap-8 pb-12">
@@ -107,40 +136,46 @@ export default function MentorReviewsAnalyticsPage() {
       ) : (
         <>
           {/* Top Metric Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             {/* Avg Rating Card */}
-            <div className="rounded-2xl border p-5 flex flex-col gap-2 bg-(--fg)/[0.02] border-(--hairline)">
+            <div className="rounded-2xl border p-6 flex flex-col gap-2 bg-linear-to-br from-amber-500/5 to-transparent dark:from-amber-500/10 border-amber-500/10 shadow-xs hover:shadow-md hover:border-amber-500/30 transition-all duration-300">
               <div className="flex items-center justify-between text-(--muted)">
-                <span className="text-xs uppercase tracking-widest font-semibold">Average Rating</span>
-                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                <span className="text-xs uppercase tracking-widest font-extrabold text-(--muted)/85">Average Rating</span>
+                <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-500">
+                  <Star className="w-4 h-4 fill-amber-500" />
+                </div>
               </div>
-              <div className="flex items-baseline gap-2 mt-1">
-                <span className="font-display text-4xl">{avgRating}</span>
-                <span className="text-xs text-(--muted)">out of 5.0</span>
+              <div className="flex items-baseline gap-2 mt-2">
+                <span className="font-display text-4.5xl font-black text-(--fg)">{avgRating}</span>
+                <span className="text-xs text-(--muted) font-semibold">out of 5.0</span>
               </div>
             </div>
 
             {/* Total Reviews Card */}
-            <div className="rounded-2xl border p-5 flex flex-col gap-2 bg-(--fg)/[0.02] border-(--hairline)">
+            <div className="rounded-2xl border p-6 flex flex-col gap-2 bg-linear-to-br from-blue-500/5 to-transparent dark:from-blue-500/10 border-blue-500/10 shadow-xs hover:shadow-md hover:border-blue-500/30 transition-all duration-300">
               <div className="flex items-center justify-between text-(--muted)">
-                <span className="text-xs uppercase tracking-widest font-semibold">Total Reviews</span>
-                <MessageSquare className="w-4 h-4 text-blue-500" />
+                <span className="text-xs uppercase tracking-widest font-extrabold text-(--muted)/85">Total Reviews</span>
+                <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-500">
+                  <MessageSquare className="w-4 h-4" />
+                </div>
               </div>
-              <div className="flex items-baseline gap-2 mt-1">
-                <span className="font-display text-4xl">{total}</span>
-                <span className="text-xs text-(--muted)">completed sessions</span>
+              <div className="flex items-baseline gap-2 mt-2">
+                <span className="font-display text-4.5xl font-black text-(--fg)">{total}</span>
+                <span className="text-xs text-(--muted) font-semibold">completed sessions</span>
               </div>
             </div>
 
             {/* 5-Star Ratio Card */}
-            <div className="rounded-2xl border p-5 flex flex-col gap-2 bg-(--fg)/[0.02] border-(--hairline)">
+            <div className="rounded-2xl border p-6 flex flex-col gap-2 bg-linear-to-br from-emerald-500/5 to-transparent dark:from-emerald-500/10 border-emerald-500/10 shadow-xs hover:shadow-md hover:border-emerald-500/30 transition-all duration-300">
               <div className="flex items-center justify-between text-(--muted)">
-                <span className="text-xs uppercase tracking-widest font-semibold">5-Star Ratio</span>
-                <TrendingUp className="w-4 h-4 text-green-500" />
+                <span className="text-xs uppercase tracking-widest font-extrabold text-(--muted)/85">5-Star Ratio</span>
+                <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-500">
+                  <TrendingUp className="w-4 h-4" />
+                </div>
               </div>
-              <div className="flex items-baseline gap-2 mt-1">
-                <span className="font-display text-4xl">{fiveStarPercent}%</span>
-                <span className="text-xs text-(--muted)">5-star reviews</span>
+              <div className="flex items-baseline gap-2 mt-2">
+                <span className="font-display text-4.5xl font-black text-(--fg)">{fiveStarPercent}%</span>
+                <span className="text-xs text-(--muted) font-semibold">5-star ratings</span>
               </div>
             </div>
           </div>
@@ -148,36 +183,36 @@ export default function MentorReviewsAnalyticsPage() {
           {/* Rating Breakdown & Tag Insights */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Rating Breakdown */}
-            <div className="rounded-2xl border p-6 flex flex-col gap-4 bg-(--fg)/[0.02] border-(--hairline)">
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-(--muted)">
-                Rating Breakdown
+            <div className="rounded-2xl border p-6 flex flex-col gap-5 bg-white dark:bg-[#18181B] border-(--hairline) shadow-sm">
+              <h3 className="text-xs font-extrabold uppercase tracking-widest text-(--fg)">
+                Rating Distribution
               </h3>
 
-              <div className="flex flex-col gap-3 pt-1">
+              <div className="flex flex-col gap-3.5 pt-1">
                 {[5, 4, 3, 2, 1].map((stars) => {
                   const count = distribution[stars] || 0;
                   const pct = total > 0 ? Math.round((count / total) * 100) : 0;
                   return (
-                    <div key={stars} className="flex items-center gap-3 text-xs">
-                      <span className="w-8 font-medium text-(--muted) flex items-center justify-end gap-1">
+                    <div key={stars} className="flex items-center gap-4 text-xs">
+                      <span className="w-10 font-bold text-(--muted) flex items-center justify-end gap-1 shrink-0">
                         {stars} ★
                       </span>
-                      <div className="flex-1 h-3 rounded-full bg-(--fg)/10 overflow-hidden">
+                      <div className="flex-1 h-3 rounded-full bg-(--fg)/5 dark:bg-white/5 overflow-hidden">
                         <div
                           className="h-full rounded-full transition-all duration-500"
                           style={{
                             width: `${pct}%`,
                             background:
                               stars >= 4
-                                ? "#22c55e"
+                                ? "#10b981" // Emerald
                                 : stars === 3
-                                ? "#eab308"
-                                : "#ef4444",
+                                ? "#f59e0b" // Amber
+                                : "#ef4444", // Red
                           }}
                         />
                       </div>
-                      <span className="w-12 text-right font-medium text-(--muted)">
-                        {pct}% ({count})
+                      <span className="w-16 text-right font-semibold text-(--fg)/80 shrink-0">
+                        {pct}% <span className="text-(--muted) text-[10px] font-normal">({count})</span>
                       </span>
                     </div>
                   );
@@ -186,15 +221,17 @@ export default function MentorReviewsAnalyticsPage() {
             </div>
 
             {/* Tag Insights */}
-            <div className="rounded-2xl border p-6 flex flex-col gap-5 bg-(--fg)/[0.02] border-(--hairline)">
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-(--muted)">
-                Feedback Tag Highlights
+            <div className="rounded-2xl border p-6 flex flex-col gap-6 bg-white dark:bg-[#18181B] border-(--hairline) shadow-sm">
+              <h3 className="text-xs font-extrabold uppercase tracking-widest text-(--fg)">
+                Feedback Highlights
               </h3>
 
               {/* Positive Highlights */}
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-green-600">
-                  <ThumbsUp className="w-3.5 h-3.5" />
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                  <div className="p-1 rounded-md bg-emerald-500/10">
+                    <ThumbsUp className="w-3.5 h-3.5" />
+                  </div>
                   Top Praise
                 </div>
                 {positiveTags.length > 0 ? (
@@ -202,36 +239,38 @@ export default function MentorReviewsAnalyticsPage() {
                     {positiveTags.map(([tag, count]) => (
                       <span
                         key={tag}
-                        className="text-xs px-3 py-1 rounded-full bg-green-500/10 text-green-700 border border-green-500/20 font-medium"
+                        className="text-xs px-3.5 py-1.5 rounded-xl bg-emerald-500/5 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/10 font-bold transition-all hover:scale-105"
                       >
-                        {tag} <span className="opacity-70 font-normal">({count})</span>
+                        #{tag} <span className="opacity-60 font-medium ml-1">({count})</span>
                       </span>
                     ))}
                   </div>
                 ) : (
-                  <span className="text-xs text-(--muted)">No positive tags collected yet.</span>
+                  <span className="text-xs text-(--muted) font-medium italic">No positive tags collected yet.</span>
                 )}
               </div>
 
               {/* Areas to Improve */}
-              <div className="flex flex-col gap-2 pt-2 border-t border-(--hairline)">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-600">
-                  <AlertCircle className="w-3.5 h-3.5" />
-                  Areas to Improve
+              <div className="flex flex-col gap-3 pt-4 border-t border-(--hairline)">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400">
+                  <div className="p-1 rounded-md bg-amber-500/10">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                  </div>
+                  Suggestions for Growth
                 </div>
                 {negativeTags.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {negativeTags.map(([tag, count]) => (
                       <span
                         key={tag}
-                        className="text-xs px-3 py-1 rounded-full bg-amber-500/10 text-amber-700 border border-amber-500/20 font-medium"
+                        className="text-xs px-3.5 py-1.5 rounded-xl bg-amber-500/5 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/10 font-bold transition-all hover:scale-105"
                       >
-                        {tag} <span className="opacity-70 font-normal">({count})</span>
+                        #{tag} <span className="opacity-60 font-medium ml-1">({count})</span>
                       </span>
                     ))}
                   </div>
                 ) : (
-                  <span className="text-xs text-(--muted)">No critical tags logged — great job!</span>
+                  <span className="text-xs text-(--muted) font-medium italic">No areas to improve logged — keep up the excellent work!</span>
                 )}
               </div>
             </div>
@@ -243,9 +282,9 @@ export default function MentorReviewsAnalyticsPage() {
               Recent Student Reviews
             </h2>
 
-            {reviews.length > 0 ? (
-              <div className="flex flex-col gap-4">
-                {reviews.map((rev) => (
+            {uniqueReviews.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-start">
+                {uniqueReviews.map((rev) => (
                   <ReviewCard key={rev.id} review={rev} />
                 ))}
               </div>

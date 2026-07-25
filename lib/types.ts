@@ -86,6 +86,7 @@ export interface Mentor {
   googleCalendarConnected?: boolean;
   googleCalendarTimezone?: string | null;
   reviews?: Review[];
+  ratingDistribution?: Record<string, number> | any;
   verificationDocs?: VerificationDoc[];
   createdAt: string;
 }
@@ -139,12 +140,14 @@ export interface MentorReview {
   userId: string;
   rating: number;
   feedback?: string | null;
+  comment?: string | null;
   tags: string[];
   anonymous: boolean;
   createdAt: string;
   updatedAt: string;
   userName?: string | null;
   userAvatar?: string | null;
+  userRole?: string | null;
   user?: Pick<User, "name" | "avatar">;
 }
 

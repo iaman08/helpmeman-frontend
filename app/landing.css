@@ -324,7 +324,13 @@ html[data-theme="dark"] .ai-prompt-tab--active {
 
 .marquee-card {
   flex-shrink: 0;
-  width: 320px;
+  width: 240px;
+}
+
+@media (min-width: 768px) {
+  .marquee-card {
+    width: 320px;
+  }
 }
 
 /* ── Floating Brand Logo Cards ── */
