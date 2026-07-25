@@ -7,25 +7,25 @@ import { Briefcase, TrendingUp, Rocket, RefreshCw } from "lucide-react";
 const stats = [
   {
     icon: Briefcase,
-    number: "2,400+",
+    number: "1",
     label: "Placements",
     description: "Students placed at top companies through mentor guidance",
   },
   {
     icon: TrendingUp,
-    number: "850+",
+    number: "2",
     label: "Internships",
     description: "Internship offers at FAANG, startups, and MNCs",
   },
   {
     icon: Rocket,
-    number: "120+",
+    number: "0",
     label: "Startups Launched",
     description: "Founders who launched after mentorship sessions",
   },
   {
     icon: RefreshCw,
-    number: "600+",
+    number: "6",
     label: "Career Transitions",
     description: "Professionals who successfully switched careers",
   },
