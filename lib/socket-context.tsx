@@ -78,13 +78,6 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     socket.on("connect", () => {
       setConnected(true);
       console.log("[GLOBAL SOCKET] Connected:", socket.id);
-
-      // Request notification permission if not asked yet
-      if (typeof window !== "undefined" && "Notification" in window) {
-        if (Notification.permission === "default") {
-          Notification.requestPermission();
-        }
-      }
     });
 
     socket.on("disconnect", (reason) => {

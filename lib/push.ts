@@ -8,7 +8,11 @@
  *
  * Service worker: /push-sw.js (served from /public/push-sw.js)
  */
+import { mutate } from "swr";
 import api from "./api";
+
+export { useNotificationPermission } from "./useNotificationPermission";
+export type { PermissionState } from "./useNotificationPermission";
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || "";
 
@@ -82,6 +86,15 @@ export async function requestPushPermissionAndRegister(): Promise<{
       deviceType: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "web",
     });
 
+    // Sync user preferences on backend
+    try {
+      await api.put("/users/me/notification-preferences", { pushNotifications: true });
+      mutate((key: any) => Array.isArray(key) && key[0] === "/users/me/notification-preferences");
+      mutate("/users/me/notification-preferences");
+    } catch {
+      // Ignored non-critical failure
+    }
+
     return { granted: true };
   } catch (err: any) {
     console.error("[WebPush] Subscription failed:", err?.message);
@@ -97,20 +110,29 @@ export async function unregisterPushSubscription(): Promise<void> {
 
   try {
     const registration = await navigator.serviceWorker.getRegistration("/push-sw.js");
-    if (!registration) return;
+    if (registration) {
+      const subscription = await registration.pushManager.getSubscription();
+      if (subscription) {
+        const subJson = subscription.toJSON();
 
-    const subscription = await registration.pushManager.getSubscription();
-    if (!subscription) return;
+        // Notify backend to remove the subscription
+        await api.delete("/users/me/devices", {
+          data: { pushSubscription: subJson },
+        });
 
-    const subJson = subscription.toJSON();
+        // Unsubscribe from the push manager
+        await subscription.unsubscribe();
+      }
+    }
 
-    // Notify backend to remove the subscription
-    await api.delete("/users/me/devices", {
-      data: { pushSubscription: subJson },
-    });
-
-    // Unsubscribe from the push manager
-    await subscription.unsubscribe();
+    // Sync user preferences on backend
+    try {
+      await api.put("/users/me/notification-preferences", { pushNotifications: false });
+      mutate((key: any) => Array.isArray(key) && key[0] === "/users/me/notification-preferences");
+      mutate("/users/me/notification-preferences");
+    } catch {
+      // Ignored non-critical failure
+    }
   } catch (err: any) {
     console.warn("[WebPush] Unregister failed:", err?.message);
   }
@@ -139,3 +161,4 @@ export function listenForForegroundMessages(
   navigator.serviceWorker.addEventListener("message", handler);
   return () => navigator.serviceWorker.removeEventListener("message", handler);
 }
+
