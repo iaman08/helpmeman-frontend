@@ -63,6 +63,11 @@ export default function BecomeMentorPage() {
   // Step 4: OTP
   const [otp, setOtp] = useState("");
 
+  // Redirect to new Ruth AI mentor onboarding architecture
+  useEffect(() => {
+    router.replace("/onboarding");
+  }, [router]);
+
   // Pre-fill if logged in
   useEffect(() => {
     if (user) {
