@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const navLinks = [
   { label: "Mentors", id: "mentors" },
@@ -72,8 +73,10 @@ export function LandingNavbar() {
           ))}
         </div>
 
-        {/* Right side: CTA buttons */}
+        {/* Right side: CTA buttons & Theme Toggle */}
         <div className="flex items-center gap-2.5">
+          <ThemeToggle variant="pill" />
+
           {!isLoggedIn && (
             <div className="hidden lg:flex items-center gap-2.5">
               <Link

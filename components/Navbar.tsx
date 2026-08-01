@@ -6,6 +6,7 @@ import { useTheme, type Theme, THEMES } from "./ThemeProvider";
 import { useAuth } from "@/lib/auth-context";
 import { LogOut, ChevronDown, Menu, X, LayoutDashboard } from "lucide-react";
 import { Avatar } from "./Avatar";
+import { ThemeToggle } from "./ThemeToggle";
 
 const links: { id: string; label: string }[] = [];
 
@@ -85,6 +86,8 @@ export function Navbar() {
 
         {/* Right side */}
         <div className="flex items-center gap-4 sm:gap-5">
+          <ThemeToggle variant="pill" />
+
           {/* Auth section */}
           {loading ? (
             <div className="h-8 w-8 rounded-full bg-(--fg)/5 animate-pulse" />

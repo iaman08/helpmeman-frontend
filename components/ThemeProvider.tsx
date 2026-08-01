@@ -23,22 +23,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("light");
 
   useEffect(() => {
-    const isDashboardRoute =
-      pathname && (
-        pathname.startsWith("/dashboard") ||
-        pathname.startsWith("/mentor") ||
-        pathname.startsWith("/admin")
-      );
-
-    if (isDashboardRoute) {
-      const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
-      if (stored && THEMES.includes(stored)) {
-        setThemeState(stored);
-      }
-    } else {
-      setThemeState("light");
+    const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
+    if (stored && THEMES.includes(stored)) {
+      setThemeState(stored);
     }
-  }, [pathname]);
+  }, []);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
