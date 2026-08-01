@@ -21,6 +21,7 @@ interface MentorMeta {
   id: string;
   approvalStatus: string;
   isActive?: boolean;
+  onboardingCompleted?: boolean;
 }
 
 interface AuthState {
@@ -29,9 +30,9 @@ interface AuthState {
   loading: boolean;
   googleAuthenticating: boolean;
   login: (email: string, password: string) => Promise<string>;
-  loginWithGoogle: () => Promise<void>;
+  loginWithGoogle: (onboardingRole?: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<OTPResponse>;
-  verifySignupOTP: (formData: { name: string; email: string; password: string; phone?: string; otp: string }) => Promise<string>;
+  verifySignupOTP: (formData: { name: string; email: string; password: string; phone?: string; otp: string; role?: string; onboardingRole?: string }) => Promise<string>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   updateUser: (updates: Partial<User>) => void;
@@ -58,8 +59,11 @@ const AUTH_LOADING_TIMEOUT_MS = 10_000;
 function getLoginDest(u: User, m: MentorMeta | null): string {
   if (u.role === "SUPER_ADMIN") return "/superadmin";
   if (u.role === "ADMIN") return "/admin";
-  if (u.role === "MENTOR" && m) {
-    return m.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status";
+  if (u.role === "MENTOR" || u.onboardingRole === "MENTOR") {
+    if (!m?.onboardingCompleted) {
+      return "/onboarding";
+    }
+    return m?.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status";
   }
   if (u.onboardingRole === "MENTEE" || u.role === "STUDENT") return "/dashboard";
   return "/onboarding";
@@ -123,8 +127,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setGoogleAuthenticating(true);
         googleAuthRef.current = true;
 
+        const mentorIntent = localStorage.getItem("helpmeman.onboardingRoleIntent");
+        if (mentorIntent) localStorage.removeItem("helpmeman.onboardingRoleIntent");
+
         const { data } = await api.post<AuthResponse>("/auth/google", {
           accessToken,
+          onboardingRole: mentorIntent || undefined,
         }, {
           headers: { "x-show-loader": "true" }
         });
@@ -298,12 +306,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 
   /* ─── Google Login — triggers full-page redirect to Google OAuth ─── */
-  const loginWithGoogle = useCallback(async (): Promise<void> => {
+  const loginWithGoogle = useCallback(async (onboardingRole?: string): Promise<void> => {
     // Signal that Google auth is in progress so the overlay shows
     setGoogleAuthenticating(true);
     googleAuthRef.current = true;
     lastSyncedToken.current = null;
     callbackHandled.current = false;
+    if (onboardingRole) {
+      localStorage.setItem("helpmeman.onboardingRoleIntent", onboardingRole);
+    } else {
+      localStorage.removeItem("helpmeman.onboardingRoleIntent");
+    }
 
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -339,7 +352,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /* ─── Verify Signup OTP ─── */
   const verifySignupOTP = useCallback(
-    async (formData: { name: string; email: string; password: string; phone?: string; otp: string }) => {
+    async (formData: { name: string; email: string; password: string; phone?: string; otp: string; role?: string; onboardingRole?: string }) => {
       const { data } = await api.post<AuthResponse>("/auth/verify-signup-otp", formData, {
         headers: { "x-show-loader": "true" }
       });

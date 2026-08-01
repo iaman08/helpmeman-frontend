@@ -74,11 +74,14 @@ export async function requestPushPermissionAndRegister(): Promise<{
     });
     await navigator.serviceWorker.ready;
 
-    // Subscribe to Web Push
-    const subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-    });
+    // Retrieve existing subscription if browser is already subscribed
+    let subscription = await registration.pushManager.getSubscription();
+    if (!subscription) {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      });
+    }
 
     // Send subscription to backend
     await api.post("/users/me/devices", {
@@ -97,7 +100,7 @@ export async function requestPushPermissionAndRegister(): Promise<{
 
     return { granted: true };
   } catch (err: any) {
-    console.error("[WebPush] Subscription failed:", err?.message);
+    console.warn("[WebPush] Subscription unavailable in current environment:", err?.message || err);
     return { granted: false, reason: err?.message || "subscription_failed" };
   }
 }

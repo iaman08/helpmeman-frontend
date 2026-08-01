@@ -12,12 +12,12 @@ import { motion, AnimatePresence } from "motion/react";
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialMode: "signin" | "signup";
+  initialMode: "signin" | "signup" | "mentor-signup";
 }
 
 export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalProps) {
   const { login, register, verifySignupOTP, loginWithGoogle } = useAuth();
-  const [mode, setMode] = useState<"signin" | "signup">(initialMode);
+  const [mode, setMode] = useState<"signin" | "signup" | "mentor-signup">(initialMode);
 
   // Suffix/Prefix states for forms
   const [name, setName] = useState("");
@@ -165,12 +165,15 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
 
     setSubmitting(true);
     try {
+      const isMentor = mode === "mentor-signup";
       const dest = await verifySignupOTP({
-        name: mode === "signup" ? name.trim() : "",
+        name: mode !== "signin" ? name.trim() : "",
         email: unverifiedEmail.toLowerCase(),
         password,
         phone: phone ? phone.trim() : undefined,
         otp,
+        role: isMentor ? "MENTOR" : undefined,
+        onboardingRole: isMentor ? "MENTOR" : undefined,
       });
       onClose();
       if (dest) {
@@ -383,11 +386,20 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
                 </>
               ) : (
                 <>
+                  {mode === "mentor-signup" && (
+                    <div className="text-center mb-1">
+                      <span className="inline-block px-2.5 py-0.5 text-[10px] font-semibold tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 rounded-full uppercase border border-blue-200 dark:border-blue-800">
+                        Mentor Application
+                      </span>
+                    </div>
+                  )}
                   <h2 className="text-center text-[24px] font-bold text-[var(--fg)] tracking-tight mb-1 select-none">
-                    Create your account
+                    {mode === "mentor-signup" ? "Apply as a Mentor" : "Create your account"}
                   </h2>
                   <p className="text-center text-[12px] text-[var(--muted)] mb-6 max-w-xs mx-auto">
-                    Three minutes to set up. Then meet your first mentor.
+                    {mode === "mentor-signup"
+                      ? "Create your mentor account to start your onboarding conversation with Ruth AI."
+                      : "Three minutes to set up. Then meet your first mentor."}
                   </p>
 
                   {error && (
@@ -508,7 +520,7 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
                       setError("");
                       setGoogleLoading(true);
                       try {
-                        await loginWithGoogle();
+                        await loginWithGoogle(mode === "mentor-signup" ? "MENTOR" : undefined);
                         // Close modal immediately — the overlay takes over
                         onClose();
                       } catch (err: unknown) {

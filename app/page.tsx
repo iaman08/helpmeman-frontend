@@ -24,7 +24,7 @@ function LandingPageContent() {
   const searchParams = useSearchParams();
   const authParam = searchParams.get("auth");
 
-  const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode: "signin" | "signup" }>({
+  const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode: "signin" | "signup" | "mentor-signup" }>({
     isOpen: false,
     mode: "signin",
   });
@@ -35,7 +35,9 @@ function LandingPageContent() {
     typeof window !== "undefined" && !!localStorage.getItem("helpmeman.accessToken");
 
   useEffect(() => {
-    if (authParam === "signin" || authParam === "signup") {
+    if (authParam === "mentor-signup") {
+      router.replace("/apply-mentor");
+    } else if (authParam === "signin" || authParam === "signup") {
       setAuthModal({
         isOpen: true,
         mode: authParam,
@@ -43,7 +45,7 @@ function LandingPageContent() {
     } else {
       setAuthModal((prev) => ({ ...prev, isOpen: false }));
     }
-  }, [authParam]);
+  }, [authParam, router]);
 
   const handleCloseModal = () => {
     setAuthModal((prev) => ({ ...prev, isOpen: false }));

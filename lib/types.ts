@@ -276,7 +276,7 @@ export interface PaginatedResponse<T> {
 
 export interface AuthResponse {
   user: User;
-  mentor?: { id: string; approvalStatus: ApprovalStatus; isActive?: boolean } | null;
+  mentor?: { id: string; approvalStatus: ApprovalStatus; isActive?: boolean; onboardingCompleted?: boolean } | null;
   accessToken: string;
   refreshToken: string;
 }

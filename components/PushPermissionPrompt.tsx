@@ -33,12 +33,8 @@ export function PushPermissionPrompt() {
       const res = await requestPushPermissionAndRegister();
       refreshPermission();
 
-      if (res.granted) {
-        localStorage.setItem("helpmeman.pushPromptAsked", "1");
-        setVisible(false);
-      } else if (res.reason === "denied") {
-        localStorage.setItem("helpmeman.pushPromptAsked", "1");
-      }
+      localStorage.setItem("helpmeman.pushPromptAsked", "1");
+      setVisible(false);
     } finally {
       setBusy(false);
     }

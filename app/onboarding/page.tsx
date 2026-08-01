@@ -159,7 +159,7 @@ export default function OnboardingPage() {
       router.replace("/dashboard");
       return;
     }
-    if (user.role === "MENTOR" && mentor) {
+    if (user.role === "MENTOR" && mentor?.onboardingCompleted) {
       router.replace(mentor.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status");
       return;
     }
@@ -399,21 +399,23 @@ export default function OnboardingPage() {
   }
 
   if (completed && state) {
+    const isApproved = state.mentor?.approvalStatus === "APPROVED";
+    const nextRoute = isApproved ? "/mentor" : "/mentor/status";
     return (
       <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-bg px-5 text-fg">
         <Aura />
         <motion.section initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="relative w-full max-w-2xl text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[24px] bg-fg text-bg"><Check className="h-7 w-7" /></div>
-          <p className="mt-7 text-xs font-semibold uppercase tracking-[.25em] text-muted">Mentor memory created</p>
-          <h1 className="mt-4 font-display text-5xl tracking-[-.05em] sm:text-6xl">You're ready, {state.profile?.preferredName || firstName}.</h1>
-          <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-muted">{state.profile?.summary || "Ruth turned your answers into a profile, expertise tags, and a memory layer for your mentor experience."}</p>
+          <p className="mt-7 text-xs font-semibold uppercase tracking-[.25em] text-muted">Submitted for Admin Review</p>
+          <h1 className="mt-4 font-display text-5xl tracking-[-.05em] sm:text-6xl">Application sent, {state.profile?.preferredName || firstName}.</h1>
+          <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-muted">{state.profile?.summary || "Ruth turned your answers into a mentor profile and submitted it to our admin team for review. You'll receive an email notification once approved."}</p>
           <div className="mx-auto mt-7 flex max-w-lg flex-wrap justify-center gap-2">
             {state.profile?.expertiseTags?.map(tag => (
               <span key={tag} className="rounded-full border border-hairline bg-fg/[.03] px-3 py-1.5 text-xs">{tag}</span>
             ))}
           </div>
-          <button onClick={() => router.replace("/mentor")} className="mt-9 inline-flex items-center gap-2 rounded-full bg-fg px-6 py-3 text-sm font-semibold text-bg transition hover:scale-[1.02]">
-            Enter mentor workspace <ArrowRight className="h-4 w-4" />
+          <button onClick={() => router.replace(nextRoute)} className="mt-9 inline-flex items-center gap-2 rounded-full bg-fg px-6 py-3 text-sm font-semibold text-bg transition hover:scale-[1.02]">
+            {isApproved ? "Enter mentor workspace" : "View Application Status"} <ArrowRight className="h-4 w-4" />
           </button>
         </motion.section>
       </main>
