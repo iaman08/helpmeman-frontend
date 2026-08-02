@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef, type FormEvent } from "react";
-import { useAuth } from "@/lib/auth-context";
+import { useAuth, getLoginDest } from "@/lib/auth-context";
 import { AxiosError } from "axios";
 import OTPInput from "@/components/OTPInput";
 import api from "@/lib/api";
@@ -70,28 +70,11 @@ export default function SignInPage() {
     if (isNavigatingRef.current) return;
 
     if (!loading && user) {
-      const isDesktop = typeof window !== "undefined" && window.innerWidth >= 1024;
-      let dest = "/";
-      if (!isDesktop) {
-        dest = "/dashboard";
-        if (user.role === "SUPER_ADMIN") {
-          dest = "/superadmin";
-        } else if (user.role === "ADMIN") {
-          dest = "/admin";
-        } else if (user.role === "MENTOR" && mentor) {
-          dest = mentor.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status";
-        } else if (user.onboardingRole === "MENTEE" || user.role === "STUDENT") {
-          dest = "/dashboard";
-        } else {
-          dest = "/onboarding";
-        }
-      }
-      // Use router.replace (soft nav) so AuthProvider stays mounted.
-      // This handles the "visit /signin while already logged in" case.
+      const dest = getLoginDest(user, mentor);
       router.replace(dest);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, mentor, loading]);
+  }, [user, mentor, loading, router]);
 
   // Cooldown countdown timer
   useEffect(() => {

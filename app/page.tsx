@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/lib/auth-context";
+import { useAuth, getLoginDest } from "@/lib/auth-context";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { LandingNavbar } from "@/components/landing/LandingNavbar";
@@ -56,23 +56,9 @@ function LandingPageContent() {
   // On Mobile & Tablet (< 1024px), authenticated users bypass the landing page
   // and are redirected directly to their dashboard. On Desktop (>= 1024px), they view the landing page.
   useEffect(() => {
-    const checkMobileRedirect = () => {
-      if (!loading && user && typeof window !== "undefined" && window.innerWidth < 1024) {
-        let dest = "/dashboard";
-        if (user.role === "SUPER_ADMIN") dest = "/superadmin";
-        else if (user.role === "ADMIN") dest = "/admin";
-        else if (user.role === "MENTOR" && mentor) {
-          dest = mentor.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status";
-        } else if (user.onboardingRole === "MENTEE") dest = "/dashboard";
-        else dest = "/onboarding";
-        router.replace(dest);
-      }
-    };
-
-    checkMobileRedirect();
-    if (typeof window !== "undefined") {
-      window.addEventListener("resize", checkMobileRedirect);
-      return () => window.removeEventListener("resize", checkMobileRedirect);
+    if (!loading && user) {
+      const dest = getLoginDest(user, mentor);
+      router.replace(dest);
     }
   }, [user, mentor, loading, router]);
 

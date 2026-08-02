@@ -56,11 +56,11 @@ const KEYS = {
 const AUTH_LOADING_TIMEOUT_MS = 10_000;
 
 /** Compute the destination route after a successful login */
-function getLoginDest(u: User, m: MentorMeta | null): string {
+export function getLoginDest(u: User, m: MentorMeta | null): string {
   if (u.role === "SUPER_ADMIN") return "/superadmin";
   if (u.role === "ADMIN") return "/admin";
   if (u.role === "MENTOR" || u.onboardingRole === "MENTOR") {
-    if (!m?.onboardingCompleted) {
+    if (m?.onboardingCompleted === false) {
       return "/onboarding";
     }
     return m?.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status";
