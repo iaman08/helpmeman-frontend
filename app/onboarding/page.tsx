@@ -143,6 +143,65 @@ export default function OnboardingPage() {
     sessionStorage.removeItem("mentor-onboarding");
   }, []);
 
+  const fetchOnboardingState = useCallback(async (userId: string) => {
+    setError("");
+    const token = localStorage.getItem("helpmeman.accessToken");
+    if (token?.startsWith("demo_")) {
+      if (user?.role === "MENTOR") {
+        const next = initialState();
+        setState(next);
+        setStage("name");
+      } else {
+        setState({
+          role: null,
+          status: "NOT_STARTED",
+          currentQuestion: 0,
+          totalQuestions: DEMO_QUESTIONS.length,
+          question: DEMO_QUESTIONS[0],
+          answers: [],
+        });
+        setStage("role");
+      }
+      return;
+    }
+
+    try {
+      const { data } = await api.get<State>("/mentor/onboarding");
+      if (data.role === "MENTEE") {
+        router.replace("/dashboard");
+        return;
+      }
+      if (data.role === "MENTOR" && data.status === "COMPLETED") {
+        if (data.mentor) localStorage.setItem("helpmeman.mentor", JSON.stringify(data.mentor));
+        if (data.mentor?.approvalStatus === "APPROVED") {
+          router.replace("/mentor");
+        } else {
+          router.replace("/mentor/status");
+        }
+        return;
+      }
+
+      setState(data);
+      const current = localStageRef.current;
+      const localOnlyStages: Stage[] = ["preparing", "tour", "name"];
+      if (localOnlyStages.includes(current)) {
+        if (current === "name" && (data.currentQuestion > 0 || data.answers.length > 0)) {
+          setStage("chat");
+        }
+        return;
+      }
+
+      if (!data.role) setStage("role");
+      else if (data.currentQuestion === 0 && data.answers.length === 0) setStage("name");
+      else setStage("chat");
+
+      if (data.question) setLatestRuthMessage(data.message || data.question.text);
+    } catch (err: any) {
+      console.error("[Onboarding] Error loading conversation:", err);
+      setError("Ruth couldn't load your conversation. Please try again.");
+    }
+  }, [user?.role, router]);
+
   useEffect(() => {
     if (loading) return;
     if (!user) {
@@ -164,74 +223,11 @@ export default function OnboardingPage() {
       return;
     }
 
-    const previousUserId = lastFetchedUserIdRef.current;
-    if (previousUserId !== user.id) {
-      resetOnboarding();
+    if (lastFetchedUserIdRef.current !== user.id || !state) {
       lastFetchedUserIdRef.current = user.id;
-
-      const token = localStorage.getItem("helpmeman.accessToken");
-      if (token?.startsWith("demo_")) {
-        if (user.role === "MENTOR") {
-          const next = initialState();
-          setState(next);
-          setStage("name");
-        } else {
-          setState({
-            role: null,
-            status: "NOT_STARTED",
-            currentQuestion: 0,
-            totalQuestions: DEMO_QUESTIONS.length,
-            question: DEMO_QUESTIONS[0],
-            answers: [],
-          });
-          setStage("role");
-        }
-        return;
-      }
-
-      let cancelled = false;
-
-      api.get<State>("/mentor/onboarding")
-        .then(({ data }) => {
-          if (cancelled) return;
-          if (data.role === "MENTEE") return router.replace("/dashboard");
-          if (data.role === "MENTOR" && data.status === "COMPLETED") {
-            if (data.mentor?.approvalStatus === "APPROVED") {
-              return router.replace("/mentor");
-            } else {
-              return router.replace("/mentor/status");
-            }
-          }
-
-          setState(data);
-          const current = localStageRef.current;
-          const localOnlyStages: Stage[] = ["preparing", "tour", "name"];
-          if (localOnlyStages.includes(current)) {
-            if (current === "name" && (data.currentQuestion > 0 || data.answers.length > 0)) {
-              setStage("chat");
-            }
-            return;
-          }
-
-          if (!data.role) setStage("role");
-          else if (data.currentQuestion === 0 && data.answers.length === 0) setStage("name");
-          else setStage("chat");
-
-          if (data.question) setLatestRuthMessage(data.message || data.question.text);
-        })
-        .catch((err) => {
-          if (!cancelled) {
-            lastFetchedUserIdRef.current = null; // Clear so they can retry
-            setError("Ruth couldn't load your conversation. Please try again.");
-          }
-        });
-
-      return () => {
-        cancelled = true;
-        lastFetchedUserIdRef.current = null;
-      };
+      fetchOnboardingState(user.id);
     }
-  }, [user?.id, loading, router, resetOnboarding]);
+  }, [user?.id, loading, mentor?.onboardingCompleted, mentor?.approvalStatus, user?.role, user?.onboardingRole, router, resetOnboarding, fetchOnboardingState, state]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -387,12 +383,23 @@ export default function OnboardingPage() {
     );
   }
 
-  if (!state && !error) {
+  if (!state) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-bg">
-        <div className="text-center">
+      <div className="flex min-h-screen items-center justify-center bg-bg px-4">
+        <div className="text-center max-w-sm">
           <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted" />
-          <p className="mt-4 text-sm text-muted">Ruth is getting things ready...</p>
+          <p className="mt-4 text-sm text-muted">{error || "Ruth is getting things ready..."}</p>
+          {error && user?.id && (
+            <button
+              onClick={() => {
+                lastFetchedUserIdRef.current = null;
+                fetchOnboardingState(user.id);
+              }}
+              className="mt-4 rounded-xl bg-fg px-4 py-2 text-xs font-semibold text-bg transition hover:scale-[1.02]"
+            >
+              Retry loading
+            </button>
+          )}
         </div>
       </div>
     );
