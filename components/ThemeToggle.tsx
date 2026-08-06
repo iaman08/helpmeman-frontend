@@ -19,7 +19,7 @@ export function ThemeToggle({ variant = "pill", className = "" }: ThemeTogglePro
 
   if (!mounted) {
     return (
-      <div className={`w-12 h-6 rounded-full bg-(--fg)/5 animate-pulse ${className}`} />
+      <div className={`w-14 h-8 rounded-full bg-zinc-200 dark:bg-zinc-800 animate-pulse ${className}`} />
     );
   }
 
@@ -47,14 +47,14 @@ export function ThemeToggle({ variant = "pill", className = "" }: ThemeTogglePro
     <button
       type="button"
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className={`relative inline-flex items-center justify-between w-13 h-7 p-1 rounded-full bg-zinc-200/80 dark:bg-zinc-800/90 border border-zinc-300/80 dark:border-zinc-700/80 transition-colors cursor-pointer select-none focus:outline-none ${className}`}
+      className={`relative inline-flex items-center justify-between w-14 h-8 px-2 rounded-full bg-zinc-200/90 dark:bg-zinc-800/90 border border-zinc-300 dark:border-zinc-700/80 transition-colors cursor-pointer select-none focus:outline-none ${className}`}
       aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
       title={`Switch to ${isDark ? "light" : "dark"} mode`}
     >
-      <Sun className={`w-3.5 h-3.5 z-10 transition-colors duration-200 ${isDark ? "text-zinc-500" : "text-amber-500"}`} />
+      <Sun className={`w-3.5 h-3.5 z-10 transition-colors duration-200 ${isDark ? "text-zinc-400" : "text-amber-500"}`} />
       <Moon className={`w-3.5 h-3.5 z-10 transition-colors duration-200 ${isDark ? "text-indigo-400" : "text-zinc-400"}`} />
       <span
-        className={`absolute top-0.5 bottom-0.5 w-6 rounded-full bg-white dark:bg-zinc-950 shadow-md transition-transform duration-300 ease-out ${
+        className={`absolute top-1 left-1 w-6 h-6 rounded-full bg-white dark:bg-zinc-950 shadow-sm transition-transform duration-300 ease-out ${
           isDark ? "translate-x-6" : "translate-x-0"
         }`}
       />
