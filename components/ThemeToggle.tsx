@@ -54,7 +54,7 @@ export function ThemeToggle({ variant = "pill", className = "" }: ThemeTogglePro
       <Sun className={`w-3.5 h-3.5 z-10 transition-colors duration-200 ${isDark ? "text-zinc-400" : "text-amber-500"}`} />
       <Moon className={`w-3.5 h-3.5 z-10 transition-colors duration-200 ${isDark ? "text-indigo-400" : "text-zinc-400"}`} />
       <span
-        className={`absolute top-0.5 left-1 w-6 h-6 rounded-full bg-white dark:bg-zinc-950 shadow-sm transition-transform duration-300 ease-out ${
+        className={`absolute top-[3px] left-[3px] w-6 h-6 rounded-full bg-white dark:bg-zinc-950 shadow-sm transition-transform duration-300 ease-out ${
           isDark ? "translate-x-6" : "translate-x-0"
         }`}
       />
