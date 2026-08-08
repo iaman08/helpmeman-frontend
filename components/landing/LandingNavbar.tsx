@@ -49,24 +49,22 @@ export function LandingNavbar() {
     <nav className={`landing-nav-capsule ${scrolled ? "nav-scrolled" : ""}`}>
       <div className="px-4 sm:px-5 py-2.5 flex items-center justify-between relative">
         {/* Left Side: Logo */}
-        <div className="flex items-center gap-2 font-semibold text-[15px] tracking-tight text-[var(--fg)] select-none">
+        <div className="flex items-center gap-2 font-semibold text-[15px] tracking-tight text-[var(--fg)] select-none shrink-0">
           <img src="/logo.svg" alt="HelpMeMan Logo" className="w-7 h-7 object-contain" />
           <span className="font-bold tracking-tight">HelpMeMan</span>
         </div>
 
         {/* Desktop Navigation Links */}
         <div
-          className={`hidden lg:flex items-center gap-5 transition-all duration-500 ease-in-out ${
-            scrolled
-              ? "absolute left-1/2 -translate-x-1/2"
-              : "ml-auto mr-4"
+          className={`hidden lg:flex items-center justify-center flex-1 mx-3 min-w-0 transition-all duration-300 ${
+            scrolled ? "gap-3.5" : "gap-5"
           }`}
         >
           {navLinks.map((link) => (
             <button
               key={link.id}
               onClick={() => scrollTo(link.id)}
-              className="nav-link-pill text-[13px] font-medium text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-none cursor-pointer py-1"
+              className="nav-link-pill text-[13px] font-medium text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-none cursor-pointer py-1 whitespace-nowrap"
             >
               {link.label}
             </button>
@@ -74,7 +72,7 @@ export function LandingNavbar() {
         </div>
 
         {/* Right side: CTA buttons & Theme Toggle */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 shrink-0">
           <ThemeToggle variant="pill" />
 
           {!isLoggedIn && (
