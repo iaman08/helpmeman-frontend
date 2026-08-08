@@ -132,8 +132,7 @@ function StripeIcon() {
 function HarvardIcon() {
   return (
     <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#A51C30]">
-      <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm6 13.8L12 19l-6-3.2V8.2L12 5l6 3.2v7.6z"/>
-      <path d="M8 9h2.5v2H8V9zm0 3h2.5v2H8v-2zm5.5-3H16v2h-2.5V9zm0 3H16v2h-2.5v-2z"/>
+      <path d="M4 3h16v14c0 2.5-3.5 5-8 5s-8-2.5-8-5V3zm3 3v3h3.5V6H7zm6.5 0V6H17v3h-3.5zm-6.5 4.5v3h3.5v-3H7zm6.5 0v3H17v-3h-3.5z" />
     </svg>
   );
 }
@@ -141,7 +140,7 @@ function HarvardIcon() {
 function StanfordIcon() {
   return (
     <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#8C1515]">
-      <path d="M12 1L5 6v12l7 5 7-5V6l-7-5zm4.5 15.5L12 19.3l-4.5-2.8V7.5L12 4.7l4.5 2.8v9zm-4.5-12L9 6.5v1.2l3-1.2 3 1.2V6.5L12 4.5zm0 3L8 9v7.5l4 2.5 4-2.5V9l-4-1.5z"/>
+      <path d="M12 2L8 8h3v4H8l-3 5h6v4h2v-4h6l-3-5h-3V8h3l-4-6z" />
     </svg>
   );
 }
@@ -149,7 +148,7 @@ function StanfordIcon() {
 function MITIcon() {
   return (
     <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#A31F34]">
-      <path d="M2 4h3v16H2V4zm5 0h3v10H7V4zm5 0h3v16h-3V4zm5 0h3v16h-3V4zm-10 12h3v4H7v-4z"/>
+      <path d="M2 4h3.5v16H2V4zm5 0H10.5v10H7V4zm5.5 0H16v16h-3.5V4zm5 0H21v16h-3.5V4zm-10 12H10.5v4H7v-4z" />
     </svg>
   );
 }
@@ -157,7 +156,7 @@ function MITIcon() {
 function IITBombayIcon() {
   return (
     <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#003366]">
-      <path d="M12 2L2 7l10 5 10-5-10-5zm0 7.5L4.5 7 12 3.3 19.5 7 12 9.5zM4 11v6l8 4 8-4v-6l-8 4-8-4z"/>
+      <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 3a7 7 0 110 14 7 7 0 010-14zm-1 3v4h-2v2h2v3h2v-3h2v-2h-2V8h-2z" />
     </svg>
   );
 }
@@ -165,7 +164,7 @@ function IITBombayIcon() {
 function IITDelhiIcon() {
   return (
     <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#1A365D]">
-      <path d="M12 2L2 7l10 5 10-5-10-5zm0 15.5L4 13.5V17l8 4 8-4v-3.5l-8 4zM12 9.5L4.5 7 12 3.3 19.5 7 12 9.5z"/>
+      <path d="M12 2L2 7v2h20V7L12 2zm-7 9v8h3v-8H5zm5 0v8h4v-8h-4zm6 0v8h3v-8h-3zm-11 9v2h14v-2H5z" />
     </svg>
   );
 }
@@ -173,8 +172,8 @@ function IITDelhiIcon() {
 function IITMadrasIcon() {
   return (
     <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#004080]">
-      <path d="M12 2L3 6.5v11L12 22l9-4.5v-11L12 2zm7 14.3L12 19.8l-7-3.5V7.7L12 4.2l7 3.5v8.6z"/>
-      <circle cx="12" cy="12" r="3"/>
+      <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="2" />
+      <path d="M12 4v16M4 12h16M6.34 6.34l11.32 11.32M6.34 17.66l11.32-11.32" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );
 }
@@ -182,7 +181,7 @@ function IITMadrasIcon() {
 function AIIMSIcon() {
   return (
     <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#1E3A8A]">
-      <path d="M12 2L3 6v5c0 5.55 3.84 10.74 9 12 5.16-1.26 9-5.45 9-12V6l-9-4zm-1 6h2v3h3v2h-3v3h-2v-3H8v-2h3V8z"/>
+      <path d="M19 10.5h-5.5V5h-3v5.5H5v3h5.5V19h3v-5.5H19v-3z" />
     </svg>
   );
 }
@@ -190,7 +189,7 @@ function AIIMSIcon() {
 function PrincetonIcon() {
   return (
     <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#E77500]">
-      <path d="M12 2L4 6v12l8 4 8-4V6l-8-4zm6 14.5L12 19.5l-6-3V7.5l6-3 6 3v9.5z"/>
+      <path d="M12 2L4 5v7c0 5 3.5 9 8 10 4.5-1 8-5 8-10V5l-8-3zm-1 6h2v3h-2V8zm-3 2h2v3H8v-3zm6 0h2v3h-2v-3z" />
     </svg>
   );
 }
@@ -198,7 +197,7 @@ function PrincetonIcon() {
 function YaleIcon() {
   return (
     <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#00356B]">
-      <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm6 14L12 19l-6-3V8l6-3 6 3v8z"/>
+      <path d="M12 2L3 6v6c0 5.5 3.8 10.2 9 11.5 5.2-1.3 9-6 9-11.5V6l-9-4zm-4.5 7h9v2h-9V9zm0 3.5h9v2h-9v-2z" />
     </svg>
   );
 }
@@ -206,7 +205,7 @@ function YaleIcon() {
 function ColumbiaIcon() {
   return (
     <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#1D4ED8]">
-      <path d="M5 16L3 5l5 4 4-6 4 6 5-4-2 11H5zm14 3H5v2h14v-2z"/>
+      <path d="M5 16L3 5l5 4 4-6 4 6 5-4-2 11H5zm14 3H5v2h14v-2z" />
     </svg>
   );
 }
@@ -214,7 +213,7 @@ function ColumbiaIcon() {
 function UPennIcon() {
   return (
     <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#990000]">
-      <path d="M12 2L3 6.5v11L12 22l9-4.5v-11L12 2zm6 14.2L12 19.2l-6-3V7.8L12 4.8l6 3v8.4z"/>
+      <path d="M12 2L3 6v6c0 5.5 3.8 10.2 9 11.5 5.2-1.3 9-6 9-11.5V6l-9-4zm0 4.5l5 4h-3v5.5h-4V10.5H7l5-4z" />
     </svg>
   );
 }
@@ -222,7 +221,7 @@ function UPennIcon() {
 function CaltechIcon() {
   return (
     <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#FF6C00]">
-      <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 3.2L18 8v8l-6 3.8L6 16V8l6-2.8zM11 9h2v6h-2V9z"/>
+      <path d="M12 2c-1.5 2-2.5 4-1 6 1.5 2 3 3 1 6-1 1.5-2.5 1-3.5 0 1 2 3 3.5 5.5 3.5 3.5 0 6-2.5 6-6 0-4-4-6.5-8-9.5zM10 16h4v6h-4v-6z" />
     </svg>
   );
 }
@@ -230,15 +229,15 @@ function CaltechIcon() {
 function UCBerkeleyIcon() {
   return (
     <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#003262]">
-      <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm6 14L12 19l-6-3V8l6-3 6 3v8z"/>
+      <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 3l2 4.5 5 .7-3.6 3.5.9 5-4.3-2.3L7.7 18.7l.9-5L5 10.2l5-.7L12 5z" />
     </svg>
   );
 }
 
 function UCLAIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#2774AE]">
-      <path d="M12 2L3 6.5v11L12 22l9-4.5v-11L12 2zm6 14.2L12 19.2l-6-3V7.8L12 4.8l6 3v8.4z"/>
+    <svg viewBox="0 0 32 20" className="w-6 h-4 fill-[#2774AE]">
+      <path d="M3 3v9a4 4 0 008 0V3H7v9a1 1 0 01-2 0V3H3zm10 0v12h9v-3h-5V3h-4zm11 0l-4 12h4l.8-2.5h3.4l.8 2.5h4L28 3h-4zm1.5 3.5h1l1 3.5h-3l1-3.5z" />
     </svg>
   );
 }
@@ -246,7 +245,7 @@ function UCLAIcon() {
 function CornellIcon() {
   return (
     <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#B31B1B]">
-      <path d="M12 2L4 6v12l8 4 8-4V6l-8-4zm6 14.5L12 19.5l-6-3V7.5l6-3 6 3v9.5z"/>
+      <path d="M12 2L4 6v6c0 5.5 3.8 10.2 9 11.5 5.2-1.3 9-6 9-11.5V6l-8-4zm-4 7h8v2H8V9zm0 3.5h8v2H8v-2z" />
     </svg>
   );
 }
@@ -254,7 +253,7 @@ function CornellIcon() {
 function NUSIcon() {
   return (
     <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#003D7C]">
-      <path d="M12 2L3 6.5v11L12 22l9-4.5v-11L12 2zm7 14.3L12 19.8l-7-3.5V7.7L12 4.2l7 3.5v8.6z"/>
+      <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm1 14h-2v-4H9v4H7V8h2v3h2V8h2v8zm5 0h-4V8h4v2h-2v1h2v5z" />
     </svg>
   );
 }
@@ -262,7 +261,7 @@ function NUSIcon() {
 function UTorontoIcon() {
   return (
     <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#002A5C]">
-      <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm6 14L12 19l-6-3V8l6-3 6 3v8z"/>
+      <path d="M12 2L3 7v6c0 5 3.5 9 9 10 5.5-1 9-5 9-10V7l-9-5zm-1 6h2v3h-2V8zm-3 2h2v3H8v-3zm6 0h2v3h-2v-3z" />
     </svg>
   );
 }
@@ -350,7 +349,7 @@ export function FloatingLogosSection() {
           WebkitMaskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
         }}
       >
-        {/* Row 1: All Tech Companies (Leftward Scroll) */}
+        {/* Row 1: All Tech Companies (Leftward Slow Scroll) */}
         <motion.div
           className="flex whitespace-nowrap gap-4 w-max items-center py-1"
           animate={{ x: ["0%", "-50%"] }}
@@ -358,7 +357,7 @@ export function FloatingLogosSection() {
             x: {
               repeat: Infinity,
               repeatType: "loop",
-              duration: 60,
+              duration: 120,
               ease: "linear",
             },
           }}
@@ -379,7 +378,7 @@ export function FloatingLogosSection() {
           ))}
         </motion.div>
 
-        {/* Row 2: All Top Universities & Colleges (Rightward Scroll) */}
+        {/* Row 2: All Top Universities & Colleges (Rightward Slow Scroll) */}
         <motion.div
           className="flex whitespace-nowrap gap-4 w-max items-center py-1"
           animate={{ x: ["-50%", "0%"] }}
@@ -387,7 +386,7 @@ export function FloatingLogosSection() {
             x: {
               repeat: Infinity,
               repeatType: "loop",
-              duration: 65,
+              duration: 125,
               ease: "linear",
             },
           }}
