@@ -55,40 +55,54 @@ export default function SuperAdminDashboardPage() {
 
   return (
     <div className="flex flex-col gap-10">
-      <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Super Admin</p>
-        <h1 className="font-display text-4xl leading-tight">Platform overview.</h1>
+      <div className="flex flex-col gap-1.5">
+        <p className="text-xs uppercase tracking-[0.22em]" style={{ color: "var(--muted)" }}>Super Admin</p>
+        <h1 className="font-display text-4xl leading-tight" style={{ color: "var(--fg)" }}>Platform overview.</h1>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((s, idx) => (
-          <div key={`${s.label}-${idx}`} className={`rounded-2xl p-5 flex flex-col gap-2 ${
-            s.highlight && (data?.pendingApprovals ?? 0) > 0
-              ? "bg-amber-500/10"
-              : "bg-[var()]/[0.02]"
-          }`}>
-            <div className="flex items-center gap-2 text-[var()]">
-              <s.icon className="h-4 w-4" />
-              <span className="text-[10px] uppercase tracking-[0.18em]">{s.label}</span>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {stats.map((s, idx) => {
+          const isPendingHighlight = s.highlight && (data?.pendingApprovals ?? 0) > 0;
+          return (
+            <div
+              key={`${s.label}-${idx}`}
+              className="rounded-2xl p-5 flex flex-col gap-2"
+              style={{
+                border: "1px solid var(--hairline)",
+                background: isPendingHighlight
+                  ? "rgba(245,158,11,0.07)"
+                  : "color-mix(in srgb, var(--fg) 2%, transparent)",
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <s.icon className="h-4 w-4" style={{ color: isPendingHighlight ? "#d97706" : "var(--muted)" }} />
+                <span className="text-[10px] uppercase tracking-[0.18em]" style={{ color: isPendingHighlight ? "#d97706" : "var(--muted)" }}>
+                  {s.label}
+                </span>
+              </div>
+              <span className="font-display text-2xl" style={{ color: "var(--fg)" }}>
+                {loading ? (
+                  <Skeleton className="h-8 w-12" />
+                ) : s.isCurrency ? (
+                  <PriceDisplay amountInPaise={s.value} />
+                ) : (
+                  s.format ? s.format(s.value) : s.value
+                )}
+              </span>
             </div>
-            <span className="font-display text-2xl">
-              {loading ? (
-                <Skeleton className="h-8 w-12" />
-              ) : s.isCurrency ? (
-                <PriceDisplay amountInPaise={s.value} />
-              ) : (
-                s.format ? s.format(s.value) : s.value
-              )}
-            </span>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4">
         {(data?.pendingApprovals ?? 0) > 0 && (
           <Link
             href="/superadmin/mentors"
-            className="flex-1 flex items-center justify-between rounded-xl bg-amber-500/10 hover:bg-amber-500/15 p-4 transition-colors"
+            className="flex-1 flex items-center justify-between rounded-xl p-4 transition-colors"
+            style={{
+              background: "rgba(245,158,11,0.08)",
+              border: "1px solid rgba(245,158,11,0.2)",
+            }}
           >
             <div className="flex items-center gap-3">
               <UserCheck className="h-5 w-5 text-amber-600" />
@@ -100,9 +114,13 @@ export default function SuperAdminDashboardPage() {
         )}
         <Link
           href="/superadmin/admin-management"
-          className="flex-1 flex items-center justify-between rounded-xl bg-[var()]/[0.02] hover:bg-[var()]/5 p-4 transition-colors"
+          className="flex-1 flex items-center justify-between rounded-xl p-4 transition-colors"
+          style={{
+            border: "1px solid var(--hairline)",
+            background: "color-mix(in srgb, var(--fg) 2%, transparent)",
+          }}
         >
-          <div className="flex items-center gap-3 text-[var()]">
+          <div className="flex items-center gap-3" style={{ color: "var(--fg)" }}>
             <ShieldCheck className="h-5 w-5" />
             <span className="text-sm font-medium">Manage Administrators</span>
           </div>
@@ -111,31 +129,40 @@ export default function SuperAdminDashboardPage() {
 
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xs uppercase tracking-[0.22em] text-[var()]">Recent Activities</h2>
-          <Link href="/superadmin/audit-logs" className="text-xs text-[var()] hover:text-[var()]">View all →</Link>
+          <h2 className="text-xs uppercase tracking-[0.22em]" style={{ color: "var(--muted)" }}>Recent Activities</h2>
+          <Link href="/superadmin/audit-logs" className="text-xs transition-colors" style={{ color: "var(--muted)" }}>View all →</Link>
         </div>
 
         {loading ? (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
             {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-14 w-full rounded-xl" />)}
           </div>
         ) : data?.recentActivities && data.recentActivities.length > 0 ? (
-          <div className="flex flex-col gap-2">
-            {data.recentActivities.map((log) => (
-              <div key={log.id} className="flex flex-col sm:flex-row sm:items-center justify-between rounded-xl bg-[var()]/[0.02] px-5 py-3 text-sm gap-2">
+          <div className="flex flex-col rounded-2xl overflow-hidden" style={{ border: "1px solid var(--hairline)" }}>
+            {data.recentActivities.map((log, idx) => (
+              <div
+                key={log.id}
+                className="flex flex-col sm:flex-row sm:items-center justify-between px-5 py-3 text-sm gap-2"
+                style={{
+                  borderBottom: idx < data.recentActivities.length - 1 ? "1px solid var(--hairline)" : "none",
+                  background: "color-mix(in srgb, var(--fg) 1%, transparent)",
+                }}
+              >
                 <div className="flex items-center gap-3">
-                  <span className="font-medium">{log.actor.name}</span>
-                  <span className="text-xs rounded-full bg-[var()]/5 px-2 py-0.5 text-[var()]">{log.action}</span>
-                  {log.target && <span className="text-[var()] text-xs truncate max-w-[200px]">{log.target}</span>}
+                  <span className="font-medium" style={{ color: "var(--fg)" }}>{log.actor.name}</span>
+                  <span className="text-xs rounded-full px-2 py-0.5" style={{ background: "color-mix(in srgb, var(--fg) 6%, transparent)", color: "var(--fg)" }}>
+                    {log.action}
+                  </span>
+                  {log.target && <span className="text-xs truncate max-w-[200px]" style={{ color: "var(--muted)" }}>{log.target}</span>}
                 </div>
-                <span className="text-[var()] text-xs shrink-0">{formatDate(log.createdAt)}</span>
+                <span className="text-xs shrink-0 font-mono" style={{ color: "var(--muted)" }}>{formatDate(log.createdAt)}</span>
               </div>
             ))}
           </div>
         ) : (
-          <div className="rounded-xl bg-[var()]/[0.02] p-8 text-center">
-            <Activity className="h-8 w-8 text-[var()] mx-auto mb-3" />
-            <p className="text-sm text-[var()]">No recent activities found.</p>
+          <div className="rounded-2xl p-8 text-center" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 1%, transparent)" }}>
+            <Activity className="h-8 w-8 mx-auto mb-3" style={{ color: "var(--muted)" }} />
+            <p className="text-sm" style={{ color: "var(--muted)" }}>No recent activities found.</p>
           </div>
         )}
       </div>

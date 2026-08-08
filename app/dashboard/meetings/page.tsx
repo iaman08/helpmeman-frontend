@@ -23,7 +23,7 @@ export default function MeetingsPage() {
   const [rescheduleId, setRescheduleId] = useState<string | null>(null);
   const [newDate, setNewDate] = useState("");
   const [rescheduling, setRescheduling] = useState(false);
-  const [cancelling, setCancelling] = useState<string | null>(null);
+  const [, setCancelling] = useState<string | null>(null);
   const [pastBookings, setPastBookings] = useState<Booking[]>([]);
   const [pastLoading, setPastLoading] = useState(false);
 
@@ -39,7 +39,7 @@ export default function MeetingsPage() {
       .then((res) => setPastBookings(res.data.bookings ?? []))
       .catch(() => {})
       .finally(() => setPastLoading(false));
-  }, [tab]);
+  }, [tab, pastBookings.length]);
 
   const upcomingBookings = (upcomingData?.bookings ?? [])
     .filter((b) => new Date(b.scheduledAt).getTime() + b.durationMinutes * 60_000 > Date.now())
@@ -86,25 +86,25 @@ export default function MeetingsPage() {
   return (
     <div className="flex flex-col gap-8">
       {/* ─── Header ─── */}
-      <div className="flex flex-col gap-2">
-        <p className="text-xs uppercase tracking-[0.22em] text-[var()] font-bold">Meetings</p>
-        <h1 className="font-display text-4xl leading-tight font-bold">Your sessions.</h1>
+      <div className="flex flex-col gap-1.5">
+        <p className="text-xs uppercase tracking-[0.22em] font-semibold" style={{ color: "var(--muted)" }}>Meetings</p>
+        <h1 className="font-display text-4xl leading-tight font-extrabold" style={{ color: "var(--fg)" }}>Your sessions.</h1>
       </div>
 
       {/* ─── Next Session Banner ─── */}
       {!upcomingLoading && nextSession && (
-        <div className="rounded-2xl bg-gradient-to-br from-indigo-500/10 to-violet-500/10 border border-indigo-500/20 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div className="rounded-2xl bg-gradient-to-br from-indigo-500/10 to-violet-500/10 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4" style={{ border: "1px solid rgba(99,102,241,0.2)" }}>
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500/15 text-indigo-500 shrink-0">
             <Video className="h-5 w-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs uppercase tracking-[0.18em] text-indigo-400 font-bold mb-0.5">
+            <p className="text-xs uppercase tracking-[0.18em] text-indigo-400 font-semibold mb-0.5">
               Next Session
             </p>
-            <p className="font-semibold text-lg truncate">
+            <p className="font-semibold text-lg truncate" style={{ color: "var(--fg)" }}>
               {(nextSession as unknown as { mentor?: { displayName?: string } }).mentor?.displayName ?? "Mentor"}
             </p>
-            <p className="text-sm text-[var()]">
+            <p className="text-sm" style={{ color: "var(--muted)" }}>
               {new Date(nextSession.scheduledAt).toLocaleDateString("en-IN", {
                 weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
               })} · {nextSession.durationMinutes} min
@@ -115,7 +115,7 @@ export default function MeetingsPage() {
               href={nextSession.meetLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-xl bg-indigo-500 text-white px-5 py-2.5 text-sm font-semibold hover:bg-indigo-600 transition-colors shrink-0"
+              className="flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 text-sm font-semibold transition-colors shrink-0 shadow cursor-pointer"
             >
               <Video className="h-4 w-4" />
               Join Meet
@@ -126,25 +126,29 @@ export default function MeetingsPage() {
 
       {/* ─── Tabs ─── */}
       <div className="flex items-center gap-2">
-        {TABS.map((t) => (
-          <button
-            key={t.value}
-            type="button"
-            onClick={() => setTab(t.value)}
-            className={`rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 ${
-              tab === t.value
-                ? "bg-[var()] text-[var()] shadow-lg"
-                : "bg-[var()]/5 text-[var()] hover:text-[var()] border border-[var()]"
-            }`}
-          >
-            {t.label}
-            {t.value === "upcoming" && upcomingBookings.length > 0 && (
-              <span className="ml-1.5 inline-flex items-center justify-center h-4 min-w-4 rounded-full bg-white/20 text-[10px] px-1">
-                {upcomingBookings.length}
-              </span>
-            )}
-          </button>
-        ))}
+        {TABS.map((t) => {
+          const isActive = tab === t.value;
+          return (
+            <button
+              key={t.value}
+              type="button"
+              onClick={() => setTab(t.value)}
+              className="rounded-full px-5 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer"
+              style={{
+                background: isActive ? "var(--fg)" : "color-mix(in srgb, var(--fg) 4%, transparent)",
+                color: isActive ? "var(--bg)" : "var(--muted)",
+                border: isActive ? "1px solid var(--fg)" : "1px solid var(--hairline)",
+              }}
+            >
+              {t.label}
+              {t.value === "upcoming" && upcomingBookings.length > 0 && (
+                <span className="ml-1.5 inline-flex items-center justify-center h-4 min-w-4 rounded-full bg-indigo-500 text-white text-[10px] px-1 font-semibold">
+                  {upcomingBookings.length}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* ─── Upcoming Sessions ─── */}
@@ -169,8 +173,8 @@ export default function MeetingsPage() {
           ) : (
             <EmptyState
               icon={
-                <div className="p-4 bg-[var()]/5 rounded-2xl mb-4">
-                  <CalendarCheck className="h-8 w-8 text-[var()]" />
+                <div className="p-4 rounded-2xl mb-4" style={{ background: "color-mix(in srgb, var(--fg) 5%, transparent)" }}>
+                  <CalendarCheck className="h-8 w-8" style={{ color: "var(--fg)" }} />
                 </div>
               }
               title="No upcoming sessions"
@@ -178,7 +182,8 @@ export default function MeetingsPage() {
               action={
                 <Link
                   href="/mentors"
-                  className="inline-flex items-center gap-2 rounded-2xl bg-[var()] text-[var()] px-8 py-4 text-sm font-bold hover:opacity-90 transition-all active:scale-95"
+                  className="inline-flex items-center gap-2 rounded-2xl px-8 py-4 text-sm font-semibold transition-all shadow cursor-pointer"
+                  style={{ background: "var(--fg)", color: "var(--bg)" }}
                 >
                   Browse mentors <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -207,9 +212,9 @@ export default function MeetingsPage() {
               ))}
             </div>
           ) : (
-            <div className="rounded-2xl bg-[var()]/[0.02] border border-[var()] p-10 text-center">
-              <Clock3 className="h-8 w-8 text-[var()] mx-auto mb-3" />
-              <p className="text-sm text-[var()]">No past sessions yet.</p>
+            <div className="rounded-2xl p-10 text-center" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 1%, transparent)" }}>
+              <Clock3 className="h-8 w-8 mx-auto mb-3" style={{ color: "var(--muted)" }} />
+              <p className="text-sm" style={{ color: "var(--muted)" }}>No past sessions yet.</p>
             </div>
           )}
         </div>
@@ -220,18 +225,23 @@ export default function MeetingsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
           <div
             className="w-full max-w-md rounded-2xl p-6 flex flex-col gap-5 shadow-2xl"
-            style={{ background: "var(--bg)" }}
+            style={{ background: "var(--bg)", border: "1px solid var(--hairline)", color: "var(--fg)" }}
           >
             <h2 className="font-display text-2xl font-bold">Reschedule Session</h2>
             <label className="flex flex-col gap-2 text-sm">
-              <span className="text-[var()] text-xs uppercase tracking-[0.18em]">
+              <span className="text-xs uppercase tracking-[0.18em] font-semibold" style={{ color: "var(--muted)" }}>
                 New Date & Time
               </span>
               <input
                 type="datetime-local"
                 value={newDate}
                 onChange={(e) => setNewDate(e.target.value)}
-                className="bg-[var()]/5 rounded-xl px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors"
+                className="rounded-xl px-4 py-3 outline-none"
+                style={{
+                  border: "1px solid var(--hairline)",
+                  background: "color-mix(in srgb, var(--fg) 4%, transparent)",
+                  color: "var(--fg)",
+                }}
                 min={new Date().toISOString().slice(0, 16)}
               />
             </label>
@@ -240,14 +250,16 @@ export default function MeetingsPage() {
                 type="button"
                 onClick={submitReschedule}
                 disabled={rescheduling}
-                className="flex-1 rounded-xl bg-[var()] text-[var()] py-3 text-sm font-semibold hover:opacity-90 cursor-pointer disabled:opacity-50 transition-opacity"
+                className="flex-1 rounded-xl py-3 text-sm font-semibold cursor-pointer disabled:opacity-50 transition-opacity shadow"
+                style={{ background: "var(--fg)", color: "var(--bg)" }}
               >
                 {rescheduling ? "Rescheduling…" : "Confirm Reschedule"}
               </button>
               <button
                 type="button"
                 onClick={() => { setRescheduleId(null); setNewDate(""); }}
-                className="rounded-xl bg-[var()]/5 px-6 py-3 text-sm font-medium hover:bg-[var()]/10 cursor-pointer transition-colors"
+                className="rounded-xl px-6 py-3 text-sm font-semibold cursor-pointer transition-colors"
+                style={{ background: "color-mix(in srgb, var(--fg) 5%, transparent)", color: "var(--fg)" }}
               >
                 Cancel
               </button>

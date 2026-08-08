@@ -1,59 +1,65 @@
 "use client";
-// Force Next.js compiler cache bust after settings state refactoring
 
-
-import { useEffect, useState, useRef, type FormEvent, type ChangeEvent } from "react";
-import {
-  User, Save, Camera, X, Plus, Link as LinkIcon, Briefcase,
-  Languages, ChevronDown, Award, CheckCircle2, Clock, Building2,
-  Globe, Zap
-} from "lucide-react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import {
+  User,
+  Camera,
+  Briefcase,
+  Globe,
+  Clock,
+  Save,
+  Link as LinkIcon,
+  Zap,
+  Building2,
+  CheckCircle2,
+  X,
+  Languages,
+  ChevronDown,
+  Plus,
+} from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
 import api from "@/lib/api";
-import { AxiosError } from "axios";
-import { Skeleton } from "@/components/Skeleton";
 import { useToast } from "@/components/Toast";
 import { ImageCropModal } from "@/components/ImageCropModal";
-import type { Mentor } from "@/lib/types";
 import { CascadingAddressSelect } from "@/components/CascadingAddressSelect";
 import { LanguageMultiSelect } from "@/components/LanguageMultiSelect";
-import { useAuth } from "@/lib/auth-context";
+import { Skeleton } from "@/components/Skeleton";
+import type { Mentor } from "@/lib/types";
 
-
-// ─── Indian + English language list ───
 const LANGUAGES = [
   { value: "en", label: "English" },
-  { value: "hi", label: "Hindi (हिन्दी)" },
-  { value: "bn", label: "Bengali (বাংলা)" },
-  { value: "te", label: "Telugu (తెలుగు)" },
-  { value: "mr", label: "Marathi (मराठी)" },
-  { value: "ta", label: "Tamil (தமிழ்)" },
-  { value: "gu", label: "Gujarati (ગુજરાતી)" },
-  { value: "kn", label: "Kannada (ಕನ್ನಡ)" },
-  { value: "ml", label: "Malayalam (മലയാളം)" },
-  { value: "pa", label: "Punjabi (ਪੰਜਾਬੀ)" },
-  { value: "or", label: "Odia (ଓଡ଼ିଆ)" },
+  { value: "hi", label: "Hindi" },
+  { value: "bn", label: "Bengali" },
+  { value: "te", label: "Telugu" },
+  { value: "mr", label: "Marathi" },
+  { value: "ta", label: "Tamil" },
+  { value: "ur", label: "Urdu" },
+  { value: "gu", label: "Gujarati" },
+  { value: "kn", label: "Kannada" },
+  { value: "ml", label: "Malayalam" },
+  { value: "or", label: "Odia" },
+  { value: "pa", label: "Punjabi" },
 ];
 
-const SKILL_SUGGESTIONS = [
-  "React", "Node.js", "Python", "Java", "Kubernetes", "AWS", "System Design",
-  "Product Management", "Machine Learning", "Data Structures", "Algorithms",
-  "TypeScript", "Go", "Rust", "DevOps", "SQL", "MongoDB", "Docker", "DSA",
-  "Interview Prep", "Resume Review", "Leadership", "Startup", "Finance",
+const EXPERTISE_SUGGESTIONS = [
+  "React", "Node.js", "System Design", "Data Structures & Algorithms",
+  "Product Management", "Machine Learning", "Python", "Go",
+  "AWS", "DevOps", "GraphQL", "TypeScript", "Frontend Architecture",
+  "Backend Engineering", "Mobile Development", "Flutter", "iOS / Swift",
+  "UI/UX Design", "Career Transition", "Mock Interviews", "Resume Review",
 ];
 
 const SESSION_DURATIONS = [
-  { value: "15", label: "15 Minutes (Quick Chat)" },
-  { value: "30", label: "30 Minutes (Regular)" },
-  { value: "45", label: "45 Minutes (Extended)" },
+  { value: "30", label: "30 Minutes (Quick Chat)" },
+  { value: "45", label: "45 Minutes (Standard)" },
   { value: "60", label: "60 Minutes (Deep Dive)" },
   { value: "90", label: "90 Minutes (Workshop)" },
 ];
 
-// ─── Sub-components ───
 function InputLabel({ children }: { children: React.ReactNode }) {
   return (
-    <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var()]">
+    <span className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--muted)" }}>
       {children}
     </span>
   );
@@ -64,13 +70,17 @@ function Field({ label, children, description }: { label: string; children: Reac
     <div className="flex flex-col gap-1.5 w-full">
       <InputLabel>{label}</InputLabel>
       {children}
-      {description && <p className="text-[10px] text-[var()] italic">{description}</p>}
+      {description && <p className="text-[10px] italic font-medium" style={{ color: "var(--muted)" }}>{description}</p>}
     </div>
   );
 }
 
-function inputCls() {
-  return "w-full bg-[var()]/5 border border-[var()]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var()]/20 focus:border-[var()]/40 transition-all placeholder:text-[var()]";
+function inputStyle() {
+  return {
+    border: "1px solid var(--hairline)",
+    background: "color-mix(in srgb, var(--fg) 3%, transparent)",
+    color: "var(--fg)",
+  };
 }
 
 export default function MentorSettingsPage() {
@@ -79,283 +89,236 @@ export default function MentorSettingsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { updateUser } = useAuth();
 
-
   const [mentor, setMentor] = useState<Mentor | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Avatar state
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
   const [avatarSaving, setAvatarSaving] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  useEffect(() => {
-    setImageError(false);
-  }, [mentor?.avatar, avatarPreview]);
-
-  // Form state
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
+  const [linkedinUrl, setLinkedinUrl] = useState("");
   const [currentRole, setCurrentRole] = useState("");
   const [company, setCompany] = useState("");
-  const [linkedinUrl, setLinkedinUrl] = useState("");
+  const [experienceYears, setExperienceYears] = useState("");
   const [pricePerSession, setPricePerSession] = useState("");
   const [sessionDuration, setSessionDuration] = useState("30");
+  const [skills, setSkills] = useState<string[]>([]);
+  const [expertiseInput, setExpertiseInput] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [preferredLanguage, setPreferredLanguage] = useState("en");
-  const [experienceYears, setExperienceYears] = useState("");
 
-  // Structured Address State
   const [mentorAddress, setMentorAddress] = useState({
     country: "",
     state: "",
     city: "",
     locality: "",
-    postalCode: ""
+    postalCode: "",
   });
 
-  // Languages array state
   const [mentorLanguages, setMentorLanguages] = useState<string[]>([]);
 
-  // Cached calculated stats for read-only display
-  const [responseTimeText, setResponseTimeText] = useState("Usually replies within a day");
-  const [activePresenceStatus, setActivePresenceStatus] = useState("Offline");
-  const [isOnlineIndicator, setIsOnlineIndicator] = useState(false);
-
-  // Skills / Expertise
-  const [skills, setSkills] = useState<string[]>([]);
-  const [expertiseInput, setExpertiseInput] = useState("");
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
-
-  // ─── Load mentor data ───
   useEffect(() => {
-    api.get("/mentor/me")
+    api
+      .get("/mentor/me")
       .then((res) => {
-        const m: Mentor = res.data.mentor ?? res.data;
+        const m: Mentor = res.data.mentor;
         setMentor(m);
         setDisplayName(m.displayName ?? "");
         setBio(m.bio ?? "");
+        setLinkedinUrl(m.linkedinUrl ?? "");
         setCurrentRole(m.currentRole ?? "");
         setCompany(m.company ?? "");
-        setLinkedinUrl(m.linkedinUrl ?? "");
-        setPricePerSession(String(Math.round((m.pricePerSession ?? 0) / 100)));
-        setSessionDuration(String(m.sessionDuration ?? 30));
-        setSkills((m.expertise ?? []) as string[]);
-        
-        // Structured Location
+        setExperienceYears(m.experienceYears != null ? String(m.experienceYears) : "");
+        setPricePerSession(m.pricePerSession != null ? String(m.pricePerSession) : "");
+        setSessionDuration(m.sessionDuration != null ? String(m.sessionDuration) : "30");
+        setSkills(m.expertise ?? []);
+        setPreferredLanguage((m as any).preferredLanguage ?? "en");
+        setAvatarPreview(m.avatar ?? null);
+        setImageError(false);
+
         setMentorAddress({
-          country: m.country ?? "",
-          state: m.state ?? "",
-          city: m.city ?? "",
-          locality: m.locality ?? "",
-          postalCode: m.postalCode ?? ""
+          country: (m as any).country ?? "",
+          state: (m as any).state ?? "",
+          city: (m as any).city ?? "",
+          locality: (m as any).locality ?? "",
+          postalCode: (m as any).postalCode ?? "",
         });
 
-        // Languages
-        const langsArray = Array.isArray(m.languages)
-          ? m.languages
-          : typeof m.languages === 'string'
-          ? (m.languages as string).split(',').map(s => s.trim()).filter(Boolean)
-          : [];
-        setMentorLanguages(langsArray);
-
-        // Read-only automatic metrics
-        setResponseTimeText(m.averageResponseTime ?? "Usually replies within a day");
-        setActivePresenceStatus(m.activeStatus ?? "Offline");
-        setIsOnlineIndicator(m.isOnline ?? false);
-
-        setExperienceYears(m.experienceYears !== undefined && m.experienceYears !== null ? String(m.experienceYears) : "");
-        if (m.avatar) setAvatarPreview(m.avatar);
+        setMentorLanguages(Array.isArray(m.languages) ? m.languages : []);
       })
-      .catch(() => toast("Failed to load profile", "error"))
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  // ─── Avatar upload flow ───
-  const handleAvatarChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast("File too large. Max 5MB allowed.", "error");
-      return;
-    }
-    const url = URL.createObjectURL(file);
-    setCropImageSrc(url);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    const reader = new FileReader();
+    reader.onload = () => setCropImageSrc(reader.result as string);
+    reader.readAsDataURL(file);
+    e.target.value = "";
   };
 
-  const handleCropComplete = async (croppedFile: File) => {
-    const preview = URL.createObjectURL(croppedFile);
+  const handleCropComplete = async (croppedBlob: Blob) => {
     setCropImageSrc(null);
-    setAvatarPreview(preview);
     setAvatarSaving(true);
     try {
-      const form = new FormData();
-      form.append("avatar", croppedFile);
-      const { data } = await api.put("/mentor/me", form, {
+      const formData = new FormData();
+      formData.append("avatar", croppedBlob, "avatar.png");
+      const res = await api.put("/mentor/me/avatar", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      const newUrl = data.avatar || data.mentor?.avatar || preview;
+      const newUrl = res.data.avatar;
       setAvatarPreview(newUrl);
-      updateUser({ avatar: newUrl });
-      toast("Profile photo updated!", "success");
+      setImageError(false);
+      await updateUser({ avatar: newUrl });
+      toast("Profile photo updated successfully", "success");
     } catch {
-      // fallback: try users/me endpoint
-      try {
-        const form2 = new FormData();
-        form2.append("avatar", croppedFile);
-        const { data } = await api.put("/users/me", form2, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        const newUrl = data.avatar || preview;
-        setAvatarPreview(newUrl);
-        updateUser({ avatar: newUrl });
-        toast("Profile photo updated!", "success");
-      } catch {
-        setAvatarPreview(mentor?.avatar ?? null);
-        toast("Failed to upload photo.", "error");
-      }
+      toast("Failed to update photo. Please try again.", "error");
     } finally {
       setAvatarSaving(false);
     }
   };
 
-  // ─── Expertise chips ───
-  const handleExpertiseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (value.endsWith(",")) {
-      const skill = value.slice(0, -1).trim();
-      addSkill(skill);
-    } else {
-      setExpertiseInput(value);
-      if (value.trim()) {
-        const filtered = SKILL_SUGGESTIONS.filter(
-          (s) => s.toLowerCase().includes(value.toLowerCase()) && !skills.includes(s)
-        );
-        setFilteredSuggestions(filtered);
-        setShowSuggestions(filtered.length > 0);
-      } else {
-        setShowSuggestions(false);
-      }
-    }
-  };
-
   const addSkill = (skill: string) => {
-    const s = skill.trim();
-    if (s && !skills.includes(s)) setSkills((prev) => [...prev, s]);
+    const trimmed = skill.trim();
+    if (trimmed && !skills.includes(trimmed)) {
+      setSkills((prev) => [...prev, trimmed]);
+    }
     setExpertiseInput("");
     setShowSuggestions(false);
   };
 
-  const removeSkill = (index: number) => setSkills((prev) => prev.filter((_, i) => i !== index));
+  const removeSkill = (index: number) => {
+    setSkills((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleExpertiseKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && expertiseInput.trim()) {
+    if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
       addSkill(expertiseInput);
+    } else if (e.key === "Backspace" && !expertiseInput && skills.length > 0) {
+      removeSkill(skills.length - 1);
     }
   };
 
-  // ─── Save profile ───
-  const handleSave = async (e: FormEvent) => {
+  const handleExpertiseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (val.includes(",")) {
+      addSkill(val.replace(",", ""));
+    } else {
+      setExpertiseInput(val);
+      setShowSuggestions(val.trim().length > 0);
+    }
+  };
+
+  const filteredSuggestions = EXPERTISE_SUGGESTIONS.filter(
+    (s) =>
+      s.toLowerCase().includes(expertiseInput.toLowerCase().trim()) &&
+      !skills.includes(s)
+  );
+
+  async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     try {
-      await api.put("/mentor/me", {
-        displayName,
-        bio,
-        currentRole,
-        company,
-        linkedinUrl,
+      const payload = {
+        displayName: displayName.trim(),
+        bio: bio.trim(),
+        linkedinUrl: linkedinUrl.trim() || null,
+        currentRole: currentRole.trim() || null,
+        company: company.trim() || null,
+        experienceYears: experienceYears ? parseInt(experienceYears) : null,
+        pricePerSession: pricePerSession ? parseInt(pricePerSession) : 0,
+        sessionDuration: parseInt(sessionDuration),
         expertise: skills,
-        pricePerSession: Number(pricePerSession) * 100,
-        sessionDuration: Number(sessionDuration),
         preferredLanguage,
-        country: mentorAddress.country,
-        state: mentorAddress.state,
-        city: mentorAddress.city,
-        locality: mentorAddress.locality,
-        postalCode: mentorAddress.postalCode,
+        country: mentorAddress.country || null,
+        state: mentorAddress.state || null,
+        city: mentorAddress.city || null,
+        locality: mentorAddress.locality || null,
+        postalCode: mentorAddress.postalCode || null,
         languages: mentorLanguages,
-        experienceYears: experienceYears ? Number(experienceYears) : null,
-      });
-      updateUser({ name: displayName });
-      toast("Profile updated successfully!", "success");
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        toast(err.response?.data?.error ?? "Update failed.", "error");
-      } else {
-        toast("Something went wrong.", "error");
-      }
+      };
+
+      const res = await api.put("/mentor/me", payload);
+      setMentor(res.data.mentor);
+      await updateUser({ name: displayName.trim() });
+      toast("Mentor profile updated successfully", "success");
+    } catch (err: any) {
+      toast(err.response?.data?.error || "Failed to update profile", "error");
     } finally {
       setSaving(false);
     }
-  };
+  }
 
-  // ─── Loading skeleton ───
+  const initials = displayName
+    ? displayName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
+    : "M";
+
+  const currentAvatar = avatarPreview || mentor?.avatar || null;
+
+  const isOnlineIndicator = (mentor as any)?.isOnline ?? true;
+  const activePresenceStatus = (mentor as any)?.activeStatus ?? "Online";
+  const avgResponseTimeMin = (mentor as any)?.avgResponseTimeMin;
+  const responseTimeText = avgResponseTimeMin
+    ? `${avgResponseTimeMin} mins`
+    : "< 15 mins";
+
   if (loading) {
     return (
-      <div className="flex flex-col gap-6 max-w-3xl">
-        <Skeleton className="h-8 w-48" />
+      <div className="max-w-3xl flex flex-col gap-6">
+        <Skeleton className="h-10 w-48" />
         <Skeleton className="h-64 w-full rounded-2xl" />
         <Skeleton className="h-48 w-full rounded-2xl" />
       </div>
     );
   }
 
-  const currentAvatar = avatarPreview ?? mentor?.avatar;
-  const initials = (mentor?.displayName ?? displayName ?? "M")
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
   return (
     <>
       <div className="max-w-3xl flex flex-col gap-8">
-        {/* ─── Header ─── */}
-        <div className="flex flex-col gap-1">
-          <p className="text-xs uppercase tracking-[0.22em] text-[var()] font-bold">Mentor Panel</p>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
-            Edit your profile<span className="text-orange-500">.</span>
+        <div className="flex flex-col gap-1.5">
+          <p className="text-xs uppercase tracking-[0.22em] font-semibold" style={{ color: "var(--muted)" }}>Mentor Panel</p>
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight" style={{ color: "var(--fg)" }}>
+            Edit your profile<span className="text-amber-500">.</span>
           </h1>
-          <p className="text-sm text-[var()]">
+          <p className="text-sm font-medium" style={{ color: "var(--muted)" }}>
             Configure how potential mentees see your professional profile and services.
           </p>
         </div>
 
         <form onSubmit={handleSave} className="flex flex-col gap-6">
-          {/* ─── Card: Mentor Information ─── */}
-          <div className="rounded-2xl border border-[var()]/10 bg-[var()]/[0.02] overflow-hidden">
-            {/* Card header */}
-            <div className="px-4 sm:px-6 py-4 border-b border-[var()]/10 flex items-center justify-between bg-[var()]/[0.02]">
+          <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+            <div className="px-4 sm:px-6 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-orange-500/10 rounded-lg">
-                  <User size={18} className="text-orange-500" />
+                <div className="p-2 bg-amber-500/10 rounded-lg">
+                  <User size={18} className="text-amber-500" />
                 </div>
-                <h2 className="font-bold text-base">Mentor Information</h2>
+                <h2 className="font-semibold text-base" style={{ color: "var(--fg)" }}>Mentor Information</h2>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 size={14} className="text-orange-500" />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[var()]">
+                <CheckCircle2 size={14} className="text-amber-500" />
+                <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
                   Public Profile
                 </span>
               </div>
             </div>
 
             <div className="p-4 sm:p-6 flex flex-col gap-8">
-              {/* ─── Photo Section ─── */}
-              <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-[var()]/10">
+              {/* Photo Section */}
+              <div className="flex flex-col sm:flex-row items-center gap-6 pb-6" style={{ borderBottom: "1px solid var(--hairline)" }}>
                 <div className="relative group shrink-0">
-                  <div className="w-28 h-28 rounded-full overflow-hidden bg-[var()]/8 border-2 border-dashed border-[var()]/20 flex items-center justify-center ring-4 ring-orange-500/10 group-hover:border-orange-500/40 transition-all">
+                  <div className="w-28 h-28 rounded-full overflow-hidden flex items-center justify-center transition-all" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 6%, transparent)" }}>
                     {currentAvatar && !imageError ? (
                       <img src={currentAvatar} alt="Avatar" className="w-full h-full object-cover" onError={() => setImageError(true)} />
                     ) : (
-                      <span className="text-3xl font-bold text-[var()]/30">{initials}</span>
+                      <span className="text-3xl font-semibold opacity-40" style={{ color: "var(--fg)" }}>{initials}</span>
                     )}
-                    {/* Hover overlay */}
                     <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer transition-opacity rounded-full">
                       <Camera size={22} className="text-white mb-1" />
                       <span className="text-[10px] font-bold text-white uppercase tracking-wider">Change</span>
@@ -368,12 +331,11 @@ export default function MentorSettingsPage() {
                       />
                     </label>
                   </div>
-                  {/* Remove button */}
                   {currentAvatar && (
                     <button
                       type="button"
                       onClick={() => setAvatarPreview(null)}
-                      className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transition-colors"
+                      className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transition-colors cursor-pointer"
                     >
                       <X size={11} />
                     </button>
@@ -386,22 +348,22 @@ export default function MentorSettingsPage() {
                 </div>
 
                 <div className="text-center sm:text-left flex flex-col gap-1">
-                  <h3 className="font-display text-2xl font-bold tracking-tight">
+                  <h3 className="font-display text-2xl font-extrabold tracking-tight" style={{ color: "var(--fg)" }}>
                     {displayName || "Mentor Name"}
                   </h3>
                   {company ? (
-                    <p className="text-sm text-[var()] font-medium flex items-center justify-center sm:justify-start gap-1.5">
+                    <p className="text-sm font-semibold flex items-center justify-center sm:justify-start gap-1.5" style={{ color: "var(--muted)" }}>
                       <Building2 size={14} /> {company}
                     </p>
                   ) : (
-                    <p className="text-xs text-[var()] italic">Add a company below</p>
+                    <p className="text-xs italic font-medium" style={{ color: "var(--muted)" }}>Add a company below</p>
                   )}
                   <div className="flex gap-2 mt-3 justify-center sm:justify-start">
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={avatarSaving}
-                      className="px-4 py-2 text-xs font-bold rounded-xl bg-orange-500/10 text-orange-500 hover:bg-orange-500/20 transition-colors disabled:opacity-50"
+                      className="px-4 py-2 text-xs font-semibold rounded-xl bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 transition-colors disabled:opacity-50 cursor-pointer"
                     >
                       {avatarSaving ? "Uploading..." : "Upload Photo"}
                     </button>
@@ -409,7 +371,8 @@ export default function MentorSettingsPage() {
                       <button
                         type="button"
                         onClick={() => setAvatarPreview(null)}
-                        className="px-4 py-2 text-xs font-bold rounded-xl bg-[var()]/5 text-[var()] hover:text-[var()] transition-colors"
+                        className="px-4 py-2 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+                        style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 5%, transparent)", color: "var(--fg)" }}
                       >
                         Remove
                       </button>
@@ -418,7 +381,7 @@ export default function MentorSettingsPage() {
                 </div>
               </div>
 
-              {/* ─── Name + LinkedIn ─── */}
+              {/* Name + LinkedIn */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <Field label="Display Name">
                   <input
@@ -427,46 +390,50 @@ export default function MentorSettingsPage() {
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     required
-                    className={inputCls()}
+                    className="w-full rounded-xl px-4 py-3 text-sm outline-none font-medium"
+                    style={inputStyle()}
                   />
                 </Field>
 
                 <Field label="LinkedIn URL">
                   <div className="relative">
-                    <LinkIcon size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var()]" />
+                    <LinkIcon size={15} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: "var(--muted)" }} />
                     <input
                       type="url"
                       placeholder="https://linkedin.com/in/username"
                       value={linkedinUrl}
                       onChange={(e) => setLinkedinUrl(e.target.value)}
-                      className={`${inputCls()} pl-10`}
+                      className="w-full rounded-xl pl-10 pr-4 py-3 text-sm outline-none font-medium"
+                      style={inputStyle()}
                     />
                   </div>
                 </Field>
               </div>
 
-              {/* ─── Bio ─── */}
+              {/* Bio */}
               <Field label="Professional Bio" description="Max 500 characters. Tell us about your journey and expertise.">
                 <textarea
                   rows={5}
                   placeholder="Share your experience as a mentor..."
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
-                  className={`${inputCls()} resize-none`}
+                  className="w-full rounded-xl px-4 py-3 text-sm outline-none resize-none font-medium"
+                  style={inputStyle()}
                 />
               </Field>
 
-              {/* ─── Role + Company + Experience ─── */}
+              {/* Role + Company + Experience */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <Field label="Current Role">
                   <div className="relative">
-                    <Briefcase size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var()]" />
+                    <Briefcase size={15} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: "var(--muted)" }} />
                     <input
                       type="text"
                       placeholder="e.g. Senior Software Engineer"
                       value={currentRole}
                       onChange={(e) => setCurrentRole(e.target.value)}
-                      className={`${inputCls()} pl-10`}
+                      className="w-full rounded-xl pl-10 pr-4 py-3 text-sm outline-none font-medium"
+                      style={inputStyle()}
                     />
                   </div>
                 </Field>
@@ -477,7 +444,8 @@ export default function MentorSettingsPage() {
                     placeholder="e.g. Google, Startup..."
                     value={company}
                     onChange={(e) => setCompany(e.target.value)}
-                    className={inputCls()}
+                    className="w-full rounded-xl px-4 py-3 text-sm outline-none font-medium"
+                    style={inputStyle()}
                   />
                 </Field>
 
@@ -488,15 +456,16 @@ export default function MentorSettingsPage() {
                     placeholder="e.g. 5"
                     value={experienceYears}
                     onChange={(e) => setExperienceYears(e.target.value)}
-                    className={inputCls()}
+                    className="w-full rounded-xl px-4 py-3 text-sm outline-none font-medium"
+                    style={inputStyle()}
                   />
                 </Field>
               </div>
 
-              {/* ─── Geographic Address ─── */}
-              <div className="flex flex-col gap-1.5 border border-[var()]/10 p-5 rounded-2xl bg-[var()]/[0.01]">
-                <h3 className="font-bold text-sm text-[var()] flex items-center gap-2 mb-2">
-                  <Globe size={16} className="text-orange-500" />
+              {/* Geographic Address */}
+              <div className="flex flex-col gap-1.5 p-5 rounded-2xl" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 1%, transparent)" }}>
+                <h3 className="font-semibold text-sm flex items-center gap-2 mb-2" style={{ color: "var(--fg)" }}>
+                  <Globe size={16} className="text-amber-500" />
                   Geographic Location
                 </h3>
                 <CascadingAddressSelect
@@ -507,7 +476,7 @@ export default function MentorSettingsPage() {
                 />
               </div>
 
-              {/* ─── Languages Spoken ─── */}
+              {/* Languages Spoken */}
               <Field label="Languages Spoken" description="Select all languages you speak fluently. Popular choices are shown first.">
                 <LanguageMultiSelect
                   selectedLanguages={mentorLanguages}
@@ -515,84 +484,85 @@ export default function MentorSettingsPage() {
                 />
               </Field>
 
-              {/* ─── Presence & Performance Read-only Card ─── */}
-              <div className="rounded-2xl border border-[var()]/10 bg-[var()]/[0.02] overflow-hidden my-4">
-                <div className="px-4 sm:px-6 py-4 border-b border-[var()]/10 flex items-center gap-3 bg-[var()]/[0.02]">
+              {/* Presence Metrics */}
+              <div className="rounded-2xl overflow-hidden my-4" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+                <div className="px-4 sm:px-6 py-4 flex items-center gap-3" style={{ borderBottom: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
                   <div className="p-2 bg-emerald-500/10 rounded-lg">
                     <Zap size={18} className="text-emerald-500" />
                   </div>
-                  <h2 className="font-bold text-base text-[var()]">Presence & Performance Metrics</h2>
+                  <h2 className="font-semibold text-base" style={{ color: "var(--fg)" }}>Presence & Performance Metrics</h2>
                 </div>
                 <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  <div className="flex flex-col gap-1 p-4 rounded-xl bg-[var()]/5 border border-[var()]/5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var()]">Presence Status</span>
+                  <div className="flex flex-col gap-1 p-4 rounded-xl" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 4%, transparent)" }}>
+                    <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Presence Status</span>
                     <div className="flex items-center gap-2 mt-2">
                       <span className={`h-2.5 w-2.5 rounded-full ${isOnlineIndicator ? 'bg-emerald-500' : 'bg-gray-400'}`} />
-                      <span className="text-sm font-bold text-[var()]">{activePresenceStatus}</span>
+                      <span className="text-sm font-semibold" style={{ color: "var(--fg)" }}>{activePresenceStatus}</span>
                     </div>
-                    <p className="text-[10px] text-[var()] mt-2 leading-relaxed">
+                    <p className="text-[10px] mt-2 leading-relaxed font-medium" style={{ color: "var(--muted)" }}>
                       Automatically updated based on active browser page focus and mouse interactions.
                     </p>
                   </div>
 
-                  <div className="flex flex-col gap-1 p-4 rounded-xl bg-[var()]/5 border border-[var()]/5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var()]">Avg. Response Time</span>
-                    <span className="text-sm font-bold mt-2 text-[var()]">{responseTimeText}</span>
-                    <p className="text-[10px] text-[var()] mt-2 leading-relaxed">
+                  <div className="flex flex-col gap-1 p-4 rounded-xl" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 4%, transparent)" }}>
+                    <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Avg. Response Time</span>
+                    <span className="text-sm font-semibold mt-2" style={{ color: "var(--fg)" }}>{responseTimeText}</span>
+                    <p className="text-[10px] mt-2 leading-relaxed font-medium" style={{ color: "var(--muted)" }}>
                       Calculated as the average interval between a student's first message and your first reply.
                     </p>
                   </div>
 
-                  <div className="flex flex-col gap-1 p-4 rounded-xl bg-[var()]/5 border border-[var()]/5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var()]">Platform Verification</span>
+                  <div className="flex flex-col gap-1 p-4 rounded-xl" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 4%, transparent)" }}>
+                    <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Platform Verification</span>
                     <div className="flex items-center gap-2 mt-2">
-                      <span className="text-emerald-500 text-xs font-bold bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-md">
+                      <span className="text-emerald-600 text-xs font-semibold bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-md">
                         {mentor?.approvalStatus === 'APPROVED' ? 'Verified Partner' : 'Pending Review'}
                       </span>
                     </div>
-                    <p className="text-[10px] text-[var()] mt-2 leading-relaxed">
+                    <p className="text-[10px] mt-2 leading-relaxed font-medium" style={{ color: "var(--muted)" }}>
                       Managed directly by the platform administration team.
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* ─── Preferred Language ─── */}
+              {/* Preferred Language */}
               <Field label="Preferred Language">
                 <div className="relative">
-                  <Languages size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var()] pointer-events-none" />
+                  <Languages size={15} className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--muted)" }} />
                   <select
                     value={preferredLanguage}
                     onChange={(e) => setPreferredLanguage(e.target.value)}
-                    className={`${inputCls()} pl-10 pr-10 appearance-none cursor-pointer`}
+                    className="w-full rounded-xl pl-10 pr-10 py-3 text-sm outline-none appearance-none cursor-pointer font-medium"
+                    style={inputStyle()}
                   >
                     {LANGUAGES.map((lang) => (
-                      <option key={lang.value} value={lang.value} className="bg-[var()] text-[var()]">
+                      <option key={lang.value} value={lang.value} style={{ background: "var(--bg)", color: "var(--fg)" }}>
                         {lang.label}
                       </option>
                     ))}
                   </select>
-                  <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[var()] pointer-events-none" />
+                  <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--muted)" }} />
                 </div>
               </Field>
 
-              {/* ─── Expertise Chips ─── */}
+              {/* Expertise Chips */}
               <Field
                 label="Expertise Areas"
                 description="Type a skill and press Enter or comma to add. Click suggestions to select."
               >
                 <div className="relative">
-                  <div className="min-h-[52px] w-full bg-[var()]/5 border border-[var()]/10 rounded-xl p-2 flex flex-wrap gap-2 focus-within:ring-2 focus-within:ring-[var()]/20 focus-within:border-[var()]/40 transition-all">
+                  <div className="min-h-[52px] w-full rounded-xl p-2 flex flex-wrap gap-2 transition-all" style={inputStyle()}>
                     {skills.map((skill, index) => (
                       <span
                         key={index}
-                        className="flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/20 text-orange-500 px-3 py-1.5 rounded-lg text-xs font-bold"
+                        className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-600 px-3 py-1.5 rounded-lg text-xs font-semibold"
                       >
                         {skill}
                         <button
                           type="button"
                           onClick={() => removeSkill(index)}
-                          className="hover:text-red-400 transition-colors"
+                          className="hover:text-red-400 transition-colors cursor-pointer"
                         >
                           <X size={11} />
                         </button>
@@ -606,19 +576,21 @@ export default function MentorSettingsPage() {
                       onFocus={() => expertiseInput.trim() && setShowSuggestions(true)}
                       onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                       placeholder={skills.length === 0 ? "e.g. React, System Design..." : "Add more..."}
-                      className="flex-1 bg-transparent border-none outline-none text-sm min-w-[120px] px-2 py-1"
+                      className="flex-1 bg-transparent border-none outline-none text-sm min-w-[120px] px-2 py-1 font-medium"
+                      style={{ color: "var(--fg)" }}
                     />
                   </div>
 
                   {/* Suggestion dropdown */}
                   {showSuggestions && filteredSuggestions.length > 0 && (
-                    <div className="absolute z-50 left-0 right-0 top-full mt-2 bg-[var()] border border-[var()]/10 rounded-xl shadow-2xl max-h-48 overflow-y-auto">
+                    <div className="absolute z-50 left-0 right-0 top-full mt-2 rounded-xl shadow-2xl max-h-48 overflow-y-auto" style={{ border: "1px solid var(--hairline)", background: "var(--bg)" }}>
                       {filteredSuggestions.map((suggestion, idx) => (
                         <button
                           key={idx}
                           type="button"
                           onMouseDown={() => addSkill(suggestion)}
-                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-orange-500/10 hover:text-orange-500 transition-colors flex items-center justify-between group border-b border-[var()]/5 last:border-0"
+                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-amber-500/10 hover:text-amber-600 transition-colors flex items-center justify-between group last:border-0 cursor-pointer"
+                          style={{ borderBottom: "1px solid var(--hairline)", color: "var(--fg)" }}
                         >
                           {suggestion}
                           <Plus size={13} className="opacity-0 group-hover:opacity-100" />
@@ -629,48 +601,51 @@ export default function MentorSettingsPage() {
                 </div>
               </Field>
 
-              {/* ─── Pricing + Duration ─── */}
+              {/* Pricing + Duration */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <Field label="Session Pricing (₹)">
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var()] font-bold text-sm">₹</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-semibold text-sm" style={{ color: "var(--muted)" }}>₹</span>
                     <input
                       type="number"
                       placeholder="499"
                       min={0}
                       value={pricePerSession}
                       onChange={(e) => setPricePerSession(e.target.value)}
-                      className={`${inputCls()} pl-8`}
+                      className="w-full rounded-xl pl-8 pr-4 py-3 text-sm outline-none font-medium"
+                      style={inputStyle()}
                     />
                   </div>
                 </Field>
 
                 <Field label="Default Session Duration">
                   <div className="relative">
-                    <Clock size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var()] pointer-events-none" />
+                    <Clock size={15} className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--muted)" }} />
                     <select
                       value={sessionDuration}
                       onChange={(e) => setSessionDuration(e.target.value)}
-                      className={`${inputCls()} pl-10 pr-10 appearance-none cursor-pointer`}
+                      className="w-full rounded-xl pl-10 pr-10 py-3 text-sm outline-none appearance-none cursor-pointer font-medium"
+                      style={inputStyle()}
                     >
                       {SESSION_DURATIONS.map((d) => (
-                        <option key={d.value} value={d.value} className="bg-[var()] text-[var()]">
+                        <option key={d.value} value={d.value} style={{ background: "var(--bg)", color: "var(--fg)" }}>
                           {d.label}
                         </option>
                       ))}
                     </select>
-                    <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[var()] pointer-events-none" />
+                    <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--muted)" }} />
                   </div>
                 </Field>
               </div>
             </div>
 
-            {/* ─── Footer / Save ─── */}
-            <div className="px-4 sm:px-6 py-4 border-t border-[var()]/10 bg-[var()]/[0.01] flex flex-col sm:flex-row items-center justify-between gap-4">
+            {/* Footer / Save */}
+            <div className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 1%, transparent)" }}>
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[var()] text-[var()] px-8 py-3 rounded-xl font-bold text-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 shadow-lg"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3 rounded-xl font-semibold text-sm transition-all disabled:opacity-50 shadow cursor-pointer"
+                style={{ background: "var(--fg)", color: "var(--bg)" }}
               >
                 <Save size={16} className={saving ? "animate-pulse" : ""} />
                 {saving ? "Saving..." : "Save Profile Updates"}
@@ -679,28 +654,31 @@ export default function MentorSettingsPage() {
           </div>
         </form>
 
-        {/* ─── Continue as Mentee Section ─── */}
-        <div className="mt-8 bg-[var()]/5 border border-[var()] rounded-2xl sm:rounded-[2rem] p-6 sm:p-8 md:p-10 backdrop-blur-xl">
+        {/* Continue as Mentee Section */}
+        <div className="mt-8 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-[var()]/10 rounded-xl">
-              <Zap size={20} className="text-[var()]" />
+            <div className="p-2 rounded-xl" style={{ background: "color-mix(in srgb, var(--fg) 8%, transparent)" }}>
+              <Zap size={20} style={{ color: "var(--fg)" }} />
             </div>
-            <h3 className="text-lg sm:text-xl font-bold">Continue as a Mentee</h3>
+            <h3 className="text-lg sm:text-xl font-semibold" style={{ color: "var(--fg)" }}>Continue as a Mentee</h3>
           </div>
-          <p className="text-sm text-[var()] mb-6">
+          <p className="text-sm mb-6 font-medium" style={{ color: "var(--muted)" }}>
             Want to explore other domains, browse available mentors, or book a guidance session? Switch to the mentee workspace.
           </p>
           <button
             type="button"
-            onClick={() => router.push("/dashboard")}
-            className="px-6 py-3 bg-[var()] text-[var()] hover:opacity-90 rounded-xl font-bold text-sm transition-all cursor-pointer"
+            onClick={() => {
+              sessionStorage.setItem("hmm.activeRole", "mentee");
+              router.push("/dashboard");
+            }}
+            className="px-6 py-3 rounded-xl font-semibold text-sm transition-opacity cursor-pointer shadow"
+            style={{ background: "var(--fg)", color: "var(--bg)" }}
           >
             Switch to Mentee Panel
           </button>
         </div>
       </div>
 
-      {/* ─── Crop Modal ─── */}
       {cropImageSrc && (
         <ImageCropModal
           imageSrc={cropImageSrc}

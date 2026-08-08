@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, ToggleLeft, ToggleRight } from "lucide-react";
+import { ToggleLeft, ToggleRight } from "lucide-react";
 import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { InstitutionBadge } from "@/components/InstitutionBadge";
@@ -29,64 +29,72 @@ export default function AdminMentorsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Mentors</p>
-        <h1 className="font-display text-4xl leading-tight">All mentors.</h1>
-        <p className="text-sm text-[var()]">{mentors.length} mentor{mentors.length !== 1 ? "s" : ""} total</p>
+      <div className="flex flex-col gap-1.5">
+        <p className="text-xs uppercase tracking-[0.22em]" style={{ color: "var(--muted)" }}>Mentors</p>
+        <h1 className="font-display text-4xl leading-tight" style={{ color: "var(--fg)" }}>All mentors.</h1>
+        <p className="text-sm" style={{ color: "var(--muted)" }}>{mentors.length} mentor{mentors.length !== 1 ? "s" : ""} total</p>
       </div>
 
       {loading ? (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
           {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-16 w-full rounded-xl" />)}
         </div>
       ) : (
-        <div className="w-full overflow-x-auto pb-2">
-          <div className="min-w-[650px] flex flex-col gap-2">
-            {/* Header */}
-            <div className="grid grid-cols-12 gap-4 px-5 py-2 text-[10px] uppercase tracking-[0.22em] text-[var()]">
-              <span className="col-span-3">Name</span>
-              <span className="col-span-3">Institution</span>
-              <span className="col-span-2">Status</span>
-              <span className="col-span-1">Rating</span>
-              <span className="col-span-1">Sessions</span>
-              <span className="col-span-2">Active</span>
-            </div>
-
-            {mentors.map((m) => (
-              <div key={m.id} className="grid grid-cols-12 gap-4 items-center rounded-xl bg-[var()]/[0.02] px-5 py-3 text-sm">
-                <div className="col-span-3 flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var()]/8 text-[10px] font-medium shrink-0">
-                    {m.displayName.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
-                  </div>
-                  <span className="truncate font-medium">{m.displayName}</span>
-                </div>
-                <div className="col-span-3">
-                  <InstitutionBadge institutionName={m.institutionName} institutionType={m.institutionType} />
-                </div>
-                <div className="col-span-2">
-                  <span className={`text-xs rounded-full px-2.5 py-0.5 ${
-                    m.approvalStatus === "APPROVED" ? "bg-emerald-500/10 text-emerald-600" :
-                    m.approvalStatus === "PENDING" ? "bg-amber-500/10 text-amber-600" :
-                    "bg-red-500/10 text-red-600"
-                  }`}>
-                    {m.approvalStatus}
-                  </span>
-                </div>
-                <span className="col-span-1 text-[var()]">{m.rating > 0 ? m.rating.toFixed(1) : "—"}</span>
-                <span className="col-span-1 text-[var()]">{m.totalSessions}</span>
-                <div className="col-span-2">
-                  <button type="button" onClick={() => toggleActive(m.id)}
-                    className="cursor-pointer text-[var()] hover:text-[var()]">
-                    {m.isActive ? (
-                      <ToggleRight className="h-6 w-6 text-emerald-500" />
-                    ) : (
-                      <ToggleLeft className="h-6 w-6" />
-                    )}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="w-full overflow-x-auto">
+          <table className="w-full min-w-[640px] border-collapse">
+            <thead>
+              <tr style={{ borderBottom: "1px solid var(--hairline)" }}>
+                {["Name", "Institution", "Status", "Rating", "Sessions", "Active"].map((h) => (
+                  <th key={h} className="text-left py-3 pr-6 text-[10px] uppercase tracking-[0.22em] font-medium" style={{ color: "var(--muted)" }}>
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {mentors.map((m, idx) => (
+                <tr
+                  key={m.id}
+                  className="transition-colors"
+                  style={{ borderBottom: idx < mentors.length - 1 ? "1px solid var(--hairline)" : "none" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "color-mix(in srgb, var(--fg) 2%, transparent)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                >
+                  <td className="py-4 pr-6 text-sm">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full text-[10px] font-semibold shrink-0" style={{ background: "color-mix(in srgb, var(--fg) 8%, transparent)", color: "var(--fg)" }}>
+                        {m.displayName.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
+                      </div>
+                      <span className="truncate font-medium" style={{ color: "var(--fg)" }}>{m.displayName}</span>
+                    </div>
+                  </td>
+                  <td className="py-4 pr-6 text-sm">
+                    <InstitutionBadge institutionName={m.institutionName} institutionType={m.institutionType} />
+                  </td>
+                  <td className="py-4 pr-6 text-sm">
+                    <span className={`text-xs rounded-full px-2.5 py-0.5 font-medium ${
+                      m.approvalStatus === "APPROVED" ? "bg-emerald-500/10 text-emerald-600" :
+                      m.approvalStatus === "PENDING" ? "bg-amber-500/10 text-amber-600" :
+                      "bg-red-500/10 text-red-600"
+                    }`}>
+                      {m.approvalStatus}
+                    </span>
+                  </td>
+                  <td className="py-4 pr-6 text-sm" style={{ color: "var(--muted)" }}>{m.rating > 0 ? m.rating.toFixed(1) : "—"}</td>
+                  <td className="py-4 pr-6 text-sm" style={{ color: "var(--muted)" }}>{m.totalSessions}</td>
+                  <td className="py-4 text-sm">
+                    <button type="button" onClick={() => toggleActive(m.id)} className="cursor-pointer">
+                      {m.isActive ? (
+                        <ToggleRight className="h-6 w-6 text-emerald-500" />
+                      ) : (
+                        <ToggleLeft className="h-6 w-6" style={{ color: "var(--muted)" }} />
+                      )}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

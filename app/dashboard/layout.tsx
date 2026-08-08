@@ -55,6 +55,14 @@ export default function DashboardLayout({
     if (user) {
       hasRedirectedRef.current = false;
 
+      const isTeam = user.email?.toLowerCase().endsWith("@helpmeman.com") || isAdmin;
+      const activeRole = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("hmm.activeRole") : null;
+
+      if (activeRole === "mentee" || isTeam) {
+        // Mentee / student view explicitly chosen by user or team member
+        return;
+      }
+
       if (isMentor) {
         router.replace(mentor?.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status");
       } else if (isAdmin) {
@@ -73,8 +81,8 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="h-6 w-6 rounded-full border-2 border-[var()]/20 border-t-[var()] animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}>
+        <div className="h-6 w-6 rounded-full border-2 animate-spin" style={{ borderColor: "var(--hairline)", borderTopColor: "var(--fg)" }} />
       </div>
     );
   }

@@ -59,12 +59,16 @@ export default function MentorLayout({
 
     if (user) {
       hasRedirectedRef.current = false;
-      if (!user.onboardingRole) {
+      const isTeam = user.email?.toLowerCase().endsWith("@helpmeman.com") || user.role === "ADMIN" || user.role === "SUPER_ADMIN";
+      const activeRole = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("hmm.activeRole") : null;
+
+      if (!user.onboardingRole && !isTeam) {
         router.replace("/onboarding");
-      } else if (!isMentor) {
-        const dest = user.role === "ADMIN" ? "/admin" : "/dashboard";
+      } else if (!isMentor && !isTeam && activeRole !== "mentor") {
+        const dest = user.role === "ADMIN" || user.role === "SUPER_ADMIN" ? "/admin" : "/dashboard";
         router.replace(dest);
       } else if (
+        !isTeam &&
         mentor?.approvalStatus !== "APPROVED" &&
         pathname !== "/mentor/status" &&
         !localStorage.getItem("helpmeman.accessToken")?.startsWith("demo_")
@@ -140,13 +144,13 @@ export default function MentorLayout({
   // Show spinner while loading or while redirect is in flight
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="h-6 w-6 rounded-full border-2 border-[var()]/20 border-t-[var()] animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}>
+        <div className="h-6 w-6 rounded-full border-2 animate-spin" style={{ borderColor: "var(--hairline)", borderTopColor: "var(--fg)" }} />
       </div>
     );
   }
-  // Non-mentor users are being redirected by the useEffect above — render nothing
-  if (!user || !isMentor) return null;
+  const isTeam = user?.email?.toLowerCase().endsWith("@helpmeman.com") || user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
+  if (!user || (!isMentor && !isTeam)) return null;
 
   return (
     <SidebarShell

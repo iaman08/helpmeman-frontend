@@ -30,7 +30,12 @@ export function ThemeToggle({ variant = "pill", className = "" }: ThemeTogglePro
       <button
         type="button"
         onClick={() => setTheme(isDark ? "light" : "dark")}
-        className={`p-2 rounded-full bg-[var()]/5 border border-[var()] text-[var()] hover:bg-[var()]/10 transition-all active:scale-95 cursor-pointer flex items-center justify-center ${className}`}
+        className={`p-2 rounded-full transition-all active:scale-95 cursor-pointer flex items-center justify-center ${className}`}
+        style={{
+          border: "1px solid var(--hairline)",
+          background: "color-mix(in srgb, var(--fg) 5%, transparent)",
+          color: "var(--fg)",
+        }}
         aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
         title={`Switch to ${isDark ? "light" : "dark"} mode`}
       >

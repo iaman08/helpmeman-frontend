@@ -14,24 +14,25 @@ const styles: Record<string, string> = {
   OPEN: "bg-emerald-500/12 text-emerald-600",
   LOCKED: "bg-yellow-500/12 text-yellow-600",
   BOOKED: "bg-indigo-500/12 text-indigo-600",
-  CLOSED: "bg-[var()]/8 text-[var()]/60",
+  CLOSED: "bg-gray-500/12 text-gray-500",
 };
 
 type Props = {
-  status: string;
+  status?: string | null;
   className?: string;
 };
 
 export function StatusBadge({ status, className }: Props) {
+  const safeStatus = status ?? "UNKNOWN";
   return (
     <span
       className={clsx(
         "inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wider",
-        styles[status] ?? "bg-[var()]/8 text-[var()]/60",
+        styles[safeStatus] ?? "bg-gray-500/12 text-gray-500",
         className,
       )}
     >
-      {status.replace(/_/g, " ")}
+      {safeStatus.replace(/_/g, " ")}
     </span>
   );
 }

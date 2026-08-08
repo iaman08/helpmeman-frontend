@@ -61,24 +61,30 @@ export default function MentorBookingsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Sessions</p>
-        <h1 className="font-display text-4xl leading-tight">Your bookings.</h1>
+      <div className="flex flex-col gap-1.5">
+        <p className="text-xs uppercase tracking-[0.22em] font-semibold" style={{ color: "var(--muted)" }}>Sessions</p>
+        <h1 className="font-display text-4xl leading-tight font-extrabold" style={{ color: "var(--fg)" }}>Your bookings.</h1>
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {TABS.map((tab) => (
-          <button
-            key={tab.label}
-            type="button"
-            onClick={() => setStatus(tab.value)}
-            className={`rounded-full px-4 py-2 text-xs uppercase tracking-wider transition-colors cursor-pointer ${
-              status === tab.value ? "bg-[var()] text-[var()]" : "bg-[var()]/5 text-[var()]/70 hover:bg-[var()]/8"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+        {TABS.map((tab) => {
+          const isActive = status === tab.value;
+          return (
+            <button
+              key={tab.label}
+              type="button"
+              onClick={() => setStatus(tab.value)}
+              className="rounded-full px-4 py-2 text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer"
+              style={{
+                background: isActive ? "var(--fg)" : "color-mix(in srgb, var(--fg) 4%, transparent)",
+                color: isActive ? "var(--bg)" : "var(--muted)",
+                border: isActive ? "1px solid var(--fg)" : "1px solid var(--hairline)",
+              }}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {loading ? (
@@ -88,15 +94,15 @@ export default function MentorBookingsPage() {
       ) : bookings.length > 0 ? (
         <div className="flex flex-col gap-3">
           {bookings.map((b) => (
-            <div key={b.id} className="rounded-xl bg-[var()]/[0.02] p-5 flex flex-col gap-3">
+            <div key={b.id} className="rounded-xl p-5 flex flex-col gap-3" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var()]/8 text-xs font-medium shrink-0">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full text-xs font-semibold shrink-0" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 6%, transparent)", color: "var(--fg)" }}>
                     {b.user?.name?.[0]?.toUpperCase() ?? "U"}
                   </div>
                   <div className="flex flex-col gap-0.5">
-                    <span className="font-medium">{b.user?.name ?? "Student"}</span>
-                    <span className="text-xs text-[var()]">
+                    <span className="font-semibold text-sm" style={{ color: "var(--fg)" }}>{b.user?.name ?? "Student"}</span>
+                    <span className="text-xs font-medium" style={{ color: "var(--muted)" }}>
                       {formatDate(b.scheduledAt)} at {formatTime(b.scheduledAt)} · {b.durationMinutes} min · {formatPrice(b.amountPaid, b.currency)}
                     </span>
                   </div>
@@ -105,8 +111,8 @@ export default function MentorBookingsPage() {
               </div>
 
               {b.mentorNotes && (
-                <div className="text-xs text-[var()]/70 bg-[var()]/3 rounded-lg p-3">
-                  <span className="text-[var()] uppercase tracking-wider">Notes: </span>{b.mentorNotes}
+                <div className="text-xs font-medium rounded-lg p-3" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}>
+                  <span className="uppercase tracking-wider font-semibold" style={{ color: "var(--muted)" }}>Notes: </span>{b.mentorNotes}
                 </div>
               )}
 
@@ -116,7 +122,8 @@ export default function MentorBookingsPage() {
                     href={b.meetLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-full bg-[var()] text-[var()] px-4 py-2 text-xs hover:opacity-90"
+                    className="rounded-xl px-4 py-2 text-xs font-semibold cursor-pointer shadow transition-opacity hover:opacity-90"
+                    style={{ background: "var(--fg)", color: "var(--bg)" }}
                   >
                     Join Meet
                   </a>
@@ -127,19 +134,21 @@ export default function MentorBookingsPage() {
                     setNoteBookingId(b.id);
                     setNoteText(b.mentorNotes ?? "");
                   }}
-                  className="rounded-full bg-[var()]/5 px-4 py-2 text-xs hover:bg-[var()]/8 cursor-pointer"
+                  className="rounded-xl px-4 py-2 text-xs font-semibold cursor-pointer transition-colors"
+                  style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 5%, transparent)", color: "var(--fg)" }}
                 >
                   {b.mentorNotes ? "Edit notes" : "Add notes"}
                 </button>
               </div>
 
               {noteBookingId === b.id && (
-                <div className="flex gap-2 items-end">
+                <div className="flex gap-2 items-end mt-1">
                   <textarea
                     value={noteText}
                     onChange={(e) => setNoteText(e.target.value)}
                     rows={2}
-                    className="flex-1 bg-[var()]/5 rounded-lg px-3 py-2 text-sm outline-none focus:bg-[var()]/8 resize-none"
+                    className="flex-1 rounded-xl px-3 py-2 text-sm outline-none resize-none font-medium"
+                    style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 4%, transparent)", color: "var(--fg)" }}
                     placeholder="Notes for this session..."
                   />
                   <div className="flex flex-col gap-1">
@@ -147,14 +156,16 @@ export default function MentorBookingsPage() {
                       type="button"
                       onClick={() => saveNote(b.id)}
                       disabled={saving}
-                      className="rounded-full bg-[var()] text-[var()] px-4 py-2 text-xs cursor-pointer disabled:opacity-50"
+                      className="rounded-xl px-4 py-2 text-xs font-semibold cursor-pointer disabled:opacity-50 transition-opacity shadow"
+                      style={{ background: "var(--fg)", color: "var(--bg)" }}
                     >
                       Save
                     </button>
                     <button
                       type="button"
                       onClick={() => setNoteBookingId(null)}
-                      className="rounded-full bg-[var()]/5 px-4 py-2 text-xs cursor-pointer"
+                      className="rounded-xl px-4 py-2 text-xs font-semibold cursor-pointer transition-colors"
+                      style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 5%, transparent)", color: "var(--fg)" }}
                     >
                       Cancel
                     </button>
@@ -166,7 +177,7 @@ export default function MentorBookingsPage() {
         </div>
       ) : (
         <EmptyState
-          icon={<CalendarCheck className="h-6 w-6" />}
+          icon={<CalendarCheck className="h-6 w-6 text-[var(--fg)]" />}
           title="No sessions"
           description="Your booked sessions will appear here."
         />

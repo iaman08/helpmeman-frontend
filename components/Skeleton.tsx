@@ -11,17 +11,24 @@ export function Skeleton({ className, circle }: SkeletonProps) {
     <div
       aria-hidden
       className={clsx(
-        "animate-pulse bg-[var()]/8",
+        "animate-pulse bg-[var(--fg)]/8",
         circle ? "rounded-full" : "rounded-lg",
         className,
       )}
+      style={{ background: "color-mix(in srgb, var(--fg) 8%, transparent)" }}
     />
   );
 }
 
 export function MentorCardSkeleton() {
   return (
-    <div className="flex flex-col gap-5 rounded-2xl bg-[var()]/3 p-6">
+    <div
+      className="flex flex-col gap-5 rounded-2xl p-6"
+      style={{
+        background: "color-mix(in srgb, var(--fg) 3%, transparent)",
+        border: "1px solid var(--hairline)",
+      }}
+    >
       <div className="flex items-center gap-4">
         <Skeleton circle className="h-12 w-12 shrink-0" />
         <div className="flex flex-col gap-2 flex-1">

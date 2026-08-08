@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   LayoutDashboard,
   UserCheck,
@@ -17,6 +17,8 @@ import {
 import { useAuth } from "@/lib/auth-context";
 import { SidebarShell } from "@/components/SidebarShell";
 import { useMemo } from "react";
+import { ChangePasswordModal } from "@/components/ChangePasswordModal";
+import { TeamRoleModal } from "@/components/TeamRoleModal";
 
 const BASE_NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -40,13 +42,27 @@ const BASE_NAV = [
   },
 ];
 
+/** Emails that belong to the HelpMeMan internal team */
+const TEAM_EMAILS = new Set([
+  "dilkhush@helpmeman.com",
+  "aman@helpmeman.com",
+  "akash@helpmeman.com",
+  "sriman@helpmeman.com",
+  "omi@helpmeman.com",
+  "roshan@helpmeman.com",
+  "rishav@helpmeman.com",
+  "egamberdi@helpmeman.com",
+]);
+
+const SESSION_KEY = "hmm.roleSelected";
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, mentor, loading, logout, isMentor, isAdmin, isSuperAdmin } = useAuth();
   const router = useRouter();
+  const [showRoleModal, setShowRoleModal] = useState(false);
 
   // Stable ref to prevent double-redirects during transient state updates
   const hasRedirectedRef = useRef(false);
-  // [DEBUG] Log what user value AdminLayout receives on its very first render.
   const mountLoggedRef = useRef(false);
   if (!mountLoggedRef.current) {
     mountLoggedRef.current = true;
@@ -58,6 +74,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     if (user) {
       hasRedirectedRef.current = false;
+
+      const activeRole = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("hmm.activeRole") : null;
+      if (activeRole === "mentor") {
+        router.replace(isMentor && mentor?.approvalStatus !== "APPROVED" ? "/mentor/status" : "/mentor");
+        return;
+      }
+      if (activeRole === "mentee") {
+        router.replace("/dashboard");
+        return;
+      }
+
       if (!isAdmin) {
         const dest = isMentor
           ? (mentor?.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status")
@@ -73,12 +100,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [loading, user, isAdmin, isMentor, mentor, router]);
 
+  // Show the role-selection modal for team members once per session,
+  // but only AFTER they've set their permanent password.
+  useEffect(() => {
+    if (!user) return;
+    if (user.mustChangePassword) return;              // Still on forced-change flow
+    if (!TEAM_EMAILS.has(user.email?.toLowerCase())) return;  // Not a team account
+    if (typeof sessionStorage === "undefined") return;
+    if (sessionStorage.getItem(SESSION_KEY)) return;  // Already chose this session
+
+    setShowRoleModal(true);
+  }, [user?.id, user?.mustChangePassword, user?.email]);
+
   // Construct dynamic navItems menu
   const navItems = useMemo(() => {
     if (isSuperAdmin) {
-      // Add Audit Logs for Super Admin
       return [
-        ...BASE_NAV.slice(0, 5), // Insert before categories
+        ...BASE_NAV.slice(0, 5),
         { href: "/admin/audit-logs", label: "Audit Logs", icon: ShieldAlert },
         ...BASE_NAV.slice(5),
       ];
@@ -86,7 +124,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return BASE_NAV;
   }, [isSuperAdmin]);
 
-  // Show spinner while auth resolves; render nothing while redirect is in flight
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -107,10 +144,28 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       userBadge={isSuperAdmin ? "Super Admin" : "Administrator"}
       avatarColor="bg-red-500/10 text-red-500"
       onLogout={async () => {
+        // Clear the session flag so the modal shows again on next login
+        sessionStorage.removeItem(SESSION_KEY);
         await logout();
       }}
     >
       {children}
+
+      {/* Force-password-change modal — shown when account was provisioned with a temp password */}
+      {user.mustChangePassword && (
+        <ChangePasswordModal
+          onSuccess={() => {
+            // No-op: the modal has already swapped tokens and called updateUser()
+            // to clear mustChangePassword in React state, which unmounts this modal.
+          }}
+        />
+      )}
+
+      {/* Role selection modal — shown to team members on first load each session */}
+      {showRoleModal && !user.mustChangePassword && (
+        <TeamRoleModal onClose={() => setShowRoleModal(false)} />
+      )}
     </SidebarShell>
   );
 }
+

@@ -22,15 +22,14 @@ export default function MentorStatusPage() {
         setOnboardingStatus(data.status);
       })
       .catch(() => {
-        // Fallback to COMPLETED on error to avoid blocking the user
         setOnboardingStatus("COMPLETED");
       });
   }, []);
 
   if (onboardingStatus === "LOADING") {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center gap-6 px-6 text-center">
-        <div className="h-6 w-6 rounded-full border-2 border-[var()]/20 border-t-[var()] animate-spin" />
+      <main className="min-h-screen flex flex-col items-center justify-center gap-6 px-6 text-center" style={{ background: "var(--bg)" }}>
+        <div className="h-6 w-6 rounded-full border-2 animate-spin" style={{ borderColor: "var(--hairline)", borderTopColor: "var(--fg)" }} />
       </main>
     );
   }
@@ -76,15 +75,16 @@ export default function MentorStatusPage() {
   const c = config[displayStatus as keyof typeof config] ?? config.PENDING;
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center gap-6 px-6 text-center">
+    <main className="min-h-screen flex flex-col items-center justify-center gap-6 px-6 text-center" style={{ background: "var(--bg)", color: "var(--fg)" }}>
       <div className={`flex h-16 w-16 items-center justify-center rounded-full ${c.bg}`}>
         {c.icon}
       </div>
-      <h1 className="font-display text-3xl">{c.title}</h1>
-      <p className="text-[var()] max-w-md leading-relaxed">{c.description}</p>
+      <h1 className="font-display text-3xl font-extrabold" style={{ color: "var(--fg)" }}>{c.title}</h1>
+      <p className="max-w-md leading-relaxed text-sm font-medium" style={{ color: "var(--muted)" }}>{c.description}</p>
       <Link
         href={c.cta.href}
-        className="mt-2 rounded-full bg-[var()] text-[var()] px-7 py-3 text-sm hover:opacity-90"
+        className="mt-2 rounded-full px-7 py-3 text-sm font-semibold hover:opacity-90 transition-opacity cursor-pointer shadow"
+        style={{ background: "var(--fg)", color: "var(--bg)" }}
       >
         {c.cta.label}
       </Link>

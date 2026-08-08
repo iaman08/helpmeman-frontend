@@ -59,8 +59,48 @@ body {
   color: var(--fg);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  transition: background-color 350ms ease, color 350ms ease;
+  transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease;
 }
+
+/* ── Global Fallbacks for Tailwind v4 [var()] Utility Classes ── */
+[class*="text-[var()]"] { color: var(--fg); }
+[class*="text-[var()]/40"] { color: color-mix(in srgb, var(--fg) 40%, transparent); }
+[class*="text-[var()]/45"] { color: color-mix(in srgb, var(--fg) 45%, transparent); }
+[class*="text-[var()]/60"] { color: color-mix(in srgb, var(--fg) 60%, transparent); }
+[class*="text-[var()]/70"] { color: color-mix(in srgb, var(--fg) 70%, transparent); }
+[class*="text-[var()]/80"] { color: color-mix(in srgb, var(--fg) 80%, transparent); }
+[class*="text-[var()]/90"] { color: color-mix(in srgb, var(--fg) 90%, transparent); }
+
+[class*="border-[var()]"] { border-color: var(--hairline); }
+[class*="border-[var()]/10"],
+[class*="border-[var()]/15"],
+[class*="border-[var()]/20"],
+[class*="border-[var()]/25"],
+[class*="border-[var()]/30"],
+[class*="border-[var()]/40"],
+[class*="border-[var()]/50"] { border-color: var(--hairline); }
+
+[class*="border-t-[var()]"] { border-top-color: var(--hairline); }
+[class*="border-b-[var()]"] { border-bottom-color: var(--hairline); }
+[class*="border-l-[var()]"] { border-left-color: var(--hairline); }
+[class*="border-r-[var()]"] { border-right-color: var(--hairline); }
+
+[class*="bg-[var()]"] { background-color: var(--bg); }
+[class*="bg-[var()]/[0.01]"] { background-color: color-mix(in srgb, var(--fg) 1%, transparent); }
+[class*="bg-[var()]/[0.02]"] { background-color: color-mix(in srgb, var(--fg) 2%, transparent); }
+[class*="bg-[var()]/[0.03]"] { background-color: color-mix(in srgb, var(--fg) 3%, transparent); }
+[class*="bg-[var()]/[0.04]"] { background-color: color-mix(in srgb, var(--fg) 4%, transparent); }
+[class*="bg-[var()]/4"],
+[class*="bg-[var()]/5"] { background-color: color-mix(in srgb, var(--fg) 5%, transparent); }
+[class*="bg-[var()]/6"] { background-color: color-mix(in srgb, var(--fg) 6%, transparent); }
+[class*="bg-[var()]/8"] { background-color: color-mix(in srgb, var(--fg) 8%, transparent); }
+[class*="bg-[var()]/10"] { background-color: color-mix(in srgb, var(--fg) 10%, transparent); }
+[class*="bg-[var()]/15"] { background-color: color-mix(in srgb, var(--fg) 15%, transparent); }
+[class*="bg-[var()]/20"] { background-color: color-mix(in srgb, var(--fg) 20%, transparent); }
+[class*="bg-[var()]/60"] { background-color: color-mix(in srgb, var(--fg) 60%, transparent); }
+[class*="bg-[var()]/80"] { background-color: color-mix(in srgb, var(--fg) 80%, transparent); }
+
+[class*="placeholder-[var()]"]::placeholder { color: var(--muted); }
 
 html {
   scroll-behavior: smooth;

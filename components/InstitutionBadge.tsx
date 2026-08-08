@@ -34,7 +34,7 @@ function resolveColor(name: string, type: InstitutionType): string {
     if (name.toUpperCase().includes(key.toUpperCase())) return val;
   }
   /* Fallback to type-based */
-  return typeMap[type] ?? "bg-[var()]/8 text-[var()]/70";
+  return typeMap[type] ?? "bg-gray-500/12 text-gray-500";
 }
 
 type Props = {

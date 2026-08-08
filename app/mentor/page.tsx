@@ -8,7 +8,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import Link from "next/link";
 import { useGoogleCalendarStatus } from "@/lib/hooks";
 import { useToast } from "@/components/Toast";
-
+import { PriceDisplay } from "@/components/PriceDisplay";
 
 interface MentorStats {
   totalBookings: number;
@@ -27,8 +27,6 @@ interface UpcomingBooking {
   user: { name: string };
 }
 
-import { PriceDisplay } from "@/components/PriceDisplay";
-
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-IN", {
     weekday: "short", day: "numeric", month: "short",
@@ -43,7 +41,7 @@ export default function MentorOverviewPage() {
   const [stats, setStats] = useState<MentorStats | null>(null);
   const [bookings, setBookings] = useState<UpcomingBooking[]>([]);
   const [loading, setLoading] = useState(true);
-  const { data: calStatus, mutate: mutateStatus } = useGoogleCalendarStatus();
+  const { data: calStatus } = useGoogleCalendarStatus();
   const { toast } = useToast();
   const [connecting, setConnecting] = useState(false);
 
@@ -77,14 +75,14 @@ export default function MentorOverviewPage() {
     <div className="flex flex-col gap-8">
       {/* ─── Google Calendar Warning Banner ─── */}
       {!calendarConnected && !loading && (
-        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm animate-pulse-subtle">
+        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs">
           <div className="flex items-start gap-3">
-            <div className="p-2 bg-amber-500/10 rounded-xl text-amber-600 shrink-0">
+            <div className="p-2 bg-amber-500/20 rounded-xl text-amber-600 shrink-0">
               <AlertTriangle size={20} />
             </div>
             <div className="flex flex-col gap-0.5">
-              <h4 className="font-bold text-base text-amber-800">Action Required: Connect Google Calendar</h4>
-              <p className="text-xs text-amber-700 leading-relaxed">
+              <h4 className="font-semibold text-base text-amber-600">Action Required: Connect Google Calendar</h4>
+              <p className="text-xs text-amber-600 leading-relaxed">
                  Mentees cannot receive auto-scheduled Google Meet links for your sessions until you connect. Please link your Google Calendar now.
               </p>
             </div>
@@ -93,20 +91,19 @@ export default function MentorOverviewPage() {
             type="button"
             onClick={handleInstantConnect}
             disabled={connecting}
-            className="w-full md:w-auto bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs px-5 py-2.5 rounded-xl transition-all cursor-pointer shadow-sm shadow-amber-600/10 shrink-0 disabled:opacity-50"
+            className="w-full md:w-auto bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs px-5 py-2.5 rounded-xl transition-all cursor-pointer shadow shrink-0 disabled:opacity-50"
           >
             {connecting ? "Connecting…" : "Connect Calendar Now"}
           </button>
         </div>
       )}
 
-      <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">
+      <div className="flex flex-col gap-1.5">
+        <p className="text-xs uppercase tracking-[0.22em] font-semibold" style={{ color: "var(--muted)" }}>
           Mentor Dashboard
         </p>
-        <h1 className="font-display text-4xl leading-tight">Your overview.</h1>
+        <h1 className="font-display text-4xl leading-tight font-extrabold" style={{ color: "var(--fg)" }}>Your overview.</h1>
       </div>
-
 
       {/* ─── Stats Grid ─── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -116,12 +113,12 @@ export default function MentorOverviewPage() {
           { label: "Avg Rating", value: stats?.avgRating, icon: Star, format: (v: number) => v > 0 ? v.toFixed(1) : "New" },
           { label: "Reviews", value: stats?.totalReviews, icon: Users, format: (v: number) => String(v) },
         ].map((card) => (
-          <div key={card.label} className="rounded-2xl bg-[var()]/[0.02] p-5 flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-[var()]">
+          <div key={card.label} className="rounded-2xl p-5 flex flex-col gap-2" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+            <div className="flex items-center gap-2" style={{ color: "var(--muted)" }}>
               <card.icon className="h-4 w-4" />
-              <span className="text-xs uppercase tracking-[0.18em]">{card.label}</span>
+              <span className="text-xs uppercase tracking-[0.18em] font-semibold">{card.label}</span>
             </div>
-            <span className="font-display text-3xl">
+            <span className="font-display text-3xl font-extrabold" style={{ color: "var(--fg)" }}>
               {loading ? (
                 <Skeleton className="h-9 w-16" />
               ) : card.label === "Total Earnings" ? (
@@ -137,8 +134,8 @@ export default function MentorOverviewPage() {
       {/* ─── Upcoming Sessions ─── */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xs uppercase tracking-[0.22em] text-[var()]">Upcoming Sessions</h2>
-          <Link href="/mentor/bookings" className="text-xs text-[var()] hover:text-[var()] flex items-center gap-1">
+          <h2 className="text-xs uppercase tracking-[0.22em] font-semibold" style={{ color: "var(--muted)" }}>Upcoming Sessions</h2>
+          <Link href="/mentor/bookings" className="text-xs flex items-center gap-1 transition-colors" style={{ color: "var(--muted)" }}>
             View all <TrendingUp className="h-3 w-3" />
           </Link>
         </div>
@@ -153,15 +150,16 @@ export default function MentorOverviewPage() {
               <Link
                 key={b.id}
                 href={`/mentor/bookings`}
-                className="flex items-center justify-between rounded-xl bg-[var()]/[0.02] hover:bg-[var()]/5 p-4 transition-colors"
+                className="flex items-center justify-between rounded-xl p-4 transition-colors"
+                style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}
               >
                 <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var()]/8 text-xs font-medium shrink-0">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full text-xs font-semibold shrink-0" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 5%, transparent)", color: "var(--fg)" }}>
                     {b.user?.name?.[0]?.toUpperCase() ?? "U"}
                   </div>
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-sm font-medium">{b.user?.name ?? "Student"}</span>
-                    <span className="text-xs text-[var()]">
+                    <span className="text-sm font-semibold" style={{ color: "var(--fg)" }}>{b.user?.name ?? "Student"}</span>
+                    <span className="text-xs font-medium" style={{ color: "var(--muted)" }}>
                       {formatDate(b.scheduledAt)} at {formatTime(b.scheduledAt)} · {b.durationMinutes} min
                     </span>
                   </div>
@@ -171,8 +169,8 @@ export default function MentorOverviewPage() {
             ))}
           </div>
         ) : (
-          <div className="rounded-xl bg-[var()]/[0.02] p-8 text-center">
-            <p className="text-sm text-[var()]">No upcoming sessions.</p>
+          <div className="rounded-2xl p-8 text-center" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 1%, transparent)" }}>
+            <p className="text-sm" style={{ color: "var(--muted)" }}>No upcoming sessions.</p>
           </div>
         )}
       </div>

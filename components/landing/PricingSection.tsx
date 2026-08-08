@@ -95,7 +95,7 @@ export function PricingSection() {
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className={`relative flex flex-col rounded-2xl p-6 transition-all duration-300 ${tier.popular
-                ? "bg-[#111111] dark:bg-[#18181B] text-white shadow-xl scale-[1.02] md:scale-[1.03] lg:scale-[1.04] border border-transparent dark:border-[#27272A]"
+                ? "bg-[#111111] dark:bg-white text-white dark:text-[#111111] shadow-xl scale-[1.02] md:scale-[1.03] lg:scale-[1.04] border border-transparent"
                 : "bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] text-[#111111] dark:text-white hover:border-[#CCCCCC] dark:hover:border-[#3F3F46] hover:shadow-md"
                 }`}
             >
@@ -107,24 +107,24 @@ export function PricingSection() {
 
               {/* Title & Price */}
               <div className="mb-6">
-                <h3 className={`text-[15px] font-medium tracking-tight uppercase ${tier.popular ? "text-[#9CA3AF]" : "text-[#6B7280] dark:text-[#A1A1AA]"}`}>
+                <h3 className={`text-[15px] font-medium tracking-tight uppercase ${tier.popular ? "text-[#9CA3AF] dark:text-[#6B7280]" : "text-[#6B7280] dark:text-[#A1A1AA]"}`}>
                   {tier.name}
                 </h3>
                 <div className="mt-3 flex items-baseline gap-1.5">
                   <span className="text-[40px] font-semibold tracking-[-0.02em] leading-none">
                     <PriceDisplay amountInPaise={tier.priceInPaise} />
                   </span>
-                  <span className={`text-[13px] ${tier.popular ? "text-[#9CA3AF]" : "text-[#6B7280] dark:text-[#A1A1AA]"}`}>
+                  <span className={`text-[13px] ${tier.popular ? "text-[#9CA3AF] dark:text-[#6B7280]" : "text-[#6B7280] dark:text-[#A1A1AA]"}`}>
                     / {tier.duration}
                   </span>
                 </div>
-                <p className={`mt-4 text-[13px] leading-[1.6] ${tier.popular ? "text-[#D1D5DB]" : "text-[#4B5563] dark:text-[#D1D5DB]"}`}>
+                <p className={`mt-4 text-[13px] leading-[1.6] ${tier.popular ? "text-[#D1D5DB] dark:text-[#4B5563]" : "text-[#4B5563] dark:text-[#D1D5DB]"}`}>
                   {tier.description}
                 </p>
               </div>
 
               {/* Divider */}
-              <div className={`h-px w-full my-1 ${tier.popular ? "bg-[#27272A]" : "bg-[#F3F4F6] dark:bg-[#27272A]"}`} />
+              <div className={`h-px w-full my-1 ${tier.popular ? "bg-[#27272A] dark:bg-[#E5E7EB]" : "bg-[#F3F4F6] dark:bg-[#27272A]"}`} />
 
               {/* Features */}
               <ul className="space-y-4 my-6 flex-1">
@@ -134,7 +134,7 @@ export function PricingSection() {
                       size={15}
                       className="mt-0.5 flex-shrink-0 text-[#2563EB]"
                     />
-                    <span className={tier.popular ? "text-[#E5E7EB]" : "text-[#374151] dark:text-[#D1D5DB]"}>
+                    <span className={tier.popular ? "text-[#E5E7EB] dark:text-[#374151]" : "text-[#374151] dark:text-[#D1D5DB]"}>
                       {feature}
                     </span>
                   </li>

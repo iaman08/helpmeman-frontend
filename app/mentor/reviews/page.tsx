@@ -14,7 +14,6 @@ export default function MentorReviewsAnalyticsPage() {
 
   useEffect(() => {
     let isMounted = true;
-    // Fetch current logged in mentor's reviews
     api.get("/mentor/me/stats")
       .then(async (statsRes) => {
         if (!isMounted) return;
@@ -25,7 +24,6 @@ export default function MentorReviewsAnalyticsPage() {
             setReviews(revRes.data?.reviews ?? []);
           }
         } else {
-          // fallback
           const revRes = await api.get("/mentor/me/reviews");
           if (isMounted) {
             setReviews(revRes.data?.reviews ?? []);
@@ -53,7 +51,6 @@ export default function MentorReviewsAnalyticsPage() {
     };
   }, []);
 
-  // Deduplicate reviews by id to prevent duplicate rendering
   const uniqueReviews = useMemo(() => {
     const seen = new Set<string>();
     return reviews.filter((r) => {
@@ -63,7 +60,6 @@ export default function MentorReviewsAnalyticsPage() {
     });
   }, [reviews]);
 
-  // Compute analytics
   const total = uniqueReviews.length;
 
   const avgRating = useMemo(() => {
@@ -115,14 +111,14 @@ export default function MentorReviewsAnalyticsPage() {
   return (
     <div className="flex flex-col gap-8 pb-12">
       {/* Header */}
-      <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">
+      <div className="flex flex-col gap-1.5">
+        <p className="text-xs uppercase tracking-[0.22em] font-semibold" style={{ color: "var(--muted)" }}>
           Mentor Analytics
         </p>
-        <h1 className="font-display text-4xl leading-tight">
+        <h1 className="font-display text-4xl leading-tight font-extrabold" style={{ color: "var(--fg)" }}>
           Rating & Feedback
         </h1>
-        <p className="text-sm text-[var()]">
+        <p className="text-sm font-medium" style={{ color: "var(--muted)" }}>
           Insights and reviews from your completed mentorship sessions.
         </p>
       </div>
@@ -138,44 +134,44 @@ export default function MentorReviewsAnalyticsPage() {
           {/* Top Metric Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             {/* Avg Rating Card */}
-            <div className="rounded-2xl border p-6 flex flex-col gap-2 bg-linear-to-br from-amber-500/5 to-transparent dark:from-amber-500/10 border-amber-500/10 shadow-xs hover:shadow-md hover:border-amber-500/30 transition-all duration-300">
-              <div className="flex items-center justify-between text-[var()]">
-                <span className="text-xs uppercase tracking-widest font-extrabold text-[var()]/85">Average Rating</span>
+            <div className="rounded-2xl p-6 flex flex-col gap-2 shadow-xs transition-all duration-300" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+              <div className="flex items-center justify-between">
+                <span className="text-xs uppercase tracking-widest font-semibold" style={{ color: "var(--muted)" }}>Average Rating</span>
                 <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-500">
                   <Star className="w-4 h-4 fill-amber-500" />
                 </div>
               </div>
               <div className="flex items-baseline gap-2 mt-2">
-                <span className="font-display text-4.5xl font-black text-[var()]">{avgRating}</span>
-                <span className="text-xs text-[var()] font-semibold">out of 5.0</span>
+                <span className="font-display text-4xl font-extrabold" style={{ color: "var(--fg)" }}>{avgRating}</span>
+                <span className="text-xs font-semibold" style={{ color: "var(--muted)" }}>out of 5.0</span>
               </div>
             </div>
 
             {/* Total Reviews Card */}
-            <div className="rounded-2xl border p-6 flex flex-col gap-2 bg-linear-to-br from-blue-500/5 to-transparent dark:from-blue-500/10 border-blue-500/10 shadow-xs hover:shadow-md hover:border-blue-500/30 transition-all duration-300">
-              <div className="flex items-center justify-between text-[var()]">
-                <span className="text-xs uppercase tracking-widest font-extrabold text-[var()]/85">Total Reviews</span>
+            <div className="rounded-2xl p-6 flex flex-col gap-2 shadow-xs transition-all duration-300" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+              <div className="flex items-center justify-between">
+                <span className="text-xs uppercase tracking-widest font-semibold" style={{ color: "var(--muted)" }}>Total Reviews</span>
                 <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-500">
                   <MessageSquare className="w-4 h-4" />
                 </div>
               </div>
               <div className="flex items-baseline gap-2 mt-2">
-                <span className="font-display text-4.5xl font-black text-[var()]">{total}</span>
-                <span className="text-xs text-[var()] font-semibold">completed sessions</span>
+                <span className="font-display text-4xl font-extrabold" style={{ color: "var(--fg)" }}>{total}</span>
+                <span className="text-xs font-semibold" style={{ color: "var(--muted)" }}>completed sessions</span>
               </div>
             </div>
 
             {/* 5-Star Ratio Card */}
-            <div className="rounded-2xl border p-6 flex flex-col gap-2 bg-linear-to-br from-emerald-500/5 to-transparent dark:from-emerald-500/10 border-emerald-500/10 shadow-xs hover:shadow-md hover:border-emerald-500/30 transition-all duration-300">
-              <div className="flex items-center justify-between text-[var()]">
-                <span className="text-xs uppercase tracking-widest font-extrabold text-[var()]/85">5-Star Ratio</span>
+            <div className="rounded-2xl p-6 flex flex-col gap-2 shadow-xs transition-all duration-300" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+              <div className="flex items-center justify-between">
+                <span className="text-xs uppercase tracking-widest font-semibold" style={{ color: "var(--muted)" }}>5-Star Ratio</span>
                 <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-500">
                   <TrendingUp className="w-4 h-4" />
                 </div>
               </div>
               <div className="flex items-baseline gap-2 mt-2">
-                <span className="font-display text-4.5xl font-black text-[var()]">{fiveStarPercent}%</span>
-                <span className="text-xs text-[var()] font-semibold">5-star ratings</span>
+                <span className="font-display text-4xl font-extrabold text-emerald-500">{fiveStarPercent}%</span>
+                <span className="text-xs font-semibold" style={{ color: "var(--muted)" }}>5-star ratings</span>
               </div>
             </div>
           </div>
@@ -183,8 +179,8 @@ export default function MentorReviewsAnalyticsPage() {
           {/* Rating Breakdown & Tag Insights */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Rating Breakdown */}
-            <div className="rounded-2xl border p-6 flex flex-col gap-5 bg-white dark:bg-[#18181B] border-[var()] shadow-sm">
-              <h3 className="text-xs font-extrabold uppercase tracking-widest text-[var()]">
+            <div className="rounded-2xl p-6 flex flex-col gap-5 shadow-sm" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+              <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--muted)" }}>
                 Rating Distribution
               </h3>
 
@@ -194,25 +190,25 @@ export default function MentorReviewsAnalyticsPage() {
                   const pct = total > 0 ? Math.round((count / total) * 100) : 0;
                   return (
                     <div key={stars} className="flex items-center gap-4 text-xs">
-                      <span className="w-10 font-bold text-[var()] flex items-center justify-end gap-1 shrink-0">
+                      <span className="w-10 font-bold flex items-center justify-end gap-1 shrink-0" style={{ color: "var(--fg)" }}>
                         {stars} ★
                       </span>
-                      <div className="flex-1 h-3 rounded-full bg-[var()]/5 dark:bg-white/5 overflow-hidden">
+                      <div className="flex-1 h-3 rounded-full overflow-hidden" style={{ background: "color-mix(in srgb, var(--fg) 6%, transparent)" }}>
                         <div
                           className="h-full rounded-full transition-all duration-500"
                           style={{
                             width: `${pct}%`,
                             background:
                               stars >= 4
-                                ? "#10b981" // Emerald
+                                ? "#10b981"
                                 : stars === 3
-                                ? "#f59e0b" // Amber
-                                : "#ef4444", // Red
+                                ? "#f59e0b"
+                                : "#ef4444",
                           }}
                         />
                       </div>
-                      <span className="w-16 text-right font-semibold text-[var()]/80 shrink-0">
-                        {pct}% <span className="text-[var()] text-[10px] font-normal">({count})</span>
+                      <span className="w-16 text-right font-semibold shrink-0" style={{ color: "var(--muted)" }}>
+                        {pct}% <span className="text-[10px] font-normal" style={{ color: "var(--muted)" }}>({count})</span>
                       </span>
                     </div>
                   );
@@ -221,14 +217,14 @@ export default function MentorReviewsAnalyticsPage() {
             </div>
 
             {/* Tag Insights */}
-            <div className="rounded-2xl border p-6 flex flex-col gap-6 bg-white dark:bg-[#18181B] border-[var()] shadow-sm">
-              <h3 className="text-xs font-extrabold uppercase tracking-widest text-[var()]">
+            <div className="rounded-2xl p-6 flex flex-col gap-6 shadow-sm" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+              <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--muted)" }}>
                 Feedback Highlights
               </h3>
 
               {/* Positive Highlights */}
               <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-500">
                   <div className="p-1 rounded-md bg-emerald-500/10">
                     <ThumbsUp className="w-3.5 h-3.5" />
                   </div>
@@ -239,20 +235,20 @@ export default function MentorReviewsAnalyticsPage() {
                     {positiveTags.map(([tag, count]) => (
                       <span
                         key={tag}
-                        className="text-xs px-3.5 py-1.5 rounded-xl bg-emerald-500/5 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/10 font-bold transition-all hover:scale-105"
+                        className="text-xs px-3.5 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-semibold"
                       >
-                        #{tag} <span className="opacity-60 font-medium ml-1">({count})</span>
+                        #{tag} <span className="opacity-70 font-normal ml-1">({count})</span>
                       </span>
                     ))}
                   </div>
                 ) : (
-                  <span className="text-xs text-[var()] font-medium italic">No positive tags collected yet.</span>
+                  <span className="text-xs font-medium italic" style={{ color: "var(--muted)" }}>No positive tags collected yet.</span>
                 )}
               </div>
 
               {/* Areas to Improve */}
-              <div className="flex flex-col gap-3 pt-4 border-t border-[var()]">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400">
+              <div className="flex flex-col gap-3 pt-4" style={{ borderTop: "1px solid var(--hairline)" }}>
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-500">
                   <div className="p-1 rounded-md bg-amber-500/10">
                     <AlertCircle className="w-3.5 h-3.5" />
                   </div>
@@ -263,14 +259,14 @@ export default function MentorReviewsAnalyticsPage() {
                     {negativeTags.map(([tag, count]) => (
                       <span
                         key={tag}
-                        className="text-xs px-3.5 py-1.5 rounded-xl bg-amber-500/5 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/10 font-bold transition-all hover:scale-105"
+                        className="text-xs px-3.5 py-1.5 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20 font-semibold"
                       >
-                        #{tag} <span className="opacity-60 font-medium ml-1">({count})</span>
+                        #{tag} <span className="opacity-70 font-normal ml-1">({count})</span>
                       </span>
                     ))}
                   </div>
                 ) : (
-                  <span className="text-xs text-[var()] font-medium italic">No areas to improve logged — keep up the excellent work!</span>
+                  <span className="text-xs font-medium italic" style={{ color: "var(--muted)" }}>No areas to improve logged — keep up the excellent work!</span>
                 )}
               </div>
             </div>
@@ -278,7 +274,7 @@ export default function MentorReviewsAnalyticsPage() {
 
           {/* Recent Reviews List */}
           <div className="flex flex-col gap-4 mt-2">
-            <h2 className="text-xs uppercase tracking-[0.22em] text-[var()]">
+            <h2 className="text-xs uppercase tracking-[0.22em] font-semibold" style={{ color: "var(--muted)" }}>
               Recent Student Reviews
             </h2>
 
@@ -290,7 +286,7 @@ export default function MentorReviewsAnalyticsPage() {
               </div>
             ) : (
               <EmptyState
-                icon={<Star className="h-6 w-6" />}
+                icon={<Star className="h-6 w-6 text-[var(--fg)]" />}
                 title="No reviews yet"
                 description="Reviews will automatically appear here once students complete session ratings."
               />

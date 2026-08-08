@@ -24,15 +24,15 @@ export default function SuperAdminAnalyticsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Super Admin</p>
-        <h1 className="font-display text-4xl leading-tight">Analytics.</h1>
+      <div className="flex flex-col gap-1.5">
+        <p className="text-xs uppercase tracking-[0.22em]" style={{ color: "var(--muted)" }}>Super Admin</p>
+        <h1 className="font-display text-4xl leading-tight" style={{ color: "var(--fg)" }}>Analytics.</h1>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Role Distribution Chart */}
-        <div className="bg-[var()]/[0.02] border border-[var()] rounded-2xl p-6 flex flex-col gap-4">
-          <h2 className="text-sm font-medium">User Role Distribution</h2>
+        <div className="rounded-2xl p-6 flex flex-col gap-4" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+          <h2 className="text-sm font-semibold" style={{ color: "var(--fg)" }}>User Role Distribution</h2>
           <div className="h-[300px] w-full">
             {loading ? (
               <div className="h-full w-full flex items-center justify-center">
@@ -62,16 +62,16 @@ export default function SuperAdminAnalyticsPage() {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-sm text-[var()]">
+              <div className="h-full flex items-center justify-center text-sm" style={{ color: "var(--muted)" }}>
                 No data available
               </div>
             )}
           </div>
         </div>
 
-        {/* Future charts can go here */}
-        <div className="bg-[var()]/[0.02] border border-[var()] rounded-2xl p-6 flex items-center justify-center">
-          <p className="text-sm text-[var()]">More analytics coming soon...</p>
+        {/* Future charts */}
+        <div className="rounded-2xl p-6 flex items-center justify-center" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+          <p className="text-sm" style={{ color: "var(--muted)" }}>More analytics coming soon...</p>
         </div>
       </div>
     </div>

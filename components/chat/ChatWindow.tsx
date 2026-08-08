@@ -410,12 +410,12 @@ export function ChatWindow({
 
   if (!thread) {
     return (
-      <div className="hidden md:flex flex-1 flex-col items-center justify-center select-none p-8" style={{ background: "var(--bg, #fff)" }}>
-        <div className="h-16 w-16 rounded-full flex items-center justify-center mb-4" style={{ background: "rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.06)" }}>
-          <MessageCircle className="h-7 w-7" style={{ color: "rgba(0,0,0,0.3)" }} />
+      <div className="hidden md:flex flex-1 flex-col items-center justify-center select-none p-8" style={{ background: "var(--bg)", borderLeft: "1px solid var(--hairline)" }}>
+        <div className="h-16 w-16 rounded-full flex items-center justify-center mb-4" style={{ background: "color-mix(in srgb, var(--fg) 5%, transparent)", border: "1px solid var(--hairline)" }}>
+          <MessageCircle className="h-7 w-7" style={{ color: "var(--muted)" }} />
         </div>
-        <h3 className="text-base font-semibold" style={{ color: "var(--fg, #111)" }}>No Conversation Selected</h3>
-        <p className="text-xs max-w-xs mt-1.5 leading-relaxed text-center" style={{ color: "rgba(0,0,0,0.4)" }}>
+        <h3 className="text-base font-bold" style={{ color: "var(--fg)" }}>No Conversation Selected</h3>
+        <p className="text-xs max-w-xs mt-1.5 leading-relaxed text-center font-medium" style={{ color: "var(--muted)" }}>
           Choose a conversation from the sidebar to start chatting.
         </p>
       </div>
@@ -425,9 +425,9 @@ export function ChatWindow({
   const otherAvatar = isMentor ? thread?.user?.avatar : thread?.mentor?.avatar;
 
   return (
-    <div className="flex flex-1 flex-col h-full min-w-0 overflow-hidden" style={{ background: "var(--bg, #fff)" }}>
+    <div className="flex flex-1 flex-col h-full min-w-0 overflow-hidden" style={{ background: "var(--bg)", borderLeft: "1px solid var(--hairline)" }}>
       {/* ── Header ── */}
-      <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-3 border-b border-[var()] shrink-0" style={{ background: "var(--bg, #fff)", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
+      <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-3 shrink-0" style={{ background: "var(--bg)", borderBottom: "1px solid var(--hairline)" }}>
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
           <button
             type="button"

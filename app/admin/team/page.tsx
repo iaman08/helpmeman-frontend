@@ -372,10 +372,10 @@ export default function AdminTeamPage() {
   const renderMembersTable = (list: any[]) => {
     if (list.length === 0) {
       return (
-        <div className="text-center py-12 border border-dashed border-[var()] rounded-2xl flex flex-col items-center">
-          <Users className="w-8 h-8 text-[var()] mb-2" />
-          <p className="text-sm font-semibold">No team members found.</p>
-          <p className="text-xs text-[var()] mt-0.5">Click the "Add Team Member" button to get started.</p>
+        <div className="text-center py-12 border border-dashed border-[var(--hairline)] rounded-2xl flex flex-col items-center">
+          <Users className="w-8 h-8 text-[var(--muted)] mb-2" />
+          <p className="text-sm font-semibold" style={{ color: "var(--fg)" }}>No team members found.</p>
+          <p className="text-xs text-[var(--muted)] mt-0.5">Click the "Add Team Member" button to get started.</p>
         </div>
       );
     }
@@ -384,7 +384,7 @@ export default function AdminTeamPage() {
       <div className="w-full overflow-x-auto pb-2">
         <div className="min-w-[750px] flex flex-col gap-2">
           {/* Table Head */}
-          <div className="grid grid-cols-12 gap-4 px-5 py-2 text-[10px] uppercase tracking-[0.22em] text-[var()] font-semibold select-none">
+          <div className="grid grid-cols-12 gap-4 px-5 py-2 text-[10px] uppercase tracking-[0.22em] text-[var(--muted)] font-semibold select-none">
             <span className="col-span-3">Name</span>
             <span className="col-span-3">Role / Department</span>
             <span className="col-span-2">Presence State</span>
@@ -396,10 +396,10 @@ export default function AdminTeamPage() {
           {list.map((m: any) => (
             <div
               key={m.id}
-              className="grid grid-cols-12 gap-4 items-center rounded-xl bg-[var()]/[0.02] border border-[var()]/30 hover:border-[var()] px-5 py-3.5 text-sm transition-all"
+              className="grid grid-cols-12 gap-4 items-center rounded-xl bg-[var(--fg)]/[0.02] border border-[var(--hairline)] hover:border-[var(--fg)]/30 px-5 py-3.5 text-sm transition-all"
             >
               <div className="col-span-3 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg overflow-hidden bg-zinc-100 border border-[var()] shrink-0">
+                <div className="w-10 h-10 rounded-lg overflow-hidden bg-zinc-100 border border-[var(--hairline)] shrink-0">
                   <img
                     src={m.imageUrl || "/avatar_placeholder.jpg"}
                     alt={m.fullName}
@@ -407,17 +407,17 @@ export default function AdminTeamPage() {
                   />
                 </div>
                 <div className="truncate">
-                  <p className="font-semibold text-[var()] truncate flex items-center gap-1">
+                  <p className="font-semibold text-[var(--fg)] truncate flex items-center gap-1">
                     {m.fullName}
                     {m.isFounder && <span className="text-[9px] bg-amber-500/10 text-amber-600 px-1.5 py-0.5 rounded">F</span>}
                   </p>
-                  <p className="text-[11px] text-[var()] truncate">@{m.username}</p>
+                  <p className="text-[11px] text-[var(--muted)] truncate">@{m.username}</p>
                 </div>
               </div>
 
               <div className="col-span-3 truncate">
-                <p className="font-medium text-[var()] truncate">{m.role}</p>
-                <p className="text-xs text-[var()] font-medium">{m.department}</p>
+                <p className="font-medium text-[var(--fg)] truncate">{m.role}</p>
+                <p className="text-xs text-[var(--muted)] font-medium">{m.department}</p>
               </div>
 
               <span className="col-span-2 flex items-center gap-2">
@@ -425,7 +425,7 @@ export default function AdminTeamPage() {
                   m.status === "ONLINE" ? "bg-emerald-500" :
                   m.status === "AWAY" ? "bg-amber-500" : "bg-zinc-400"
                 }`} />
-                <span className="text-xs font-semibold text-[var()]/80">{m.status}</span>
+                <span className="text-xs font-semibold text-[var(--muted)]">{m.status}</span>
               </span>
 
               <div className="col-span-2 flex flex-col gap-1">
@@ -434,12 +434,12 @@ export default function AdminTeamPage() {
                   className={`text-[10px] font-bold px-2 py-0.5 rounded self-start flex items-center gap-1 cursor-pointer transition-colors ${
                     m.isVerified
                       ? "bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20"
-                      : "bg-[var()]/5 text-[var()] hover:bg-[var()]/10"
+                      : "bg-[var(--fg)]/5 text-[var(--fg)] hover:bg-[var(--fg)]/10"
                   }`}
                 >
                   {m.isVerified ? "✓ Verified" : "Verify"}
                 </button>
-                <span className="text-[10px] text-[var()] font-semibold pl-2">
+                <span className="text-[10px] text-[var(--muted)] font-semibold pl-2">
                   {m.availableForMentorship ? "Bookable" : "Not Bookable"}
                 </span>
               </div>
@@ -447,21 +447,21 @@ export default function AdminTeamPage() {
               <div className="col-span-2 flex items-center justify-end gap-2">
                 <button
                   onClick={() => handleOpenEdit(m)}
-                  className="p-1.5 rounded-lg hover:bg-[var()]/5 text-[var()] hover:text-[var()] transition-all cursor-pointer"
+                  className="p-1.5 rounded-lg hover:bg-[var(--fg)]/5 text-[var(--muted)] hover:text-[var(--fg)] transition-all cursor-pointer"
                   title="Edit member"
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => handleToggleArchive(m.id, m.isActive)}
-                  className="p-1.5 rounded-lg hover:bg-[var()]/5 text-[var()] hover:text-amber-600 transition-all cursor-pointer"
+                  className="p-1.5 rounded-lg hover:bg-[var(--fg)]/5 text-[var(--muted)] hover:text-amber-600 transition-all cursor-pointer"
                   title={m.isActive ? "Archive profile" : "Restore profile"}
                 >
                   <Archive className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => handleDelete(m.id)}
-                  className="p-1.5 rounded-lg hover:bg-red-500/5 text-[var()] hover:text-red-500 transition-all cursor-pointer"
+                  className="p-1.5 rounded-lg hover:bg-red-500/5 text-[var(--muted)] hover:text-red-500 transition-all cursor-pointer"
                   title="Delete permanently"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -478,13 +478,13 @@ export default function AdminTeamPage() {
   const archivedMembers = useMemo(() => members.filter((m: any) => !m.isActive), [members]);
 
   return (
-    <div className="flex flex-col gap-8 text-[var()]">
+    <div className="flex flex-col gap-8">
       {/* ─── Page Title Header ─── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex flex-col gap-2">
-          <p className="text-sm uppercase tracking-[0.22em] text-[var()] font-semibold">Admin Panel</p>
-          <h1 className="font-display text-4xl leading-tight">Team Management</h1>
-          <p className="text-sm text-[var()]">Directly manage the "Meet the Team" directory database records.</p>
+        <div className="flex flex-col gap-1.5">
+          <p className="text-xs uppercase tracking-[0.22em] font-semibold" style={{ color: "var(--muted)" }}>Admin Panel</p>
+          <h1 className="font-display text-4xl leading-tight" style={{ color: "var(--fg)" }}>Team Management</h1>
+          <p className="text-sm" style={{ color: "var(--muted)" }}>Directly manage the "Meet the Team" directory database records.</p>
         </div>
 
         <button
@@ -498,34 +498,34 @@ export default function AdminTeamPage() {
 
       {/* ─── Dashboard Stats widgets ─── */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="p-4 rounded-2xl bg-[var()]/[0.02] border border-[var()] flex flex-col justify-between h-24">
-          <span className="text-[10px] font-bold text-[var()] uppercase tracking-wider">Total Members</span>
-          <span className="text-2xl font-bold">{stats.total}</span>
+        <div className="p-4 rounded-2xl bg-[var(--fg)]/[0.02] border border-[var(--hairline)] flex flex-col justify-between h-24">
+          <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Total Members</span>
+          <span className="text-2xl font-bold" style={{ color: "var(--fg)" }}>{stats.total}</span>
         </div>
-        <div className="p-4 rounded-2xl bg-[var()]/[0.02] border border-[var()] flex flex-col justify-between h-24">
-          <span className="text-[10px] font-bold text-[var()] uppercase tracking-wider">Active</span>
+        <div className="p-4 rounded-2xl bg-[var(--fg)]/[0.02] border border-[var(--hairline)] flex flex-col justify-between h-24">
+          <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Active</span>
           <span className="text-2xl font-bold text-emerald-600">{stats.active}</span>
         </div>
-        <div className="p-4 rounded-2xl bg-[var()]/[0.02] border border-[var()] flex flex-col justify-between h-24">
-          <span className="text-[10px] font-bold text-[var()] uppercase tracking-wider">Leadership</span>
+        <div className="p-4 rounded-2xl bg-[var(--fg)]/[0.02] border border-[var(--hairline)] flex flex-col justify-between h-24">
+          <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Leadership</span>
           <span className="text-2xl font-bold text-amber-600">{stats.leadership}</span>
         </div>
-        <div className="p-4 rounded-2xl bg-[var()]/[0.02] border border-[var()] flex flex-col justify-between h-24">
-          <span className="text-[10px] font-bold text-[var()] uppercase tracking-wider">Departments</span>
+        <div className="p-4 rounded-2xl bg-[var(--fg)]/[0.02] border border-[var(--hairline)] flex flex-col justify-between h-24">
+          <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Departments</span>
           <span className="text-2xl font-bold text-indigo-600">{stats.departments}</span>
         </div>
-        <div className="p-4 rounded-2xl bg-[var()]/[0.02] border border-[var()] flex flex-col justify-between h-24">
-          <span className="text-[10px] font-bold text-[var()] uppercase tracking-wider">Archived</span>
+        <div className="p-4 rounded-2xl bg-[var(--fg)]/[0.02] border border-[var(--hairline)] flex flex-col justify-between h-24">
+          <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Archived</span>
           <span className="text-2xl font-bold text-zinc-500">{stats.archived}</span>
         </div>
       </div>
 
       {/* ─── Action Tabs ─── */}
-      <div className="flex border-b border-[var()] gap-6">
+      <div className="flex border-b border-[var(--hairline)] gap-6">
         <button
           onClick={() => setActiveTab("active")}
           className={`pb-3 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
-            activeTab === "active" ? "border-red-500 text-red-500" : "border-transparent text-[var()] hover:text-[var()]"
+            activeTab === "active" ? "border-red-500 text-red-500" : "border-transparent text-[var(--muted)] hover:text-[var(--fg)]"
           }`}
         >
           Active Members ({activeMembers.length})
@@ -533,7 +533,7 @@ export default function AdminTeamPage() {
         <button
           onClick={() => setActiveTab("archived")}
           className={`pb-3 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
-            activeTab === "archived" ? "border-red-500 text-red-500" : "border-transparent text-[var()] hover:text-[var()]"
+            activeTab === "archived" ? "border-red-500 text-red-500" : "border-transparent text-[var(--muted)] hover:text-[var(--fg)]"
           }`}
         >
           Archived Members ({archivedMembers.length})
@@ -541,7 +541,7 @@ export default function AdminTeamPage() {
         <button
           onClick={() => setActiveTab("reorder")}
           className={`pb-3 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
-            activeTab === "reorder" ? "border-red-500 text-red-500" : "border-transparent text-[var()] hover:text-[var()]"
+            activeTab === "reorder" ? "border-red-500 text-red-500" : "border-transparent text-[var(--muted)] hover:text-[var(--fg)]"
           }`}
         >
           Drag & Drop Order ({activeMembers.length})
@@ -559,7 +559,7 @@ export default function AdminTeamPage() {
       {isLoading ? (
         <div className="flex flex-col gap-3">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-16 w-full rounded-xl bg-[var()]/5 animate-pulse" />
+            <div key={i} className="h-16 w-full rounded-xl bg-[var(--fg)]/5 animate-pulse" />
           ))}
         </div>
       ) : activeTab === "active" ? (
@@ -568,7 +568,7 @@ export default function AdminTeamPage() {
         renderMembersTable(archivedMembers)
       ) : (
         /* Reorder Drag and Drop List view */
-        <div className="border border-[var()] rounded-2xl overflow-hidden bg-[var()]/[0.01] p-5">
+        <div className="border border-[var(--hairline)] rounded-2xl overflow-hidden bg-[var(--fg)]/[0.01] p-5">
           <div className="flex items-center gap-2 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs font-medium text-amber-600 mb-6">
             <AlertTriangle className="w-4 h-4 flex-shrink-0" />
             Drag rows to change display order. Display changes will save automatically to database display_order index.
@@ -582,12 +582,13 @@ export default function AdminTeamPage() {
                 onDragStart={() => handleDragStart(idx)}
                 onDragOver={(e) => handleDragOver(e, idx)}
                 onDragEnd={handleDragEnd}
-                className={`flex items-center gap-4 border border-[var()] p-3 rounded-xl bg-white select-none transition-all duration-150 cursor-grab active:cursor-grabbing ${
-                  draggedIndex === idx ? "opacity-40 border-dashed border-red-400" : "hover:border-[var()]/30 shadow-sm"
+                className={`flex items-center gap-4 border border-[var(--hairline)] p-3 rounded-xl select-none transition-all duration-150 cursor-grab active:cursor-grabbing ${
+                  draggedIndex === idx ? "opacity-40 border-dashed border-red-400" : "hover:border-[var(--fg)]/30 shadow-sm"
                 }`}
+                style={{ background: "var(--bg)" }}
               >
-                <Move className="w-4 h-4 text-[var()] shrink-0" />
-                <div className="w-8 h-8 rounded overflow-hidden shrink-0 border border-[var()] bg-zinc-100">
+                <Move className="w-4 h-4 text-[var(--muted)] shrink-0" />
+                <div className="w-8 h-8 rounded overflow-hidden shrink-0 border border-[var(--hairline)] bg-zinc-100">
                   <img
                     src={m.imageUrl || "/avatar_placeholder.jpg"}
                     alt={m.fullName}
@@ -595,10 +596,10 @@ export default function AdminTeamPage() {
                   />
                 </div>
                 <div className="flex-grow min-w-0">
-                  <p className="font-semibold text-xs text-[var()] truncate">{m.fullName}</p>
-                  <p className="text-[10px] text-[var()] font-medium truncate">{m.role}</p>
+                  <p className="font-semibold text-xs text-[var(--fg)] truncate">{m.fullName}</p>
+                  <p className="text-[10px] text-[var(--muted)] font-medium truncate">{m.role}</p>
                 </div>
-                <div className="shrink-0 text-right text-[10px] text-[var()] font-bold font-mono">
+                <div className="shrink-0 text-right text-[10px] text-[var(--muted)] font-bold font-mono">
                   Order Index: {idx}
                 </div>
               </div>
@@ -616,18 +617,19 @@ export default function AdminTeamPage() {
           {/* Modal Container */}
           <form
             onSubmit={handleSubmit}
-            className="relative w-full max-w-[850px] h-[90vh] bg-bg border border-[var()] rounded-3xl overflow-hidden shadow-2xl flex flex-col z-10"
+            className="relative w-full max-w-[850px] h-[90vh] border border-[var(--hairline)] rounded-3xl overflow-hidden shadow-2xl flex flex-col z-10"
+            style={{ background: "var(--bg)", color: "var(--fg)" }}
           >
             {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-[var()] flex items-center justify-between shrink-0">
-              <h2 className="text-lg font-bold flex items-center gap-2">
+            <div className="px-6 py-4 border-b border-[var(--hairline)] flex items-center justify-between shrink-0">
+              <h2 className="text-lg font-bold flex items-center gap-2" style={{ color: "var(--fg)" }}>
                 <User className="w-5 h-5 text-red-500" />
                 {editingId ? "Edit Team Member" : "Add Team Member"}
               </h2>
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="p-1.5 rounded-full hover:bg-[var()]/5 text-[var()] hover:text-[var()] transition-all cursor-pointer"
+                className="p-1.5 rounded-full hover:bg-[var(--fg)]/5 text-[var(--muted)] hover:text-[var(--fg)] transition-all cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1113,11 +1115,12 @@ export default function AdminTeamPage() {
             </div>
 
             {/* Modal Footer */}
-            <div className="px-6 py-4 border-t border-[var()] flex items-center justify-end gap-3 bg-[var()]/[0.01] shrink-0">
+            <div className="px-6 py-4 border-t border-[var(--hairline)] flex items-center justify-end gap-3 shrink-0" style={{ background: "color-mix(in srgb, var(--fg) 1%, transparent)" }}>
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 rounded-xl border border-[var()] hover:bg-[var()]/5 text-xs font-semibold cursor-pointer"
+                className="px-4 py-2 rounded-xl border border-[var(--hairline)] hover:bg-[var(--fg)]/5 text-xs font-semibold cursor-pointer"
+                style={{ color: "var(--fg)" }}
               >
                 Cancel
               </button>

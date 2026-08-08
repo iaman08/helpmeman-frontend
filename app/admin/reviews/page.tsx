@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { Star, Search, Trash2, Filter, Download, ShieldAlert } from "lucide-react";
+import { Star, Search, Trash2, Download, ShieldAlert } from "lucide-react";
 import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
@@ -103,21 +103,22 @@ export default function AdminReviewsPage() {
     <div className="flex flex-col gap-8 pb-12">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <p className="text-sm uppercase tracking-[0.22em] text-[var()]">
+        <div className="flex flex-col gap-1.5">
+          <p className="text-xs uppercase tracking-[0.22em]" style={{ color: "var(--muted)" }}>
             Admin Management
           </p>
-          <h1 className="font-display text-4xl leading-tight">
+          <h1 className="font-display text-4xl leading-tight" style={{ color: "var(--fg)" }}>
             Review Moderation
           </h1>
-          <p className="text-sm text-[var()]">
+          <p className="text-sm" style={{ color: "var(--muted)" }}>
             Manage, filter, and moderate all platform mentor ratings and reviews.
           </p>
         </div>
 
         <button
           onClick={handleExport}
-          className="inline-flex items-center gap-2 self-start sm:self-auto px-4 py-2.5 rounded-full text-xs font-semibold border border-[var()] hover:bg-[var()]/5 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 self-start sm:self-auto px-4 py-2.5 rounded-full text-xs font-semibold transition-colors cursor-pointer"
+          style={{ border: "1px solid var(--hairline)", color: "var(--fg)", background: "transparent" }}
         >
           <Download className="w-4 h-4" />
           Export JSON
@@ -128,13 +129,18 @@ export default function AdminReviewsPage() {
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var()]" />
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "var(--muted)" }} />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by mentee, mentor, feedback or tags..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm border border-[var()] bg-[var()]/[0.02] focus:outline-none focus:border-[var()]"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none"
+            style={{
+              border: "1px solid var(--hairline)",
+              background: "color-mix(in srgb, var(--fg) 2%, transparent)",
+              color: "var(--fg)",
+            }}
           />
         </div>
 
@@ -142,25 +148,26 @@ export default function AdminReviewsPage() {
         <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
           <button
             onClick={() => setRatingFilter("ALL")}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
-              ratingFilter === "ALL"
-                ? "bg-[var()] text-[var()]"
-                : "bg-[var()]/5 text-[var()] hover:bg-[var()]/10"
-            }`}
+            className="px-3 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer"
+            style={{
+              background: ratingFilter === "ALL" ? "var(--fg)" : "color-mix(in srgb, var(--fg) 5%, transparent)",
+              color: ratingFilter === "ALL" ? "var(--bg)" : "var(--fg)",
+            }}
           >
             All ({reviews.length})
           </button>
           {[5, 4, 3, 2, 1].map((r) => {
             const cnt = reviews.filter((rev) => rev.rating === r).length;
+            const isSelected = ratingFilter === r;
             return (
               <button
                 key={r}
                 onClick={() => setRatingFilter(r)}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1 ${
-                  ratingFilter === r
-                    ? "bg-amber-500 text-black"
-                    : "bg-[var()]/5 text-[var()] hover:bg-[var()]/10"
-                }`}
+                className="px-3 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1"
+                style={{
+                  background: isSelected ? "#f59e0b" : "color-mix(in srgb, var(--fg) 5%, transparent)",
+                  color: isSelected ? "#000" : "var(--fg)",
+                }}
               >
                 {r} ★ ({cnt})
               </button>
@@ -181,29 +188,33 @@ export default function AdminReviewsPage() {
           {filteredReviews.map((rev) => (
             <div
               key={rev.id}
-              className="rounded-2xl border p-5 flex flex-col gap-3 bg-[var()]/[0.02] border-[var()] hover:border-[var()]/20 transition-all"
+              className="rounded-2xl p-5 flex flex-col gap-3 transition-all"
+              style={{
+                border: "1px solid var(--hairline)",
+                background: "color-mix(in srgb, var(--fg) 2%, transparent)",
+              }}
             >
               {/* Header */}
               <div className="flex items-start justify-between gap-3">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-sm text-[var()]">
+                    <span className="font-semibold text-sm" style={{ color: "var(--fg)" }}>
                       {rev.anonymous ? "Anonymous" : rev.userName}
                     </span>
                     {rev.anonymous && (
-                      <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-[var()]/10 text-[var()]">
+                      <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded" style={{ background: "color-mix(in srgb, var(--fg) 10%, transparent)", color: "var(--fg)" }}>
                         Anon
                       </span>
                     )}
                   </div>
-                  <span className="text-xs text-[var()]">
+                  <span className="text-xs" style={{ color: "var(--muted)" }}>
                     reviewed mentor{" "}
-                    <strong className="text-[var()]">{rev.mentorName}</strong>
+                    <strong style={{ color: "var(--fg)" }}>{rev.mentorName}</strong>
                   </span>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-[var()]">
+                  <span className="text-xs" style={{ color: "var(--muted)" }}>
                     {formatDate(rev.createdAt)}
                   </span>
                   <button
@@ -219,9 +230,9 @@ export default function AdminReviewsPage() {
 
               {/* Rating & Tags */}
               <div className="flex flex-wrap items-center gap-2">
-                <div className="flex items-center gap-1 bg-yellow-500/10 border border-yellow-500/20 px-2.5 py-0.5 rounded-full">
+                <div className="flex items-center gap-1 bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-full">
                   <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                  <span className="text-xs font-bold text-yellow-600">
+                  <span className="text-xs font-bold text-amber-600">
                     {rev.rating}.0
                   </span>
                 </div>
@@ -230,7 +241,12 @@ export default function AdminReviewsPage() {
                   rev.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="text-[11px] font-medium px-2.5 py-0.5 rounded-full border bg-[var()]/[0.03] border-[var()]"
+                      className="text-[11px] font-medium px-2.5 py-0.5 rounded-full"
+                      style={{
+                        background: "color-mix(in srgb, var(--fg) 4%, transparent)",
+                        border: "1px solid var(--hairline)",
+                        color: "var(--muted)",
+                      }}
                     >
                       {tag}
                     </span>
@@ -239,7 +255,14 @@ export default function AdminReviewsPage() {
 
               {/* Feedback */}
               {rev.feedback && (
-                <p className="text-sm text-[var()]/80 leading-relaxed bg-[var()]/[0.02] p-3 rounded-xl border border-[var()]">
+                <p
+                  className="text-sm leading-relaxed p-3 rounded-xl"
+                  style={{
+                    color: "var(--fg)",
+                    background: "color-mix(in srgb, var(--fg) 3%, transparent)",
+                    border: "1px solid var(--hairline)",
+                  }}
+                >
                   {rev.feedback}
                 </p>
               )}
@@ -248,7 +271,7 @@ export default function AdminReviewsPage() {
         </div>
       ) : (
         <EmptyState
-          icon={<ShieldAlert className="h-8 w-8 text-[var()]" />}
+          icon={<ShieldAlert className="h-8 w-8" style={{ color: "var(--muted)" }} />}
           title="No reviews match filters"
           description="Try adjusting your search keywords or rating filter."
         />

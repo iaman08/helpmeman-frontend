@@ -34,6 +34,7 @@ export interface User {
   onboardingRole?: string | null;
   currentRole?: string | null;
   isEmailVerified: boolean;
+  mustChangePassword?: boolean;
   currency?: string | null;
   createdAt: string;
 }

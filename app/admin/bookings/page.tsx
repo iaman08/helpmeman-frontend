@@ -6,6 +6,7 @@ import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { StatusBadge } from "@/components/StatusBadge";
 import { EmptyState } from "@/components/EmptyState";
+import { formatCurrency } from "@/lib/currency-context";
 
 interface AdminBooking {
   id: string;
@@ -19,17 +20,24 @@ interface AdminBooking {
 }
 
 function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  return new Date(d).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 }
-import { formatCurrency } from "@/lib/currency-context";
-function formatPrice(p: number, currency = "INR") { return formatCurrency(p, currency); }
+
+function formatPrice(p: number, currency = "INR") {
+  return formatCurrency(p, currency);
+}
 
 export default function AdminBookingsPage() {
   const [bookings, setBookings] = useState<AdminBooking[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get("/admin/bookings")
+    api
+      .get("/admin/bookings")
       .then((res) => setBookings(res.data.bookings ?? []))
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -37,44 +45,91 @@ export default function AdminBookingsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Bookings</p>
-        <h1 className="font-display text-4xl leading-tight">All bookings.</h1>
-        <p className="text-sm text-[var()]">{bookings.length} booking{bookings.length !== 1 ? "s" : ""}</p>
+      {/* Page header */}
+      <div className="flex flex-col gap-1.5">
+        <p
+          className="text-xs uppercase tracking-[0.22em]"
+          style={{ color: "var(--muted)" }}
+        >
+          Bookings
+        </p>
+        <h1 className="font-display text-4xl leading-tight" style={{ color: "var(--fg)" }}>
+          All bookings.
+        </h1>
+        <p className="text-sm" style={{ color: "var(--muted)" }}>
+          {bookings.length} booking{bookings.length !== 1 ? "s" : ""}
+        </p>
       </div>
 
       {loading ? (
-        <div className="flex flex-col gap-3">
-          {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-14 w-full rounded-xl" />)}
+        <div className="flex flex-col gap-2">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-14 w-full rounded-xl" />
+          ))}
         </div>
       ) : bookings.length > 0 ? (
-        <div className="w-full overflow-x-auto pb-2">
-          <div className="min-w-[650px] flex flex-col gap-2">
-            <div className="grid grid-cols-12 gap-4 px-5 py-2 text-[10px] uppercase tracking-[0.22em] text-[var()]">
-              <span className="col-span-2">Student</span>
-              <span className="col-span-2">Mentor</span>
-              <span className="col-span-2">Date</span>
-              <span className="col-span-1">Min</span>
-              <span className="col-span-1">Amt</span>
-              <span className="col-span-2">Status</span>
-            </div>
-
-            {bookings.map((b) => (
-              <div key={b.id} className="grid grid-cols-12 gap-4 items-center rounded-xl bg-[var()]/[0.02] px-5 py-3 text-sm">
-                <span className="col-span-2 truncate">{b.user?.name}</span>
-                <span className="col-span-2 truncate font-medium">{b.mentor?.displayName}</span>
-                <span className="col-span-2 text-[var()]">{formatDate(b.scheduledAt)}</span>
-                <span className="col-span-1 text-[var()]">{b.durationMinutes}</span>
-                <span className="col-span-1">{formatPrice(b.amountPaid, b.currency)}</span>
-                <div className="col-span-2">
-                  <StatusBadge status={b.status} />
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="w-full overflow-x-auto">
+          <table className="w-full min-w-[640px] border-collapse">
+            <thead>
+              <tr style={{ borderBottom: "1px solid var(--hairline)" }}>
+                {["Student", "Mentor", "Date", "Min", "Amount", "Status"].map((h) => (
+                  <th
+                    key={h}
+                    className="text-left py-3 pr-6 text-[10px] uppercase tracking-[0.22em] font-medium"
+                    style={{ color: "var(--muted)" }}
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {bookings.map((b, idx) => (
+                <tr
+                  key={b.id}
+                  className="transition-colors"
+                  style={{
+                    borderBottom:
+                      idx < bookings.length - 1 ? "1px solid var(--hairline)" : "none",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background =
+                      "color-mix(in srgb, var(--fg) 2%, transparent)")
+                  }
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                >
+                  <td className="py-4 pr-6 text-sm" style={{ color: "var(--fg)" }}>
+                    {b.user?.name}
+                  </td>
+                  <td
+                    className="py-4 pr-6 text-sm font-medium"
+                    style={{ color: "var(--fg)" }}
+                  >
+                    {b.mentor?.displayName}
+                  </td>
+                  <td className="py-4 pr-6 text-sm" style={{ color: "var(--muted)" }}>
+                    {formatDate(b.scheduledAt)}
+                  </td>
+                  <td className="py-4 pr-6 text-sm" style={{ color: "var(--muted)" }}>
+                    {b.durationMinutes}
+                  </td>
+                  <td className="py-4 pr-6 text-sm font-medium" style={{ color: "var(--fg)" }}>
+                    {formatPrice(b.amountPaid, b.currency)}
+                  </td>
+                  <td className="py-4">
+                    <StatusBadge status={b.status} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       ) : (
-        <EmptyState icon={<CalendarCheck className="h-6 w-6" />} title="No bookings" description="No bookings on the platform yet." />
+        <EmptyState
+          icon={<CalendarCheck className="h-6 w-6" />}
+          title="No bookings"
+          description="No bookings on the platform yet."
+        />
       )}
     </div>
   );

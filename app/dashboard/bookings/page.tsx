@@ -44,32 +44,36 @@ export default function BookingsPage() {
 
   return (
     <div className="flex flex-col gap-6 sm:gap-8">
-      <div className="flex flex-col gap-2">
-        <p className="text-[10px] md:text-xs uppercase tracking-[0.22em] text-[var()] font-bold">
+      <div className="flex flex-col gap-1.5">
+        <p className="text-[10px] md:text-xs uppercase tracking-[0.22em] font-semibold" style={{ color: "var(--muted)" }}>
           Bookings
         </p>
-        <h1 className="font-display text-3xl sm:text-4xl md:text-5xl leading-tight font-bold tracking-tight">Your sessions.</h1>
+        <h1 className="font-display text-3xl sm:text-4xl md:text-5xl leading-tight font-extrabold tracking-tight" style={{ color: "var(--fg)" }}>Your sessions.</h1>
       </div>
 
       {/* ─── Status Tabs ─── */}
       <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-        {TABS.map((tab) => (
-          <button
-            key={tab.label}
-            type="button"
-            onClick={() => {
-              setStatusFilter(tab.value);
-              setPage(1);
-            }}
-            className={`rounded-full px-4 sm:px-5 py-2 sm:py-2.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer active:scale-95 ${
-              statusFilter === tab.value
-                ? "bg-[var()] text-[var()] shadow-lg"
-                : "bg-[var()]/5 text-[var()] hover:text-[var()] border border-[var()]"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+        {TABS.map((tab) => {
+          const isActive = statusFilter === tab.value;
+          return (
+            <button
+              key={tab.label}
+              type="button"
+              onClick={() => {
+                setStatusFilter(tab.value);
+                setPage(1);
+              }}
+              className="rounded-full px-4 sm:px-5 py-2 sm:py-2.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer"
+              style={{
+                background: isActive ? "var(--fg)" : "color-mix(in srgb, var(--fg) 4%, transparent)",
+                color: isActive ? "var(--bg)" : "var(--muted)",
+                border: isActive ? "1px solid var(--fg)" : "1px solid var(--hairline)",
+              }}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* ─── Bookings List ─── */}
@@ -77,7 +81,7 @@ export default function BookingsPage() {
         {isLoading ? (
           <div className="flex flex-col gap-4">
             {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-24 sm:h-28 w-full rounded-2xl sm:rounded-3xl" />
+              <Skeleton key={i} className="h-24 sm:h-28 w-full rounded-2xl" />
             ))}
           </div>
         ) : data && data.bookings.length > 0 ? (
@@ -87,10 +91,11 @@ export default function BookingsPage() {
                 <Link
                   key={booking.id}
                   href={`/dashboard/bookings/${booking.id}`}
-                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between rounded-2xl sm:rounded-[2rem] bg-[var()]/[0.03] border border-[var()] hover:border-[var()]/15 hover:bg-[var()]/5 p-4 sm:p-6 md:p-8 transition-all group"
+                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between rounded-2xl p-4 sm:p-6 md:p-8 transition-all group"
+                  style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}
                 >
                   <div className="flex items-center gap-4 sm:gap-5 w-full sm:w-auto">
-                    <div className="flex h-11 w-11 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl bg-[var()]/8 text-[var()] text-sm sm:text-base font-bold shrink-0 group-hover:scale-105 transition-transform">
+                    <div className="flex h-11 w-11 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl text-sm sm:text-base font-semibold shrink-0 group-hover:scale-105 transition-transform" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 6%, transparent)", color: "var(--fg)" }}>
                       {booking.mentor?.displayName
                         ?.split(" ")
                         .map((w) => w[0])
@@ -99,20 +104,20 @@ export default function BookingsPage() {
                         .toUpperCase() ?? "M"}
                     </div>
                     <div className="flex flex-col gap-1 sm:gap-1.5 min-w-0">
-                      <span className="font-bold text-base sm:text-lg md:text-xl truncate group-hover:opacity-90 transition-colors">
+                      <span className="font-semibold text-base sm:text-lg md:text-xl truncate" style={{ color: "var(--fg)" }}>
                         {booking.mentor?.displayName ?? "Mentor"}
                       </span>
-                      <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 text-[11px] sm:text-xs md:text-sm text-[var()]">
+                      <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 text-[11px] sm:text-xs md:text-sm" style={{ color: "var(--muted)" }}>
                         <span>{formatDate(booking.scheduledAt)}</span>
-                        <span className="hidden sm:inline h-1 w-1 rounded-full bg-[var()]/20" />
+                        <span className="hidden sm:inline h-1 w-1 rounded-full" style={{ background: "var(--hairline)" }} />
                         <span>{formatTime(booking.scheduledAt)}</span>
-                        <span className="hidden sm:inline h-1 w-1 rounded-full bg-[var()]/20" />
+                        <span className="hidden sm:inline h-1 w-1 rounded-full" style={{ background: "var(--hairline)" }} />
                         <span>{booking.durationMinutes} min</span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between w-full sm:w-auto mt-4 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-0 border-[var()]">
-                    <span className="text-base sm:text-lg font-bold sm:mr-6">{formatPrice(booking.amountPaid, booking.currency)}</span>
+                  <div className="flex items-center justify-between w-full sm:w-auto mt-4 sm:mt-0 pt-3 sm:pt-0" style={{ borderTop: "1px solid var(--hairline)" }}>
+                    <span className="text-base sm:text-lg font-semibold sm:mr-6" style={{ color: "var(--fg)" }}>{formatPrice(booking.amountPaid, booking.currency)}</span>
                     <StatusBadge status={booking.status} />
                   </div>
                 </Link>
@@ -123,33 +128,38 @@ export default function BookingsPage() {
             {data.totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 sm:gap-3 mt-10 sm:mt-12">
                 {Array.from({ length: data.totalPages }, (_, i) => i + 1).map(
-                  (p) => (
-                    <button
-                      key={p}
-                      type="button"
-                      onClick={() => setPage(p)}
-                      className={`h-9 w-9 sm:h-10 sm:w-10 rounded-xl text-sm font-bold transition-all active:scale-90 cursor-pointer ${
-                        data.page === p
-                          ? "bg-[var()] text-[var()] shadow-lg"
-                          : "bg-[var()]/5 text-[var()] hover:text-[var()] border border-[var()]"
-                      }`}
-                    >
-                      {p}
-                    </button>
-                  ),
+                  (p) => {
+                    const isCurrent = data.page === p;
+                    return (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => setPage(p)}
+                        className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl text-sm font-semibold transition-all cursor-pointer"
+                        style={{
+                          background: isCurrent ? "var(--fg)" : "color-mix(in srgb, var(--fg) 4%, transparent)",
+                          color: isCurrent ? "var(--bg)" : "var(--fg)",
+                          border: isCurrent ? "1px solid var(--fg)" : "1px solid var(--hairline)",
+                        }}
+                      >
+                        {p}
+                      </button>
+                    );
+                  },
                 )}
               </div>
             )}
           </>
         ) : (
           <EmptyState
-            icon={<div className="p-4 bg-[var()]/5 rounded-2xl mb-4"><CalendarCheck className="h-8 w-8 text-[var()]" /></div>}
+            icon={<div className="p-4 rounded-2xl mb-4" style={{ background: "color-mix(in srgb, var(--fg) 5%, transparent)" }}><CalendarCheck className="h-8 w-8" style={{ color: "var(--fg)" }} /></div>}
             title="No bookings yet"
             description="Book your first session with a verified mentor to get started on your journey."
             action={
               <Link
                 href="/mentors"
-                className="rounded-2xl bg-[var()] text-[var()] px-8 py-4 text-sm font-bold hover:opacity-90 transition-all active:scale-95 inline-block"
+                className="rounded-2xl px-8 py-4 text-sm font-semibold transition-all inline-block shadow cursor-pointer"
+                style={{ background: "var(--fg)", color: "var(--bg)" }}
               >
                 Browse mentors
               </Link>

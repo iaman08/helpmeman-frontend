@@ -11,14 +11,20 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
       {icon && (
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var()]/5 text-[var()]">
+        <div
+          className="flex h-16 w-16 items-center justify-center rounded-full"
+          style={{
+            background: "color-mix(in srgb, var(--fg) 5%, transparent)",
+            color: "var(--fg)",
+          }}
+        >
           {icon}
         </div>
       )}
       <div className="flex flex-col gap-1.5">
-        <h3 className="font-display text-xl">{title}</h3>
+        <h3 className="font-display text-xl" style={{ color: "var(--fg)" }}>{title}</h3>
         {description && (
-          <p className="text-sm text-[var()] max-w-sm">{description}</p>
+          <p className="text-sm max-w-sm" style={{ color: "var(--muted)" }}>{description}</p>
         )}
       </div>
       {action && <div className="mt-2">{action}</div>}

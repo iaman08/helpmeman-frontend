@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { Shield, Search, ArrowRight, Activity, Calendar } from "lucide-react";
@@ -64,26 +64,31 @@ export default function AdminAuditLogsPage() {
     <div className="flex flex-col gap-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex flex-col gap-2">
-          <p className="text-sm uppercase tracking-[0.22em] text-[var()] flex items-center gap-2">
+        <div className="flex flex-col gap-1.5">
+          <p className="text-xs uppercase tracking-[0.22em] flex items-center gap-2" style={{ color: "var(--muted)" }}>
             <Shield className="h-4 w-4 text-red-500" />
             Security & Audit
           </p>
-          <h1 className="font-display text-4xl leading-tight">Audit Logs.</h1>
-          <p className="text-sm text-[var()]">
+          <h1 className="font-display text-4xl leading-tight" style={{ color: "var(--fg)" }}>Audit Logs.</h1>
+          <p className="text-sm" style={{ color: "var(--muted)" }}>
             Real-time security trail for privileged actions
           </p>
         </div>
 
         {/* Search */}
         <div className="relative w-full md:w-80">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var()]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: "var(--muted)" }} />
           <input
             type="text"
             placeholder="Search by action, actor, IP..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-[var()]/[0.02] border border-[var()]/10 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:border-red-500/50 transition-colors"
+            className="w-full rounded-xl py-2.5 pl-10 pr-4 text-sm outline-none transition-colors"
+            style={{
+              border: "1px solid var(--hairline)",
+              background: "color-mix(in srgb, var(--fg) 2%, transparent)",
+              color: "var(--fg)",
+            }}
           />
         </div>
       </div>
@@ -99,7 +104,7 @@ export default function AdminAuditLogsPage() {
           {/* Logs Table List */}
           <div className="flex-1 overflow-x-auto pb-2">
             <div className="min-w-[700px] flex flex-col gap-2">
-              <div className="grid grid-cols-12 gap-4 px-5 py-2 text-[10px] uppercase tracking-[0.22em] text-[var()] font-semibold">
+              <div className="grid grid-cols-12 gap-4 px-5 py-2 text-[10px] uppercase tracking-[0.22em] font-semibold" style={{ color: "var(--muted)" }}>
                 <span className="col-span-3">Action</span>
                 <span className="col-span-3">Actor / IP</span>
                 <span className="col-span-4">Change Summary</span>
@@ -107,21 +112,21 @@ export default function AdminAuditLogsPage() {
               </div>
 
               {filteredLogs.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 bg-[var()]/[0.01] rounded-2xl border border-dashed border-[var()]/10 text-center gap-2">
-                  <Activity className="h-8 w-8 text-[var()]" />
-                  <p className="text-sm font-medium">No audit logs found</p>
-                  <p className="text-xs text-[var()]">Try adjusting your search query</p>
+                <div className="flex flex-col items-center justify-center py-12 rounded-2xl text-center gap-2" style={{ border: "1px dashed var(--hairline)", background: "color-mix(in srgb, var(--fg) 1%, transparent)" }}>
+                  <Activity className="h-8 w-8" style={{ color: "var(--muted)" }} />
+                  <p className="text-sm font-medium" style={{ color: "var(--fg)" }}>No audit logs found</p>
+                  <p className="text-xs" style={{ color: "var(--muted)" }}>Try adjusting your search query</p>
                 </div>
               ) : (
                 filteredLogs.map((log) => (
                   <div
                     key={log.id}
                     onClick={() => setSelectedLog(selectedLog?.id === log.id ? null : log)}
-                    className={`grid grid-cols-12 gap-4 items-center rounded-xl border px-5 py-3.5 text-sm cursor-pointer transition-all hover:bg-[var()]/[0.03] ${
-                      selectedLog?.id === log.id
-                        ? "bg-red-500/[0.03] border-red-500/20"
-                        : "bg-[var()]/[0.01] border-[var()]/5"
-                    }`}
+                    className="grid grid-cols-12 gap-4 items-center rounded-xl px-5 py-3.5 text-sm cursor-pointer transition-all"
+                    style={{
+                      border: selectedLog?.id === log.id ? "1px solid rgba(239, 68, 68, 0.4)" : "1px solid var(--hairline)",
+                      background: selectedLog?.id === log.id ? "rgba(239, 68, 68, 0.05)" : "color-mix(in srgb, var(--fg) 1%, transparent)",
+                    }}
                   >
                     {/* Action Badge */}
                     <span className="col-span-3">
@@ -129,7 +134,7 @@ export default function AdminAuditLogsPage() {
                         log.action.includes("UPGRADE") ? "bg-emerald-500/10 text-emerald-600" :
                         log.action.includes("CHANGE") ? "bg-blue-500/10 text-blue-600" :
                         log.action.includes("REJECT") ? "bg-red-500/10 text-red-600" :
-                        "bg-[var()]/5 text-[var()]/60"
+                        "bg-gray-500/10 text-gray-500"
                       }`}>
                         {log.action}
                       </span>
@@ -137,27 +142,27 @@ export default function AdminAuditLogsPage() {
 
                     {/* Actor & IP */}
                     <span className="col-span-3 flex flex-col gap-0.5 truncate">
-                      <span className="font-medium text-xs truncate" title={log.actorId}>{log.actorId}</span>
-                      <span className="text-[10px] text-[var()]">IP: {log.ip || "System"}</span>
+                      <span className="font-medium text-xs truncate" title={log.actorId} style={{ color: "var(--fg)" }}>{log.actorId}</span>
+                      <span className="text-[10px]" style={{ color: "var(--muted)" }}>IP: {log.ip || "System"}</span>
                     </span>
 
                     {/* Old / New Value Cast */}
                     <span className="col-span-4 flex items-center gap-2 truncate">
                       {log.oldValue && log.newValue ? (
                         <>
-                          <span className="text-xs bg-[var()]/5 px-2 py-0.5 rounded text-[var()]">{log.oldValue}</span>
-                          <ArrowRight className="h-3 w-3 text-[var()] flex-shrink-0" />
+                          <span className="text-xs px-2 py-0.5 rounded" style={{ background: "color-mix(in srgb, var(--fg) 5%, transparent)", color: "var(--muted)" }}>{log.oldValue}</span>
+                          <ArrowRight className="h-3 w-3 flex-shrink-0" style={{ color: "var(--muted)" }} />
                           <span className="text-xs bg-red-500/10 text-red-600 px-2 py-0.5 rounded font-medium">{log.newValue}</span>
                         </>
                       ) : (
-                        <span className="text-xs text-[var()] italic truncate">
+                        <span className="text-xs italic truncate" style={{ color: "var(--muted)" }}>
                           {log.endpoint || "System Task Execution"}
                         </span>
                       )}
                     </span>
 
                     {/* Timestamp */}
-                    <span className="col-span-2 text-right text-xs text-[var()] font-mono">
+                    <span className="col-span-2 text-right text-xs font-mono" style={{ color: "var(--muted)" }}>
                       {new Date(log.createdAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
                     </span>
                   </div>
@@ -168,55 +173,55 @@ export default function AdminAuditLogsPage() {
 
           {/* Details Sidebar panel */}
           {selectedLog && (
-            <div className="w-full lg:w-96 bg-[var()]/[0.01] border border-[var()]/10 rounded-2xl p-6 flex flex-col gap-6 h-fit shrink-0 animate-in fade-in slide-in-from-right-4 duration-200">
-              <div className="flex flex-col gap-2">
-                <h3 className="font-display text-lg">Log Entry Details</h3>
-                <p className="text-xs text-[var()] font-mono break-all">ID: {selectedLog.id}</p>
+            <div className="w-full lg:w-96 rounded-2xl p-6 flex flex-col gap-6 h-fit shrink-0 animate-in fade-in slide-in-from-right-4 duration-200" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+              <div className="flex flex-col gap-1.5">
+                <h3 className="font-display text-lg" style={{ color: "var(--fg)" }}>Log Entry Details</h3>
+                <p className="text-xs font-mono break-all" style={{ color: "var(--muted)" }}>ID: {selectedLog.id}</p>
               </div>
 
-              <div className="h-px bg-[var()]/10" />
+              <div className="h-px" style={{ background: "var(--hairline)" }} />
 
               <div className="flex flex-col gap-4 text-xs">
                 <div className="flex flex-col gap-1">
-                  <span className="uppercase text-[9px] tracking-wider text-[var()] font-semibold">Action Trigger</span>
-                  <span className="font-medium">{selectedLog.action}</span>
+                  <span className="uppercase text-[9px] tracking-wider font-semibold" style={{ color: "var(--muted)" }}>Action Trigger</span>
+                  <span className="font-medium" style={{ color: "var(--fg)" }}>{selectedLog.action}</span>
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <span className="uppercase text-[9px] tracking-wider text-[var()] font-semibold">Actor (Issuer)</span>
-                  <span className="font-mono break-all">{selectedLog.actorId}</span>
+                  <span className="uppercase text-[9px] tracking-wider font-semibold" style={{ color: "var(--muted)" }}>Actor (Issuer)</span>
+                  <span className="font-mono break-all" style={{ color: "var(--fg)" }}>{selectedLog.actorId}</span>
                 </div>
 
                 {selectedLog.targetId && (
                   <div className="flex flex-col gap-1">
-                    <span className="uppercase text-[9px] tracking-wider text-[var()] font-semibold">Target affected</span>
-                    <span className="font-mono break-all">{selectedLog.targetId}</span>
+                    <span className="uppercase text-[9px] tracking-wider font-semibold" style={{ color: "var(--muted)" }}>Target affected</span>
+                    <span className="font-mono break-all" style={{ color: "var(--fg)" }}>{selectedLog.targetId}</span>
                   </div>
                 )}
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1">
-                    <span className="uppercase text-[9px] tracking-wider text-[var()] font-semibold">IP Address</span>
-                    <span className="font-mono">{selectedLog.ip || "Local System"}</span>
+                    <span className="uppercase text-[9px] tracking-wider font-semibold" style={{ color: "var(--muted)" }}>IP Address</span>
+                    <span className="font-mono" style={{ color: "var(--fg)" }}>{selectedLog.ip || "Local System"}</span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="uppercase text-[9px] tracking-wider text-[var()] font-semibold">API Endpoint</span>
-                    <span className="truncate" title={selectedLog.endpoint || "N/A"}>{selectedLog.endpoint || "System"}</span>
+                    <span className="uppercase text-[9px] tracking-wider font-semibold" style={{ color: "var(--muted)" }}>API Endpoint</span>
+                    <span className="truncate" title={selectedLog.endpoint || "N/A"} style={{ color: "var(--fg)" }}>{selectedLog.endpoint || "System"}</span>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <span className="uppercase text-[9px] tracking-wider text-[var()] font-semibold">Created At</span>
-                  <span className="flex items-center gap-1.5">
-                    <Calendar className="h-3 w-3 text-[var()]" />
+                  <span className="uppercase text-[9px] tracking-wider font-semibold" style={{ color: "var(--muted)" }}>Created At</span>
+                  <span className="flex items-center gap-1.5" style={{ color: "var(--fg)" }}>
+                    <Calendar className="h-3 w-3" style={{ color: "var(--muted)" }} />
                     {formatDate(selectedLog.createdAt)}
                   </span>
                 </div>
 
                 {selectedLog.metadata && (
                   <div className="flex flex-col gap-2">
-                    <span className="uppercase text-[9px] tracking-wider text-[var()] font-semibold">Context Metadata</span>
-                    <pre className="bg-[var()]/5 p-3 rounded-lg overflow-x-auto text-[10px] font-mono text-[var()] leading-relaxed">
+                    <span className="uppercase text-[9px] tracking-wider font-semibold" style={{ color: "var(--muted)" }}>Context Metadata</span>
+                    <pre className="p-3 rounded-lg overflow-x-auto text-[10px] font-mono leading-relaxed" style={{ background: "color-mix(in srgb, var(--fg) 5%, transparent)", color: "var(--fg)" }}>
                       {JSON.stringify(selectedLog.metadata, null, 2)}
                     </pre>
                   </div>

@@ -178,8 +178,8 @@ export function ChatInput({
     <div
       className="px-3 py-2.5 sm:px-4 sm:py-3.5 shrink-0 transition-colors"
       style={{
-        borderTop: "1px solid rgba(0,0,0,0.08)",
-        background: isDragging ? "rgba(0,0,0,0.03)" : "transparent",
+        borderTop: "1px solid var(--hairline)",
+        background: isDragging ? "color-mix(in srgb, var(--fg) 3%, transparent)" : "transparent",
       }}
       onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
       onDragLeave={() => setIsDragging(false)}

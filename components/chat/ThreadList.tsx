@@ -76,26 +76,26 @@ export function ThreadList({
   });
 
   return (
-    <div className="w-full md:w-80 flex flex-col shrink-0 h-full" style={{ borderRight: "1px solid rgba(0,0,0,0.08)", background: "var(--bg, #fff)" }}>
-      <div className="px-5 py-4 shrink-0" style={{ borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
+    <div className="w-full md:w-80 flex flex-col shrink-0 h-full" style={{ borderRight: "1px solid var(--hairline)", background: "var(--bg)" }}>
+      <div className="px-5 py-4 shrink-0" style={{ borderBottom: "1px solid var(--hairline)" }}>
         <div className="flex items-center justify-between mb-3">
-          <span className="font-display text-base font-bold">Messages</span>
-          <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full" style={{ color: "var(--muted, #888)", background: "rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.07)" }}>
+          <span className="font-display text-base font-bold" style={{ color: "var(--fg)" }}>Messages</span>
+          <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full" style={{ color: "var(--muted)", background: "color-mix(in srgb, var(--fg) 5%, transparent)", border: "1px solid var(--hairline)" }}>
             {threads.length}
           </span>
         </div>
-        <div className="flex items-center gap-2 rounded-xl px-3 py-2" style={{ background: "rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.07)" }}>
-          <Search className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--muted, #888)" }} />
+        <div className="flex items-center gap-2 rounded-xl px-3 py-2" style={{ background: "color-mix(in srgb, var(--fg) 4%, transparent)", border: "1px solid var(--hairline)" }}>
+          <Search className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--muted)" }} />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search conversations..."
             className="flex-1 bg-transparent text-xs outline-none"
-            style={{ color: "var(--fg, #111)" }}
+            style={{ color: "var(--fg)" }}
           />
           {search && (
-            <button onClick={() => setSearch("")} className="cursor-pointer active:opacity-60" style={{ color: "var(--muted, #888)" }}>
+            <button onClick={() => setSearch("")} className="cursor-pointer active:opacity-60" style={{ color: "var(--muted)" }}>
               <X className="h-3 w-3" />
             </button>
           )}
@@ -125,11 +125,16 @@ export function ThreadList({
                   key={thread.id}
                   type="button"
                   onClick={() => onSelectThread(thread)}
-                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 transition-all hover:bg-[var()]/4 cursor-pointer text-left border-b border-[var()]/10 last:border-b-0 relative ${
+                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 transition-all cursor-pointer text-left last:border-b-0 relative ${
                     isActive
-                      ? "bg-[var()]/[0.04] border-l-2 border-l-[var()] pl-[14px]"
-                      : "border-l-2 border-l-transparent"
+                      ? "pl-[14px]"
+                      : ""
                   }`}
+                  style={{
+                    borderBottom: "1px solid var(--hairline)",
+                    background: isActive ? "color-mix(in srgb, var(--fg) 5%, transparent)" : "transparent",
+                    borderLeft: isActive ? "3px solid var(--fg)" : "3px solid transparent",
+                  }}
                 >
                   <ThreadAvatar name={displayName} avatarUrl={avatarUrl} presenceStatus={presenceStatus} />
 

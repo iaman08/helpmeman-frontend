@@ -260,7 +260,7 @@ export function UnifiedChat() {
       {/* ── MOBILE: fixed full-screen panel below top nav ── */}
       <div className="md:hidden fixed inset-0 top-[64px] z-30 flex flex-col" style={{ background: "var(--bg, #fff)" }}>
         <div className={`flex-1 flex flex-col min-h-0 ${activeThread ? "hidden" : "flex"}`}>
-          <div className="flex items-center justify-between px-4 py-4 shrink-0" style={{ borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
+          <div className="flex items-center justify-between px-4 py-4 shrink-0" style={{ borderBottom: "1px solid var(--hairline)" }}>
             <div>
               <p className="text-[10px] uppercase tracking-[0.22em] font-bold" style={{ color: "var(--muted, #888)" }}>Chat</p>
               <div className="flex items-center gap-2">
@@ -324,7 +324,7 @@ export function UnifiedChat() {
           </div>
         </div>
 
-        <div className="rounded-3xl overflow-hidden flex shadow-sm flex-1 min-h-0 relative" style={{ border: "1px solid rgba(0,0,0,0.08)" }}>
+        <div className="rounded-3xl overflow-hidden flex shadow-sm flex-1 min-h-0 relative" style={{ border: "1px solid var(--hairline)" }}>
           <div className="h-full shrink-0 flex flex-col">
             <ThreadList
               threads={threads}

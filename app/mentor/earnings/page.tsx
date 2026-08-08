@@ -6,7 +6,6 @@ import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
 import type { Earning } from "@/lib/types";
-
 import { PriceDisplay } from "@/components/PriceDisplay";
 
 function formatDate(d: string) {
@@ -33,9 +32,9 @@ export default function EarningsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Earnings</p>
-        <h1 className="font-display text-4xl leading-tight">Your revenue.</h1>
+      <div className="flex flex-col gap-1.5">
+        <p className="text-xs uppercase tracking-[0.22em] font-semibold" style={{ color: "var(--muted)" }}>Earnings</p>
+        <h1 className="font-display text-4xl leading-tight font-extrabold" style={{ color: "var(--fg)" }}>Your revenue.</h1>
       </div>
 
       {/* ─── Summary Cards ─── */}
@@ -45,12 +44,12 @@ export default function EarningsPage() {
           { label: "Paid Out", value: totals.paid, color: "text-emerald-500" },
           { label: "Pending", value: totals.pending, color: "text-amber-500" },
         ].map((card) => (
-          <div key={card.label} className="rounded-2xl bg-[var()]/[0.02] p-5 flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-[var()]">
+          <div key={card.label} className="rounded-2xl p-5 flex flex-col gap-2" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+            <div className="flex items-center gap-2" style={{ color: "var(--muted)" }}>
               <DollarSign className="h-4 w-4" />
-              <span className="text-xs uppercase tracking-[0.18em]">{card.label}</span>
+              <span className="text-xs uppercase tracking-[0.18em] font-semibold">{card.label}</span>
             </div>
-            <span className={`font-display text-3xl ${card.color}`}>
+            <span className={`font-display text-3xl font-extrabold ${card.color}`} style={{ color: card.color ? undefined : "var(--fg)" }}>
               {loading ? <Skeleton className="h-9 w-20" /> : <PriceDisplay amountInPaise={card.value} />}
             </span>
           </div>
@@ -59,7 +58,7 @@ export default function EarningsPage() {
 
       {/* ─── Transactions ─── */}
       <div>
-        <h2 className="text-xs uppercase tracking-[0.22em] text-[var()] mb-4">
+        <h2 className="text-xs uppercase tracking-[0.22em] font-semibold mb-4 flex items-center" style={{ color: "var(--muted)" }}>
           <TrendingUp className="h-3.5 w-3.5 inline mr-2" />
           Transactions
         </h2>
@@ -71,12 +70,12 @@ export default function EarningsPage() {
         ) : earnings.length > 0 ? (
           <div className="flex flex-col gap-2">
             {earnings.map((e) => (
-              <div key={e.id} className="flex items-center justify-between rounded-xl bg-[var()]/[0.02] px-5 py-3">
+              <div key={e.id} className="flex items-center justify-between rounded-xl px-5 py-3" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-sm font-medium"><PriceDisplay amountInPaise={e.amount} /></span>
-                  <span className="text-xs text-[var()]">{formatDate(e.createdAt)}</span>
+                  <span className="text-sm font-bold" style={{ color: "var(--fg)" }}><PriceDisplay amountInPaise={e.amount} /></span>
+                  <span className="text-xs font-medium" style={{ color: "var(--muted)" }}>{formatDate(e.createdAt)}</span>
                 </div>
-                <span className={`text-xs rounded-full px-3 py-1 ${
+                <span className={`text-xs font-semibold rounded-full px-3 py-1 ${
                   e.status === "PAID" ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600"
                 }`}>
                   {e.status}
@@ -86,7 +85,7 @@ export default function EarningsPage() {
           </div>
         ) : (
           <EmptyState
-            icon={<DollarSign className="h-6 w-6" />}
+            icon={<DollarSign className="h-6 w-6 text-[var(--fg)]" />}
             title="No earnings yet"
             description="Complete sessions to start earning."
           />

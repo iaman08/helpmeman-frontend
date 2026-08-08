@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { Star, Search, Trash2, Filter, Download, CheckCircle, EyeOff, Sparkles, Shield, User, Loader2 } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { Star, Download, Search, Filter, CheckCircle, EyeOff, Sparkles, Trash2, Loader2 } from "lucide-react";
 import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
@@ -11,26 +11,17 @@ interface PlatformReviewItem {
   id: string;
   rating: number;
   feedback?: string | null;
-  tags: string[];
+  tags?: string[];
   anonymous: boolean;
   approved: boolean;
   featured: boolean;
   createdAt: string;
-  updatedAt: string;
-  user: {
+  user?: {
     id: string;
     name: string;
     email: string;
     avatar?: string | null;
-    role: string;
   };
-}
-
-interface Stats {
-  totalReviews: number;
-  approvedCount: number;
-  featuredCount: number;
-  avgRating: number;
 }
 
 function formatDate(d: string) {
@@ -38,135 +29,154 @@ function formatDate(d: string) {
     day: "numeric",
     month: "short",
     year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
   });
 }
 
 export default function AdminPlatformReviewsPage() {
   const [reviews, setReviews] = useState<PlatformReviewItem[]>([]);
-  const [stats, setStats] = useState<Stats>({ totalReviews: 0, approvedCount: 0, featuredCount: 0, avgRating: 0 });
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [ratingFilter, setRatingFilter] = useState<number | "ALL">("ALL");
   const [approvalFilter, setApprovalFilter] = useState<string>("ALL");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+
+  const [stats, setStats] = useState({
+    totalReviews: 0,
+    avgRating: 0,
+    approvedCount: 0,
+    featuredCount: 0,
+  });
 
   const { toast } = useToast();
 
-  const fetchReviews = (p = page) => {
+  const fetchReviews = useCallback((targetPage = 1) => {
     setLoading(true);
-    const query = new URLSearchParams({
-      page: p.toString(),
+    const params = new URLSearchParams({
+      page: String(targetPage),
       limit: "20",
     });
-    if (search.trim()) query.set("search", search.trim());
-    if (ratingFilter !== "ALL") query.set("rating", ratingFilter.toString());
-    if (approvalFilter === "APPROVED") query.set("approved", "true");
-    if (approvalFilter === "PENDING") query.set("approved", "false");
+
+    if (search) params.append("search", search);
+    if (ratingFilter !== "ALL") params.append("rating", String(ratingFilter));
+    if (approvalFilter !== "ALL") params.append("approved", approvalFilter === "APPROVED" ? "true" : "false");
 
     api
-      .get(`/platform-reviews/admin?${query.toString()}`)
+      .get(`/platform-reviews/admin?${params.toString()}`)
       .then((res) => {
         setReviews(res.data?.reviews ?? []);
-        setStats(res.data?.stats ?? { totalReviews: 0, approvedCount: 0, featuredCount: 0, avgRating: 0 });
-        setTotalPages(res.data?.pagination?.totalPages || 1);
+        setTotalPages(res.data?.totalPages ?? 1);
+        if (res.data?.stats) {
+          setStats(res.data.stats);
+        }
       })
-      .catch((err) => {
-        console.error("Failed to fetch platform reviews", err);
-        toast("Failed to fetch platform reviews", "error");
+      .catch(() => {
+        toast("Failed to fetch platform reviews.", "error");
       })
       .finally(() => setLoading(false));
-  };
+  }, [search, ratingFilter, approvalFilter, toast]);
 
   useEffect(() => {
     fetchReviews(1);
-    setPage(1);
-  }, [search, ratingFilter, approvalFilter]);
+  }, [fetchReviews]);
 
-  const handleToggleApprove = async (review: PlatformReviewItem) => {
-    setActionLoadingId(review.id);
+  const handleToggleApprove = async (r: PlatformReviewItem) => {
+    setActionLoadingId(r.id);
     try {
-      const newApproved = !review.approved;
-      await api.patch(`/platform-reviews/admin/${review.id}`, {
-        approved: newApproved,
-      });
+      const endpoint = r.approved
+        ? `/platform-reviews/admin/${r.id}/hide`
+        : `/platform-reviews/admin/${r.id}/approve`;
+      const res = await api.put(endpoint);
+      toast(res.data?.message || "Status updated", "success");
+
       setReviews((prev) =>
-        prev.map((r) => (r.id === review.id ? { ...r, approved: newApproved } : r))
+        prev.map((item) =>
+          item.id === r.id ? { ...item, approved: !r.approved } : item
+        )
       );
+
       setStats((prev) => ({
         ...prev,
-        approvedCount: prev.approvedCount + (newApproved ? 1 : -1),
+        approvedCount: r.approved ? prev.approvedCount - 1 : prev.approvedCount + 1,
       }));
-      toast(newApproved ? "Review approved for landing page!" : "Review hidden from landing page.", "success");
-    } catch (err) {
-      console.error("Failed to update approval status", err);
+    } catch {
       toast("Failed to update approval status.", "error");
     } finally {
       setActionLoadingId(null);
     }
   };
 
-  const handleToggleFeatured = async (review: PlatformReviewItem) => {
-    setActionLoadingId(review.id);
+  const handleToggleFeatured = async (r: PlatformReviewItem) => {
+    setActionLoadingId(r.id);
     try {
-      const newFeatured = !review.featured;
-      await api.patch(`/platform-reviews/admin/${review.id}`, {
-        featured: newFeatured,
-      });
+      const endpoint = r.featured
+        ? `/platform-reviews/admin/${r.id}/unfeature`
+        : `/platform-reviews/admin/${r.id}/feature`;
+      const res = await api.put(endpoint);
+      toast(res.data?.message || "Featured status updated", "success");
+
       setReviews((prev) =>
-        prev.map((r) => (r.id === review.id ? { ...r, featured: newFeatured } : r))
+        prev.map((item) =>
+          item.id === r.id ? { ...item, featured: !r.featured } : item
+        )
       );
+
       setStats((prev) => ({
         ...prev,
-        featuredCount: prev.featuredCount + (newFeatured ? 1 : -1),
+        featuredCount: r.featured ? prev.featuredCount - 1 : prev.featuredCount + 1,
       }));
-      toast(newFeatured ? "Review marked as featured!" : "Review un-featured.", "success");
-    } catch (err) {
-      console.error("Failed to update featured status", err);
-      toast("Failed to update featured status.", "error");
+    } catch {
+      toast("Failed to update feature status.", "error");
     } finally {
       setActionLoadingId(null);
     }
   };
 
   const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to permanently delete this platform review?")) {
+      return;
+    }
     setDeletingId(id);
     try {
       await api.delete(`/platform-reviews/admin/${id}`);
+      toast("Review deleted permanently.", "success");
       setReviews((prev) => prev.filter((r) => r.id !== id));
       setStats((prev) => ({
         ...prev,
         totalReviews: Math.max(0, prev.totalReviews - 1),
       }));
-      toast("Platform review deleted.", "success");
-    } catch (err) {
-      console.error("Failed to delete review", err);
+    } catch {
       toast("Failed to delete review.", "error");
     } finally {
       setDeletingId(null);
     }
   };
 
-  const handleExportCSV = async () => {
+  const handleExportCSV = () => {
     try {
-      const res = await api.get("/platform-reviews/admin/export", {
-        responseType: "blob",
-      });
-      const blob = new Blob([res.data], { type: "text/csv" });
-      const url = window.URL.createObjectURL(blob);
+      const headers = ["ID", "User Name", "User Email", "Rating", "Feedback", "Approved", "Featured", "Created At"];
+      const rows = reviews.map((r) => [
+        r.id,
+        `"${r.user?.name || "Unknown"}"`,
+        `"${r.user?.email || "Unknown"}"`,
+        r.rating,
+        `"${(r.feedback || "").replace(/"/g, '""')}"`,
+        r.approved ? "TRUE" : "FALSE",
+        r.featured ? "TRUE" : "FALSE",
+        r.createdAt,
+      ]);
+
+      const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+      const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", `helpmeman-platform-reviews-${new Date().toISOString().slice(0, 10)}.csv`);
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `platform_reviews_${Date.now()}.csv`);
       document.body.appendChild(link);
       link.click();
-      link.remove();
-      toast("Exported platform reviews CSV successfully!", "success");
-    } catch (err) {
-      console.error("Failed to export CSV", err);
+      document.body.removeChild(link);
+    } catch {
       toast("Failed to export reviews CSV.", "error");
     }
   };
@@ -176,20 +186,21 @@ export default function AdminPlatformReviewsPage() {
       {/* ── Page Header & Export ── */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <span className="text-xs uppercase tracking-wider text-[var()] font-semibold">
+          <span className="text-xs uppercase tracking-wider font-semibold" style={{ color: "var(--muted)" }}>
             Admin Moderation
           </span>
-          <h1 className="font-display text-3xl font-bold text-[var()] tracking-tight">
+          <h1 className="font-display text-3xl font-bold tracking-tight" style={{ color: "var(--fg)" }}>
             Platform Reviews & Feedback
           </h1>
-          <p className="text-sm text-[var()] mt-1">
+          <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>
             Manage genuine platform feedback, approve reviews for landing page display, and feature top testimonials.
           </p>
         </div>
 
         <button
           onClick={handleExportCSV}
-          className="px-4 py-2.5 rounded-xl border border-[var()] bg-[var()]/[0.03] hover:bg-[var()]/[0.08] text-xs font-semibold text-[var()] transition-all flex items-center gap-2 cursor-pointer shadow-xs"
+          className="px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
+          style={{ border: "1px solid var(--hairline)", color: "var(--fg)", background: "color-mix(in srgb, var(--fg) 3%, transparent)" }}
         >
           <Download className="w-4 h-4" />
           <span>Export CSV</span>
@@ -198,72 +209,79 @@ export default function AdminPlatformReviewsPage() {
 
       {/* ── Overview Metrics Cards ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="rounded-2xl border border-[var()] bg-[var()]/[0.02] p-5 flex flex-col gap-1">
-          <span className="text-xs text-[var()] font-medium uppercase tracking-wider">Total Reviews</span>
-          <span className="font-display text-3xl font-bold">{stats.totalReviews}</span>
+        <div className="rounded-2xl border p-5 flex flex-col gap-1" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+          <span className="text-xs font-medium uppercase tracking-wider" style={{ color: "var(--muted)" }}>Total Reviews</span>
+          <span className="font-display text-3xl font-bold" style={{ color: "var(--fg)" }}>{stats.totalReviews}</span>
         </div>
-        <div className="rounded-2xl border border-[var()] bg-[var()]/[0.02] p-5 flex flex-col gap-1">
-          <span className="text-xs text-[var()] font-medium uppercase tracking-wider">Average Rating</span>
+        <div className="rounded-2xl border p-5 flex flex-col gap-1" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+          <span className="text-xs font-medium uppercase tracking-wider" style={{ color: "var(--muted)" }}>Average Rating</span>
           <div className="flex items-center gap-2">
-            <span className="font-display text-3xl font-bold">{stats.avgRating.toFixed(1)}</span>
+            <span className="font-display text-3xl font-bold" style={{ color: "var(--fg)" }}>{stats.avgRating.toFixed(1)}</span>
             <div className="flex text-amber-500">
               <Star className="w-5 h-5 fill-current" />
             </div>
           </div>
         </div>
-        <div className="rounded-2xl border border-[var()] bg-[var()]/[0.02] p-5 flex flex-col gap-1">
-          <span className="text-xs text-[var()] font-medium uppercase tracking-wider">Approved (Live)</span>
+        <div className="rounded-2xl border p-5 flex flex-col gap-1" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+          <span className="text-xs font-medium uppercase tracking-wider" style={{ color: "var(--muted)" }}>Approved (Live)</span>
           <span className="font-display text-3xl font-bold text-emerald-500">{stats.approvedCount}</span>
         </div>
-        <div className="rounded-2xl border border-[var()] bg-[var()]/[0.02] p-5 flex flex-col gap-1">
-          <span className="text-xs text-[var()] font-medium uppercase tracking-wider">Featured</span>
+        <div className="rounded-2xl border p-5 flex flex-col gap-1" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+          <span className="text-xs font-medium uppercase tracking-wider" style={{ color: "var(--muted)" }}>Featured</span>
           <span className="font-display text-3xl font-bold text-amber-500">{stats.featuredCount}</span>
         </div>
       </div>
 
       {/* ── Filters & Search ── */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-[var()]/[0.02] border border-[var()] p-4 rounded-2xl">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-4 rounded-2xl" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="w-4 h-4 text-[var()] absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "var(--muted)" }} />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by user name, email, or feedback..."
-            className="w-full bg-[var()]/[0.03] border border-[var()] rounded-xl pl-10 pr-4 py-2 text-xs text-[var()] placeholder:text-[var()] focus:outline-none focus:ring-2 focus:ring-[var()]/20"
+            className="w-full rounded-xl pl-10 pr-4 py-2 text-xs outline-none focus:ring-2 focus:ring-amber-500/20"
+            style={{
+              border: "1px solid var(--hairline)",
+              background: "color-mix(in srgb, var(--fg) 3%, transparent)",
+              color: "var(--fg)",
+            }}
           />
         </div>
 
         {/* Filter dropdowns */}
         <div className="flex flex-wrap items-center gap-3">
           {/* Rating filter */}
-          <div className="flex items-center gap-1.5 bg-[var()]/[0.03] border border-[var()] rounded-xl px-3 py-1.5">
-            <Filter className="w-3.5 h-3.5 text-[var()]" />
+          <div className="flex items-center gap-1.5 rounded-xl px-3 py-1.5" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 3%, transparent)" }}>
+            <Filter className="w-3.5 h-3.5" style={{ color: "var(--muted)" }} />
             <select
               value={ratingFilter}
               onChange={(e) => setRatingFilter(e.target.value === "ALL" ? "ALL" : Number(e.target.value))}
-              className="bg-transparent text-xs font-semibold text-[var()] focus:outline-none cursor-pointer"
+              className="bg-transparent text-xs font-semibold focus:outline-none cursor-pointer"
+              style={{ color: "var(--fg)" }}
             >
-              <option value="ALL" className="bg-[var()] text-[var()]">All Ratings</option>
-              <option value={5} className="bg-[var()] text-[var()]">5 Stars</option>
-              <option value={4} className="bg-[var()] text-[var()]">4 Stars</option>
-              <option value={3} className="bg-[var()] text-[var()]">3 Stars</option>
-              <option value={2} className="bg-[var()] text-[var()]">2 Stars</option>
-              <option value={1} className="bg-[var()] text-[var()]">1 Star</option>
+              <option value="ALL" style={{ background: "var(--bg)", color: "var(--fg)" }}>All Ratings</option>
+              <option value={5} style={{ background: "var(--bg)", color: "var(--fg)" }}>5 Stars</option>
+              <option value={4} style={{ background: "var(--bg)", color: "var(--fg)" }}>4 Stars</option>
+              <option value={3} style={{ background: "var(--bg)", color: "var(--fg)" }}>3 Stars</option>
+              <option value={2} style={{ background: "var(--bg)", color: "var(--fg)" }}>2 Stars</option>
+              <option value={1} style={{ background: "var(--bg)", color: "var(--fg)" }}>1 Star</option>
             </select>
           </div>
 
           {/* Approval filter */}
-          <div className="flex items-center gap-1.5 bg-[var()]/[0.03] border border-[var()] rounded-xl px-3 py-1.5">
+          <div className="flex items-center gap-1.5 rounded-xl px-3 py-1.5" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 3%, transparent)" }}>
             <select
               value={approvalFilter}
               onChange={(e) => setApprovalFilter(e.target.value)}
-              className="bg-transparent text-xs font-semibold text-[var()] focus:outline-none cursor-pointer"
+              className="bg-transparent text-xs font-semibold focus:outline-none cursor-pointer"
+              style={{ color: "var(--fg)" }}
             >
-              <option value="ALL" className="bg-[var()] text-[var()]">All Statuses</option>
-              <option value="APPROVED" className="bg-[var()] text-[var()]">Approved Only</option>
-              <option value="PENDING" className="bg-[var()] text-[var()]">Pending / Hidden</option>
+              <option value="ALL" style={{ background: "var(--bg)", color: "var(--fg)" }}>All Statuses</option>
+              <option value="APPROVED" style={{ background: "var(--bg)", color: "var(--fg)" }}>Approved Only</option>
+              <option value="PENDING" style={{ background: "var(--bg)", color: "var(--fg)" }}>Pending / Hidden</option>
             </select>
           </div>
         </div>
@@ -283,10 +301,10 @@ export default function AdminPlatformReviewsPage() {
           description="No reviews matched your search or filter criteria."
         />
       ) : (
-        <div className="overflow-x-auto border border-[var()] rounded-2xl bg-[var()]/[0.01]">
-          <table className="w-full text-left text-xs">
+        <div className="overflow-x-auto rounded-2xl" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 1%, transparent)" }}>
+          <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-[var()] bg-[var()]/[0.03] text-[var()] font-semibold uppercase tracking-wider">
+              <tr style={{ borderBottom: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--muted)" }} className="font-semibold uppercase tracking-wider text-[10px]">
                 <th className="py-3.5 px-4">User</th>
                 <th className="py-3.5 px-4">Rating</th>
                 <th className="py-3.5 px-4 min-w-[220px]">Feedback & Tags</th>
@@ -295,9 +313,15 @@ export default function AdminPlatformReviewsPage() {
                 <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[var()]">
-              {reviews.map((r) => (
-                <tr key={r.id} className="hover:bg-[var()]/[0.02] transition-colors">
+            <tbody>
+              {reviews.map((r, idx) => (
+                <tr
+                  key={r.id}
+                  className="transition-colors"
+                  style={{ borderBottom: idx < reviews.length - 1 ? "1px solid var(--hairline)" : "none" }}
+                  onMouseEnter={(el) => (el.currentTarget.style.background = "color-mix(in srgb, var(--fg) 2%, transparent)")}
+                  onMouseLeave={(el) => (el.currentTarget.style.background = "transparent")}
+                >
                   {/* User */}
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-3">
@@ -313,10 +337,10 @@ export default function AdminPlatformReviewsPage() {
                         </div>
                       )}
                       <div className="flex flex-col min-w-0">
-                        <span className="font-semibold text-[var()] truncate">
+                        <span className="font-semibold truncate" style={{ color: "var(--fg)" }}>
                           {r.user?.name || "Unknown User"}
                         </span>
-                        <span className="text-[11px] text-[var()] truncate">
+                        <span className="text-[11px] truncate" style={{ color: "var(--muted)" }}>
                           {r.user?.email || "No email"}
                         </span>
                         {r.anonymous && (
@@ -338,26 +362,28 @@ export default function AdminPlatformReviewsPage() {
                           className={
                             si < r.rating
                               ? "fill-amber-400 text-amber-400"
-                              : "fill-transparent text-[var()]/30"
+                              : "fill-transparent"
                           }
+                          style={{ color: si < r.rating ? undefined : "var(--hairline)" }}
                         />
                       ))}
-                      <span className="font-bold text-xs ml-1.5">{r.rating}.0</span>
+                      <span className="font-bold text-xs ml-1.5" style={{ color: "var(--fg)" }}>{r.rating}.0</span>
                     </div>
                   </td>
 
                   {/* Feedback & Tags */}
                   <td className="py-4 px-4">
                     <div className="flex flex-col gap-1.5">
-                      <p className="text-xs text-[var()] leading-relaxed line-clamp-3">
-                        {r.feedback || <span className="italic text-[var()]">No text feedback provided.</span>}
+                      <p className="text-xs leading-relaxed line-clamp-3" style={{ color: "var(--fg)" }}>
+                        {r.feedback || <span className="italic" style={{ color: "var(--muted)" }}>No text feedback provided.</span>}
                       </p>
                       {r.tags && r.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1">
                           {r.tags.map((t) => (
                             <span
                               key={t}
-                              className="text-[10px] px-2 py-0.5 rounded-md bg-[var()]/[0.05] text-[var()] font-medium"
+                              className="text-[10px] px-2 py-0.5 rounded-md font-medium"
+                              style={{ background: "color-mix(in srgb, var(--fg) 5%, transparent)", color: "var(--muted)" }}
                             >
                               {t}
                             </span>
@@ -375,7 +401,7 @@ export default function AdminPlatformReviewsPage() {
                           <CheckCircle className="w-3 h-3" /> Approved (Live)
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var()] bg-[var()]/[0.05] px-2.5 py-1 rounded-full border border-[var()]">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ border: "1px solid var(--hairline)", color: "var(--muted)", background: "color-mix(in srgb, var(--fg) 5%, transparent)" }}>
                           <EyeOff className="w-3 h-3" /> Pending / Hidden
                         </span>
                       )}
@@ -389,7 +415,7 @@ export default function AdminPlatformReviewsPage() {
                   </td>
 
                   {/* Submitted Date */}
-                  <td className="py-4 px-4 whitespace-nowrap text-[var()] text-[11px]">
+                  <td className="py-4 px-4 whitespace-nowrap text-[11px]" style={{ color: "var(--muted)" }}>
                     {formatDate(r.createdAt)}
                   </td>
 
@@ -413,11 +439,12 @@ export default function AdminPlatformReviewsPage() {
                       <button
                         onClick={() => handleToggleFeatured(r)}
                         disabled={actionLoadingId === r.id}
-                        className={`p-2 rounded-xl text-xs font-semibold transition-all cursor-pointer border ${
-                          r.featured
-                            ? "bg-amber-500 text-black border-amber-500 hover:bg-amber-400"
-                            : "bg-[var()]/[0.03] text-[var()] border-[var()] hover:text-amber-500"
-                        }`}
+                        className="p-2 rounded-xl text-xs font-semibold transition-all cursor-pointer border"
+                        style={{
+                          background: r.featured ? "#f59e0b" : "color-mix(in srgb, var(--fg) 3%, transparent)",
+                          color: r.featured ? "#000" : "var(--fg)",
+                          borderColor: r.featured ? "#f59e0b" : "var(--hairline)",
+                        }}
                         title={r.featured ? "Un-feature review" : "Feature review on landing page"}
                       >
                         <Sparkles className="w-3.5 h-3.5" />
@@ -448,7 +475,7 @@ export default function AdminPlatformReviewsPage() {
       {/* ── Pagination ── */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between pt-4">
-          <span className="text-xs text-[var()]">
+          <span className="text-xs" style={{ color: "var(--muted)" }}>
             Page {page} of {totalPages}
           </span>
           <div className="flex items-center gap-2">
@@ -459,7 +486,8 @@ export default function AdminPlatformReviewsPage() {
                 fetchReviews(p);
               }}
               disabled={page <= 1}
-              className="px-3.5 py-1.5 rounded-xl border border-[var()] text-xs font-medium disabled:opacity-40 cursor-pointer hover:bg-[var()]/5"
+              className="px-3.5 py-1.5 rounded-xl text-xs font-medium disabled:opacity-40 cursor-pointer transition-colors"
+              style={{ border: "1px solid var(--hairline)", color: "var(--fg)" }}
             >
               Previous
             </button>
@@ -470,7 +498,8 @@ export default function AdminPlatformReviewsPage() {
                 fetchReviews(p);
               }}
               disabled={page >= totalPages}
-              className="px-3.5 py-1.5 rounded-xl border border-[var()] text-xs font-medium disabled:opacity-40 cursor-pointer hover:bg-[var()]/5"
+              className="px-3.5 py-1.5 rounded-xl text-xs font-medium disabled:opacity-40 cursor-pointer transition-colors"
+              style={{ border: "1px solid var(--hairline)", color: "var(--fg)" }}
             >
               Next
             </button>

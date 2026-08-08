@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   ArrowLeft,
@@ -40,7 +40,6 @@ function formatPrice(p: number, currency = "INR") { return formatCurrency(p, cur
 
 export default function BookingDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
@@ -80,7 +79,7 @@ export default function BookingDetailPage() {
       setBooking(prev => prev && { ...prev, scheduledAt: newDate });
       setRescheduleOpen(false);
       alert("Session rescheduled successfully!");
-    } catch (err) {
+    } catch {
       alert("Failed to reschedule session.");
     } finally {
       setRescheduling(false);
@@ -112,7 +111,6 @@ export default function BookingDetailPage() {
     try {
       await api.post(`/users/me/bookings/${id}/review`, { rating, comment });
       setReviewOpen(false);
-      // Reload booking to get review
       const res = await api.get(`/users/me/bookings/${id}`);
       setBooking(res.data.booking);
     } catch (err) {
@@ -135,11 +133,12 @@ export default function BookingDetailPage() {
 
   if (error || !booking) {
     return (
-      <div className="flex flex-col gap-4 items-center py-20">
-        <p className="text-[var()]">{error || "Booking not found"}</p>
+      <div className="flex flex-col gap-4 items-center py-20 text-center">
+        <p style={{ color: "var(--muted)" }}>{error || "Booking not found"}</p>
         <Link
           href="/dashboard/bookings"
-          className="text-sm text-[var()] underline-offset-4 hover:underline"
+          className="text-sm font-semibold hover:underline"
+          style={{ color: "var(--fg)" }}
         >
           Back to bookings
         </Link>
@@ -156,59 +155,58 @@ export default function BookingDetailPage() {
     <div className="flex flex-col gap-8">
       <Link
         href="/dashboard/bookings"
-        className="flex items-center gap-2 text-sm text-[var()] hover:text-[var()] transition-colors self-start"
+        className="flex items-center gap-2 text-sm font-semibold transition-colors self-start"
+        style={{ color: "var(--muted)" }}
       >
         <ArrowLeft className="h-4 w-4" />
         All bookings
       </Link>
 
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-3xl">Session Details</h1>
+        <h1 className="font-display text-3xl font-bold" style={{ color: "var(--fg)" }}>Session Details</h1>
         <StatusBadge status={booking.status} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* ─── Session Info ─── */}
-        <div className="rounded-2xl bg-[var()]/[0.02] p-6 flex flex-col gap-5">
-          <h2 className="text-xs uppercase tracking-[0.22em] text-[var()]">
+        <div className="rounded-2xl p-6 flex flex-col gap-5" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+          <h2 className="text-xs uppercase tracking-[0.22em] font-semibold" style={{ color: "var(--muted)" }}>
             Session
           </h2>
 
           <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var()]/8 text-sm font-medium shrink-0">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full text-sm font-semibold shrink-0" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 6%, transparent)", color: "var(--fg)" }}>
               {(booking as unknown as { mentor?: { displayName?: string } }).mentor?.displayName?.[0] ?? "M"}
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="font-medium text-lg">
+              <span className="font-bold text-lg" style={{ color: "var(--fg)" }}>
                 {(booking as unknown as { mentor?: { displayName?: string } }).mentor?.displayName ?? "Mentor"}
               </span>
               {(booking as unknown as { mentor?: { institutionName?: string } }).mentor?.institutionName && (
-                <span className="text-xs text-[var()]">
+                <span className="text-xs font-semibold" style={{ color: "var(--muted)" }}>
                   {(booking as unknown as { mentor?: { institutionName?: string } }).mentor?.institutionName}
                 </span>
               )}
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 text-sm">
-            <div className="flex items-center gap-3 text-[var()]/80">
-              <Calendar className="h-4 w-4 text-[var()]" />
+          <div className="flex flex-col gap-3 text-sm font-medium" style={{ color: "var(--fg)" }}>
+            <div className="flex items-center gap-3">
+              <Calendar className="h-4 w-4" style={{ color: "var(--muted)" }} />
               {formatDate(booking.scheduledAt)}
             </div>
-            <div className="flex items-center gap-3 text-[var()]/80">
-              <Clock className="h-4 w-4 text-[var()]" />
+            <div className="flex items-center gap-3">
+              <Clock className="h-4 w-4" style={{ color: "var(--muted)" }} />
               {formatTime(booking.scheduledAt)} · {booking.durationMinutes} minutes
             </div>
           </div>
 
           {booking.meetLink && booking.status === "CONFIRMED" && (
             <div className="flex flex-col gap-2">
-              {/* Live Countdown */}
               <CountdownTimer
                 scheduledAt={booking.scheduledAt}
                 durationMinutes={booking.durationMinutes}
               />
-              {/* Join Button — active only 15min before */}
               <a
                 href={booking.meetLink}
                 target="_blank"
@@ -216,9 +214,13 @@ export default function BookingDetailPage() {
                 aria-label="Join Google Meet"
                 className={`flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-all ${
                   joinable
-                    ? "bg-green-500 text-white hover:bg-green-600 shadow-lg shadow-green-500/20"
-                    : "bg-[var()]/8 text-[var()] opacity-60 cursor-not-allowed"
+                    ? "bg-emerald-600 text-white hover:bg-emerald-700 shadow-md"
+                    : "opacity-60 cursor-not-allowed"
                 }`}
+                style={{
+                  background: joinable ? undefined : "color-mix(in srgb, var(--fg) 8%, transparent)",
+                  color: joinable ? undefined : "var(--fg)",
+                }}
                 onClick={!joinable ? (e) => e.preventDefault() : undefined}
                 title={!joinable ? "Join button opens 15 minutes before the session" : "Join Google Meet"}
               >
@@ -229,37 +231,37 @@ export default function BookingDetailPage() {
             </div>
           )}
           {booking.status === "CONFIRMED" && !booking.meetLink && (
-            <div className="rounded-xl bg-amber-500/8 border border-amber-500/20 px-4 py-3 text-xs text-amber-600">
+            <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-3 text-xs text-amber-600">
               ⏳ Google Meet link will be available after the mentor connects their Google Calendar.
             </div>
           )}
         </div>
 
         {/* ─── Payment Info ─── */}
-        <div className="rounded-2xl bg-[var()]/[0.02] p-6 flex flex-col gap-5">
-          <h2 className="text-xs uppercase tracking-[0.22em] text-[var()]">
+        <div className="rounded-2xl p-6 flex flex-col gap-5" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+          <h2 className="text-xs uppercase tracking-[0.22em] font-semibold" style={{ color: "var(--muted)" }}>
             Payment
           </h2>
 
           <div className="flex items-baseline justify-between">
-            <span className="font-display text-2xl">
+            <span className="font-display text-2xl font-bold" style={{ color: "var(--fg)" }}>
               {formatPrice(booking.amountPaid, booking.currency)}
             </span>
             <StatusBadge status={booking.paymentStatus} />
           </div>
 
           {booking.paymentId && (
-            <div className="text-xs text-[var()]">
+            <div className="text-xs font-mono" style={{ color: "var(--muted)" }}>
               Payment ID: {booking.paymentId}
             </div>
           )}
 
           {booking.mentorNotes && (
             <div>
-              <h3 className="text-xs uppercase tracking-[0.18em] text-[var()] mb-2">
+              <h3 className="text-xs uppercase tracking-[0.18em] font-semibold mb-2" style={{ color: "var(--muted)" }}>
                 Mentor Notes
               </h3>
-              <p className="text-sm text-[var()]/80 leading-relaxed bg-[var()]/3 rounded-lg p-3">
+              <p className="text-sm leading-relaxed rounded-xl p-3" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}>
                 {booking.mentorNotes}
               </p>
             </div>
@@ -272,7 +274,7 @@ export default function BookingDetailPage() {
                 type="button"
                 onClick={handleCancel}
                 disabled={cancelling}
-                className="rounded-full bg-red-500/10 text-red-600 px-6 py-3 text-sm hover:bg-red-500/20 transition-colors cursor-pointer disabled:opacity-50"
+                className="rounded-xl bg-red-500/10 text-red-600 px-6 py-3 text-xs font-semibold hover:bg-red-500/20 transition-colors cursor-pointer disabled:opacity-50"
               >
                 {cancelling ? "Cancelling…" : "Cancel Session"}
               </button>
@@ -281,7 +283,8 @@ export default function BookingDetailPage() {
               <button
                 type="button"
                 onClick={() => setReviewOpen(true)}
-                className="rounded-full bg-[var()]/5 px-6 py-3 text-sm hover:bg-[var()]/8 transition-colors cursor-pointer"
+                className="rounded-xl px-6 py-3 text-xs font-semibold cursor-pointer transition-colors"
+                style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 5%, transparent)", color: "var(--fg)" }}
               >
                 Leave a Review
               </button>
@@ -292,8 +295,8 @@ export default function BookingDetailPage() {
 
       {/* ─── Existing Review ─── */}
       {booking.review && (
-        <div className="rounded-2xl bg-[var()]/[0.02] p-6 flex flex-col gap-3">
-          <h2 className="text-xs uppercase tracking-[0.22em] text-[var()]">
+        <div className="rounded-2xl p-6 flex flex-col gap-3" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+          <h2 className="text-xs uppercase tracking-[0.22em] font-semibold" style={{ color: "var(--muted)" }}>
             Your Review
           </h2>
           <div className="flex items-center gap-1">
@@ -303,28 +306,29 @@ export default function BookingDetailPage() {
                 className={`h-4 w-4 ${
                   s <= booking.review!.rating
                     ? "text-amber-500 fill-amber-500"
-                    : "text-[var()]/15"
+                    : "opacity-30"
                 }`}
+                style={{ color: s <= booking.review!.rating ? undefined : "var(--muted)" }}
               />
             ))}
           </div>
           {booking.review.comment && (
-            <p className="text-sm text-[var()]/80">{booking.review.comment}</p>
+            <p className="text-sm font-medium" style={{ color: "var(--fg)" }}>{booking.review.comment}</p>
           )}
         </div>
       )}
 
       {/* ─── Review Modal ─── */}
       {reviewOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
           <div
-            className="w-full max-w-md rounded-2xl p-6 flex flex-col gap-5"
-            style={{ background: "var(--bg)" }}
+            className="w-full max-w-md rounded-2xl p-6 flex flex-col gap-5 shadow-2xl"
+            style={{ background: "var(--bg)", border: "1px solid var(--hairline)", color: "var(--fg)" }}
           >
-            <h2 className="font-display text-2xl">Leave a review</h2>
+            <h2 className="font-display text-2xl font-bold">Leave a review</h2>
 
             <div>
-              <p className="text-xs uppercase tracking-[0.18em] text-[var()] mb-2">
+              <p className="text-xs uppercase tracking-[0.18em] font-semibold mb-2" style={{ color: "var(--muted)" }}>
                 Rating
               </p>
               <div className="flex gap-1">
@@ -339,7 +343,7 @@ export default function BookingDetailPage() {
                       className={`h-7 w-7 ${
                         s <= rating
                           ? "text-amber-500 fill-amber-500"
-                          : "text-[var()]/15 hover:text-amber-400"
+                          : "opacity-30 hover:opacity-70"
                       }`}
                     />
                   </button>
@@ -348,7 +352,7 @@ export default function BookingDetailPage() {
             </div>
 
             <label className="flex flex-col gap-2 text-sm">
-              <span className="text-[var()] text-xs uppercase tracking-[0.18em]">
+              <span className="text-xs uppercase tracking-[0.18em] font-semibold" style={{ color: "var(--muted)" }}>
                 Comment (optional)
               </span>
               <textarea
@@ -356,7 +360,12 @@ export default function BookingDetailPage() {
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="How was your session?"
                 rows={3}
-                className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors resize-none"
+                className="rounded-xl px-4 py-3 outline-none resize-none text-sm font-medium"
+                style={{
+                  border: "1px solid var(--hairline)",
+                  background: "color-mix(in srgb, var(--fg) 4%, transparent)",
+                  color: "var(--fg)",
+                }}
               />
             </label>
 
@@ -365,14 +374,16 @@ export default function BookingDetailPage() {
                 type="button"
                 onClick={handleReview}
                 disabled={reviewSubmitting}
-                className="flex-1 rounded-full bg-[var()] text-[var()] py-3 text-sm hover:opacity-90 cursor-pointer disabled:opacity-50"
+                className="flex-1 rounded-xl py-3 text-xs font-semibold cursor-pointer disabled:opacity-50 transition-opacity shadow"
+                style={{ background: "var(--fg)", color: "var(--bg)" }}
               >
                 {reviewSubmitting ? "Submitting…" : "Submit Review"}
               </button>
               <button
                 type="button"
                 onClick={() => setReviewOpen(false)}
-                className="rounded-full bg-[var()]/5 px-6 py-3 text-sm hover:bg-[var()]/8 cursor-pointer"
+                className="rounded-xl px-6 py-3 text-xs font-semibold cursor-pointer transition-colors"
+                style={{ background: "color-mix(in srgb, var(--fg) 5%, transparent)", color: "var(--fg)" }}
               >
                 Cancel
               </button>
@@ -383,22 +394,27 @@ export default function BookingDetailPage() {
 
       {/* ─── Reschedule Modal ─── */}
       {rescheduleOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
           <div
-            className="w-full max-w-md rounded-2xl p-6 flex flex-col gap-5"
-            style={{ background: "var(--bg)" }}
+            className="w-full max-w-md rounded-2xl p-6 flex flex-col gap-5 shadow-2xl"
+            style={{ background: "var(--bg)", border: "1px solid var(--hairline)", color: "var(--fg)" }}
           >
-            <h2 className="font-display text-2xl">Reschedule Session</h2>
+            <h2 className="font-display text-2xl font-bold">Reschedule Session</h2>
             
             <label className="flex flex-col gap-2 text-sm">
-              <span className="text-[var()] text-xs uppercase tracking-[0.18em]">
+              <span className="text-xs uppercase tracking-[0.18em] font-semibold" style={{ color: "var(--muted)" }}>
                 New Date & Time
               </span>
               <input
                 type="datetime-local"
                 value={newDate}
                 onChange={(e) => setNewDate(e.target.value)}
-                className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors"
+                className="rounded-xl px-4 py-3 outline-none"
+                style={{
+                  border: "1px solid var(--hairline)",
+                  background: "color-mix(in srgb, var(--fg) 4%, transparent)",
+                  color: "var(--fg)",
+                }}
                 min={new Date().toISOString().slice(0, 16)}
               />
             </label>
@@ -408,14 +424,16 @@ export default function BookingDetailPage() {
                 type="button"
                 onClick={handleReschedule}
                 disabled={rescheduling}
-                className="flex-1 rounded-full bg-[var()] text-[var()] py-3 text-sm hover:opacity-90 cursor-pointer disabled:opacity-50"
+                className="flex-1 rounded-xl py-3 text-xs font-semibold cursor-pointer disabled:opacity-50 transition-opacity shadow"
+                style={{ background: "var(--fg)", color: "var(--bg)" }}
               >
                 {rescheduling ? "Rescheduling…" : "Confirm Reschedule"}
               </button>
               <button
                 type="button"
                 onClick={() => setRescheduleOpen(false)}
-                className="rounded-full bg-[var()]/5 px-6 py-3 text-sm hover:bg-[var()]/8 cursor-pointer"
+                className="rounded-xl px-6 py-3 text-xs font-semibold cursor-pointer transition-colors"
+                style={{ background: "color-mix(in srgb, var(--fg) 5%, transparent)", color: "var(--fg)" }}
               >
                 Cancel
               </button>

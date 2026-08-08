@@ -67,60 +67,75 @@ export default function SuperAdminUsersPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Super Admin</p>
-        <h1 className="font-display text-4xl leading-tight">Users.</h1>
+      <div className="flex flex-col gap-1.5">
+        <p className="text-xs uppercase tracking-[0.22em]" style={{ color: "var(--muted)" }}>Super Admin</p>
+        <h1 className="font-display text-4xl leading-tight" style={{ color: "var(--fg)" }}>Users.</h1>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 mb-2">
+      <div className="flex flex-col sm:flex-row gap-3 mb-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var()]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: "var(--muted)" }} />
           <input
             type="text"
             placeholder="Search by name or email..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="w-full bg-[var()]/5 border-none rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-[var()]/20"
+            className="w-full rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none transition-colors"
+            style={{
+              border: "1px solid var(--hairline)",
+              background: "color-mix(in srgb, var(--fg) 2%, transparent)",
+              color: "var(--fg)",
+            }}
           />
         </div>
         <select
           value={role}
           onChange={(e) => { setRole(e.target.value); setPage(1); }}
-          className="bg-[var()]/5 border-none rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-[var()]/20"
+          className="rounded-xl px-4 py-2.5 text-sm outline-none cursor-pointer"
+          style={{
+            border: "1px solid var(--hairline)",
+            background: "color-mix(in srgb, var(--fg) 2%, transparent)",
+            color: "var(--fg)",
+          }}
         >
-          <option value="All">All Roles</option>
-          <option value="STUDENT">Student</option>
-          <option value="MENTOR">Mentor</option>
-          <option value="ADMIN">Admin</option>
-          <option value="SUPER_ADMIN">Super Admin</option>
+          <option value="All" style={{ background: "var(--bg)" }}>All Roles</option>
+          <option value="STUDENT" style={{ background: "var(--bg)" }}>Student</option>
+          <option value="MENTOR" style={{ background: "var(--bg)" }}>Mentor</option>
+          <option value="ADMIN" style={{ background: "var(--bg)" }}>Admin</option>
+          <option value="SUPER_ADMIN" style={{ background: "var(--bg)" }}>Super Admin</option>
         </select>
         <select
           value={status}
           onChange={(e) => { setStatus(e.target.value); setPage(1); }}
-          className="bg-[var()]/5 border-none rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-[var()]/20"
+          className="rounded-xl px-4 py-2.5 text-sm outline-none cursor-pointer"
+          style={{
+            border: "1px solid var(--hairline)",
+            background: "color-mix(in srgb, var(--fg) 2%, transparent)",
+            color: "var(--fg)",
+          }}
         >
-          <option value="All">All Statuses</option>
-          <option value="ACTIVE">Active</option>
-          <option value="DISABLED">Disabled</option>
-          <option value="DELETED">Deleted</option>
+          <option value="All" style={{ background: "var(--bg)" }}>All Statuses</option>
+          <option value="ACTIVE" style={{ background: "var(--bg)" }}>Active</option>
+          <option value="DISABLED" style={{ background: "var(--bg)" }}>Disabled</option>
+          <option value="DELETED" style={{ background: "var(--bg)" }}>Deleted</option>
         </select>
       </div>
 
-      <div className="bg-[var()]/[0.02] rounded-2xl overflow-hidden border border-[var()]">
+      <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 1%, transparent)" }}>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs uppercase tracking-wider text-[var()] bg-[var()]/5">
-              <tr>
-                <th className="px-6 py-4 font-medium">User</th>
-                <th className="px-6 py-4 font-medium">Role</th>
-                <th className="px-6 py-4 font-medium">Status</th>
-                <th className="px-6 py-4 font-medium">Joined</th>
+          <table className="w-full text-sm text-left border-collapse">
+            <thead>
+              <tr style={{ borderBottom: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--muted)" }} className="text-xs uppercase tracking-wider font-medium">
+                <th className="px-6 py-4">User</th>
+                <th className="px-6 py-4">Role</th>
+                <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4">Joined</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[var()]">
+            <tbody>
               {loading ? (
                 Array(5).fill(0).map((_, i) => (
-                  <tr key={i}>
+                  <tr key={i} style={{ borderBottom: "1px solid var(--hairline)" }}>
                     <td className="px-6 py-4"><Skeleton className="h-5 w-40" /></td>
                     <td className="px-6 py-4"><Skeleton className="h-5 w-20" /></td>
                     <td className="px-6 py-4"><Skeleton className="h-5 w-20" /></td>
@@ -129,27 +144,30 @@ export default function SuperAdminUsersPage() {
                 ))
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-10 text-center text-[var()]">No users found.</td>
+                  <td colSpan={4} className="px-6 py-10 text-center text-sm" style={{ color: "var(--muted)" }}>No users found.</td>
                 </tr>
               ) : (
-                users.map((user) => (
+                users.map((user, idx) => (
                   <React.Fragment key={user.id}>
                     <tr 
-                      className="hover:bg-[var()]/5 cursor-pointer transition-colors"
+                      className="cursor-pointer transition-colors"
+                      style={{ borderBottom: idx < users.length - 1 || expandedId === user.id ? "1px solid var(--hairline)" : "none" }}
                       onClick={() => setExpandedId(expandedId === user.id ? null : user.id)}
+                      onMouseEnter={(el) => (el.currentTarget.style.background = "color-mix(in srgb, var(--fg) 3%, transparent)")}
+                      onMouseLeave={(el) => (el.currentTarget.style.background = "transparent")}
                     >
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
-                          <span className="font-medium text-[var()]">{user.name}</span>
-                          <span className="text-xs text-[var()]">{user.email}</span>
+                          <span className="font-medium" style={{ color: "var(--fg)" }}>{user.name}</span>
+                          <span className="text-xs" style={{ color: "var(--muted)" }}>{user.email}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`text-[10px] uppercase tracking-wider px-2 py-1 rounded-full font-medium ${
-                          user.role === 'SUPER_ADMIN' ? 'bg-violet-500/10 text-violet-500' :
-                          user.role === 'ADMIN' ? 'bg-red-500/10 text-red-500' :
-                          user.role === 'MENTOR' ? 'bg-amber-500/10 text-amber-500' :
-                          'bg-blue-500/10 text-blue-500'
+                        <span className={`text-[10px] uppercase tracking-wider px-2.5 py-0.5 rounded-full font-semibold ${
+                          user.role === 'SUPER_ADMIN' ? 'bg-violet-500/10 text-violet-600' :
+                          user.role === 'ADMIN' ? 'bg-red-500/10 text-red-600' :
+                          user.role === 'MENTOR' ? 'bg-amber-500/10 text-amber-600' :
+                          'bg-blue-500/10 text-blue-600'
                         }`}>
                           {user.role}
                         </span>
@@ -157,16 +175,16 @@ export default function SuperAdminUsersPage() {
                       <td className="px-6 py-4">
                         <StatusBadge status={user.status} />
                       </td>
-                      <td className="px-6 py-4 text-[var()]">
+                      <td className="px-6 py-4 text-xs font-mono" style={{ color: "var(--muted)" }}>
                         {new Date(user.createdAt).toLocaleDateString()}
                       </td>
                     </tr>
                     {expandedId === user.id && (
-                      <tr className="bg-[var()]/[0.01]">
+                      <tr style={{ background: "color-mix(in srgb, var(--fg) 2%, transparent)", borderBottom: "1px solid var(--hairline)" }}>
                         <td colSpan={4} className="px-6 py-4 border-l-4 border-violet-500">
                           <div className="flex flex-col gap-3">
-                            <h4 className="text-xs uppercase tracking-wider text-[var()] flex items-center gap-2">
-                              <UserCog className="h-3 w-3" /> Manage Role
+                            <h4 className="text-xs uppercase tracking-wider font-semibold flex items-center gap-2" style={{ color: "var(--fg)" }}>
+                              <UserCog className="h-3.5 w-3.5 text-violet-500" /> Manage Role
                             </h4>
                             <div className="flex gap-2">
                               {['STUDENT', 'MENTOR', 'ADMIN', 'SUPER_ADMIN'].map(r => (
@@ -174,11 +192,12 @@ export default function SuperAdminUsersPage() {
                                   key={r}
                                   onClick={() => handleRoleChange(user.id, r)}
                                   disabled={user.role === r}
-                                  className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${
-                                    user.role === r 
-                                      ? 'bg-[var()]/10 text-[var()] cursor-not-allowed' 
-                                      : 'bg-[var()]/5 hover:bg-[var()]/10 text-[var()] hover:text-[var()]'
-                                  }`}
+                                  className="px-3 py-1.5 text-xs rounded-lg font-medium transition-colors cursor-pointer disabled:opacity-40"
+                                  style={{
+                                    border: "1px solid var(--hairline)",
+                                    background: user.role === r ? "color-mix(in srgb, var(--fg) 10%, transparent)" : "color-mix(in srgb, var(--fg) 4%, transparent)",
+                                    color: "var(--fg)",
+                                  }}
                                 >
                                   Make {r}
                                 </button>
@@ -197,24 +216,26 @@ export default function SuperAdminUsersPage() {
         
         {/* Pagination */}
         {!loading && totalPages > 1 && (
-          <div className="flex items-center justify-between px-6 py-4 border-t border-[var()]">
-            <span className="text-sm text-[var()]">
+          <div className="flex items-center justify-between px-6 py-4" style={{ borderTop: "1px solid var(--hairline)" }}>
+            <span className="text-sm" style={{ color: "var(--muted)" }}>
               Page {page} of {totalPages}
             </span>
             <div className="flex gap-2">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="p-1 rounded bg-[var()]/5 disabled:opacity-50 hover:bg-[var()]/10"
+                className="p-1.5 rounded-lg disabled:opacity-40 transition-colors cursor-pointer"
+                style={{ border: "1px solid var(--hairline)", color: "var(--fg)" }}
               >
-                <ChevronLeft className="h-5 w-5" />
+                <ChevronLeft className="h-4 w-4" />
               </button>
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="p-1 rounded bg-[var()]/5 disabled:opacity-50 hover:bg-[var()]/10"
+                className="p-1.5 rounded-lg disabled:opacity-40 transition-colors cursor-pointer"
+                style={{ border: "1px solid var(--hairline)", color: "var(--fg)" }}
               >
-                <ChevronRight className="h-5 w-5" />
+                <ChevronRight className="h-4 w-4" />
               </button>
             </div>
           </div>

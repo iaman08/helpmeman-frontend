@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Menu, X, LogOut, Moon, Sun, Monitor } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useTheme, THEMES } from "./ThemeProvider";
 import { NotificationBell } from "./NotificationBell";
@@ -38,12 +38,11 @@ export function SidebarShell({
   navItems,
   rootPath,
   brandLabel,
-  brandColor = "text-[var()]",
+  brandColor = "text-red-500",
   userName,
   userEmail,
   userAvatar,
   userBadge,
-  avatarColor = "bg-[var()]/8 text-[var()]",
   notificationsPath = "/dashboard/notifications",
   onLogout,
   className,
@@ -79,22 +78,17 @@ export function SidebarShell({
 
   // Prevent body scroll when mobile sidebar is open
   useEffect(() => {
-    if (mobileOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
   }, [mobileOpen]);
 
   const sidebarContent = (
     <>
+      {/* Brand + bell */}
       <div className="px-6 py-6 flex items-start justify-between gap-3">
         <div>
-          <Link href="/" className="font-display text-xl tracking-tight">
-            HelpMeMan<span className="text-[var()]">.</span>
+          <Link href="/" className="font-display text-xl tracking-tight" style={{ color: "var(--fg)" }}>
+            HelpMeMan<span style={{ color: "var(--fg)", opacity: 0.35 }}>.</span>
           </Link>
           <p className={`text-[10px] uppercase tracking-[0.22em] mt-1 ${brandColor}`}>
             {brandLabel}
@@ -105,32 +99,81 @@ export function SidebarShell({
         </div>
       </div>
 
+      {/* User info */}
       <div className="px-6 pb-5">
         <div className="flex items-center gap-3">
           <Avatar name={userName} url={userAvatar} size="lg" />
           <div className="flex flex-col min-w-0">
-            <span className="text-sm font-medium truncate">{userName}</span>
+            <span className="text-sm font-medium truncate" style={{ color: "var(--fg)" }}>
+              {userName}
+            </span>
             {userBadge && (
-              <span className="text-[11px] text-[var()] truncate">
+              <span className="text-[11px] truncate" style={{ color: "var(--muted)" }}>
                 {userBadge}
               </span>
             )}
             {userEmail && !userBadge && (
-              <span className="text-[11px] text-[var()] truncate">
+              <span className="text-[11px] truncate" style={{ color: "var(--muted)" }}>
                 {userEmail}
               </span>
             )}
           </div>
         </div>
+
+        {/* Panel Switcher for Team Members & Admins */}
+        {(userEmail?.toLowerCase().endsWith("@helpmeman.com") || rootPath === "/admin" || userBadge?.toLowerCase().includes("admin")) && (
+          <div className="mt-3 flex items-center gap-1 p-1 rounded-xl" style={{ background: "color-mix(in srgb, var(--fg) 4%, transparent)", border: "1px solid var(--hairline)" }}>
+            <button
+              type="button"
+              onClick={() => {
+                sessionStorage.setItem("hmm.activeRole", "admin");
+                window.location.href = "/admin";
+              }}
+              className="flex-1 py-1 text-[10px] font-semibold rounded-lg transition-colors cursor-pointer text-center"
+              style={{
+                background: rootPath === "/admin" ? "var(--fg)" : "transparent",
+                color: rootPath === "/admin" ? "var(--bg)" : "var(--muted)",
+              }}
+            >
+              Admin
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                sessionStorage.setItem("hmm.activeRole", "mentor");
+                window.location.href = "/mentor";
+              }}
+              className="flex-1 py-1 text-[10px] font-semibold rounded-lg transition-colors cursor-pointer text-center"
+              style={{
+                background: rootPath === "/mentor" ? "var(--fg)" : "transparent",
+                color: rootPath === "/mentor" ? "var(--bg)" : "var(--muted)",
+              }}
+            >
+              Mentor
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                sessionStorage.setItem("hmm.activeRole", "mentee");
+                window.location.href = "/dashboard";
+              }}
+              className="flex-1 py-1 text-[10px] font-semibold rounded-lg transition-colors cursor-pointer text-center"
+              style={{
+                background: rootPath === "/dashboard" ? "var(--fg)" : "transparent",
+                color: rootPath === "/dashboard" ? "var(--bg)" : "var(--muted)",
+              }}
+            >
+              Student
+            </button>
+          </div>
+        )}
       </div>
 
-      <div
-        aria-hidden
-        className="mx-6 h-px"
-        style={{ background: "var(--hairline)" }}
-      />
+      {/* Divider */}
+      <div aria-hidden className="mx-6 h-px" style={{ background: "var(--hairline)" }} />
 
-      <nav className="flex-1 flex flex-col gap-1 px-3 py-4 overflow-y-auto">
+      {/* Nav */}
+      <nav className="flex-1 flex flex-col gap-0.5 px-3 py-4 overflow-y-auto">
         {navItems.map((item) => {
           if (item.onClick) {
             const active = item.label === "Ruth" && aiOpen;
@@ -142,15 +185,28 @@ export function SidebarShell({
                   item.onClick?.();
                   if (mobileOpen) setMobileOpen(false);
                 }}
-                className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors cursor-pointer ${active
-                    ? "bg-[var()]/8 text-[var()]"
-                    : "text-[var()] hover:text-[var()] hover:bg-[var()]/4"
-                  }`}
+                className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors cursor-pointer"
+                style={{
+                  color: active ? "var(--fg)" : "var(--muted)",
+                  background: active ? "color-mix(in srgb, var(--fg) 6%, transparent)" : "transparent",
+                }}
+                onMouseEnter={(e) => {
+                  if (!active) {
+                    e.currentTarget.style.background = "color-mix(in srgb, var(--fg) 4%, transparent)";
+                    e.currentTarget.style.color = "var(--fg)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!active) {
+                    e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.color = "var(--muted)";
+                  }
+                }}
               >
                 <item.icon className="h-4 w-4 shrink-0" />
                 <span className="flex-1 text-left">{item.label}</span>
                 {item.badge !== undefined && item.badge > 0 && (
-                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold px-1.5 shrink-0 animate-in zoom-in duration-200">
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold px-1.5 shrink-0">
                     {item.badge}
                   </span>
                 )}
@@ -163,6 +219,7 @@ export function SidebarShell({
             item.href &&
             (pathname === item.href ||
               (item.href !== rootPath && pathname.startsWith(item.href)));
+
           return (
             <Link
               key={item.href || item.label}
@@ -172,15 +229,29 @@ export function SidebarShell({
                   window.dispatchEvent(new Event("close-ai"));
                 }
               }}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${active
-                  ? "bg-[var()]/8 text-[var()]"
-                  : "text-[var()] hover:text-[var()] hover:bg-[var()]/4"
-                }`}
+              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors"
+              style={{
+                color: active ? "var(--fg)" : "var(--muted)",
+                background: active ? "color-mix(in srgb, var(--fg) 6%, transparent)" : "transparent",
+                fontWeight: active ? 500 : 400,
+              }}
+              onMouseEnter={(e) => {
+                if (!active) {
+                  (e.currentTarget as HTMLElement).style.background = "color-mix(in srgb, var(--fg) 4%, transparent)";
+                  (e.currentTarget as HTMLElement).style.color = "var(--fg)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!active) {
+                  (e.currentTarget as HTMLElement).style.background = "transparent";
+                  (e.currentTarget as HTMLElement).style.color = "var(--muted)";
+                }
+              }}
             >
               <item.icon className="h-4 w-4 shrink-0" />
               <span className="flex-1 text-left">{item.label}</span>
               {item.badge !== undefined && item.badge > 0 && (
-                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold px-1.5 shrink-0 animate-in zoom-in duration-200">
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold px-1.5 shrink-0">
                   {item.badge}
                 </span>
               )}
@@ -189,17 +260,23 @@ export function SidebarShell({
         })}
       </nav>
 
+      {/* Bottom: theme switcher + sign out */}
       <div className="px-4 pb-6 flex flex-col gap-2">
-        <div className="flex items-center gap-1 rounded-xl bg-[var()]/5 p-1 mb-2">
+        {/* Theme toggle */}
+        <div
+          className="flex items-center gap-1 rounded-xl p-1 mb-2"
+          style={{ background: "color-mix(in srgb, var(--fg) 5%, transparent)" }}
+        >
           {THEMES.map((t) => (
             <button
               key={t}
               type="button"
               onClick={() => setTheme(t)}
-              className={`flex-1 h-8 rounded-lg text-[11px] font-medium transition-colors cursor-pointer capitalize ${theme === t
-                  ? "bg-[var()] text-[var()]"
-                  : "text-[var()] hover:text-[var()]"
-                }`}
+              className="flex-1 h-8 rounded-lg text-[11px] font-medium transition-colors cursor-pointer capitalize"
+              style={{
+                background: theme === t ? "var(--fg)" : "transparent",
+                color: theme === t ? "var(--bg)" : "var(--muted)",
+              }}
             >
               {t}
             </button>
@@ -209,7 +286,16 @@ export function SidebarShell({
         <button
           type="button"
           onClick={onLogout}
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-[var()] hover:text-red-500 hover:bg-red-500/5 transition-colors cursor-pointer"
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors cursor-pointer"
+          style={{ color: "var(--muted)" }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "#ef4444";
+            e.currentTarget.style.background = "rgba(239,68,68,0.05)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "var(--muted)";
+            e.currentTarget.style.background = "transparent";
+          }}
         >
           <LogOut className="h-4 w-4 shrink-0" />
           Sign out
@@ -219,30 +305,46 @@ export function SidebarShell({
   );
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex" style={{ background: "var(--bg)" }}>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex fixed inset-y-0 left-0 z-40 w-64 flex-col bg-[var()] border-r border-[var()]">
+      <aside
+        className="hidden md:flex fixed inset-y-0 left-0 z-40 w-64 flex-col"
+        style={{
+          background: "var(--bg)",
+          borderRight: "1px solid var(--hairline)",
+        }}
+      >
         {sidebarContent}
       </aside>
 
       {/* Mobile header bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-4 backdrop-blur-xl bg-[var()]/80 border-b border-[var()]">
-        {/* Left: hamburger / close only */}
+      <div
+        className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-4"
+        style={{
+          background: "color-mix(in srgb, var(--bg) 80%, transparent)",
+          borderBottom: "1px solid var(--hairline)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+        }}
+      >
         <button
           type="button"
           onClick={() => setMobileOpen(!mobileOpen)}
           className="cursor-pointer p-1"
           aria-label="Toggle sidebar"
+          style={{ color: "var(--fg)" }}
         >
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
 
-        {/* Center: brand */}
-        <Link href="/" className="font-display text-lg tracking-tight absolute left-1/2 -translate-x-1/2">
-          HelpMeMan<span className="text-[var()]">.</span>
+        <Link
+          href="/"
+          className="font-display text-lg tracking-tight absolute left-1/2 -translate-x-1/2"
+          style={{ color: "var(--fg)" }}
+        >
+          HelpMeMan<span style={{ color: "var(--fg)", opacity: 0.35 }}>.</span>
         </Link>
 
-        {/* Right: avatar + notification bell */}
         <div className="flex items-center gap-2">
           <NotificationBell notificationsPath={notificationsPath} />
           <Link
@@ -259,23 +361,31 @@ export function SidebarShell({
       {mobileOpen && (
         <>
           <div
-            className="md:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-all animate-in fade-in duration-300"
+            className="md:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
             onClick={() => setMobileOpen(false)}
             aria-hidden
           />
-          <aside className="md:hidden fixed inset-y-0 left-0 z-50 w-72 flex flex-col bg-[var()] shadow-2xl animate-in slide-in-from-left duration-300 border-r border-[var()]">
+          <aside
+            className="md:hidden fixed inset-y-0 left-0 z-50 w-72 flex flex-col shadow-2xl animate-in slide-in-from-left duration-300"
+            style={{
+              background: "var(--bg)",
+              borderRight: "1px solid var(--hairline)",
+            }}
+          >
             {sidebarContent}
           </aside>
         </>
       )}
 
       {/* Main content */}
-      <main className="md:ml-64 flex-1 min-h-screen min-w-0">
-        <div className={className || "max-w-5xl mx-auto w-full px-4 sm:px-10 py-10 pt-[72px] md:pt-10"}>
+      <main
+        className="md:ml-64 flex-1 min-h-screen min-w-0"
+        style={{ background: "var(--bg)" }}
+      >
+        <div className={className || "max-w-5xl mx-auto w-full px-6 sm:px-10 py-10 pt-[72px] md:pt-10"}>
           {children}
         </div>
       </main>
     </div>
   );
 }
-
