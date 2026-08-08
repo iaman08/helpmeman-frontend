@@ -22,12 +22,12 @@ export default function AdminEarningsPage() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">Earnings</p>
+        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Earnings</p>
         <h1 className="font-display text-4xl leading-tight">Platform earnings.</h1>
       </div>
 
-      <div className="rounded-2xl bg-(--fg)/[0.02] p-5 flex flex-col gap-2 max-w-xs">
-        <span className="text-xs uppercase tracking-[0.18em] text-(--muted)">Total Revenue</span>
+      <div className="rounded-2xl bg-[var()]/[0.02] p-5 flex flex-col gap-2 max-w-xs">
+        <span className="text-xs uppercase tracking-[0.18em] text-[var()]">Total Revenue</span>
         <span className="font-display text-3xl">{loading ? <Skeleton className="h-9 w-20" /> : <PriceDisplay amountInPaise={total} />}</span>
       </div>
 
@@ -36,20 +36,20 @@ export default function AdminEarningsPage() {
       ) : earnings.length > 0 ? (
         <div className="w-full overflow-x-auto pb-2">
           <div className="min-w-[600px] flex flex-col gap-2">
-            <div className="grid grid-cols-12 gap-4 px-5 py-2 text-[10px] uppercase tracking-[0.22em] text-(--muted)">
+            <div className="grid grid-cols-12 gap-4 px-5 py-2 text-[10px] uppercase tracking-[0.22em] text-[var()]">
               <span className="col-span-3">Mentor</span>
               <span className="col-span-2">Amount</span>
               <span className="col-span-2">Status</span>
               <span className="col-span-3">Date</span>
             </div>
             {earnings.map((e) => (
-              <div key={e.id} className="grid grid-cols-12 gap-4 items-center rounded-xl bg-(--fg)/[0.02] px-5 py-3 text-sm">
+              <div key={e.id} className="grid grid-cols-12 gap-4 items-center rounded-xl bg-[var()]/[0.02] px-5 py-3 text-sm">
                 <span className="col-span-3 truncate font-medium">{e.mentor?.displayName ?? "—"}</span>
                 <span className="col-span-2"><PriceDisplay amountInPaise={e.amount} /></span>
                 <div className="col-span-2">
                   <span className={`text-xs rounded-full px-2.5 py-0.5 ${e.status === "PAID" ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600"}`}>{e.status}</span>
                 </div>
-                <span className="col-span-3 text-(--muted)">{formatDate(e.createdAt)}</span>
+                <span className="col-span-3 text-[var()]">{formatDate(e.createdAt)}</span>
               </div>
             ))}
           </div>

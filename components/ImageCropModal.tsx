@@ -48,14 +48,14 @@ export function ImageCropModal({ imageSrc, onClose, onCropComplete }: ImageCropM
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-(--bg) border border-(--hairline) rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col">
+      <div className="bg-[var()] border border-[var()] rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-(--hairline)">
+        <div className="flex items-center justify-between p-4 border-b border-[var()]">
           <h2 className="text-lg font-bold">Adjust Profile Photo</h2>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 hover:bg-(--fg)/5 rounded-full transition-colors"
+            className="p-2 hover:bg-[var()]/5 rounded-full transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -79,7 +79,7 @@ export function ImageCropModal({ imageSrc, onClose, onCropComplete }: ImageCropM
         {/* Footer / Controls */}
         <div className="p-5 flex flex-col gap-6">
           <div className="flex items-center gap-4 px-2">
-            <ZoomOut className="h-5 w-5 text-(--muted)" />
+            <ZoomOut className="h-5 w-5 text-[var()]" />
             <input
               type="range"
               value={zoom}
@@ -88,9 +88,9 @@ export function ImageCropModal({ imageSrc, onClose, onCropComplete }: ImageCropM
               step={0.1}
               aria-labelledby="Zoom"
               onChange={(e) => setZoom(Number(e.target.value))}
-              className="w-full accent-(--accent)"
+              className="w-full accent-[var()]"
             />
-            <ZoomIn className="h-5 w-5 text-(--muted)" />
+            <ZoomIn className="h-5 w-5 text-[var()]" />
           </div>
 
           <div className="flex items-center justify-end gap-3">
@@ -98,7 +98,7 @@ export function ImageCropModal({ imageSrc, onClose, onCropComplete }: ImageCropM
               type="button"
               onClick={onClose}
               disabled={isProcessing}
-              className="px-5 py-2.5 rounded-xl font-medium text-(--muted) hover:text-(--fg) hover:bg-(--fg)/5 transition-colors disabled:opacity-50"
+              className="px-5 py-2.5 rounded-xl font-medium text-[var()] hover:text-[var()] hover:bg-[var()]/5 transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
@@ -106,7 +106,7 @@ export function ImageCropModal({ imageSrc, onClose, onCropComplete }: ImageCropM
               type="button"
               onClick={saveCroppedImage}
               disabled={isProcessing}
-              className="px-5 py-2.5 rounded-xl font-medium bg-(--accent) text-(--accent-fg) hover:opacity-90 transition-opacity disabled:opacity-50 min-w-[120px]"
+              className="px-5 py-2.5 rounded-xl font-medium bg-[var()] text-[var()] hover:opacity-90 transition-opacity disabled:opacity-50 min-w-[120px]"
             >
               {isProcessing ? "Processing..." : "Save Photo"}
             </button>

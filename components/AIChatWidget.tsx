@@ -103,7 +103,7 @@ function parseMarkdownLinks(text: string, mentors?: MentorData[]) {
     const match = part.match(/\[(.*?)\]\((.*?)\)/);
     if (match) {
       return (
-        <Link key={i} href={match[2]} className="text-(--accent) hover:underline font-medium">
+        <Link key={i} href={match[2]} className="text-[var()] hover:underline font-medium">
           {match[1]}
         </Link>
       );
@@ -145,13 +145,13 @@ function formatAIContent(content: string, mentors?: MentorData[], isStreaming?: 
     if (codeBlockEnd === -1) {
       const code = content.slice(codeStart);
       result.push(
-        <div key={`code-open-${codeBlockStart}`} className="my-2 rounded-xl overflow-hidden border border-(--hairline)">
+        <div key={`code-open-${codeBlockStart}`} className="my-2 rounded-xl overflow-hidden border border-[var()]">
           {lang && (
-            <div className="px-3 py-1 text-[10px] font-mono font-semibold text-(--muted) bg-(--fg)/[0.04] border-b border-(--hairline)">
+            <div className="px-3 py-1 text-[10px] font-mono font-semibold text-[var()] bg-[var()]/[0.04] border-b border-[var()]">
               {lang} (streaming...)
             </div>
           )}
-          <pre className="p-3 text-xs font-mono leading-relaxed overflow-x-auto bg-(--fg)/[0.02] whitespace-pre-wrap">
+          <pre className="p-3 text-xs font-mono leading-relaxed overflow-x-auto bg-[var()]/[0.02] whitespace-pre-wrap">
             <code>{code}</code>
           </pre>
         </div>
@@ -161,13 +161,13 @@ function formatAIContent(content: string, mentors?: MentorData[], isStreaming?: 
 
     const code = content.slice(codeStart, codeBlockEnd);
     result.push(
-      <div key={`code-closed-${codeBlockStart}`} className="my-2 rounded-xl overflow-hidden border border-(--hairline)">
+      <div key={`code-closed-${codeBlockStart}`} className="my-2 rounded-xl overflow-hidden border border-[var()]">
         {lang && (
-          <div className="px-3 py-1 text-[10px] font-mono font-semibold text-(--muted) bg-(--fg)/[0.04] border-b border-(--hairline)">
+          <div className="px-3 py-1 text-[10px] font-mono font-semibold text-[var()] bg-[var()]/[0.04] border-b border-[var()]">
             {lang}
           </div>
         )}
-        <pre className="p-3 text-xs font-mono leading-relaxed overflow-x-auto bg-(--fg)/[0.02] whitespace-pre-wrap">
+        <pre className="p-3 text-xs font-mono leading-relaxed overflow-x-auto bg-[var()]/[0.02] whitespace-pre-wrap">
           <code>{code}</code>
         </pre>
       </div>
@@ -177,7 +177,7 @@ function formatAIContent(content: string, mentors?: MentorData[], isStreaming?: 
   }
 
   if (isStreaming) {
-    result.push(<span key="cursor" className="inline-block w-0.5 h-4 bg-(--fg)/60 ml-0.5 align-middle animate-pulse" />);
+    result.push(<span key="cursor" className="inline-block w-0.5 h-4 bg-[var()]/60 ml-0.5 align-middle animate-pulse" />);
   }
 
   return result;
@@ -205,12 +205,12 @@ function parseNormalText(text: string, mentors?: MentorData[]): React.ReactNode[
       }
 
       result.push(
-        <div key={`table-${i}`} className="my-3 overflow-x-auto border border-(--hairline) rounded-xl">
+        <div key={`table-${i}`} className="my-3 overflow-x-auto border border-[var()] rounded-xl">
           <table className="w-full text-xs text-left border-collapse">
             <thead>
-              <tr className="bg-(--fg)/[0.02] border-b border-(--hairline)">
+              <tr className="bg-[var()]/[0.02] border-b border-[var()]">
                 {headers.map((h, hIdx) => (
-                  <th key={hIdx} className="px-4 py-2.5 font-semibold text-(--fg)">
+                  <th key={hIdx} className="px-4 py-2.5 font-semibold text-[var()]">
                     {parseMarkdownInline(h, mentors)}
                   </th>
                 ))}
@@ -218,9 +218,9 @@ function parseNormalText(text: string, mentors?: MentorData[]): React.ReactNode[
             </thead>
             <tbody>
               {rows.map((row, rIdx) => (
-                <tr key={rIdx} className="border-b border-(--hairline)/60 last:border-0 hover:bg-(--fg)/[0.01]">
+                <tr key={rIdx} className="border-b border-[var()]/60 last:border-0 hover:bg-[var()]/[0.01]">
                   {row.map((cell, cIdx) => (
-                    <td key={cIdx} className="px-4 py-2 text-(--fg)/90">
+                    <td key={cIdx} className="px-4 py-2 text-[var()]/90">
                       {parseMarkdownInline(cell, mentors)}
                     </td>
                   ))}
@@ -236,19 +236,19 @@ function parseNormalText(text: string, mentors?: MentorData[]): React.ReactNode[
     }
 
     if (trimmed.startsWith('## ')) {
-      result.push(<h3 key={`h-${i}`} className="font-bold text-sm mt-3 mb-1 text-(--fg)">{trimmed.slice(3)}</h3>);
+      result.push(<h3 key={`h-${i}`} className="font-bold text-sm mt-3 mb-1 text-[var()]">{trimmed.slice(3)}</h3>);
       i++;
       continue;
     }
 
     if (trimmed.startsWith('### ')) {
-      result.push(<h4 key={`h3-${i}`} className="font-semibold text-sm mt-2 mb-0.5 text-(--fg)">{trimmed.slice(4)}</h4>);
+      result.push(<h4 key={`h3-${i}`} className="font-semibold text-sm mt-2 mb-0.5 text-[var()]">{trimmed.slice(4)}</h4>);
       i++;
       continue;
     }
 
     if (trimmed === '---' || trimmed === '***') {
-      result.push(<hr key={`hr-${i}`} className="my-2 border-(--hairline)" />);
+      result.push(<hr key={`hr-${i}`} className="my-2 border-[var()]" />);
       i++;
       continue;
     }
@@ -302,11 +302,11 @@ function parseMarkdownInline(text: string, mentors?: MentorData[]): React.ReactN
       return <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>;
     }
     if (part.startsWith('`') && part.endsWith('`')) {
-      return <code key={i} className="text-[11px] font-mono bg-(--fg)/[0.08] rounded px-1 py-0.5">{part.slice(1, -1)}</code>;
+      return <code key={i} className="text-[11px] font-mono bg-[var()]/[0.08] rounded px-1 py-0.5">{part.slice(1, -1)}</code>;
     }
     const linkMatch = part.match(/\[([^\]]+)\]\(([^)]+)\)/);
     if (linkMatch) {
-      return <Link key={i} href={linkMatch[2]} className="text-(--accent) hover:underline font-medium">{linkMatch[1]}</Link>;
+      return <Link key={i} href={linkMatch[2]} className="text-[var()] hover:underline font-medium">{linkMatch[1]}</Link>;
     }
     return <span key={i}>{part}</span>;
   });
@@ -341,7 +341,7 @@ const ChatMessageItem = React.memo(({
       {/* Centered Date Header */}
       {showHeader && (
         <div className="flex flex-col items-center my-5 select-none">
-          <span className="text-[11px] font-semibold text-(--muted) tracking-tight">
+          <span className="text-[11px] font-semibold text-[var()] tracking-tight">
             {formatAppleMessageHeader(msgDateStr)}
           </span>
         </div>
@@ -361,7 +361,7 @@ const ChatMessageItem = React.memo(({
                   : chatTheme === "pink"
                     ? "bg-[#ff2d55] text-white rounded-br-[4px]"
                     : "bg-white dark:bg-zinc-100 text-zinc-900 border border-zinc-200/60 rounded-br-[4px]"
-              : "bg-(--fg)/5 border border-(--hairline)/25 text-(--fg) rounded-bl-[4px]"
+              : "bg-[var()]/5 border border-[var()]/25 text-[var()] rounded-bl-[4px]"
               }`}
           >
             {msg.role === "assistant" ? (
@@ -375,7 +375,7 @@ const ChatMessageItem = React.memo(({
 
           {/* Read Receipt underneath outgoing bubble */}
           {msg.role === "user" && isLastUserMsg && (
-            <div className="text-[10px] font-bold text-(--muted)/80 mt-1 text-right mr-1.5 select-none">
+            <div className="text-[10px] font-bold text-[var()]/80 mt-1 text-right mr-1.5 select-none">
               Read {formatReadReceiptTime(msgDateStr)}
             </div>
           )}
@@ -508,18 +508,18 @@ function MentorCardInChat({ mentor, onBook }: { mentor: MentorData; onBook: (men
         "bg-blue-500/12 text-blue-600";
 
   return (
-    <div className="rounded-2xl border border-(--hairline) bg-(--bg) shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+    <div className="rounded-2xl border border-[var()] bg-[var()] shadow-sm overflow-hidden hover:shadow-md transition-shadow">
       {/* Header */}
       <div className="flex items-start gap-3 p-4 pb-3">
         {!avatarError ? (
           <img
             src={avatarUrl}
             alt={mentor.displayName}
-            className="h-12 w-12 rounded-full object-cover shrink-0 border border-(--hairline)"
+            className="h-12 w-12 rounded-full object-cover shrink-0 border border-[var()]"
             onError={() => setAvatarError(true)}
           />
         ) : (
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-(--fg)/8 text-sm font-semibold shrink-0 border border-(--hairline)">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var()]/8 text-sm font-semibold shrink-0 border border-[var()]">
             {initials}
           </div>
         )}
@@ -529,26 +529,26 @@ function MentorCardInChat({ mentor, onBook }: { mentor: MentorData; onBook: (men
             <BadgeCheck className="h-3.5 w-3.5 text-blue-500 shrink-0" />
           </div>
           {mentor.currentRole && (
-            <p className="text-xs text-(--muted) truncate">{mentor.currentRole}</p>
+            <p className="text-xs text-[var()] truncate">{mentor.currentRole}</p>
           )}
           <span className={`inline-block mt-1 rounded-full px-2.5 py-0.5 text-[10px] font-medium ${instColor}`}>
             {mentor.institutionName}
           </span>
         </div>
         <div className="text-right shrink-0">
-          <p className="text-base font-bold text-(--accent)">₹{Math.round(mentor.pricePerSession / 100)}</p>
-          <p className="text-[10px] text-(--muted)">{mentor.sessionDuration}min</p>
+          <p className="text-base font-bold text-[var()]">₹{Math.round(mentor.pricePerSession / 100)}</p>
+          <p className="text-[10px] text-[var()]">{mentor.sessionDuration}min</p>
         </div>
       </div>
 
       {/* Bio */}
-      <p className="px-4 text-xs text-(--muted) leading-relaxed line-clamp-2">{mentor.bio}</p>
+      <p className="px-4 text-xs text-[var()] leading-relaxed line-clamp-2">{mentor.bio}</p>
 
       {/* Skills */}
       {mentor.expertise.length > 0 && (
         <div className="px-4 pt-2 flex flex-wrap gap-1">
           {mentor.expertise.slice(0, 4).map((skill) => (
-            <span key={skill} className="text-[10px] bg-(--fg)/[0.05] border border-(--hairline) rounded-full px-2 py-0.5 text-(--muted) font-medium">
+            <span key={skill} className="text-[10px] bg-[var()]/[0.05] border border-[var()] rounded-full px-2 py-0.5 text-[var()] font-medium">
               {skill}
             </span>
           ))}
@@ -561,7 +561,7 @@ function MentorCardInChat({ mentor, onBook }: { mentor: MentorData; onBook: (men
           <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
           <span className="text-xs font-bold">{mentor.rating > 0 ? mentor.rating.toFixed(1) : "New"}</span>
         </div>
-        <span className="text-xs text-(--muted)">{mentor.totalSessions} sessions</span>
+        <span className="text-xs text-[var()]">{mentor.totalSessions} sessions</span>
         <span className="ml-auto text-[10px] text-green-600 font-semibold">● Available</span>
       </div>
 
@@ -574,14 +574,14 @@ function MentorCardInChat({ mentor, onBook }: { mentor: MentorData; onBook: (men
               window.dispatchEvent(new Event("close-ai"));
             }
           }}
-          className="flex-1 text-center text-xs font-semibold py-2 rounded-xl border border-(--hairline) text-(--muted) hover:text-(--fg) hover:border-(--fg)/20 transition-colors"
+          className="flex-1 text-center text-xs font-semibold py-2 rounded-xl border border-[var()] text-[var()] hover:text-[var()] hover:border-[var()]/20 transition-colors"
         >
           View Profile
         </Link>
         <button
           type="button"
           onClick={() => onBook(mentor)}
-          className="flex-1 text-xs font-semibold py-2 rounded-xl bg-(--fg) text-(--bg) hover:opacity-90 transition-opacity cursor-pointer"
+          className="flex-1 text-xs font-semibold py-2 rounded-xl bg-[var()] text-[var()] hover:opacity-90 transition-opacity cursor-pointer"
         >
           Book Session
         </button>
@@ -711,14 +711,14 @@ function BookingModalInChat({
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   return (
-    <div className="rounded-2xl border border-(--hairline) bg-(--bg) shadow-xl overflow-hidden">
+    <div className="rounded-2xl border border-[var()] bg-[var()] shadow-xl overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-(--hairline) bg-(--fg)/[0.02]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[var()] bg-[var()]/[0.02]">
         <div>
           <p className="text-sm font-semibold">Book a Session</p>
-          <p className="text-xs text-(--muted)">{mentor.displayName} · ₹{Math.round(mentor.pricePerSession / 100)} · {mentor.sessionDuration}min</p>
+          <p className="text-xs text-[var()]">{mentor.displayName} · ₹{Math.round(mentor.pricePerSession / 100)} · {mentor.sessionDuration}min</p>
         </div>
-        <button type="button" onClick={onClose} className="p-1.5 text-(--muted) hover:text-(--fg) rounded-lg hover:bg-(--fg)/5 cursor-pointer">
+        <button type="button" onClick={onClose} className="p-1.5 text-[var()] hover:text-[var()] rounded-lg hover:bg-[var()]/5 cursor-pointer">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -726,7 +726,7 @@ function BookingModalInChat({
       <div className="p-4 flex flex-col gap-4">
         {/* Date picker */}
         <div>
-          <p className="text-xs font-semibold text-(--muted) uppercase tracking-wide mb-2">Select Date</p>
+          <p className="text-xs font-semibold text-[var()] uppercase tracking-wide mb-2">Select Date</p>
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
             {days.map((d) => {
               const active = selectedDate?.toDateString() === d.toDateString();
@@ -736,8 +736,8 @@ function BookingModalInChat({
                   type="button"
                   onClick={() => setSelectedDate(d)}
                   className={`flex flex-col items-center justify-center shrink-0 w-12 h-14 rounded-xl text-xs font-medium transition-all cursor-pointer border ${active
-                    ? "bg-(--fg) text-(--bg) border-(--fg)"
-                    : "border-(--hairline) text-(--muted) hover:border-(--fg)/20 hover:text-(--fg)"
+                    ? "bg-[var()] text-[var()] border-[var()]"
+                    : "border-[var()] text-[var()] hover:border-[var()]/20 hover:text-[var()]"
                     }`}
                 >
                   <span className="text-[10px] font-semibold">{dayNames[d.getDay()]}</span>
@@ -751,7 +751,7 @@ function BookingModalInChat({
 
         {/* Time picker */}
         <div>
-          <p className="text-xs font-semibold text-(--muted) uppercase tracking-wide mb-2">Select Time</p>
+          <p className="text-xs font-semibold text-[var()] uppercase tracking-wide mb-2">Select Time</p>
           <div className="grid grid-cols-4 gap-1.5 max-h-32 overflow-y-auto pr-1">
             {timeSlots.map((slot) => {
               const active = selectedTime === slot;
@@ -761,8 +761,8 @@ function BookingModalInChat({
                   type="button"
                   onClick={() => setSelectedTime(slot)}
                   className={`text-xs py-1.5 rounded-lg font-medium transition-all cursor-pointer border ${active
-                    ? "bg-(--fg) text-(--bg) border-(--fg)"
-                    : "border-(--hairline) text-(--muted) hover:border-(--fg)/20 hover:text-(--fg)"
+                    ? "bg-[var()] text-[var()] border-[var()]"
+                    : "border-[var()] text-[var()] hover:border-[var()]/20 hover:text-[var()]"
                     }`}
                 >
                   {slot}
@@ -780,7 +780,7 @@ function BookingModalInChat({
           type="button"
           onClick={handleConfirm}
           disabled={!selectedDate || !selectedTime || booking}
-          className="w-full py-2.5 rounded-xl bg-(--fg) text-(--bg) text-sm font-semibold disabled:opacity-40 hover:opacity-90 transition-opacity cursor-pointer disabled:cursor-not-allowed"
+          className="w-full py-2.5 rounded-xl bg-[var()] text-[var()] text-sm font-semibold disabled:opacity-40 hover:opacity-90 transition-opacity cursor-pointer disabled:cursor-not-allowed"
         >
           {booking ? "Processing..." : `Confirm & Pay ₹${Math.round(mentor.pricePerSession / 100)}`}
         </button>
@@ -797,17 +797,17 @@ function MentorProfileInChat({ mentor, onBook }: { mentor: MentorData; onBook: (
   const initials = mentor.displayName.slice(0, 2).toUpperCase();
 
   return (
-    <div className="rounded-2xl border border-(--hairline) bg-(--bg) shadow-md overflow-hidden p-4 flex flex-col gap-3">
+    <div className="rounded-2xl border border-[var()] bg-[var()] shadow-md overflow-hidden p-4 flex flex-col gap-3">
       <div className="flex items-center gap-3">
         {!avatarError ? (
           <img
             src={avatarUrl}
             alt={mentor.displayName}
-            className="h-14 w-14 rounded-full object-cover border border-(--hairline)"
+            className="h-14 w-14 rounded-full object-cover border border-[var()]"
             onError={() => setAvatarError(true)}
           />
         ) : (
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-(--fg)/8 text-base font-semibold border border-(--hairline)">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var()]/8 text-base font-semibold border border-[var()]">
             {initials}
           </div>
         )}
@@ -817,7 +817,7 @@ function MentorProfileInChat({ mentor, onBook }: { mentor: MentorData; onBook: (
             <BadgeCheck className="h-3.5 w-3.5 text-blue-500 shrink-0" />
           </div>
           {mentor.currentRole && (
-            <p className="text-xs text-(--muted) truncate">{mentor.currentRole} at {mentor.company || mentor.institutionName}</p>
+            <p className="text-xs text-[var()] truncate">{mentor.currentRole} at {mentor.company || mentor.institutionName}</p>
           )}
           <span className="inline-block mt-1 rounded-full bg-blue-500/12 text-blue-600 px-2 py-0.5 text-[10px] font-medium">
             {mentor.institutionName}
@@ -826,43 +826,43 @@ function MentorProfileInChat({ mentor, onBook }: { mentor: MentorData; onBook: (
       </div>
 
       <div className="space-y-1">
-        <p className="text-xs font-semibold text-(--muted) uppercase tracking-wide">About</p>
-        <p className="text-xs leading-relaxed text-(--muted) line-clamp-3">{mentor.bio}</p>
+        <p className="text-xs font-semibold text-[var()] uppercase tracking-wide">About</p>
+        <p className="text-xs leading-relaxed text-[var()] line-clamp-3">{mentor.bio}</p>
       </div>
 
       <div className="space-y-1">
-        <p className="text-xs font-semibold text-(--muted) uppercase tracking-wide">Expertise</p>
+        <p className="text-xs font-semibold text-[var()] uppercase tracking-wide">Expertise</p>
         <div className="flex flex-wrap gap-1">
           {mentor.expertise.map((skill) => (
-            <span key={skill} className="text-[10px] bg-(--fg)/5 border border-(--hairline) rounded-full px-2 py-0.5 text-(--muted) font-medium">
+            <span key={skill} className="text-[10px] bg-[var()]/5 border border-[var()] rounded-full px-2 py-0.5 text-[var()] font-medium">
               {skill}
             </span>
           ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 border-t border-(--hairline) pt-2 text-center">
+      <div className="grid grid-cols-3 gap-2 border-t border-[var()] pt-2 text-center">
         <div>
-          <p className="text-[9px] text-(--muted) uppercase font-semibold">Rating</p>
+          <p className="text-[9px] text-[var()] uppercase font-semibold">Rating</p>
           <div className="flex items-center justify-center gap-0.5 mt-0.5">
             <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
             <span className="text-xs font-bold">{mentor.rating > 0 ? mentor.rating.toFixed(1) : "New"}</span>
           </div>
         </div>
         <div>
-          <p className="text-[9px] text-(--muted) uppercase font-semibold">Sessions</p>
+          <p className="text-[9px] text-[var()] uppercase font-semibold">Sessions</p>
           <p className="text-xs font-bold mt-0.5">{mentor.totalSessions}</p>
         </div>
         <div>
-          <p className="text-[9px] text-(--muted) uppercase font-semibold">Price</p>
-          <p className="text-xs font-bold mt-0.5 text-(--accent)">₹{Math.round(mentor.pricePerSession / 100)}</p>
+          <p className="text-[9px] text-[var()] uppercase font-semibold">Price</p>
+          <p className="text-xs font-bold mt-0.5 text-[var()]">₹{Math.round(mentor.pricePerSession / 100)}</p>
         </div>
       </div>
 
       <button
         type="button"
         onClick={() => onBook(mentor)}
-        className="w-full text-xs font-semibold py-2 rounded-xl bg-(--fg) text-(--bg) hover:opacity-90 transition-opacity cursor-pointer mt-1"
+        className="w-full text-xs font-semibold py-2 rounded-xl bg-[var()] text-[var()] hover:opacity-90 transition-opacity cursor-pointer mt-1"
       >
         Book 1-on-1 Session
       </button>
@@ -883,28 +883,28 @@ function BookingSuccessInChat({ info }: { info: BookingSuccess }) {
         <span className="text-lg">✅</span>
         <div>
           <p className="text-sm font-bold text-green-700 dark:text-green-400">Booking Confirmed!</p>
-          <p className="text-xs text-(--muted)">Your session is scheduled</p>
+          <p className="text-xs text-[var()]">Your session is scheduled</p>
         </div>
       </div>
       <div className="px-4 py-3 flex flex-col gap-1.5">
         <div className="flex items-center gap-2 text-xs">
-          <span className="text-(--muted) w-16 shrink-0">Mentor</span>
+          <span className="text-[var()] w-16 shrink-0">Mentor</span>
           <span className="font-semibold">{info.mentorName}</span>
         </div>
         <div className="flex items-center gap-2 text-xs">
-          <span className="text-(--muted) w-16 shrink-0">Date</span>
+          <span className="text-[var()] w-16 shrink-0">Date</span>
           <span className="font-semibold">{dateStr}</span>
         </div>
         <div className="flex items-center gap-2 text-xs">
-          <span className="text-(--muted) w-16 shrink-0">Time</span>
+          <span className="text-[var()] w-16 shrink-0">Time</span>
           <span className="font-semibold">{timeStr}</span>
         </div>
         <div className="flex items-center gap-2 text-xs">
-          <span className="text-(--muted) w-16 shrink-0">Duration</span>
+          <span className="text-[var()] w-16 shrink-0">Duration</span>
           <span className="font-semibold">{info.durationMinutes} minutes</span>
         </div>
         <div className="flex items-center gap-2 text-xs">
-          <span className="text-(--muted) w-16 shrink-0">Type</span>
+          <span className="text-[var()] w-16 shrink-0">Type</span>
           <span className="font-semibold">{info.meetingType}</span>
         </div>
       </div>
@@ -916,7 +916,7 @@ function BookingSuccessInChat({ info }: { info: BookingSuccess }) {
               window.dispatchEvent(new Event("close-ai"));
             }
           }}
-          className="flex-1 text-center text-xs font-semibold py-2 rounded-xl bg-(--fg) text-(--bg) hover:opacity-90 transition-opacity"
+          className="flex-1 text-center text-xs font-semibold py-2 rounded-xl bg-[var()] text-[var()] hover:opacity-90 transition-opacity"
         >
           View Booking
         </Link>
@@ -927,7 +927,7 @@ function BookingSuccessInChat({ info }: { info: BookingSuccess }) {
               window.dispatchEvent(new Event("close-ai"));
             }
           }}
-          className="flex-1 text-center text-xs font-semibold py-2 rounded-xl border border-(--hairline) text-(--muted) hover:text-(--fg) transition-colors"
+          className="flex-1 text-center text-xs font-semibold py-2 rounded-xl border border-[var()] text-[var()] hover:text-[var()] transition-colors"
         >
           Open Chat
         </Link>
@@ -1563,36 +1563,36 @@ export function AIChatWidget() {
   if (!isOpen) return null;
 
   return (
-    <div data-ai-chat-open="true" className="fixed inset-y-0 right-0 left-0 md:left-64 z-[9999] flex flex-col overflow-hidden bg-(--bg) border-l border-(--hairline) animate-in slide-in-from-bottom md:slide-in-from-right duration-300">
+    <div data-ai-chat-open="true" className="fixed inset-y-0 right-0 left-0 md:left-64 z-[9999] flex flex-col overflow-hidden bg-[var()] border-l border-[var()] animate-in slide-in-from-bottom md:slide-in-from-right duration-300">
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <div className="shrink-0 border-b border-(--hairline) bg-(--bg)/80 backdrop-blur-md sticky top-0 z-10 pt-safe-top md:pt-0">
+      <div className="shrink-0 border-b border-[var()] bg-[var()]/80 backdrop-blur-md sticky top-0 z-10 pt-safe-top md:pt-0">
         <div className="max-w-4xl w-full mx-auto px-4 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between gap-3">
 
           {/* Left Segment: Brand and premium inline breadcrumb layout */}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-(--accent)/10 shrink-0">
-              <Bot className="h-4.5 w-4.5 text-(--accent)" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var()]/10 shrink-0">
+              <Bot className="h-4.5 w-4.5 text-[var()]" />
             </div>
 
             <div className={`shrink-0 ${sessionTitle && activeTab === "chat" ? "hidden sm:block" : ""}`}>
-              <h3 className="text-xs sm:text-sm font-bold tracking-tight text-(--fg)">
+              <h3 className="text-xs sm:text-sm font-bold tracking-tight text-[var()]">
                 Ruth
               </h3>
             </div>
 
             {sessionTitle && activeTab === "chat" && (
-              <span className="text-(--muted)/40 text-xs shrink-0 font-medium select-none hidden sm:inline">/</span>
+              <span className="text-[var()]/40 text-xs shrink-0 font-medium select-none hidden sm:inline">/</span>
             )}
 
             {sessionTitle && activeTab === "chat" && (
               isRenamingActive && sessionId ? (
-                <div className="flex items-center gap-1 bg-(--fg)/5 border border-(--hairline) rounded-full pl-2.5 pr-0.5 py-0.5 max-w-[120px] sm:max-w-[200px] w-full" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center gap-1 bg-[var()]/5 border border-[var()] rounded-full pl-2.5 pr-0.5 py-0.5 max-w-[120px] sm:max-w-[200px] w-full" onClick={(e) => e.stopPropagation()}>
                   <input
                     type="text"
                     value={editingTitle}
                     onChange={(e) => setEditingTitle(e.target.value)}
-                    className="text-[10px] sm:text-xs font-semibold bg-transparent outline-none w-full text-(--fg) placeholder-(--muted)"
+                    className="text-[10px] sm:text-xs font-semibold bg-transparent outline-none w-full text-[var()] placeholder-[var()]"
                     maxLength={60}
                     autoFocus
                     onKeyDown={(e) => {
@@ -1621,8 +1621,8 @@ export function AIChatWidget() {
                   </button>
                 </div>
               ) : (
-                <div className="inline-flex items-center gap-1.5 bg-(--accent)/5 border border-(--accent)/15 rounded-full pl-2.5 pr-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-(--accent) shadow-sm hover:bg-(--accent)/8 transition-all min-w-0 max-w-[110px] sm:max-w-[240px]">
-                  <Sparkles className="h-2.5 w-2.5 text-(--accent) shrink-0" />
+                <div className="inline-flex items-center gap-1.5 bg-[var()]/5 border border-[var()]/15 rounded-full pl-2.5 pr-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-[var()] shadow-sm hover:bg-[var()]/8 transition-all min-w-0 max-w-[110px] sm:max-w-[240px]">
+                  <Sparkles className="h-2.5 w-2.5 text-[var()] shrink-0" />
                   <span className="truncate tracking-wide uppercase font-semibold">
                     {sessionTitle}
                   </span>
@@ -1633,7 +1633,7 @@ export function AIChatWidget() {
                         setIsRenamingActive(true);
                         setEditingTitle(sessionTitle || "");
                       }}
-                      className="text-(--accent)/60 hover:text-(--accent) transition-colors p-0.5 rounded cursor-pointer shrink-0"
+                      className="text-[var()]/60 hover:text-[var()] transition-colors p-0.5 rounded cursor-pointer shrink-0"
                       title="Rename chat"
                     >
                       <Edit2 className="h-2.5 w-2.5" />
@@ -1648,7 +1648,7 @@ export function AIChatWidget() {
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* Theme Toggle option showing 4 color options inline */}
             {activeTab === "chat" && (
-              <div className="flex items-center gap-1 px-1.5 py-1 rounded-full border border-(--hairline) bg-(--fg)/5 select-none shrink-0 shadow-sm">
+              <div className="flex items-center gap-1 px-1.5 py-1 rounded-full border border-[var()] bg-[var()]/5 select-none shrink-0 shadow-sm">
                 {[
                   { id: "imessage", color: "#007aff", title: "iMessage (Blue)" },
                   { id: "sms", color: "#34c759", title: "SMS (Green)" },
@@ -1660,7 +1660,7 @@ export function AIChatWidget() {
                     type="button"
                     onClick={() => setChatTheme(t.id as any)}
                     className={`h-2.5 w-2.5 rounded-full transition-all duration-200 cursor-pointer mx-0.5 hover:scale-120 ${chatTheme === t.id
-                      ? "ring-2 ring-(--fg) ring-offset-1 ring-offset-(--bg) scale-110"
+                      ? "ring-2 ring-[var()] ring-offset-1 ring-offset-[var()] scale-110"
                       : "opacity-60 hover:opacity-100"
                       }`}
                     style={{
@@ -1683,9 +1683,9 @@ export function AIChatWidget() {
                   onClick={() => handleModeToggle(!ruthlessMode)}
                   aria-pressed={ruthlessMode}
                   title={ruthlessMode ? "Ruthless Mode — tap to switch to Normal" : "Normal Mode — tap to enable Ruthless Mode"}
-                  className={`sm:hidden flex items-center justify-center h-[30px] w-[30px] rounded-full border border-(--hairline) shrink-0 transition-all duration-200 cursor-pointer ${ruthlessMode
-                      ? "bg-(--fg) text-(--bg)"
-                      : "bg-(--fg)/[0.03] text-(--muted) hover:text-(--fg)"
+                  className={`sm:hidden flex items-center justify-center h-[30px] w-[30px] rounded-full border border-[var()] shrink-0 transition-all duration-200 cursor-pointer ${ruthlessMode
+                      ? "bg-[var()] text-[var()]"
+                      : "bg-[var()]/[0.03] text-[var()] hover:text-[var()]"
                     }`}
                 >
                   <Zap className="h-3 w-3 shrink-0" />
@@ -1696,15 +1696,15 @@ export function AIChatWidget() {
                   id="ai-mode-selector"
                   role="group"
                   aria-label="AI response mode"
-                  className="hidden sm:flex items-center h-[30px] rounded-full border border-(--hairline) bg-(--fg)/[0.03] p-[3px] shrink-0 select-none gap-px"
+                  className="hidden sm:flex items-center h-[30px] rounded-full border border-[var()] bg-[var()]/[0.03] p-[3px] shrink-0 select-none gap-px"
                 >
                   <button
                     type="button"
                     onClick={() => handleModeToggle(false)}
                     aria-pressed={!ruthlessMode}
                     className={`flex items-center h-full px-2.5 rounded-full text-[11px] font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap ${!ruthlessMode
-                        ? "bg-(--fg) text-(--bg) shadow-sm"
-                        : "text-(--muted) hover:text-(--fg)"
+                        ? "bg-[var()] text-[var()] shadow-sm"
+                        : "text-[var()] hover:text-[var()]"
                       }`}
                   >
                     Normal
@@ -1714,8 +1714,8 @@ export function AIChatWidget() {
                     onClick={() => handleModeToggle(true)}
                     aria-pressed={ruthlessMode}
                     className={`flex items-center gap-1 h-full px-2.5 rounded-full text-[11px] font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap ${ruthlessMode
-                        ? "bg-(--fg) text-(--bg) shadow-sm"
-                        : "text-(--muted) hover:text-(--fg)"
+                        ? "bg-[var()] text-[var()] shadow-sm"
+                        : "text-[var()] hover:text-[var()]"
                       }`}
                   >
                     <Zap className="h-2.5 w-2.5 shrink-0" />
@@ -1728,7 +1728,7 @@ export function AIChatWidget() {
             <button
               type="button"
               onClick={handleNewChat}
-              className="p-2 text-(--muted) hover:text-(--fg) rounded-xl hover:bg-(--fg)/5 cursor-pointer transition-all duration-200"
+              className="p-2 text-[var()] hover:text-[var()] rounded-xl hover:bg-[var()]/5 cursor-pointer transition-all duration-200"
               title="New chat"
             >
               <Plus className="h-4.5 w-4.5" />
@@ -1736,7 +1736,7 @@ export function AIChatWidget() {
             <button
               type="button"
               onClick={handleClose}
-              className="p-2 text-(--muted) hover:text-(--fg) rounded-xl hover:bg-(--fg)/5 cursor-pointer transition-all duration-200"
+              className="p-2 text-[var()] hover:text-[var()] rounded-xl hover:bg-[var()]/5 cursor-pointer transition-all duration-200"
               title="Close"
             >
               <X className="h-4.5 w-4.5" />
@@ -1745,13 +1745,13 @@ export function AIChatWidget() {
         </div>
 
         {/* Tab bar */}
-        <div className="max-w-4xl w-full mx-auto px-4 sm:px-6 flex gap-1 scrollbar-none overflow-x-auto border-t border-(--hairline)/50">
+        <div className="max-w-4xl w-full mx-auto px-4 sm:px-6 flex gap-1 scrollbar-none overflow-x-auto border-t border-[var()]/50">
           <button
             type="button"
             onClick={() => setActiveTab("chat")}
             className={`flex items-center gap-1.5 px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 transition-colors cursor-pointer shrink-0 ${activeTab === "chat"
-              ? "border-(--accent) text-(--fg)"
-              : "border-transparent text-(--muted) hover:text-(--fg)"
+              ? "border-[var()] text-[var()]"
+              : "border-transparent text-[var()] hover:text-[var()]"
               }`}
           >
             <MessageSquare className="h-3.5 w-3.5" />
@@ -1761,8 +1761,8 @@ export function AIChatWidget() {
             type="button"
             onClick={() => setActiveTab("meetings")}
             className={`flex items-center gap-1.5 px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 transition-colors cursor-pointer shrink-0 ${activeTab === "meetings"
-              ? "border-(--accent) text-(--fg)"
-              : "border-transparent text-(--muted) hover:text-(--fg)"
+              ? "border-[var()] text-[var()]"
+              : "border-transparent text-[var()] hover:text-[var()]"
               }`}
           >
             <Calendar className="h-3.5 w-3.5" />
@@ -1772,8 +1772,8 @@ export function AIChatWidget() {
             type="button"
             onClick={() => setActiveTab("history")}
             className={`flex items-center gap-1.5 px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 transition-colors cursor-pointer shrink-0 ${activeTab === "history"
-              ? "border-(--accent) text-(--fg)"
-              : "border-transparent text-(--muted) hover:text-(--fg)"
+              ? "border-[var()] text-[var()]"
+              : "border-transparent text-[var()] hover:text-[var()]"
               }`}
           >
             <History className="h-3.5 w-3.5" />
@@ -1787,16 +1787,16 @@ export function AIChatWidget() {
         <div className="relative flex-1 flex flex-col overflow-hidden">
           {/* Resume banner */}
           {resumeBanner && (
-            <div className="shrink-0 bg-(--accent)/10 border-b border-(--accent)/20 px-4 sm:px-6 py-2.5">
+            <div className="shrink-0 bg-[var()]/10 border-b border-[var()]/20 px-4 sm:px-6 py-2.5">
               <div className="max-w-4xl w-full mx-auto flex items-center justify-between">
-                <span className="text-xs text-(--accent) flex items-center gap-1.5 font-semibold truncate pr-2">
+                <span className="text-xs text-[var()] flex items-center gap-1.5 font-semibold truncate pr-2">
                   <RotateCcw className="h-3.5 w-3.5 shrink-0" />
                   {resumeBanner}
                 </span>
                 <button
                   type="button"
                   onClick={() => setResumeBanner(null)}
-                  className="text-(--muted) hover:text-(--fg) cursor-pointer p-1 rounded-md hover:bg-(--fg)/5 transition-colors"
+                  className="text-[var()] hover:text-[var()] cursor-pointer p-1 rounded-md hover:bg-[var()]/5 transition-colors"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -1808,16 +1808,16 @@ export function AIChatWidget() {
           {modeToast && (
             <div
               key={modeToast}
-              className="shrink-0 border-b border-(--hairline) px-4 sm:px-6 py-2 animate-in fade-in slide-in-from-top-1 duration-200"
+              className="shrink-0 border-b border-[var()] px-4 sm:px-6 py-2 animate-in fade-in slide-in-from-top-1 duration-200"
               style={{ background: "var(--bg)" }}
             >
               <div className="max-w-4xl w-full mx-auto flex items-center gap-2.5">
-                <Zap className="h-3 w-3 shrink-0 text-(--muted)" />
+                <Zap className="h-3 w-3 shrink-0 text-[var()]" />
                 <div>
-                  <p className="text-xs font-semibold text-(--fg) leading-none">
+                  <p className="text-xs font-semibold text-[var()] leading-none">
                     {modeToast === "ruthless" ? "Ruthless Mode Enabled" : "Normal Mode Enabled"}
                   </p>
-                  <p className="text-[10px] text-(--muted) mt-0.5 leading-snug">
+                  <p className="text-[10px] text-[var()] mt-0.5 leading-snug">
                     {modeToast === "ruthless"
                       ? "Ruth will now respond with unpredictable, hilarious, and candid feedback."
                       : "Ruth is back to her professional, balanced default."}
@@ -1839,20 +1839,20 @@ export function AIChatWidget() {
               {/* Loading skeleton */}
               {sessionLoading && (
                 <div className="flex-1 flex flex-col items-center justify-center gap-3 py-12">
-                  <div className="h-9 w-9 rounded-full border-2 border-(--fg)/10 border-t-(--accent) animate-spin" />
-                  <p className="text-xs font-semibold text-(--muted) tracking-wide">LOADING CONVERSATION…</p>
+                  <div className="h-9 w-9 rounded-full border-2 border-[var()]/10 border-t-[var()] animate-spin" />
+                  <p className="text-xs font-semibold text-[var()] tracking-wide">LOADING CONVERSATION…</p>
                 </div>
               )}
 
               {/* Empty state */}
               {!sessionLoading && messages.length === 0 && (
                 <div className="flex-1 flex flex-col items-center justify-center gap-5 text-center py-12 max-w-md mx-auto">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-(--accent)/10 shadow-sm animate-pulse">
-                    <Sparkles className="h-6 w-6 text-(--accent)" />
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var()]/10 shadow-sm animate-pulse">
+                    <Sparkles className="h-6 w-6 text-[var()]" />
                   </div>
                   <div className="space-y-1">
                     <p className="text-base font-semibold">Hi {user.name.split(" ")[0]}! 👋</p>
-                    <p className="text-xs text-(--muted) leading-relaxed">
+                    <p className="text-xs text-[var()] leading-relaxed">
                       I can help you find premium mentors, prepare for tech interviews, review your notes, or draft high-impact study plans.
                     </p>
                   </div>
@@ -1865,7 +1865,7 @@ export function AIChatWidget() {
                           setInput(s);
                           inputRef.current?.focus();
                         }}
-                        className="text-xs text-left rounded-xl bg-(--fg)/[0.02] hover:bg-(--fg)/5 border border-(--hairline) hover:border-(--fg)/10 px-4 py-3 transition-all duration-200 cursor-pointer shadow-sm font-medium text-(--fg)/90"
+                        className="text-xs text-left rounded-xl bg-[var()]/[0.02] hover:bg-[var()]/5 border border-[var()] hover:border-[var()]/10 px-4 py-3 transition-all duration-200 cursor-pointer shadow-sm font-medium text-[var()]/90"
                       >
                         &ldquo;{s}&rdquo;
                       </button>
@@ -1924,11 +1924,11 @@ export function AIChatWidget() {
               {/* Typing indicator */}
               {streamState === "waiting_first_token" && (
                 <div className="flex justify-start mb-2 animate-pulse">
-                  <div className="bg-(--fg)/5 border border-(--hairline)/25 rounded-[18px] rounded-bl-[4px] px-4 py-3 shadow-sm">
+                  <div className="bg-[var()]/5 border border-[var()]/25 rounded-[18px] rounded-bl-[4px] px-4 py-3 shadow-sm">
                     <div className="flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-(--muted)/85 animate-bounce" style={{ animationDelay: "0ms" }} />
-                      <span className="h-2 w-2 rounded-full bg-(--muted)/85 animate-bounce" style={{ animationDelay: "150ms" }} />
-                      <span className="h-2 w-2 rounded-full bg-(--muted)/85 animate-bounce" style={{ animationDelay: "300ms" }} />
+                      <span className="h-2 w-2 rounded-full bg-[var()]/85 animate-bounce" style={{ animationDelay: "0ms" }} />
+                      <span className="h-2 w-2 rounded-full bg-[var()]/85 animate-bounce" style={{ animationDelay: "150ms" }} />
+                      <span className="h-2 w-2 rounded-full bg-[var()]/85 animate-bounce" style={{ animationDelay: "300ms" }} />
                     </div>
                   </div>
                 </div>
@@ -1979,20 +1979,20 @@ export function AIChatWidget() {
           )}
 
           {/* Input bar */}
-          <div className="shrink-0 border-t border-(--hairline) bg-(--bg) px-4 sm:px-6 py-3 sm:py-4 pb-safe-bottom">
+          <div className="shrink-0 border-t border-[var()] bg-[var()] px-4 sm:px-6 py-3 sm:py-4 pb-safe-bottom">
             <form
               onSubmit={(e) => { e.preventDefault(); handleSend(); }}
               className="max-w-4xl w-full mx-auto flex items-center gap-1.5 sm:gap-3 relative"
             >
               {/* Input Wrapper */}
               <div
-                className={`flex-1 flex items-center bg-(--fg)/5 rounded-full px-3.5 py-2 sm:py-2.5 border transition-all ${chatTheme === "imessage"
-                  ? "border-(--hairline)/45 focus-within:border-[#007aff]/60 focus-within:bg-(--fg)/8"
+                className={`flex-1 flex items-center bg-[var()]/5 rounded-full px-3.5 py-2 sm:py-2.5 border transition-all ${chatTheme === "imessage"
+                  ? "border-[var()]/45 focus-within:border-[#007aff]/60 focus-within:bg-[var()]/8"
                   : chatTheme === "sms"
-                    ? "border-(--hairline)/45 focus-within:border-[#34c759]/60 focus-within:bg-(--fg)/8"
+                    ? "border-[var()]/45 focus-within:border-[#34c759]/60 focus-within:bg-[var()]/8"
                     : chatTheme === "pink"
-                      ? "border-(--hairline)/45 focus-within:border-[#ff2d55]/60 focus-within:bg-(--fg)/8"
-                      : "border-(--hairline)/45 focus-within:border-(--fg)/40 focus-within:bg-(--fg)/8"
+                      ? "border-[var()]/45 focus-within:border-[#ff2d55]/60 focus-within:bg-[var()]/8"
+                      : "border-[var()]/45 focus-within:border-[var()]/40 focus-within:bg-[var()]/8"
                   }`}
               >
                 <input
@@ -2003,7 +2003,7 @@ export function AIChatWidget() {
                   placeholder="Message..."
                   maxLength={2000}
                   disabled={loading || sessionLoading}
-                  className="flex-1 bg-transparent text-sm outline-none placeholder-(--muted)/60 disabled:opacity-50 text-(--fg)"
+                  className="flex-1 bg-transparent text-sm outline-none placeholder-[var()]/60 disabled:opacity-50 text-[var()]"
                   style={{
                     caretColor:
                       chatTheme === "imessage" ? "#007aff" :
@@ -2022,7 +2022,7 @@ export function AIChatWidget() {
                     <div className="h-2.5 w-2.5 bg-white rounded-xs" />
                   </button>
                 ) : !input.trim() ? (
-                  <Mic className="h-4.5 w-4.5 text-(--muted)/85 hover:text-(--fg) cursor-pointer transition-colors ml-2" />
+                  <Mic className="h-4.5 w-4.5 text-[var()]/85 hover:text-[var()] cursor-pointer transition-colors ml-2" />
                 ) : (
                   /* Send Button inside input pill if input is not empty */
                   <button
@@ -2047,7 +2047,7 @@ export function AIChatWidget() {
                 <button
                   type="button"
                   onClick={() => setShowEmojiPicker(prev => !prev)}
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-(--muted) hover:text-(--fg) hover:bg-(--fg)/5 shrink-0 transition-all active:scale-95 cursor-pointer"
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-[var()] hover:text-[var()] hover:bg-[var()]/5 shrink-0 transition-all active:scale-95 cursor-pointer"
                   title="Emojis"
                 >
                   <Smile className="h-5.5 w-5.5" />
@@ -2056,7 +2056,7 @@ export function AIChatWidget() {
                 {showEmojiPicker && (
                   <div
                     ref={emojiPickerRef}
-                    className="absolute bottom-12 right-0 p-2.5 bg-(--bg) border border-(--hairline) rounded-2xl shadow-xl grid grid-cols-6 gap-1.5 z-50 w-60 animate-in fade-in slide-in-from-bottom-2 duration-150"
+                    className="absolute bottom-12 right-0 p-2.5 bg-[var()] border border-[var()] rounded-2xl shadow-xl grid grid-cols-6 gap-1.5 z-50 w-60 animate-in fade-in slide-in-from-bottom-2 duration-150"
                   >
                     {["😀", "😂", "🥰", "😍", "🤔", "👀", "👍", "👎", "❤️", "🔥", "👏", "🎉", "🚀", "💡", "✨", "💯", "🥳", "🤖", "👋", "🙏", "❌", "✅", "⚠️", "💬"].map((emoji) => (
                       <button
@@ -2066,7 +2066,7 @@ export function AIChatWidget() {
                           setInput(prev => prev + emoji);
                           inputRef.current?.focus();
                         }}
-                        className="h-8 w-8 flex items-center justify-center text-lg hover:bg-(--fg)/5 rounded-lg active:scale-90 transition-transform cursor-pointer"
+                        className="h-8 w-8 flex items-center justify-center text-lg hover:bg-[var()]/5 rounded-lg active:scale-90 transition-transform cursor-pointer"
                       >
                         {emoji}
                       </button>
@@ -2087,33 +2087,33 @@ export function AIChatWidget() {
             {meetingsLoading && (
               <div className="flex flex-col gap-3">
                 {[1, 2, 3].map(i => (
-                  <div key={i} className="h-24 rounded-xl bg-(--fg)/[0.03] animate-pulse" />
+                  <div key={i} className="h-24 rounded-xl bg-[var()]/[0.03] animate-pulse" />
                 ))}
               </div>
             )}
 
             {!meetingsLoading && meetings.length === 0 && (
               <div className="flex flex-col items-center justify-center gap-4 py-16 text-center max-w-sm mx-auto">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-(--fg)/5">
-                  <Calendar className="h-6 w-6 text-(--muted)" />
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var()]/5">
+                  <Calendar className="h-6 w-6 text-[var()]" />
                 </div>
                 <p className="text-sm font-semibold">No mentorship meetings booked yet</p>
-                <p className="text-xs text-(--muted) leading-relaxed">Once you book or attend a session, it will show up here to chat about notes and feedback.</p>
+                <p className="text-xs text-[var()] leading-relaxed">Once you book or attend a session, it will show up here to chat about notes and feedback.</p>
               </div>
             )}
 
             {!meetingsLoading && meetings.map(meeting => (
               <div
                 key={meeting.id}
-                className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 rounded-xl bg-(--fg)/[0.02] hover:bg-(--fg)/5 border border-(--hairline) hover:border-(--fg)/10 p-4 mb-3.5 transition-all text-left shadow-sm"
+                className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 rounded-xl bg-[var()]/[0.02] hover:bg-[var()]/5 border border-[var()] hover:border-[var()]/10 p-4 mb-3.5 transition-all text-left shadow-sm"
               >
                 <div className="flex items-start gap-3.5 min-w-0">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-(--accent)/10 shrink-0">
-                    <Video className="h-4.5 w-4.5 text-(--accent)" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var()]/10 shrink-0">
+                    <Video className="h-4.5 w-4.5 text-[var()]" />
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <h4 className="text-sm font-semibold truncate text-(--fg)">
+                      <h4 className="text-sm font-semibold truncate text-[var()]">
                         Session with {meeting.mentor.displayName}
                       </h4>
                       <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold tracking-wider uppercase shrink-0 ${meeting.status === "COMPLETED" ? "bg-green-500/10 text-green-500 border border-green-500/20" :
@@ -2124,24 +2124,24 @@ export function AIChatWidget() {
                         {meeting.status}
                       </span>
                     </div>
-                    <p className="text-xs text-(--muted) font-medium mt-0.5">
+                    <p className="text-xs text-[var()] font-medium mt-0.5">
                       {meeting.mentor.currentRole} {meeting.mentor.company ? `@ ${meeting.mentor.company}` : ""}
                     </p>
-                    <p className="text-[11px] text-(--muted) flex items-center gap-1.5 mt-1.5 font-semibold">
+                    <p className="text-[11px] text-[var()] flex items-center gap-1.5 mt-1.5 font-semibold">
                       <Clock className="h-3 w-3" />
                       {formatRelativeDate(meeting.scheduledAt)} at {formatTime(meeting.scheduledAt)} ({meeting.durationMinutes} mins)
                     </p>
 
                     {(meeting.userNotes || meeting.mentorNotes) && (
-                      <div className="mt-2.5 flex flex-col gap-1.5 bg-(--fg)/[0.02] border border-(--hairline)/40 rounded-lg p-2.5 max-w-lg">
+                      <div className="mt-2.5 flex flex-col gap-1.5 bg-[var()]/[0.02] border border-[var()]/40 rounded-lg p-2.5 max-w-lg">
                         {meeting.userNotes && (
-                          <p className="text-[11px] text-(--muted) leading-relaxed line-clamp-1">
-                            <span className="font-semibold text-(--fg)/80">My Notes:</span> {meeting.userNotes}
+                          <p className="text-[11px] text-[var()] leading-relaxed line-clamp-1">
+                            <span className="font-semibold text-[var()]/80">My Notes:</span> {meeting.userNotes}
                           </p>
                         )}
                         {meeting.mentorNotes && (
-                          <p className="text-[11px] text-(--muted) leading-relaxed line-clamp-1">
-                            <span className="font-semibold text-(--fg)/80">Mentor Notes:</span> {meeting.mentorNotes}
+                          <p className="text-[11px] text-[var()] leading-relaxed line-clamp-1">
+                            <span className="font-semibold text-[var()]/80">Mentor Notes:</span> {meeting.mentorNotes}
                           </p>
                         )}
                       </div>
@@ -2153,7 +2153,7 @@ export function AIChatWidget() {
                   <button
                     type="button"
                     onClick={() => startMeetingChat(meeting.id, meeting.mentor.displayName, meeting.scheduledAt)}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-(--accent-fg) bg-(--accent) hover:opacity-90 rounded-full px-4 py-2 transition-all cursor-pointer shadow-sm active:scale-95"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var()] bg-[var()] hover:opacity-90 rounded-full px-4 py-2 transition-all cursor-pointer shadow-sm active:scale-95"
                   >
                     <MessageSquare className="h-3.5 w-3.5" />
                     Discuss Notes
@@ -2173,22 +2173,22 @@ export function AIChatWidget() {
             {historyLoading && (
               <div className="flex flex-col gap-3">
                 {[1, 2, 3].map(i => (
-                  <div key={i} className="h-20 rounded-xl bg-(--fg)/[0.03] animate-pulse" />
+                  <div key={i} className="h-20 rounded-xl bg-[var()]/[0.03] animate-pulse" />
                 ))}
               </div>
             )}
 
             {!historyLoading && historyGroups.length === 0 && (
               <div className="flex flex-col items-center justify-center gap-4 py-16 text-center max-w-sm mx-auto">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-(--fg)/5">
-                  <Clock className="h-6 w-6 text-(--muted)" />
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var()]/5">
+                  <Clock className="h-6 w-6 text-[var()]" />
                 </div>
                 <p className="text-sm font-semibold">No chat history yet</p>
-                <p className="text-xs text-(--muted) leading-relaxed">Start a conversation to see your smart, AI-summarized history items here.</p>
+                <p className="text-xs text-[var()] leading-relaxed">Start a conversation to see your smart, AI-summarized history items here.</p>
                 <button
                   type="button"
                   onClick={() => setActiveTab("chat")}
-                  className="inline-flex items-center gap-2 text-xs font-semibold rounded-full bg-(--accent) text-(--accent-fg) px-5 py-2.5 hover:opacity-90 transition-opacity cursor-pointer mt-2"
+                  className="inline-flex items-center gap-2 text-xs font-semibold rounded-full bg-[var()] text-[var()] px-5 py-2.5 hover:opacity-90 transition-opacity cursor-pointer mt-2"
                 >
                   <Plus className="h-4 w-4" /> Start Chatting
                 </button>
@@ -2199,11 +2199,11 @@ export function AIChatWidget() {
               <div key={group.date} className="mb-6 sm:mb-8">
                 {/* Date header */}
                 <div className="flex items-center gap-3 mb-3.5">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-(--muted)">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var()]">
                     {formatRelativeDate(group.date)}
                   </span>
-                  <div className="flex-1 h-px bg-(--hairline)" />
-                  <span className="text-[10px] font-bold text-(--muted)/85 uppercase tracking-[0.05em]">{group.sessions.length} {group.sessions.length === 1 ? "chat" : "chats"}</span>
+                  <div className="flex-1 h-px bg-[var()]" />
+                  <span className="text-[10px] font-bold text-[var()]/85 uppercase tracking-[0.05em]">{group.sessions.length} {group.sessions.length === 1 ? "chat" : "chats"}</span>
                 </div>
 
                 {/* Session cards */}
@@ -2216,7 +2216,7 @@ export function AIChatWidget() {
                           resumeSession(session.id, session.title);
                         }
                       }}
-                      className="group flex items-center justify-between gap-3 sm:gap-4 rounded-xl bg-(--fg)/[0.02] hover:bg-(--fg)/5 border border-(--hairline) hover:border-(--fg)/10 p-3.5 sm:p-4 text-left transition-all cursor-pointer shadow-sm"
+                      className="group flex items-center justify-between gap-3 sm:gap-4 rounded-xl bg-[var()]/[0.02] hover:bg-[var()]/5 border border-[var()] hover:border-[var()]/10 p-3.5 sm:p-4 text-left transition-all cursor-pointer shadow-sm"
                       role="button"
                       tabIndex={0}
                       onKeyDown={(e) => {
@@ -2226,8 +2226,8 @@ export function AIChatWidget() {
                       }}
                     >
                       <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-                        <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-(--accent)/10 shrink-0">
-                          <MessageSquare className="h-4.5 w-4.5 text-(--accent)" />
+                        <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-[var()]/10 shrink-0">
+                          <MessageSquare className="h-4.5 w-4.5 text-[var()]" />
                         </div>
 
                         <div className="flex-1 min-w-0">
@@ -2237,7 +2237,7 @@ export function AIChatWidget() {
                                 type="text"
                                 value={editingTitle}
                                 onChange={(e) => setEditingTitle(e.target.value)}
-                                className="text-sm font-semibold bg-(--fg)/5 px-2 py-1 rounded border border-(--hairline) outline-none focus:border-(--accent) w-full text-(--fg)"
+                                className="text-sm font-semibold bg-[var()]/5 px-2 py-1 rounded border border-[var()] outline-none focus:border-[var()] w-full text-[var()]"
                                 maxLength={60}
                                 autoFocus
                                 onKeyDown={(e) => {
@@ -2267,15 +2267,15 @@ export function AIChatWidget() {
                             </div>
                           ) : (
                             <>
-                              <p className="text-sm font-semibold truncate text-(--fg) tracking-tight">
+                              <p className="text-sm font-semibold truncate text-[var()] tracking-tight">
                                 {session.title || "Untitled chat"}
                               </p>
                               {session.summaryPreview && (
-                                <p className="text-xs text-(--muted) leading-relaxed line-clamp-1 mt-0.5 font-medium">
+                                <p className="text-xs text-[var()] leading-relaxed line-clamp-1 mt-0.5 font-medium">
                                   {session.summaryPreview}
                                 </p>
                               )}
-                              <div className="flex items-center gap-2 mt-1 font-semibold text-[10px] text-(--muted)">
+                              <div className="flex items-center gap-2 mt-1 font-semibold text-[10px] text-[var()]">
                                 <span className="flex items-center gap-1">
                                   <Clock className="h-3 w-3" />
                                   {formatTime(session.createdAt)}
@@ -2300,7 +2300,7 @@ export function AIChatWidget() {
                               setEditingSessionId(session.id);
                               setEditingTitle(session.title || "Untitled chat");
                             }}
-                            className="p-2 text-(--muted) hover:text-(--accent) hover:bg-(--accent)/5 rounded-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all cursor-pointer"
+                            className="p-2 text-[var()] hover:text-[var()] hover:bg-[var()]/5 rounded-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all cursor-pointer"
                             title="Rename chat"
                           >
                             <Edit2 className="h-3.5 w-3.5" />
@@ -2308,12 +2308,12 @@ export function AIChatWidget() {
                           <button
                             type="button"
                             onClick={(e) => handleDeleteSession(session.id, e)}
-                            className="p-2 text-(--muted) hover:text-red-500 hover:bg-red-500/5 rounded-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all cursor-pointer"
+                            className="p-2 text-[var()] hover:text-red-500 hover:bg-red-500/5 rounded-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all cursor-pointer"
                             title="Delete session"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
-                          <ChevronRight className="h-4.5 w-4.5 text-(--muted)/60" />
+                          <ChevronRight className="h-4.5 w-4.5 text-[var()]/60" />
                         </div>
                       )}
                     </div>

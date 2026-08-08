@@ -104,20 +104,20 @@ export default function AdminReviewsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">
+          <p className="text-sm uppercase tracking-[0.22em] text-[var()]">
             Admin Management
           </p>
           <h1 className="font-display text-4xl leading-tight">
             Review Moderation
           </h1>
-          <p className="text-sm text-(--muted)">
+          <p className="text-sm text-[var()]">
             Manage, filter, and moderate all platform mentor ratings and reviews.
           </p>
         </div>
 
         <button
           onClick={handleExport}
-          className="inline-flex items-center gap-2 self-start sm:self-auto px-4 py-2.5 rounded-full text-xs font-semibold border border-(--hairline) hover:bg-(--fg)/5 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 self-start sm:self-auto px-4 py-2.5 rounded-full text-xs font-semibold border border-[var()] hover:bg-[var()]/5 transition-colors cursor-pointer"
         >
           <Download className="w-4 h-4" />
           Export JSON
@@ -128,13 +128,13 @@ export default function AdminReviewsPage() {
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-(--muted)" />
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var()]" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by mentee, mentor, feedback or tags..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm border border-(--hairline) bg-(--fg)/[0.02] focus:outline-none focus:border-(--fg)"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm border border-[var()] bg-[var()]/[0.02] focus:outline-none focus:border-[var()]"
           />
         </div>
 
@@ -144,8 +144,8 @@ export default function AdminReviewsPage() {
             onClick={() => setRatingFilter("ALL")}
             className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
               ratingFilter === "ALL"
-                ? "bg-(--fg) text-(--bg)"
-                : "bg-(--fg)/5 text-(--muted) hover:bg-(--fg)/10"
+                ? "bg-[var()] text-[var()]"
+                : "bg-[var()]/5 text-[var()] hover:bg-[var()]/10"
             }`}
           >
             All ({reviews.length})
@@ -159,7 +159,7 @@ export default function AdminReviewsPage() {
                 className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1 ${
                   ratingFilter === r
                     ? "bg-amber-500 text-black"
-                    : "bg-(--fg)/5 text-(--muted) hover:bg-(--fg)/10"
+                    : "bg-[var()]/5 text-[var()] hover:bg-[var()]/10"
                 }`}
               >
                 {r} ★ ({cnt})
@@ -181,29 +181,29 @@ export default function AdminReviewsPage() {
           {filteredReviews.map((rev) => (
             <div
               key={rev.id}
-              className="rounded-2xl border p-5 flex flex-col gap-3 bg-(--fg)/[0.02] border-(--hairline) hover:border-(--fg)/20 transition-all"
+              className="rounded-2xl border p-5 flex flex-col gap-3 bg-[var()]/[0.02] border-[var()] hover:border-[var()]/20 transition-all"
             >
               {/* Header */}
               <div className="flex items-start justify-between gap-3">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-sm text-(--fg)">
+                    <span className="font-semibold text-sm text-[var()]">
                       {rev.anonymous ? "Anonymous" : rev.userName}
                     </span>
                     {rev.anonymous && (
-                      <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-(--fg)/10 text-(--muted)">
+                      <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-[var()]/10 text-[var()]">
                         Anon
                       </span>
                     )}
                   </div>
-                  <span className="text-xs text-(--muted)">
+                  <span className="text-xs text-[var()]">
                     reviewed mentor{" "}
-                    <strong className="text-(--fg)">{rev.mentorName}</strong>
+                    <strong className="text-[var()]">{rev.mentorName}</strong>
                   </span>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-(--muted)">
+                  <span className="text-xs text-[var()]">
                     {formatDate(rev.createdAt)}
                   </span>
                   <button
@@ -230,7 +230,7 @@ export default function AdminReviewsPage() {
                   rev.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="text-[11px] font-medium px-2.5 py-0.5 rounded-full border bg-(--fg)/[0.03] border-(--hairline)"
+                      className="text-[11px] font-medium px-2.5 py-0.5 rounded-full border bg-[var()]/[0.03] border-[var()]"
                     >
                       {tag}
                     </span>
@@ -239,7 +239,7 @@ export default function AdminReviewsPage() {
 
               {/* Feedback */}
               {rev.feedback && (
-                <p className="text-sm text-(--fg)/80 leading-relaxed bg-(--fg)/[0.02] p-3 rounded-xl border border-(--hairline)">
+                <p className="text-sm text-[var()]/80 leading-relaxed bg-[var()]/[0.02] p-3 rounded-xl border border-[var()]">
                   {rev.feedback}
                 </p>
               )}
@@ -248,7 +248,7 @@ export default function AdminReviewsPage() {
         </div>
       ) : (
         <EmptyState
-          icon={<ShieldAlert className="h-8 w-8 text-(--muted)" />}
+          icon={<ShieldAlert className="h-8 w-8 text-[var()]" />}
           title="No reviews match filters"
           description="Try adjusting your search keywords or rating filter."
         />

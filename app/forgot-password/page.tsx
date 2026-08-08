@@ -73,7 +73,7 @@ export default function ForgotPasswordPage() {
         <div>
           <Link
             href="/signin"
-            className="text-xs uppercase tracking-[0.22em] text-(--muted) hover:text-(--fg) transition-colors"
+            className="text-xs uppercase tracking-[0.22em] text-[var()] hover:text-[var()] transition-colors"
           >
             ← Back to sign in
           </Link>
@@ -83,11 +83,11 @@ export default function ForgotPasswordPage() {
         {step === 1 && (
           <>
             <div className="flex flex-col gap-3 animate-fade-in">
-              <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">
+              <p className="text-sm uppercase tracking-[0.22em] text-[var()]">
                 Reset password
               </p>
               <h1 className="font-display text-5xl leading-none">Forgot?</h1>
-              <p className="text-(--muted) leading-relaxed">
+              <p className="text-[var()] leading-relaxed">
                 Enter your email and we'll send you a secure link to reset
                 your password — no code needed.
               </p>
@@ -101,7 +101,7 @@ export default function ForgotPasswordPage() {
 
             <form className="flex flex-col gap-5" onSubmit={handleEmailSubmit}>
               <label className="flex flex-col gap-2 text-sm">
-                <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">
+                <span className="text-[var()] text-xs uppercase tracking-[0.18em]">
                   Email
                 </span>
                 <input
@@ -110,7 +110,7 @@ export default function ForgotPasswordPage() {
                   placeholder="you@domain.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors"
+                  className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors"
                   autoComplete="email"
                 />
               </label>
@@ -118,7 +118,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="self-start rounded-full bg-(--accent) text-(--accent-fg) px-7 py-3.5 text-sm hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="self-start rounded-full bg-[var()] text-[var()] px-7 py-3.5 text-sm hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Sending link…" : "Send reset link"}
               </button>
@@ -131,19 +131,19 @@ export default function ForgotPasswordPage() {
           <>
             <div className="flex flex-col gap-3 animate-fade-in">
               {/* Envelope illustration */}
-              <div className="w-16 h-16 rounded-2xl bg-(--fg)/6 flex items-center justify-center mb-1">
-                <svg className="w-8 h-8 text-(--fg)" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+              <div className="w-16 h-16 rounded-2xl bg-[var()]/6 flex items-center justify-center mb-1">
+                <svg className="w-8 h-8 text-[var()]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
                 </svg>
               </div>
 
-              <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">
+              <p className="text-sm uppercase tracking-[0.22em] text-[var()]">
                 Check your inbox
               </p>
               <h1 className="font-display text-5xl leading-none">Link sent.</h1>
-              <p className="text-(--muted) leading-relaxed">
+              <p className="text-[var()] leading-relaxed">
                 We emailed a secure reset link to{" "}
-                <strong className="text-(--fg)">{email}</strong>.{" "}
+                <strong className="text-[var()]">{email}</strong>.{" "}
                 Click the link in the email to choose a new password.
               </p>
             </div>
@@ -166,7 +166,7 @@ export default function ForgotPasswordPage() {
                 href="https://mail.google.com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-3 w-full rounded-full border border-(--fg)/15 bg-(--fg)/5 hover:bg-(--fg)/10 transition-colors px-7 py-3.5 text-sm font-medium cursor-pointer"
+                className="flex items-center justify-center gap-3 w-full rounded-full border border-[var()]/15 bg-[var()]/5 hover:bg-[var()]/10 transition-colors px-7 py-3.5 text-sm font-medium cursor-pointer"
               >
                 {/* Gmail icon */}
                 <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none">
@@ -179,7 +179,7 @@ export default function ForgotPasswordPage() {
               {/* Also support other mail clients */}
               <a
                 href={`mailto:${email}`}
-                className="flex items-center justify-center gap-2 w-full rounded-full border border-(--fg)/10 hover:bg-(--fg)/5 transition-colors px-7 py-3 text-sm text-(--muted) cursor-pointer"
+                className="flex items-center justify-center gap-2 w-full rounded-full border border-[var()]/10 hover:bg-[var()]/5 transition-colors px-7 py-3 text-sm text-[var()] cursor-pointer"
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
@@ -189,14 +189,14 @@ export default function ForgotPasswordPage() {
             </div>
 
             {/* Resend + back */}
-            <div className="flex flex-col gap-4 text-sm border-t border-(--fg)/5 pt-6">
-              <p className="text-(--muted)">
+            <div className="flex flex-col gap-4 text-sm border-t border-[var()]/5 pt-6">
+              <p className="text-[var()]">
                 Didn't get the email?{" "}
                 <button
                   type="button"
                   disabled={cooldown > 0 || resending}
                   onClick={handleResend}
-                  className="text-(--fg) font-medium underline underline-offset-4 hover:opacity-80 transition-opacity disabled:opacity-40 disabled:no-underline cursor-pointer"
+                  className="text-[var()] font-medium underline underline-offset-4 hover:opacity-80 transition-opacity disabled:opacity-40 disabled:no-underline cursor-pointer"
                 >
                   {cooldown > 0
                     ? `Resend in ${cooldown}s`
@@ -209,7 +209,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="button"
                 onClick={() => { setStep(1); setError(""); setResendSuccess(""); }}
-                className="self-start text-xs uppercase tracking-[0.18em] text-(--muted) hover:text-(--fg) transition-colors cursor-pointer"
+                className="self-start text-xs uppercase tracking-[0.18em] text-[var()] hover:text-[var()] transition-colors cursor-pointer"
               >
                 ← Wrong email? Change it
               </button>

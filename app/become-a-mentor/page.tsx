@@ -146,12 +146,12 @@ export default function BecomeMentorPage() {
 
   return (
     <div className="min-h-screen">
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-(--bg)/70">
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[var()]/70">
         <nav className="mx-auto flex max-w-[800px] items-center justify-between px-6 py-5">
           <Link href="/" className="font-display text-2xl tracking-tight">
-            HelpMeMan<span className="text-(--muted)">.</span>
+            HelpMeMan<span className="text-[var()]">.</span>
           </Link>
-          <Link href="/signin" className="text-sm text-(--muted) hover:text-(--fg)">
+          <Link href="/signin" className="text-sm text-[var()] hover:text-[var()]">
             Already have an account?
           </Link>
         </nav>
@@ -165,13 +165,13 @@ export default function BecomeMentorPage() {
               <CheckCircle className="h-8 w-8 text-emerald-500" />
             </div>
             <h1 className="font-display text-3xl">Application submitted!</h1>
-            <p className="text-(--muted) max-w-sm leading-relaxed">
+            <p className="text-[var()] max-w-sm leading-relaxed">
               Your mentor application is under review. You&rsquo;ll receive an
               email once approved. This usually takes 24–48 hours.
             </p>
             <Link
               href="/mentor"
-              className="rounded-full bg-(--accent) text-(--accent-fg) px-7 py-3 text-sm hover:opacity-90"
+              className="rounded-full bg-[var()] text-[var()] px-7 py-3 text-sm hover:opacity-90"
             >
               Go to Mentor Dashboard
             </Link>
@@ -185,17 +185,17 @@ export default function BecomeMentorPage() {
                   <div
                     className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium shrink-0 ${
                       i <= currentIdx
-                        ? "bg-(--accent) text-(--accent-fg)"
-                        : "bg-(--fg)/5 text-(--muted)"
+                        ? "bg-[var()] text-[var()]"
+                        : "bg-[var()]/5 text-[var()]"
                     }`}
                   >
                     {i + 1}
                   </div>
-                  <span className={`text-xs hidden sm:block ${i <= currentIdx ? "text-(--fg)" : "text-(--muted)"}`}>
+                  <span className={`text-xs hidden sm:block ${i <= currentIdx ? "text-[var()]" : "text-[var()]"}`}>
                     {s.label}
                   </span>
                   {i < steps.length - 1 && (
-                    <div className={`flex-1 h-px ${i < currentIdx ? "bg-(--accent)" : "bg-(--fg)/10"}`} />
+                    <div className={`flex-1 h-px ${i < currentIdx ? "bg-[var()]" : "bg-[var()]/10"}`} />
                   )}
                 </div>
               ))}
@@ -214,37 +214,37 @@ export default function BecomeMentorPage() {
                 className="flex flex-col gap-6"
               >
                 <div className="flex flex-col gap-2">
-                  <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">Step 1</p>
+                  <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Step 1</p>
                   <h1 className="font-display text-3xl">Personal information.</h1>
                 </div>
 
                 <label className="flex flex-col gap-2 text-sm">
-                  <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Full Name</span>
+                  <span className="text-[var()] text-xs uppercase tracking-[0.18em]">Full Name</span>
                   <input type="text" required value={name} onChange={(e) => setName(e.target.value)}
-                    className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors" />
+                    className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors" />
                 </label>
                 <label className="flex flex-col gap-2 text-sm">
-                  <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Email</span>
+                  <span className="text-[var()] text-xs uppercase tracking-[0.18em]">Email</span>
                   <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
                     disabled={!!user}
-                    className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors disabled:opacity-50" />
+                    className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors disabled:opacity-50" />
                 </label>
                 {!user && (
                   <label className="flex flex-col gap-2 text-sm">
-                    <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Password</span>
+                    <span className="text-[var()] text-xs uppercase tracking-[0.18em]">Password</span>
                     <input type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)}
                       placeholder="At least 8 characters"
-                      className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors" />
+                      className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors" />
                   </label>
                 )}
                 <label className="flex flex-col gap-2 text-sm">
-                  <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Phone (optional)</span>
+                  <span className="text-[var()] text-xs uppercase tracking-[0.18em]">Phone (optional)</span>
                   <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
                     placeholder="+91..."
-                    className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors" />
+                    className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors" />
                 </label>
 
-                <button type="submit" className="self-end flex items-center gap-2 rounded-full bg-(--accent) text-(--accent-fg) px-7 py-3 text-sm hover:opacity-90 cursor-pointer">
+                <button type="submit" className="self-end flex items-center gap-2 rounded-full bg-[var()] text-[var()] px-7 py-3 text-sm hover:opacity-90 cursor-pointer">
                   Next <ArrowRight className="h-4 w-4" />
                 </button>
               </form>
@@ -257,7 +257,7 @@ export default function BecomeMentorPage() {
                 className="flex flex-col gap-6"
               >
                 <div className="flex flex-col gap-2">
-                  <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">Step 2</p>
+                  <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Step 2</p>
                   <h1 className="font-display text-3xl">Your institution.</h1>
                 </div>
 
@@ -266,7 +266,7 @@ export default function BecomeMentorPage() {
                     <button key={opt.value} type="button"
                       onClick={() => setInstitutionType(opt.value)}
                       className={`flex flex-col items-center gap-2 rounded-xl py-4 text-sm cursor-pointer transition-colors ${
-                        institutionType === opt.value ? "bg-(--accent) text-(--accent-fg)" : "bg-(--fg)/[0.02] hover:bg-(--fg)/5"
+                        institutionType === opt.value ? "bg-[var()] text-[var()]" : "bg-[var()]/[0.02] hover:bg-[var()]/5"
                       }`}>
                       <opt.icon className="h-5 w-5" />
                       {opt.label}
@@ -275,39 +275,39 @@ export default function BecomeMentorPage() {
                 </div>
 
                 <label className="flex flex-col gap-2 text-sm">
-                  <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Institution Name</span>
+                  <span className="text-[var()] text-xs uppercase tracking-[0.18em]">Institution Name</span>
                   <input type="text" required value={institutionName} onChange={(e) => setInstitutionName(e.target.value)}
                     placeholder="e.g. IIT Bombay, Google, YC Startup"
-                    className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors" />
+                    className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors" />
                 </label>
                 <label className="flex flex-col gap-2 text-sm">
-                  <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Institution Email</span>
+                  <span className="text-[var()] text-xs uppercase tracking-[0.18em]">Institution Email</span>
                   <input type="email" required value={institutionEmail} onChange={(e) => setInstitutionEmail(e.target.value)}
                     placeholder="you@iitb.ac.in / you@google.com"
-                    className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors" />
-                  <span className="text-[11px] text-(--muted)">We&rsquo;ll send an OTP to verify this email.</span>
+                    className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors" />
+                  <span className="text-[11px] text-[var()]">We&rsquo;ll send an OTP to verify this email.</span>
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   <label className="flex flex-col gap-2 text-sm">
-                    <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Department</span>
+                    <span className="text-[var()] text-xs uppercase tracking-[0.18em]">Department</span>
                     <input type="text" value={department} onChange={(e) => setDepartment(e.target.value)}
                       placeholder="e.g. CS, Product"
-                      className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors" />
+                      className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors" />
                   </label>
                   <label className="flex flex-col gap-2 text-sm">
-                    <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Graduation Year</span>
+                    <span className="text-[var()] text-xs uppercase tracking-[0.18em]">Graduation Year</span>
                     <input type="number" min={2000} max={2035} value={graduationYear} onChange={(e) => setGraduationYear(e.target.value)}
                       placeholder="2023"
-                      className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors" />
+                      className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors" />
                   </label>
                 </div>
 
                 <div className="flex justify-between">
                   <button type="button" onClick={() => setStep("info")}
-                    className="flex items-center gap-2 text-sm text-(--muted) hover:text-(--fg) cursor-pointer">
+                    className="flex items-center gap-2 text-sm text-[var()] hover:text-[var()] cursor-pointer">
                     <ArrowLeft className="h-4 w-4" /> Back
                   </button>
-                  <button type="submit" className="flex items-center gap-2 rounded-full bg-(--accent) text-(--accent-fg) px-7 py-3 text-sm hover:opacity-90 cursor-pointer">
+                  <button type="submit" className="flex items-center gap-2 rounded-full bg-[var()] text-[var()] px-7 py-3 text-sm hover:opacity-90 cursor-pointer">
                     Next <ArrowRight className="h-4 w-4" />
                   </button>
                 </div>
@@ -318,52 +318,52 @@ export default function BecomeMentorPage() {
             {step === "expertise" && (
               <form onSubmit={handleSendOTP} className="flex flex-col gap-6">
                 <div className="flex flex-col gap-2">
-                  <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">Step 3</p>
+                  <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Step 3</p>
                   <h1 className="font-display text-3xl">Your expertise.</h1>
                 </div>
 
                 <label className="flex flex-col gap-2 text-sm">
-                  <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Display Name</span>
+                  <span className="text-[var()] text-xs uppercase tracking-[0.18em]">Display Name</span>
                   <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)}
                     placeholder={name || "How students will see you"}
-                    className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors" />
+                    className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors" />
                 </label>
                 <label className="flex flex-col gap-2 text-sm">
-                  <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Bio</span>
+                  <span className="text-[var()] text-xs uppercase tracking-[0.18em]">Bio</span>
                   <textarea required value={bio} onChange={(e) => setBio(e.target.value)} rows={4}
                     placeholder="Tell students about your journey..."
-                    className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors resize-none" />
+                    className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors resize-none" />
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   <label className="flex flex-col gap-2 text-sm">
-                    <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Current Role</span>
+                    <span className="text-[var()] text-xs uppercase tracking-[0.18em]">Current Role</span>
                     <input type="text" value={currentRole} onChange={(e) => setCurrentRole(e.target.value)}
                       placeholder="SDE-2, PM, Founder..."
-                      className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors" />
+                      className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors" />
                   </label>
                   <label className="flex flex-col gap-2 text-sm">
-                    <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Company</span>
+                    <span className="text-[var()] text-xs uppercase tracking-[0.18em]">Company</span>
                     <input type="text" value={company} onChange={(e) => setCompany(e.target.value)}
                       placeholder="Google, Startup name..."
-                      className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors" />
+                      className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors" />
                   </label>
                 </div>
                 <label className="flex flex-col gap-2 text-sm">
-                  <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">LinkedIn URL</span>
+                  <span className="text-[var()] text-xs uppercase tracking-[0.18em]">LinkedIn URL</span>
                   <input type="url" value={linkedinUrl} onChange={(e) => setLinkedinUrl(e.target.value)}
                     placeholder="https://linkedin.com/in/..."
-                    className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors" />
+                    className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors" />
                 </label>
                 <label className="flex flex-col gap-2 text-sm">
-                  <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Expertise (comma-separated)</span>
+                  <span className="text-[var()] text-xs uppercase tracking-[0.18em]">Expertise (comma-separated)</span>
                   <input type="text" required value={expertise} onChange={(e) => setExpertise(e.target.value)}
                     placeholder="DSA, System Design, PM Interviews"
-                    className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors" />
+                    className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors" />
                 </label>
                 <label className="flex flex-col gap-2 text-sm">
-                  <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Category</span>
+                  <span className="text-[var()] text-xs uppercase tracking-[0.18em]">Category</span>
                   <select required value={categoryId} onChange={(e) => setCategoryId(e.target.value)}
-                    className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none cursor-pointer">
+                    className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none cursor-pointer">
                     <option value="">Select a category</option>
                     {categories.map((c) => (
                       <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
@@ -372,14 +372,14 @@ export default function BecomeMentorPage() {
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   <label className="flex flex-col gap-2 text-sm">
-                    <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Price per session (₹)</span>
+                    <span className="text-[var()] text-xs uppercase tracking-[0.18em]">Price per session (₹)</span>
                     <input type="number" required min={0} value={pricePerSession} onChange={(e) => setPricePerSession(e.target.value)}
-                      className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors" />
+                      className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors" />
                   </label>
                   <label className="flex flex-col gap-2 text-sm">
-                    <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Duration (min)</span>
+                    <span className="text-[var()] text-xs uppercase tracking-[0.18em]">Duration (min)</span>
                     <select value={sessionDuration} onChange={(e) => setSessionDuration(e.target.value)}
-                      className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none cursor-pointer">
+                      className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none cursor-pointer">
                       <option value="15">15 min</option>
                       <option value="30">30 min</option>
                       <option value="45">45 min</option>
@@ -390,11 +390,11 @@ export default function BecomeMentorPage() {
 
                 <div className="flex justify-between">
                   <button type="button" onClick={() => setStep("institution")}
-                    className="flex items-center gap-2 text-sm text-(--muted) hover:text-(--fg) cursor-pointer">
+                    className="flex items-center gap-2 text-sm text-[var()] hover:text-[var()] cursor-pointer">
                     <ArrowLeft className="h-4 w-4" /> Back
                   </button>
                   <button type="submit" disabled={loading}
-                    className="flex items-center gap-2 rounded-full bg-(--accent) text-(--accent-fg) px-7 py-3 text-sm hover:opacity-90 cursor-pointer disabled:opacity-50">
+                    className="flex items-center gap-2 rounded-full bg-[var()] text-[var()] px-7 py-3 text-sm hover:opacity-90 cursor-pointer disabled:opacity-50">
                     {loading ? "Sending OTP…" : "Verify & Submit"} <Mail className="h-4 w-4" />
                   </button>
                 </div>
@@ -405,27 +405,27 @@ export default function BecomeMentorPage() {
             {step === "otp" && (
               <form onSubmit={handleVerifyOTP} className="flex flex-col gap-6">
                 <div className="flex flex-col gap-2">
-                  <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">Step 4</p>
+                  <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Step 4</p>
                   <h1 className="font-display text-3xl">Verify your institution.</h1>
-                  <p className="text-sm text-(--muted)">
+                  <p className="text-sm text-[var()]">
                     We sent a 6-digit OTP to <strong>{institutionEmail}</strong>
                   </p>
                 </div>
 
                 <label className="flex flex-col gap-2 text-sm">
-                  <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">OTP Code</span>
+                  <span className="text-[var()] text-xs uppercase tracking-[0.18em]">OTP Code</span>
                   <input type="text" required maxLength={6} value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
                     placeholder="Enter 6-digit code"
-                    className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors text-center text-2xl tracking-[0.3em] font-mono" />
+                    className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors text-center text-2xl tracking-[0.3em] font-mono" />
                 </label>
 
                 <div className="flex justify-between">
                   <button type="button" onClick={() => setStep("expertise")}
-                    className="flex items-center gap-2 text-sm text-(--muted) hover:text-(--fg) cursor-pointer">
+                    className="flex items-center gap-2 text-sm text-[var()] hover:text-[var()] cursor-pointer">
                     <ArrowLeft className="h-4 w-4" /> Back
                   </button>
                   <button type="submit" disabled={loading || otp.length < 6}
-                    className="flex items-center gap-2 rounded-full bg-(--accent) text-(--accent-fg) px-7 py-3 text-sm hover:opacity-90 cursor-pointer disabled:opacity-50">
+                    className="flex items-center gap-2 rounded-full bg-[var()] text-[var()] px-7 py-3 text-sm hover:opacity-90 cursor-pointer disabled:opacity-50">
                     {loading ? "Verifying…" : "Complete Registration"}
                   </button>
                 </div>

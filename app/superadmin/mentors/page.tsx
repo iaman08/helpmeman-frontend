@@ -78,25 +78,25 @@ export default function SuperAdminMentorsPage() {
   return (
     <div className="flex flex-col gap-8 relative">
       <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">Super Admin</p>
+        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Super Admin</p>
         <h1 className="font-display text-4xl leading-tight">Mentors.</h1>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 mb-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--muted)" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var()]" />
           <input
             type="text"
             placeholder="Search by name..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="w-full bg-(--fg)/5 border-none rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-(--fg)/20"
+            className="w-full bg-[var()]/5 border-none rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-[var()]/20"
           />
         </div>
         <select
           value={status}
           onChange={(e) => { setStatus(e.target.value); setPage(1); }}
-          className="bg-(--fg)/5 border-none rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-(--fg)/20"
+          className="bg-[var()]/5 border-none rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-[var()]/20"
         >
           <option value="All">All Statuses</option>
           <option value="PENDING">Pending</option>
@@ -105,10 +105,10 @@ export default function SuperAdminMentorsPage() {
         </select>
       </div>
 
-      <div className="bg-(--fg)/[0.02] rounded-2xl overflow-hidden border border-(--hairline)">
+      <div className="bg-[var()]/[0.02] rounded-2xl overflow-hidden border border-[var()]">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-xs uppercase tracking-wider text-(--muted) bg-(--fg)/5">
+            <thead className="text-xs uppercase tracking-wider text-[var()] bg-[var()]/5">
               <tr>
                 <th className="px-6 py-4 font-medium">Mentor</th>
                 <th className="px-6 py-4 font-medium">Institution</th>
@@ -117,7 +117,7 @@ export default function SuperAdminMentorsPage() {
                 <th className="px-6 py-4 font-medium">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-(--hairline)">
+            <tbody className="divide-y divide-[var()]">
               {loading ? (
                 Array(5).fill(0).map((_, i) => (
                   <tr key={i}>
@@ -130,23 +130,23 @@ export default function SuperAdminMentorsPage() {
                 ))
               ) : mentors.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-10 text-center text-(--muted)">No mentors found.</td>
+                  <td colSpan={5} className="px-6 py-10 text-center text-[var()]">No mentors found.</td>
                 </tr>
               ) : (
                 mentors.map((mentor) => (
-                  <tr key={mentor.id} className="hover:bg-(--fg)/5 transition-colors">
+                  <tr key={mentor.id} className="hover:bg-[var()]/5 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
-                        <span className="font-medium text-(--fg)">{mentor.user?.name}</span>
-                        <span className="text-xs text-(--muted)">{mentor.user?.email}</span>
+                        <span className="font-medium text-[var()]">{mentor.user?.name}</span>
+                        <span className="text-xs text-[var()]">{mentor.user?.email}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-(--muted)">{mentor.institution || '-'}</td>
+                    <td className="px-6 py-4 text-[var()]">{mentor.institution || '-'}</td>
                     <td className="px-6 py-4">
                       <StatusBadge status={mentor.approvalStatus} />
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex flex-col text-xs text-(--muted)">
+                      <div className="flex flex-col text-xs text-[var()]">
                         <span>Sessions: {mentor.sessionsCompleted}</span>
                         <span>Rating: {mentor.averageRating.toFixed(1)}</span>
                       </div>
@@ -179,20 +179,20 @@ export default function SuperAdminMentorsPage() {
         </div>
         
         {!loading && totalPages > 1 && (
-          <div className="flex items-center justify-between px-6 py-4 border-t border-(--hairline)">
-            <span className="text-sm text-(--muted)">Page {page} of {totalPages}</span>
+          <div className="flex items-center justify-between px-6 py-4 border-t border-[var()]">
+            <span className="text-sm text-[var()]">Page {page} of {totalPages}</span>
             <div className="flex gap-2">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="p-1 rounded bg-(--fg)/5 disabled:opacity-50 hover:bg-(--fg)/10"
+                className="p-1 rounded bg-[var()]/5 disabled:opacity-50 hover:bg-[var()]/10"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="p-1 rounded bg-(--fg)/5 disabled:opacity-50 hover:bg-(--fg)/10"
+                className="p-1 rounded bg-[var()]/5 disabled:opacity-50 hover:bg-[var()]/10"
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
@@ -203,19 +203,19 @@ export default function SuperAdminMentorsPage() {
 
       {rejectId && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-          <div className="bg-(--bg) p-6 rounded-2xl w-full max-w-md flex flex-col gap-4 border border-(--hairline)">
+          <div className="bg-[var()] p-6 rounded-2xl w-full max-w-md flex flex-col gap-4 border border-[var()]">
             <h3 className="font-display text-xl">Reject Mentor</h3>
-            <p className="text-sm text-(--muted)">Please provide a reason for rejecting this application.</p>
+            <p className="text-sm text-[var()]">Please provide a reason for rejecting this application.</p>
             <textarea
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
-              className="w-full bg-(--fg)/5 border-none rounded-xl p-3 text-sm outline-none focus:ring-1 focus:ring-red-500/50 min-h-[100px]"
+              className="w-full bg-[var()]/5 border-none rounded-xl p-3 text-sm outline-none focus:ring-1 focus:ring-red-500/50 min-h-[100px]"
               placeholder="Reason for rejection..."
             />
             <div className="flex justify-end gap-2 mt-2">
               <button
                 onClick={() => { setRejectId(null); setRejectReason(""); }}
-                className="px-4 py-2 rounded-xl text-sm font-medium hover:bg-(--fg)/5 transition-colors"
+                className="px-4 py-2 rounded-xl text-sm font-medium hover:bg-[var()]/5 transition-colors"
               >
                 Cancel
               </button>

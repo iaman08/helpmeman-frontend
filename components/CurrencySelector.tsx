@@ -35,20 +35,20 @@ export function CurrencySelector({ align = "right", className = "" }: CurrencySe
     <div className={`relative ${className}`} ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-(--hairline) hover:border-(--fg)/30 hover:bg-(--fg)/5 transition-all text-xs font-semibold cursor-pointer text-(--fg)"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[var()] hover:border-[var()]/30 hover:bg-[var()]/5 transition-all text-xs font-semibold cursor-pointer text-[var()]"
         type="button"
       >
-        <Globe size={13} className="text-(--muted)" />
+        <Globe size={13} className="text-[var()]" />
         <span>{currency} ({activeConfig.symbol})</span>
-        <ChevronDown size={12} className={`text-(--muted) transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+        <ChevronDown size={12} className={`text-[var()] transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
       </button>
 
       {isOpen && (
         <div
-          className={`absolute ${align === "right" ? "right-0" : "left-0"} bottom-full mb-2 sm:top-full sm:bottom-auto sm:mt-2 w-48 rounded-xl py-1.5 shadow-xl border border-(--hairline) z-[999] overflow-hidden`}
+          className={`absolute ${align === "right" ? "right-0" : "left-0"} bottom-full mb-2 sm:top-full sm:bottom-auto sm:mt-2 w-48 rounded-xl py-1.5 shadow-xl border border-[var()] z-[999] overflow-hidden`}
           style={{ background: "var(--bg)" }}
         >
-          <div className="px-3 py-1 text-[10px] uppercase tracking-wider text-(--muted) font-bold border-b border-(--hairline) mb-1 select-none">
+          <div className="px-3 py-1 text-[10px] uppercase tracking-wider text-[var()] font-bold border-b border-[var()] mb-1 select-none">
             Select Currency
           </div>
           <div className="max-h-60 overflow-y-auto">
@@ -56,13 +56,13 @@ export function CurrencySelector({ align = "right", className = "" }: CurrencySe
               <button
                 key={code}
                 onClick={() => handleSelect(code)}
-                className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-(--fg)/5 transition-colors cursor-pointer ${
-                  currency === code ? "font-bold text-(--fg) bg-(--fg)/5" : "text-(--muted) hover:text-(--fg)"
+                className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-[var()]/5 transition-colors cursor-pointer ${
+                  currency === code ? "font-bold text-[var()] bg-[var()]/5" : "text-[var()] hover:text-[var()]"
                 }`}
                 type="button"
               >
                 <span>{config.name}</span>
-                <span className="text-[10px] bg-(--fg)/10 px-1.5 py-0.5 rounded font-mono font-normal">
+                <span className="text-[10px] bg-[var()]/10 px-1.5 py-0.5 rounded font-mono font-normal">
                   {code} ({config.symbol})
                 </span>
               </button>

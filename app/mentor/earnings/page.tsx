@@ -34,7 +34,7 @@ export default function EarningsPage() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">Earnings</p>
+        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Earnings</p>
         <h1 className="font-display text-4xl leading-tight">Your revenue.</h1>
       </div>
 
@@ -45,8 +45,8 @@ export default function EarningsPage() {
           { label: "Paid Out", value: totals.paid, color: "text-emerald-500" },
           { label: "Pending", value: totals.pending, color: "text-amber-500" },
         ].map((card) => (
-          <div key={card.label} className="rounded-2xl bg-(--fg)/[0.02] p-5 flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-(--muted)">
+          <div key={card.label} className="rounded-2xl bg-[var()]/[0.02] p-5 flex flex-col gap-2">
+            <div className="flex items-center gap-2 text-[var()]">
               <DollarSign className="h-4 w-4" />
               <span className="text-xs uppercase tracking-[0.18em]">{card.label}</span>
             </div>
@@ -59,7 +59,7 @@ export default function EarningsPage() {
 
       {/* ─── Transactions ─── */}
       <div>
-        <h2 className="text-xs uppercase tracking-[0.22em] text-(--muted) mb-4">
+        <h2 className="text-xs uppercase tracking-[0.22em] text-[var()] mb-4">
           <TrendingUp className="h-3.5 w-3.5 inline mr-2" />
           Transactions
         </h2>
@@ -71,10 +71,10 @@ export default function EarningsPage() {
         ) : earnings.length > 0 ? (
           <div className="flex flex-col gap-2">
             {earnings.map((e) => (
-              <div key={e.id} className="flex items-center justify-between rounded-xl bg-(--fg)/[0.02] px-5 py-3">
+              <div key={e.id} className="flex items-center justify-between rounded-xl bg-[var()]/[0.02] px-5 py-3">
                 <div className="flex flex-col gap-0.5">
                   <span className="text-sm font-medium"><PriceDisplay amountInPaise={e.amount} /></span>
-                  <span className="text-xs text-(--muted)">{formatDate(e.createdAt)}</span>
+                  <span className="text-xs text-[var()]">{formatDate(e.createdAt)}</span>
                 </div>
                 <span className={`text-xs rounded-full px-3 py-1 ${
                   e.status === "PAID" ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600"

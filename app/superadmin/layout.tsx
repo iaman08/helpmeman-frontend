@@ -62,7 +62,7 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="h-6 w-6 rounded-full border-2 border-(--fg)/20 border-t-(--fg) animate-spin" />
+        <div className="h-6 w-6 rounded-full border-2 border-[var()]/20 border-t-[var()] animate-spin" />
       </div>
     );
   }

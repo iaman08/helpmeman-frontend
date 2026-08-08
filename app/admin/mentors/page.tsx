@@ -30,9 +30,9 @@ export default function AdminMentorsPage() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">Mentors</p>
+        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Mentors</p>
         <h1 className="font-display text-4xl leading-tight">All mentors.</h1>
-        <p className="text-sm text-(--muted)">{mentors.length} mentor{mentors.length !== 1 ? "s" : ""} total</p>
+        <p className="text-sm text-[var()]">{mentors.length} mentor{mentors.length !== 1 ? "s" : ""} total</p>
       </div>
 
       {loading ? (
@@ -43,7 +43,7 @@ export default function AdminMentorsPage() {
         <div className="w-full overflow-x-auto pb-2">
           <div className="min-w-[650px] flex flex-col gap-2">
             {/* Header */}
-            <div className="grid grid-cols-12 gap-4 px-5 py-2 text-[10px] uppercase tracking-[0.22em] text-(--muted)">
+            <div className="grid grid-cols-12 gap-4 px-5 py-2 text-[10px] uppercase tracking-[0.22em] text-[var()]">
               <span className="col-span-3">Name</span>
               <span className="col-span-3">Institution</span>
               <span className="col-span-2">Status</span>
@@ -53,9 +53,9 @@ export default function AdminMentorsPage() {
             </div>
 
             {mentors.map((m) => (
-              <div key={m.id} className="grid grid-cols-12 gap-4 items-center rounded-xl bg-(--fg)/[0.02] px-5 py-3 text-sm">
+              <div key={m.id} className="grid grid-cols-12 gap-4 items-center rounded-xl bg-[var()]/[0.02] px-5 py-3 text-sm">
                 <div className="col-span-3 flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-(--fg)/8 text-[10px] font-medium shrink-0">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var()]/8 text-[10px] font-medium shrink-0">
                     {m.displayName.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
                   </div>
                   <span className="truncate font-medium">{m.displayName}</span>
@@ -72,11 +72,11 @@ export default function AdminMentorsPage() {
                     {m.approvalStatus}
                   </span>
                 </div>
-                <span className="col-span-1 text-(--muted)">{m.rating > 0 ? m.rating.toFixed(1) : "—"}</span>
-                <span className="col-span-1 text-(--muted)">{m.totalSessions}</span>
+                <span className="col-span-1 text-[var()]">{m.rating > 0 ? m.rating.toFixed(1) : "—"}</span>
+                <span className="col-span-1 text-[var()]">{m.totalSessions}</span>
                 <div className="col-span-2">
                   <button type="button" onClick={() => toggleActive(m.id)}
-                    className="cursor-pointer text-(--muted) hover:text-(--fg)">
+                    className="cursor-pointer text-[var()] hover:text-[var()]">
                     {m.isActive ? (
                       <ToggleRight className="h-6 w-6 text-emerald-500" />
                     ) : (

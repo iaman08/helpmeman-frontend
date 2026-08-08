@@ -67,15 +67,15 @@ export function MeetingCard({ booking, viewAs, onCancel, onReschedule, onRateSes
     return (
       <Link
         href={`/dashboard/bookings/${booking.id}`}
-        className="flex items-center justify-between rounded-2xl bg-(--fg)/[0.03] border border-(--hairline) hover:border-(--fg)/15 hover:bg-(--fg)/5 p-4 transition-all group"
+        className="flex items-center justify-between rounded-2xl bg-[var()]/[0.03] border border-[var()] hover:border-[var()]/15 hover:bg-[var()]/5 p-4 transition-all group"
       >
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--fg)/8 text-sm font-bold shrink-0">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var()]/8 text-sm font-bold shrink-0">
             {otherPersonName[0]?.toUpperCase() ?? "?"}
           </div>
           <div className="flex flex-col gap-0.5">
             <span className="text-sm font-semibold">{otherPersonName}</span>
-            <span className="text-xs text-(--muted)">
+            <span className="text-xs text-[var()]">
               {formatDateLocal(booking.scheduledAt, tz)} · {formatTimeLocal(booking.scheduledAt, tz)}
             </span>
           </div>
@@ -89,17 +89,17 @@ export function MeetingCard({ booking, viewAs, onCancel, onReschedule, onRateSes
   }
 
   return (
-    <div className="rounded-2xl border border-(--hairline) bg-(--fg)/[0.02] p-5 flex flex-col gap-4 hover:border-(--fg)/15 transition-colors">
+    <div className="rounded-2xl border border-[var()] bg-[var()]/[0.02] p-5 flex flex-col gap-4 hover:border-[var()]/15 transition-colors">
       {/* ─── Header ─── */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-(--fg)/8 text-base font-bold shrink-0">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var()]/8 text-base font-bold shrink-0">
             {otherPersonName[0]?.toUpperCase() ?? "?"}
           </div>
           <div className="flex flex-col gap-0.5">
             <span className="font-semibold text-base">{otherPersonName}</span>
             {booking.mentor?.institutionName && viewAs === "mentee" && (
-              <span className="text-xs text-(--muted)">{booking.mentor.institutionName}</span>
+              <span className="text-xs text-[var()]">{booking.mentor.institutionName}</span>
             )}
           </div>
         </div>
@@ -108,18 +108,18 @@ export function MeetingCard({ booking, viewAs, onCancel, onReschedule, onRateSes
 
       {/* ─── Session Details ─── */}
       <div className="flex flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 text-(--fg)/70">
-          <Calendar className="h-3.5 w-3.5 text-(--muted) shrink-0" />
+        <div className="flex items-center gap-2 text-[var()]/70">
+          <Calendar className="h-3.5 w-3.5 text-[var()] shrink-0" />
           <span>{formatDateLocal(booking.scheduledAt, tz)}</span>
         </div>
-        <div className="flex items-center gap-2 text-(--fg)/70">
-          <Clock className="h-3.5 w-3.5 text-(--muted) shrink-0" />
+        <div className="flex items-center gap-2 text-[var()]/70">
+          <Clock className="h-3.5 w-3.5 text-[var()] shrink-0" />
           <span>{formatTimeLocal(booking.scheduledAt, tz)} · {booking.durationMinutes} min</span>
-          {tz && <span className="text-xs text-(--muted)">({tz})</span>}
+          {tz && <span className="text-xs text-[var()]">({tz})</span>}
         </div>
         {(viewAs === "mentor" && booking.user?.name) && (
-          <div className="flex items-center gap-2 text-(--fg)/70">
-            <User className="h-3.5 w-3.5 text-(--muted) shrink-0" />
+          <div className="flex items-center gap-2 text-[var()]/70">
+            <User className="h-3.5 w-3.5 text-[var()] shrink-0" />
             <span>{booking.user.name}</span>
           </div>
         )}
@@ -143,7 +143,7 @@ export function MeetingCard({ booking, viewAs, onCancel, onReschedule, onRateSes
           className={`flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all ${
             joinable
               ? "bg-green-500 text-white hover:bg-green-600 shadow-lg shadow-green-500/20 animate-pulse-subtle"
-              : "bg-(--fg)/8 text-(--muted) cursor-not-allowed opacity-60"
+              : "bg-[var()]/8 text-[var()] cursor-not-allowed opacity-60"
           }`}
           onClick={!joinable ? (e) => e.preventDefault() : undefined}
           title={!joinable ? "Join button activates 15 minutes before the session" : "Join Google Meet"}
@@ -165,7 +165,7 @@ export function MeetingCard({ booking, viewAs, onCancel, onReschedule, onRateSes
       <div className="flex items-center gap-2 pt-1">
         <Link
           href={`/dashboard/bookings/${booking.id}`}
-          className="flex-1 text-center rounded-lg bg-(--fg)/5 hover:bg-(--fg)/10 py-2 text-xs font-medium transition-colors"
+          className="flex-1 text-center rounded-lg bg-[var()]/5 hover:bg-[var()]/10 py-2 text-xs font-medium transition-colors"
         >
           View Details
         </Link>
@@ -185,7 +185,7 @@ export function MeetingCard({ booking, viewAs, onCancel, onReschedule, onRateSes
           <button
             type="button"
             onClick={() => onReschedule(booking.id)}
-            className="rounded-lg bg-(--fg)/5 hover:bg-(--fg)/10 px-3 py-2 text-xs font-medium transition-colors cursor-pointer"
+            className="rounded-lg bg-[var()]/5 hover:bg-[var()]/10 px-3 py-2 text-xs font-medium transition-colors cursor-pointer"
           >
             Reschedule
           </button>

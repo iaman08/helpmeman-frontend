@@ -45,7 +45,7 @@ export default function ApprovalsPage() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">Approvals</p>
+        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Approvals</p>
         <h1 className="font-display text-4xl leading-tight">Pending mentors.</h1>
       </div>
 
@@ -56,36 +56,36 @@ export default function ApprovalsPage() {
       ) : mentors.length > 0 ? (
         <div className="flex flex-col gap-4">
           {mentors.map((m) => (
-            <div key={m.id} className="rounded-2xl bg-(--fg)/[0.02] p-6 flex flex-col gap-4">
+            <div key={m.id} className="rounded-2xl bg-[var()]/[0.02] p-6 flex flex-col gap-4">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-(--fg)/8 text-sm font-medium shrink-0">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var()]/8 text-sm font-medium shrink-0">
                     {m.displayName.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
                   </div>
                   <div>
                     <h3 className="font-medium text-lg">{m.displayName}</h3>
                     <div className="flex items-center gap-3 mt-1">
                       <InstitutionBadge institutionName={m.institutionName} institutionType={m.institutionType} />
-                      {m.category && <span className="text-xs text-(--muted)">{m.category.name}</span>}
+                      {m.category && <span className="text-xs text-[var()]">{m.category.name}</span>}
                     </div>
                   </div>
                 </div>
-                <span className="text-xs text-(--muted)">
+                <span className="text-xs text-[var()]">
                   {m.institutionEmail}
                 </span>
               </div>
 
-              <p className="text-sm text-(--fg)/80 leading-relaxed line-clamp-3">{m.bio}</p>
+              <p className="text-sm text-[var()]/80 leading-relaxed line-clamp-3">{m.bio}</p>
 
               <div className="flex flex-wrap gap-1.5">
                 {m.expertise.map((tag) => (
-                  <span key={tag} className="text-[11px] rounded-full bg-(--fg)/5 px-2.5 py-0.5 text-(--fg)/60">{tag}</span>
+                  <span key={tag} className="text-[11px] rounded-full bg-[var()]/5 px-2.5 py-0.5 text-[var()]/60">{tag}</span>
                 ))}
               </div>
 
               {m.linkedinUrl && (
                 <a href={m.linkedinUrl} target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs text-(--muted) hover:text-(--fg)">
+                  className="inline-flex items-center gap-1.5 text-xs text-[var()] hover:text-[var()]">
                   <ExternalLink className="h-3 w-3" /> LinkedIn
                 </a>
               )}
@@ -97,14 +97,14 @@ export default function ApprovalsPage() {
                     onChange={(e) => setRejectReason(e.target.value)}
                     placeholder="Reason for rejection..."
                     rows={2}
-                    className="flex-1 bg-(--fg)/5 rounded-lg px-3 py-2 text-sm outline-none resize-none"
+                    className="flex-1 bg-[var()]/5 rounded-lg px-3 py-2 text-sm outline-none resize-none"
                   />
                   <button type="button" onClick={() => reject(m.id)} disabled={actionId === m.id}
                     className="rounded-full bg-red-500 text-white px-4 py-2 text-xs cursor-pointer disabled:opacity-50">
                     Reject
                   </button>
                   <button type="button" onClick={() => setRejectId(null)}
-                    className="rounded-full bg-(--fg)/5 px-4 py-2 text-xs cursor-pointer">
+                    className="rounded-full bg-[var()]/5 px-4 py-2 text-xs cursor-pointer">
                     Cancel
                   </button>
                 </div>

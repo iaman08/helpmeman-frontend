@@ -49,7 +49,7 @@ export default function AdminDashboardPage() {
   return (
     <div className="flex flex-col gap-10">
       <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">Admin</p>
+        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Admin</p>
         <h1 className="font-display text-4xl leading-tight">Platform overview.</h1>
       </div>
 
@@ -59,9 +59,9 @@ export default function AdminDashboardPage() {
           <div key={s.label} className={`rounded-2xl p-5 flex flex-col gap-2 ${
             s.highlight && (data?.pendingApprovals ?? 0) > 0
               ? "bg-amber-500/10"
-              : "bg-(--fg)/[0.02]"
+              : "bg-[var()]/[0.02]"
           }`}>
-            <div className="flex items-center gap-2 text-(--muted)">
+            <div className="flex items-center gap-2 text-[var()]">
               <s.icon className="h-4 w-4" />
               <span className="text-[10px] uppercase tracking-[0.18em]">{s.label}</span>
             </div>
@@ -97,8 +97,8 @@ export default function AdminDashboardPage() {
       {/* ─── Recent Bookings ─── */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xs uppercase tracking-[0.22em] text-(--muted)">Recent Bookings</h2>
-          <Link href="/admin/bookings" className="text-xs text-(--muted) hover:text-(--fg)">View all →</Link>
+          <h2 className="text-xs uppercase tracking-[0.22em] text-[var()]">Recent Bookings</h2>
+          <Link href="/admin/bookings" className="text-xs text-[var()] hover:text-[var()]">View all →</Link>
         </div>
 
         {loading ? (
@@ -108,14 +108,14 @@ export default function AdminDashboardPage() {
         ) : data?.recentBookings && data.recentBookings.length > 0 ? (
           <div className="flex flex-col gap-2">
             {data.recentBookings.map((b) => (
-              <div key={b.id} className="flex items-center justify-between rounded-xl bg-(--fg)/[0.02] px-5 py-3 text-sm">
+              <div key={b.id} className="flex items-center justify-between rounded-xl bg-[var()]/[0.02] px-5 py-3 text-sm">
                 <span className="font-medium">{b.user?.name}</span>
-                <span className="text-(--muted)">→ {b.mentor?.displayName}</span>
-                <span className="text-(--muted)">{formatDate(b.scheduledAt)}</span>
+                <span className="text-[var()]">→ {b.mentor?.displayName}</span>
+                <span className="text-[var()]">{formatDate(b.scheduledAt)}</span>
                 <span className={`text-xs rounded-full px-2.5 py-0.5 ${
                   b.status === "CONFIRMED" ? "bg-emerald-500/10 text-emerald-600" :
                   b.status === "PENDING" ? "bg-amber-500/10 text-amber-600" :
-                  "bg-(--fg)/5 text-(--fg)/60"
+                  "bg-[var()]/5 text-[var()]/60"
                 }`}>
                   {b.status}
                 </span>
@@ -123,7 +123,7 @@ export default function AdminDashboardPage() {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-(--muted)">No bookings yet.</p>
+          <p className="text-sm text-[var()]">No bookings yet.</p>
         )}
       </div>
     </div>

@@ -38,9 +38,9 @@ export default function AdminBookingsPage() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">Bookings</p>
+        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Bookings</p>
         <h1 className="font-display text-4xl leading-tight">All bookings.</h1>
-        <p className="text-sm text-(--muted)">{bookings.length} booking{bookings.length !== 1 ? "s" : ""}</p>
+        <p className="text-sm text-[var()]">{bookings.length} booking{bookings.length !== 1 ? "s" : ""}</p>
       </div>
 
       {loading ? (
@@ -50,7 +50,7 @@ export default function AdminBookingsPage() {
       ) : bookings.length > 0 ? (
         <div className="w-full overflow-x-auto pb-2">
           <div className="min-w-[650px] flex flex-col gap-2">
-            <div className="grid grid-cols-12 gap-4 px-5 py-2 text-[10px] uppercase tracking-[0.22em] text-(--muted)">
+            <div className="grid grid-cols-12 gap-4 px-5 py-2 text-[10px] uppercase tracking-[0.22em] text-[var()]">
               <span className="col-span-2">Student</span>
               <span className="col-span-2">Mentor</span>
               <span className="col-span-2">Date</span>
@@ -60,11 +60,11 @@ export default function AdminBookingsPage() {
             </div>
 
             {bookings.map((b) => (
-              <div key={b.id} className="grid grid-cols-12 gap-4 items-center rounded-xl bg-(--fg)/[0.02] px-5 py-3 text-sm">
+              <div key={b.id} className="grid grid-cols-12 gap-4 items-center rounded-xl bg-[var()]/[0.02] px-5 py-3 text-sm">
                 <span className="col-span-2 truncate">{b.user?.name}</span>
                 <span className="col-span-2 truncate font-medium">{b.mentor?.displayName}</span>
-                <span className="col-span-2 text-(--muted)">{formatDate(b.scheduledAt)}</span>
-                <span className="col-span-1 text-(--muted)">{b.durationMinutes}</span>
+                <span className="col-span-2 text-[var()]">{formatDate(b.scheduledAt)}</span>
+                <span className="col-span-1 text-[var()]">{b.durationMinutes}</span>
                 <span className="col-span-1">{formatPrice(b.amountPaid, b.currency)}</span>
                 <div className="col-span-2">
                   <StatusBadge status={b.status} />

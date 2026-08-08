@@ -11,7 +11,7 @@ export function Skeleton({ className, circle }: SkeletonProps) {
     <div
       aria-hidden
       className={clsx(
-        "animate-pulse bg-(--fg)/8",
+        "animate-pulse bg-[var()]/8",
         circle ? "rounded-full" : "rounded-lg",
         className,
       )}
@@ -21,7 +21,7 @@ export function Skeleton({ className, circle }: SkeletonProps) {
 
 export function MentorCardSkeleton() {
   return (
-    <div className="flex flex-col gap-5 rounded-2xl bg-(--fg)/3 p-6">
+    <div className="flex flex-col gap-5 rounded-2xl bg-[var()]/3 p-6">
       <div className="flex items-center gap-4">
         <Skeleton circle className="h-12 w-12 shrink-0" />
         <div className="flex flex-col gap-2 flex-1">

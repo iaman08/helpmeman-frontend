@@ -20,7 +20,7 @@ export default function GlobalError({
         <span className="text-2xl">⚠️</span>
       </div>
       <h1 className="font-display text-3xl">Something went wrong.</h1>
-      <p className="text-(--muted) max-w-md leading-relaxed">
+      <p className="text-[var()] max-w-md leading-relaxed">
         An unexpected error occurred. Please try again or return to the home
         page.
       </p>
@@ -28,13 +28,13 @@ export default function GlobalError({
         <button
           type="button"
           onClick={reset}
-          className="rounded-full bg-(--accent) text-(--accent-fg) px-7 py-3 text-sm hover:opacity-90 cursor-pointer"
+          className="rounded-full bg-[var()] text-[var()] px-7 py-3 text-sm hover:opacity-90 cursor-pointer"
         >
           Try again
         </button>
         <Link
           href="/"
-          className="rounded-full bg-(--fg)/5 px-7 py-3 text-sm hover:bg-(--fg)/8 transition-colors"
+          className="rounded-full bg-[var()]/5 px-7 py-3 text-sm hover:bg-[var()]/8 transition-colors"
         >
           Go home
         </Link>

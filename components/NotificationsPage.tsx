@@ -49,15 +49,15 @@ export default function NotificationsPage({ basePath = "/dashboard" }: { basePat
     <div className="space-y-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <span className="text-[10px] uppercase tracking-[0.2em] text-(--muted)">Inbox</span>
+          <span className="text-[10px] uppercase tracking-[0.2em] text-[var()]">Inbox</span>
           <h1 className="mt-2 text-4xl font-bold tracking-tight">Notifications</h1>
-          <p className="mt-2 text-sm text-(--muted)">
+          <p className="mt-2 text-sm text-[var()]">
             {data?.unreadCount || 0} unread · {data?.total || 0} total
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center gap-2 rounded-xl border border-(--hairline) bg-(--fg)/5 px-3 py-2">
-            <Filter className="h-4 w-4 text-(--muted)" />
+          <div className="flex items-center gap-2 rounded-xl border border-[var()] bg-[var()]/5 px-3 py-2">
+            <Filter className="h-4 w-4 text-[var()]" />
             <select
               value={typeFilter}
               onChange={(event) => setTypeFilter(event.target.value)}
@@ -75,7 +75,7 @@ export default function NotificationsPage({ basePath = "/dashboard" }: { basePat
             <button
               type="button"
               onClick={markAllRead}
-              className="inline-flex items-center gap-2 rounded-xl border border-(--hairline) px-4 py-2 text-sm font-medium hover:bg-(--fg)/5"
+              className="inline-flex items-center gap-2 rounded-xl border border-[var()] px-4 py-2 text-sm font-medium hover:bg-[var()]/5"
             >
               <CheckCheck className="h-4 w-4" /> Mark all read
             </button>
@@ -83,40 +83,40 @@ export default function NotificationsPage({ basePath = "/dashboard" }: { basePat
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-3xl border border-(--hairline) bg-(--fg)/[0.02]">
-        {isLoading && <p className="px-6 py-10 text-sm text-(--muted)">Loading notifications...</p>}
+      <div className="overflow-hidden rounded-3xl border border-[var()] bg-[var()]/[0.02]">
+        {isLoading && <p className="px-6 py-10 text-sm text-[var()]">Loading notifications...</p>}
         {!isLoading && (data?.notifications?.length || 0) === 0 && (
-          <p className="px-6 py-16 text-center text-sm text-(--muted)">No notifications yet.</p>
+          <p className="px-6 py-16 text-center text-sm text-[var()]">No notifications yet.</p>
         )}
-        <div className="divide-y divide-(--hairline)">
+        <div className="divide-y divide-[var()]">
           {data?.notifications?.map((notification) => (
             <div
               key={notification.id}
-              className={`flex items-start gap-4 px-5 py-4 sm:px-6 ${notification.isRead ? "" : "bg-(--fg)/[0.03]"}`}
+              className={`flex items-start gap-4 px-5 py-4 sm:px-6 ${notification.isRead ? "" : "bg-[var()]/[0.03]"}`}
             >
-              <div className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-(--accent)" style={{ opacity: notification.isRead ? 0.15 : 1 }} />
+              <div className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-[var()]" style={{ opacity: notification.isRead ? 0.15 : 1 }} />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h2 className="text-sm font-semibold">{notification.title}</h2>
-                  <span className="rounded-full bg-(--fg)/8 px-2 py-0.5 text-[10px] uppercase tracking-wide text-(--muted)">
+                  <span className="rounded-full bg-[var()]/8 px-2 py-0.5 text-[10px] uppercase tracking-wide text-[var()]">
                     {TYPE_LABELS[notification.type] || notification.type}
                   </span>
                   {notification.emailSent && (
-                    <span className="text-[10px] text-(--muted)">Email sent</span>
+                    <span className="text-[10px] text-[var()]">Email sent</span>
                   )}
                   {notification.pushSent && (
-                    <span className="text-[10px] text-(--muted)">Push sent</span>
+                    <span className="text-[10px] text-[var()]">Push sent</span>
                   )}
                 </div>
-                <p className="mt-1 text-sm leading-6 text-(--muted)">{notification.body}</p>
-                <p className="mt-2 text-xs text-(--muted)">{formatTime(notification.createdAt)}</p>
+                <p className="mt-1 text-sm leading-6 text-[var()]">{notification.body}</p>
+                <p className="mt-2 text-xs text-[var()]">{formatTime(notification.createdAt)}</p>
               </div>
               <div className="flex shrink-0 items-center gap-1">
                 {!notification.isRead && (
                   <button
                     type="button"
                     onClick={() => markRead(notification.id)}
-                    className="rounded-lg p-2 text-(--muted) hover:bg-(--fg)/5 hover:text-(--fg)"
+                    className="rounded-lg p-2 text-[var()] hover:bg-[var()]/5 hover:text-[var()]"
                     aria-label="Mark as read"
                   >
                     <Check className="h-4 w-4" />
@@ -125,7 +125,7 @@ export default function NotificationsPage({ basePath = "/dashboard" }: { basePat
                 <button
                   type="button"
                   onClick={() => deleteNotification(notification.id)}
-                  className="rounded-lg p-2 text-(--muted) hover:bg-red-500/10 hover:text-red-500"
+                  className="rounded-lg p-2 text-[var()] hover:bg-red-500/10 hover:text-red-500"
                   aria-label="Delete notification"
                 >
                   <Trash2 className="h-4 w-4" />

@@ -48,11 +48,11 @@ export function PushPermissionPrompt() {
   if (!visible || permission === "granted" || !isSupported) return null;
 
   return (
-    <div className="fixed bottom-5 right-5 z-[70] w-[min(92vw,380px)] rounded-2xl border border-(--hairline) bg-(--bg) p-5 shadow-2xl backdrop-blur-xl">
+    <div className="fixed bottom-5 right-5 z-[70] w-[min(92vw,380px)] rounded-2xl border border-[var()] bg-[var()] p-5 shadow-2xl backdrop-blur-xl">
       <button
         type="button"
         onClick={dismiss}
-        className="absolute right-3 top-3 rounded-lg p-1 text-(--muted) hover:text-(--fg) transition-colors"
+        className="absolute right-3 top-3 rounded-lg p-1 text-[var()] hover:text-[var()] transition-colors"
         aria-label="Dismiss"
       >
         <X className="h-4 w-4" />
@@ -65,14 +65,14 @@ export function PushPermissionPrompt() {
           </div>
           <div>
             <p className="text-sm font-semibold">Notifications blocked</p>
-            <p className="mt-1 text-xs leading-5 text-(--muted)">
+            <p className="mt-1 text-xs leading-5 text-[var()]">
               Notifications are blocked in your browser site settings. Enable notifications in your browser controls to stay updated on messages and bookings.
             </p>
             <div className="mt-3 flex gap-2">
               <button
                 type="button"
                 onClick={dismiss}
-                className="rounded-xl bg-(--fg) px-3 py-1.5 text-xs font-semibold text-(--bg)"
+                className="rounded-xl bg-[var()] px-3 py-1.5 text-xs font-semibold text-[var()]"
               >
                 Got it
               </button>
@@ -81,12 +81,12 @@ export function PushPermissionPrompt() {
         </div>
       ) : (
         <div className="flex items-start gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--fg)/10 text-(--fg)">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var()]/10 text-[var()]">
             <Bell className="h-4 w-4" />
           </div>
           <div>
             <p className="text-sm font-semibold">Stay in the loop</p>
-            <p className="mt-1 text-xs leading-5 text-(--muted)">
+            <p className="mt-1 text-xs leading-5 text-[var()]">
               Enable push notifications for real-time messages, bookings, and important updates.
             </p>
             <div className="mt-3 flex gap-2">
@@ -94,14 +94,14 @@ export function PushPermissionPrompt() {
                 type="button"
                 onClick={enablePush}
                 disabled={busy}
-                className="rounded-xl bg-(--fg) px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-semibold text-(--bg) disabled:opacity-50 transition-opacity"
+                className="rounded-xl bg-[var()] px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-semibold text-[var()] disabled:opacity-50 transition-opacity"
               >
                 {busy ? "Enabling..." : "Enable notifications"}
               </button>
               <button
                 type="button"
                 onClick={dismiss}
-                className="rounded-xl px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm text-(--muted) hover:text-(--fg) transition-colors"
+                className="rounded-xl px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm text-[var()] hover:text-[var()] transition-colors"
               >
                 Not now
               </button>

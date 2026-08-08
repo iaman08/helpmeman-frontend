@@ -87,7 +87,7 @@ export default function MeetingsPage() {
     <div className="flex flex-col gap-8">
       {/* ─── Header ─── */}
       <div className="flex flex-col gap-2">
-        <p className="text-xs uppercase tracking-[0.22em] text-(--muted) font-bold">Meetings</p>
+        <p className="text-xs uppercase tracking-[0.22em] text-[var()] font-bold">Meetings</p>
         <h1 className="font-display text-4xl leading-tight font-bold">Your sessions.</h1>
       </div>
 
@@ -104,7 +104,7 @@ export default function MeetingsPage() {
             <p className="font-semibold text-lg truncate">
               {(nextSession as unknown as { mentor?: { displayName?: string } }).mentor?.displayName ?? "Mentor"}
             </p>
-            <p className="text-sm text-(--muted)">
+            <p className="text-sm text-[var()]">
               {new Date(nextSession.scheduledAt).toLocaleDateString("en-IN", {
                 weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
               })} · {nextSession.durationMinutes} min
@@ -133,8 +133,8 @@ export default function MeetingsPage() {
             onClick={() => setTab(t.value)}
             className={`rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 ${
               tab === t.value
-                ? "bg-(--accent) text-(--accent-fg) shadow-lg"
-                : "bg-(--fg)/5 text-(--muted) hover:text-(--fg) border border-(--hairline)"
+                ? "bg-[var()] text-[var()] shadow-lg"
+                : "bg-[var()]/5 text-[var()] hover:text-[var()] border border-[var()]"
             }`}
           >
             {t.label}
@@ -169,8 +169,8 @@ export default function MeetingsPage() {
           ) : (
             <EmptyState
               icon={
-                <div className="p-4 bg-(--fg)/5 rounded-2xl mb-4">
-                  <CalendarCheck className="h-8 w-8 text-(--muted)" />
+                <div className="p-4 bg-[var()]/5 rounded-2xl mb-4">
+                  <CalendarCheck className="h-8 w-8 text-[var()]" />
                 </div>
               }
               title="No upcoming sessions"
@@ -178,7 +178,7 @@ export default function MeetingsPage() {
               action={
                 <Link
                   href="/mentors"
-                  className="inline-flex items-center gap-2 rounded-2xl bg-(--accent) text-(--accent-fg) px-8 py-4 text-sm font-bold hover:opacity-90 transition-all active:scale-95"
+                  className="inline-flex items-center gap-2 rounded-2xl bg-[var()] text-[var()] px-8 py-4 text-sm font-bold hover:opacity-90 transition-all active:scale-95"
                 >
                   Browse mentors <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -207,9 +207,9 @@ export default function MeetingsPage() {
               ))}
             </div>
           ) : (
-            <div className="rounded-2xl bg-(--fg)/[0.02] border border-(--hairline) p-10 text-center">
-              <Clock3 className="h-8 w-8 text-(--muted) mx-auto mb-3" />
-              <p className="text-sm text-(--muted)">No past sessions yet.</p>
+            <div className="rounded-2xl bg-[var()]/[0.02] border border-[var()] p-10 text-center">
+              <Clock3 className="h-8 w-8 text-[var()] mx-auto mb-3" />
+              <p className="text-sm text-[var()]">No past sessions yet.</p>
             </div>
           )}
         </div>
@@ -224,14 +224,14 @@ export default function MeetingsPage() {
           >
             <h2 className="font-display text-2xl font-bold">Reschedule Session</h2>
             <label className="flex flex-col gap-2 text-sm">
-              <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">
+              <span className="text-[var()] text-xs uppercase tracking-[0.18em]">
                 New Date & Time
               </span>
               <input
                 type="datetime-local"
                 value={newDate}
                 onChange={(e) => setNewDate(e.target.value)}
-                className="bg-(--fg)/5 rounded-xl px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors"
+                className="bg-[var()]/5 rounded-xl px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors"
                 min={new Date().toISOString().slice(0, 16)}
               />
             </label>
@@ -240,14 +240,14 @@ export default function MeetingsPage() {
                 type="button"
                 onClick={submitReschedule}
                 disabled={rescheduling}
-                className="flex-1 rounded-xl bg-(--accent) text-(--accent-fg) py-3 text-sm font-semibold hover:opacity-90 cursor-pointer disabled:opacity-50 transition-opacity"
+                className="flex-1 rounded-xl bg-[var()] text-[var()] py-3 text-sm font-semibold hover:opacity-90 cursor-pointer disabled:opacity-50 transition-opacity"
               >
                 {rescheduling ? "Rescheduling…" : "Confirm Reschedule"}
               </button>
               <button
                 type="button"
                 onClick={() => { setRescheduleId(null); setNewDate(""); }}
-                className="rounded-xl bg-(--fg)/5 px-6 py-3 text-sm font-medium hover:bg-(--fg)/10 cursor-pointer transition-colors"
+                className="rounded-xl bg-[var()]/5 px-6 py-3 text-sm font-medium hover:bg-[var()]/10 cursor-pointer transition-colors"
               >
                 Cancel
               </button>

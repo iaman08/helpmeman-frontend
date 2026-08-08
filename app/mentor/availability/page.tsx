@@ -109,9 +109,9 @@ export default function AvailabilityPage() {
       )}
 
       <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">Availability</p>
+        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Availability</p>
         <h1 className="font-display text-4xl leading-tight">Set your schedule.</h1>
-        <p className="text-sm text-(--muted)">
+        <p className="text-sm text-[var()]">
           Define when students can book sessions with you.
         </p>
       </div>
@@ -119,7 +119,7 @@ export default function AvailabilityPage() {
 
       {/* ─── Current Slots ─── */}
       <div>
-        <h2 className="text-xs uppercase tracking-[0.22em] text-(--muted) mb-4">
+        <h2 className="text-xs uppercase tracking-[0.22em] text-[var()] mb-4">
           <Clock className="h-3.5 w-3.5 inline mr-2" />
           Active slots
         </h2>
@@ -133,20 +133,20 @@ export default function AvailabilityPage() {
             {slots.map((slot) => (
               <div
                 key={slot.id}
-                className="flex items-center justify-between rounded-xl bg-(--fg)/[0.02] px-5 py-3"
+                className="flex items-center justify-between rounded-xl bg-[var()]/[0.02] px-5 py-3"
               >
                 <div className="flex items-center gap-4">
                   <span className="text-sm font-medium w-24">
                     {DAYS[slot.dayOfWeek]}
                   </span>
-                  <span className="text-sm text-(--muted)">
+                  <span className="text-sm text-[var()]">
                     {slot.startTime} — {slot.endTime}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => removeSlot(slot.id)}
-                  className="text-(--muted) hover:text-red-500 cursor-pointer"
+                  className="text-[var()] hover:text-red-500 cursor-pointer"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -154,24 +154,24 @@ export default function AvailabilityPage() {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-(--muted)">No availability slots set.</p>
+          <p className="text-sm text-[var()]">No availability slots set.</p>
         )}
       </div>
 
       {/* ─── Add Slot ─── */}
-      <div className="rounded-2xl bg-(--fg)/[0.02] p-6">
-        <h2 className="text-xs uppercase tracking-[0.22em] text-(--muted) mb-4">
+      <div className="rounded-2xl bg-[var()]/[0.02] p-6">
+        <h2 className="text-xs uppercase tracking-[0.22em] text-[var()] mb-4">
           <Plus className="h-3.5 w-3.5 inline mr-2" />
           Add a time slot
         </h2>
 
         <form onSubmit={handleSave} className="flex flex-wrap items-end gap-4">
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Day</span>
+            <span className="text-[var()] text-xs uppercase tracking-[0.18em]">Day</span>
             <select
               value={newDay}
               onChange={(e) => setNewDay(Number(e.target.value))}
-              className="bg-(--fg)/5 rounded-lg px-3 py-2.5 outline-none cursor-pointer"
+              className="bg-[var()]/5 rounded-lg px-3 py-2.5 outline-none cursor-pointer"
             >
               {DAYS.map((d, i) => (
                 <option key={d} value={i}>{d}</option>
@@ -180,29 +180,29 @@ export default function AvailabilityPage() {
           </label>
 
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">Start</span>
+            <span className="text-[var()] text-xs uppercase tracking-[0.18em]">Start</span>
             <input
               type="time"
               value={newStart}
               onChange={(e) => setNewStart(e.target.value)}
-              className="bg-(--fg)/5 rounded-lg px-3 py-2.5 outline-none"
+              className="bg-[var()]/5 rounded-lg px-3 py-2.5 outline-none"
             />
           </label>
 
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">End</span>
+            <span className="text-[var()] text-xs uppercase tracking-[0.18em]">End</span>
             <input
               type="time"
               value={newEnd}
               onChange={(e) => setNewEnd(e.target.value)}
-              className="bg-(--fg)/5 rounded-lg px-3 py-2.5 outline-none"
+              className="bg-[var()]/5 rounded-lg px-3 py-2.5 outline-none"
             />
           </label>
 
           <button
             type="submit"
             disabled={saving}
-            className="rounded-full bg-(--accent) text-(--accent-fg) px-6 py-2.5 text-sm hover:opacity-90 cursor-pointer disabled:opacity-50"
+            className="rounded-full bg-[var()] text-[var()] px-6 py-2.5 text-sm hover:opacity-90 cursor-pointer disabled:opacity-50"
           >
             {saving ? "Saving…" : "Add slot"}
           </button>

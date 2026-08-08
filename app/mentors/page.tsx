@@ -101,9 +101,9 @@ function MentorsContent() {
   const content = (
     <div className={`w-full ${user ? '' : 'max-w-[1400px] mx-auto px-5 sm:px-10 pt-24 sm:pt-28'} pb-10`}>
       {/* ─── Page Title + View Toggle Tabs ─── */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 border-b border-(--hairline) pb-4">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 border-b border-[var()] pb-4">
         <div className="flex flex-col gap-2">
-          <p className="text-[10px] sm:text-xs uppercase tracking-[0.22em] text-(--muted) font-bold">
+          <p className="text-[10px] sm:text-xs uppercase tracking-[0.22em] text-[var()] font-bold">
             Explore mentors
           </p>
           <h1 className="font-display text-2xl sm:text-3xl md:text-4xl leading-tight">
@@ -113,14 +113,14 @@ function MentorsContent() {
         </div>
         
         {/* Tabs switcher */}
-        <div className="flex bg-(--fg)/5 p-1 rounded-xl border border-(--hairline) self-start md:self-auto">
+        <div className="flex bg-[var()]/5 p-1 rounded-xl border border-[var()] self-start md:self-auto">
           <button
             type="button"
             onClick={() => setActiveTab("grid")}
             className={`px-5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeTab === "grid"
-                ? "bg-(--bg) text-(--fg) shadow-sm"
-                : "text-(--muted) hover:text-(--fg)"
+                ? "bg-[var()] text-[var()] shadow-sm"
+                : "text-[var()] hover:text-[var()]"
             }`}
           >
             Directory List
@@ -130,8 +130,8 @@ function MentorsContent() {
             onClick={() => setActiveTab("discover")}
             className={`flex items-center gap-1.5 px-5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeTab === "discover"
-                ? "bg-(--bg) text-(--fg) shadow-sm"
-                : "text-(--muted) hover:text-(--fg)"
+                ? "bg-[var()] text-[var()] shadow-sm"
+                : "text-[var()] hover:text-[var()]"
             }`}
           >
             <span>✦</span>
@@ -150,21 +150,21 @@ function MentorsContent() {
       <div className="flex flex-col gap-3 mb-6 sm:mb-8">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div className="relative flex-1 group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-(--muted) group-focus-within:text-(--fg) transition-colors" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[var()] group-focus-within:text-[var()] transition-colors" />
             <input
               type="text"
               placeholder="Search by name, institution, or skill…"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              className="w-full bg-(--fg)/5 border border-(--hairline) rounded-xl sm:rounded-2xl pl-11 pr-4 py-3 sm:py-4 text-base sm:text-sm outline-none focus:border-(--fg)/20 focus:bg-(--fg)/10 transition-all shadow-sm placeholder:text-(--muted)"
+              className="w-full bg-[var()]/5 border border-[var()] rounded-xl sm:rounded-2xl pl-11 pr-4 py-3 sm:py-4 text-base sm:text-sm outline-none focus:border-[var()]/20 focus:bg-[var()]/10 transition-all shadow-sm placeholder:text-[var()]"
             />
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               type="button"
               onClick={handleSearch}
-              className="flex-1 sm:flex-none rounded-xl sm:rounded-2xl bg-(--accent) text-(--accent-fg) px-6 sm:px-8 py-3 sm:py-4 text-sm font-bold hover:opacity-90 transition-all active:scale-95 cursor-pointer"
+              className="flex-1 sm:flex-none rounded-xl sm:rounded-2xl bg-[var()] text-[var()] px-6 sm:px-8 py-3 sm:py-4 text-sm font-bold hover:opacity-90 transition-all active:scale-95 cursor-pointer"
             >
               Search
             </button>
@@ -172,14 +172,14 @@ function MentorsContent() {
               type="button"
               onClick={() => setShowFilters((p) => !p)}
               className={`flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl border px-4 sm:px-6 py-3 sm:py-4 text-sm font-bold transition-all active:scale-95 cursor-pointer ${showFilters
-                ? "bg-(--fg)/10 border-(--fg)/20 text-(--fg)"
-                : "bg-(--fg)/5 border-(--hairline) text-(--muted) hover:border-(--fg)/20 hover:text-(--fg)"
+                ? "bg-[var()]/10 border-[var()]/20 text-[var()]"
+                : "bg-[var()]/5 border-[var()] text-[var()] hover:border-[var()]/20 hover:text-[var()]"
                 }`}
             >
               <SlidersHorizontal className="h-4 w-4" />
               <span className="hidden sm:inline">Filters</span>
               {activeFilterCount > 0 && (
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-(--accent) text-(--accent-fg) text-[10px] font-bold">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var()] text-[var()] text-[10px] font-bold">
                   {activeFilterCount}
                 </span>
               )}
@@ -191,31 +191,31 @@ function MentorsContent() {
       {/* ─── Filters Dialog Modal ─── */}
       {showFilters && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="w-full max-w-xl bg-(--bg) border border-(--hairline) rounded-2xl sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 shadow-2xl flex flex-col gap-6 sm:gap-8 max-h-[90vh] overflow-y-auto no-scrollbar animate-in zoom-in-95 slide-in-from-bottom-10 duration-300">
+          <div className="w-full max-w-xl bg-[var()] border border-[var()] rounded-2xl sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 shadow-2xl flex flex-col gap-6 sm:gap-8 max-h-[90vh] overflow-y-auto no-scrollbar animate-in zoom-in-95 slide-in-from-bottom-10 duration-300">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg sm:text-2xl font-bold">Refine Search</h3>
-                <p className="text-sm text-(--muted) mt-1">Find the perfect mentor.</p>
+                <p className="text-sm text-[var()] mt-1">Find the perfect mentor.</p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowFilters(false)}
-                className="p-2.5 sm:p-3 bg-(--fg)/5 hover:bg-(--fg)/10 border border-(--hairline) rounded-full transition-colors cursor-pointer"
+                className="p-2.5 sm:p-3 bg-[var()]/5 hover:bg-[var()]/10 border border-[var()] rounded-full transition-colors cursor-pointer"
               >
-                <X className="h-4 w-4 sm:h-5 sm:w-5 text-(--muted)" />
+                <X className="h-4 w-4 sm:h-5 sm:w-5 text-[var()]" />
               </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               {/* Category */}
               <div className="flex flex-col gap-2">
-                <label className="text-[10px] uppercase tracking-[0.2em] text-(--muted) font-bold ml-1">Category</label>
+                <label className="text-[10px] uppercase tracking-[0.2em] text-[var()] font-bold ml-1">Category</label>
                 <select
                   value={filters.category ?? ""}
                   onChange={(e) =>
                     updateFilter("category", e.target.value || undefined)
                   }
-                  className="w-full bg-(--bg) border border-(--hairline) rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 outline-none text-sm focus:border-(--fg)/20 cursor-pointer appearance-none transition-all hover:bg-(--fg)/5"
+                  className="w-full bg-[var()] border border-[var()] rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 outline-none text-sm focus:border-[var()]/20 cursor-pointer appearance-none transition-all hover:bg-[var()]/5"
                 >
                   <option value="">All categories</option>
                   {categories.map((cat) => (
@@ -228,13 +228,13 @@ function MentorsContent() {
 
               {/* Institution Type */}
               <div className="flex flex-col gap-2">
-                <label className="text-[10px] uppercase tracking-[0.2em] text-(--muted) font-bold ml-1">Institution</label>
+                <label className="text-[10px] uppercase tracking-[0.2em] text-[var()] font-bold ml-1">Institution</label>
                 <select
                   value={filters.institutionType ?? ""}
                   onChange={(e) =>
                     updateFilter("institutionType", e.target.value || undefined)
                   }
-                  className="w-full bg-(--bg) border border-(--hairline) rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 outline-none text-sm focus:border-(--fg)/20 cursor-pointer appearance-none transition-all hover:bg-(--fg)/5"
+                  className="w-full bg-[var()] border border-[var()] rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 outline-none text-sm focus:border-[var()]/20 cursor-pointer appearance-none transition-all hover:bg-[var()]/5"
                 >
                   {INSTITUTION_TYPES.map((t) => (
                     <option key={t.value} value={t.value}>
@@ -246,7 +246,7 @@ function MentorsContent() {
 
               {/* Min Price */}
               <div className="flex flex-col gap-2">
-                <label className="text-[10px] uppercase tracking-[0.2em] text-(--muted) font-bold ml-1">Min Price ({symbol})</label>
+                <label className="text-[10px] uppercase tracking-[0.2em] text-[var()] font-bold ml-1">Min Price ({symbol})</label>
                 <input
                   type="number"
                   min={0}
@@ -258,13 +258,13 @@ function MentorsContent() {
                     const inrPaise = inrVal !== undefined ? Math.round(inrVal * 100) : undefined;
                     updateFilter("minPrice", inrPaise);
                   }}
-                  className="w-full bg-(--bg) border border-(--hairline) rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 outline-none text-sm focus:border-(--fg)/20 transition-all placeholder:text-(--muted)"
+                  className="w-full bg-[var()] border border-[var()] rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 outline-none text-sm focus:border-[var()]/20 transition-all placeholder:text-[var()]"
                 />
               </div>
 
               {/* Max Price */}
               <div className="flex flex-col gap-2">
-                <label className="text-[10px] uppercase tracking-[0.2em] text-(--muted) font-bold ml-1">Max Price ({symbol})</label>
+                <label className="text-[10px] uppercase tracking-[0.2em] text-[var()] font-bold ml-1">Max Price ({symbol})</label>
                 <input
                   type="number"
                   min={0}
@@ -276,26 +276,26 @@ function MentorsContent() {
                     const inrPaise = inrVal !== undefined ? Math.round(inrVal * 100) : undefined;
                     updateFilter("maxPrice", inrPaise);
                   }}
-                  className="w-full bg-(--bg) border border-(--hairline) rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 outline-none text-sm focus:border-(--fg)/20 transition-all placeholder:text-(--muted)"
+                  className="w-full bg-[var()] border border-[var()] rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 outline-none text-sm focus:border-[var()]/20 transition-all placeholder:text-[var()]"
                 />
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-(--hairline)">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-[var()]">
               <button
                 type="button"
                 onClick={() => {
                   clearFilters();
                   setShowFilters(false);
                 }}
-                className="w-full sm:w-auto px-6 py-3 sm:py-4 text-sm font-bold text-(--muted) hover:text-(--fg) transition-colors cursor-pointer order-2 sm:order-1"
+                className="w-full sm:w-auto px-6 py-3 sm:py-4 text-sm font-bold text-[var()] hover:text-[var()] transition-colors cursor-pointer order-2 sm:order-1"
               >
                 Clear Filters
               </button>
               <button
                 type="button"
                 onClick={() => setShowFilters(false)}
-                className="w-full sm:w-auto px-8 sm:px-10 py-3 sm:py-4 bg-(--accent) text-(--accent-fg) rounded-xl sm:rounded-2xl font-bold text-sm hover:opacity-90 active:scale-95 transition-all cursor-pointer order-1 sm:order-2"
+                className="w-full sm:w-auto px-8 sm:px-10 py-3 sm:py-4 bg-[var()] text-[var()] rounded-xl sm:rounded-2xl font-bold text-sm hover:opacity-90 active:scale-95 transition-all cursor-pointer order-1 sm:order-2"
               >
                 Show Results {activeFilterCount > 0 ? `(${activeFilterCount})` : ""}
               </button>
@@ -306,19 +306,19 @@ function MentorsContent() {
 
       {/* ─── Sort ─── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
-        <span className="text-sm text-(--muted) font-medium">
-          Showing <span className="text-(--fg)">{data?.total ?? 0}</span> mentor{data?.total !== 1 ? "s" : ""}
+        <span className="text-sm text-[var()] font-medium">
+          Showing <span className="text-[var()]">{data?.total ?? 0}</span> mentor{data?.total !== 1 ? "s" : ""}
         </span>
         <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto no-scrollbar pb-1">
-          <span className="text-[10px] uppercase tracking-widest text-(--muted) font-bold shrink-0">Sort by:</span>
+          <span className="text-[10px] uppercase tracking-widest text-[var()] font-bold shrink-0">Sort by:</span>
           {SORT_OPTIONS.map((opt) => (
             <button
               key={opt.value}
               type="button"
               onClick={() => updateFilter("sortBy", opt.value)}
               className={`rounded-full px-3.5 sm:px-5 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${filters.sortBy === opt.value
-                ? "bg-(--accent) text-(--accent-fg) shadow-lg"
-                : "bg-(--fg)/5 text-(--muted) hover:text-(--fg) border border-(--hairline)"
+                ? "bg-[var()] text-[var()] shadow-lg"
+                : "bg-[var()]/5 text-[var()] hover:text-[var()] border border-[var()]"
                 }`}
             >
               {opt.label}
@@ -342,7 +342,7 @@ function MentorsContent() {
             <button
               type="button"
               onClick={() => window.location.reload()}
-              className="rounded-full bg-(--accent) text-(--accent-fg) px-6 py-3 text-sm cursor-pointer"
+              className="rounded-full bg-[var()] text-[var()] px-6 py-3 text-sm cursor-pointer"
             >
               Retry
             </button>
@@ -375,8 +375,8 @@ function MentorsContent() {
                       setFilters((prev) => ({ ...prev, page: p }))
                     }
                     className={`h-9 w-9 rounded-full text-sm transition-colors cursor-pointer ${data.page === p
-                      ? "bg-(--accent) text-(--accent-fg)"
-                      : "bg-(--fg)/5 hover:bg-(--fg)/8"
+                      ? "bg-[var()] text-[var()]"
+                      : "bg-[var()]/5 hover:bg-[var()]/8"
                       }`}
                   >
                     {p}
@@ -396,7 +396,7 @@ function MentorsContent() {
               <button
                 type="button"
                 onClick={clearFilters}
-                className="rounded-full bg-(--fg)/5 px-5 py-2.5 text-sm hover:bg-(--fg)/8 cursor-pointer"
+                className="rounded-full bg-[var()]/5 px-5 py-2.5 text-sm hover:bg-[var()]/8 cursor-pointer"
               >
                 Clear filters
               </button>
@@ -522,10 +522,10 @@ function MentorsContent() {
 export default function MentorsPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-(--bg) text-(--fg)">
+      <div className="min-h-screen flex items-center justify-center bg-[var()] text-[var()]">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 rounded-full border-2 border-(--accent) border-t-transparent animate-spin" />
-          <p className="text-xs text-(--muted)">Loading explore page...</p>
+          <div className="h-10 w-10 rounded-full border-2 border-[var()] border-t-transparent animate-spin" />
+          <p className="text-xs text-[var()]">Loading explore page...</p>
         </div>
       </div>
     }>

@@ -90,13 +90,13 @@ export default function SuperAdminSystemHealthPage() {
   return (
     <div className="flex flex-col gap-8 max-w-4xl">
       <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">Super Admin</p>
+        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Super Admin</p>
         <div className="flex items-center justify-between">
           <h1 className="font-display text-4xl leading-tight">System Health.</h1>
           <button
             onClick={fetchHealth}
             disabled={loading}
-            className="flex items-center gap-2 px-3 py-1.5 bg-(--fg)/5 hover:bg-(--fg)/10 rounded-lg text-sm text-(--muted) hover:text-(--fg) transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 bg-[var()]/5 hover:bg-[var()]/10 rounded-lg text-sm text-[var()] hover:text-[var()] transition-colors"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
@@ -110,60 +110,60 @@ export default function SuperAdminSystemHealthPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="bg-(--fg)/[0.02] border border-(--hairline) rounded-2xl p-6 flex flex-col gap-4">
-            <div className="flex items-center gap-3 text-(--muted)">
+          <div className="bg-[var()]/[0.02] border border-[var()] rounded-2xl p-6 flex flex-col gap-4">
+            <div className="flex items-center gap-3 text-[var()]">
               <Activity className="h-5 w-5" />
               <h3 className="font-medium text-sm">API Server</h3>
             </div>
             {loading && !data ? <Skeleton className="h-6 w-24" /> : <StatusIndicator status={data?.status || 'UNKNOWN'} />}
           </div>
 
-          <div className="bg-(--fg)/[0.02] border border-(--hairline) rounded-2xl p-6 flex flex-col gap-4">
-            <div className="flex items-center gap-3 text-(--muted)">
+          <div className="bg-[var()]/[0.02] border border-[var()] rounded-2xl p-6 flex flex-col gap-4">
+            <div className="flex items-center gap-3 text-[var()]">
               <Database className="h-5 w-5" />
               <h3 className="font-medium text-sm">Database</h3>
             </div>
             {loading && !data ? <Skeleton className="h-6 w-24" /> : <StatusIndicator status={data?.services?.database || 'UNKNOWN'} />}
           </div>
 
-          <div className="bg-(--fg)/[0.02] border border-(--hairline) rounded-2xl p-6 flex flex-col gap-4">
-            <div className="flex items-center gap-3 text-(--muted)">
+          <div className="bg-[var()]/[0.02] border border-[var()] rounded-2xl p-6 flex flex-col gap-4">
+            <div className="flex items-center gap-3 text-[var()]">
               <Cloud className="h-5 w-5" />
               <h3 className="font-medium text-sm">Supabase</h3>
             </div>
             {loading && !data ? <Skeleton className="h-6 w-24" /> : <StatusIndicator status={data?.services?.supabase || 'UNKNOWN'} />}
           </div>
           
-          <div className="md:col-span-2 lg:col-span-3 bg-(--fg)/[0.02] border border-(--hairline) rounded-2xl p-6 flex flex-col gap-6">
-            <div className="flex items-center gap-3 pb-4 border-b border-(--hairline)">
-              <Server className="h-5 w-5 text-(--muted)" />
+          <div className="md:col-span-2 lg:col-span-3 bg-[var()]/[0.02] border border-[var()] rounded-2xl p-6 flex flex-col gap-6">
+            <div className="flex items-center gap-3 pb-4 border-b border-[var()]">
+              <Server className="h-5 w-5 text-[var()]" />
               <h2 className="font-display text-xl">Server Metrics</h2>
             </div>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] uppercase tracking-[0.18em] text-(--muted)">Uptime</span>
+                <span className="text-[10px] uppercase tracking-[0.18em] text-[var()]">Uptime</span>
                 <span className="text-sm font-medium font-mono">
                   {loading && !data ? <Skeleton className="h-5 w-20" /> : formatUptime(data?.uptime)}
                 </span>
               </div>
               
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] uppercase tracking-[0.18em] text-(--muted)">Memory (RSS)</span>
+                <span className="text-[10px] uppercase tracking-[0.18em] text-[var()]">Memory (RSS)</span>
                 <span className="text-sm font-medium font-mono">
                   {loading && !data ? <Skeleton className="h-5 w-20" /> : formatBytes(data?.memoryUsage?.rss)}
                 </span>
               </div>
 
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] uppercase tracking-[0.18em] text-(--muted)">Heap Used</span>
+                <span className="text-[10px] uppercase tracking-[0.18em] text-[var()]">Heap Used</span>
                 <span className="text-sm font-medium font-mono">
                   {loading && !data ? <Skeleton className="h-5 w-20" /> : formatBytes(data?.memoryUsage?.heapUsed)}
                 </span>
               </div>
 
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] uppercase tracking-[0.18em] text-(--muted)">Last Updated</span>
+                <span className="text-[10px] uppercase tracking-[0.18em] text-[var()]">Last Updated</span>
                 <span className="text-sm font-medium font-mono">
                   {loading && !data ? <Skeleton className="h-5 w-20" /> : lastRefreshed.toLocaleTimeString()}
                 </span>

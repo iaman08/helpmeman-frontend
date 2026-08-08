@@ -65,7 +65,7 @@ export function Pricing() {
           Real mentorship, at the price of
           <span className="italic"> a meal out.</span>
         </h2>
-        <p className="mt-4 text-sm sm:text-base text-(--muted) max-w-md">
+        <p className="mt-4 text-sm sm:text-base text-[var()] max-w-md">
           One transparent price. No subscriptions. Pay once, talk to someone who’s been there.
         </p>
       </div>
@@ -147,7 +147,7 @@ export function Pricing() {
       </div>
 
       {/* Footer Note */}
-      <div className="text-center mt-10 text-xs text-(--muted)">
+      <div className="text-center mt-10 text-xs text-[var()]">
         All plans are one-time payment • Refundable if mentor cancels
       </div>
     </div>

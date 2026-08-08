@@ -87,7 +87,7 @@ export function MatchFoundModal({ mentor, onClose }: MatchFoundModalProps) {
             >
               {/* Brand top strip */}
               <div
-                className="h-1.5 w-full bg-(--accent)"
+                className="h-1.5 w-full bg-[var()]"
               />
 
               <div className="p-6">
@@ -96,7 +96,7 @@ export function MatchFoundModal({ mentor, onClose }: MatchFoundModalProps) {
                   <button
                     type="button"
                     onClick={onClose}
-                    className="p-2 rounded-full bg-(--fg)/5 hover:bg-(--fg)/10 transition-colors cursor-pointer text-(--fg)"
+                    className="p-2 rounded-full bg-[var()]/5 hover:bg-[var()]/10 transition-colors cursor-pointer text-[var()]"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -116,7 +116,7 @@ export function MatchFoundModal({ mentor, onClose }: MatchFoundModalProps) {
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.35 }}
-                    className="text-2xl font-black font-display text-(--fg)"
+                    className="text-2xl font-black font-display text-[var()]"
                   >
                     Great Match Found!
                   </motion.h2>
@@ -124,7 +124,7 @@ export function MatchFoundModal({ mentor, onClose }: MatchFoundModalProps) {
                     initial={{ y: 10, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.45 }}
-                    className="text-sm text-(--muted) mt-1.5"
+                    className="text-sm text-[var()] mt-1.5"
                   >
                     You marked this as Priority Match
                   </motion.p>
@@ -135,31 +135,31 @@ export function MatchFoundModal({ mentor, onClose }: MatchFoundModalProps) {
                   initial={{ y: 16, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.5 }}
-                  className="flex items-center gap-3 p-4 rounded-2xl mb-5 border border-(--hairline) bg-(--fg)/3"
+                  className="flex items-center gap-3 p-4 rounded-2xl mb-5 border border-[var()] bg-[var()]/3"
                 >
                   <div className="relative flex-shrink-0">
                     <img
                       src={mentor.avatar || `https://i.pravatar.cc/150?u=${mentor.id}`}
                       alt={mentor.displayName}
-                      className="h-14 w-14 rounded-full object-cover border border-(--hairline)"
+                      className="h-14 w-14 rounded-full object-cover border border-[var()]"
                     />
                     <div
-                      className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full border-2 border-(--bg)"
+                      className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full border-2 border-[var()]"
                       style={{ background: mentor.isOnline ? "#22c55e" : "#9ca3af" }}
                     />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-bold text-(--fg) text-sm truncate">{mentor.displayName}</p>
+                    <p className="font-bold text-[var()] text-sm truncate">{mentor.displayName}</p>
                     {mentor.currentRole && (
-                      <p className="text-xs text-(--muted) truncate mt-0.5">{mentor.currentRole}</p>
+                      <p className="text-xs text-[var()] truncate mt-0.5">{mentor.currentRole}</p>
                     )}
                     {mentor.institutionName && (
-                      <p className="text-xs text-(--muted) truncate font-semibold">{mentor.institutionName}</p>
+                      <p className="text-xs text-[var()] truncate font-semibold">{mentor.institutionName}</p>
                     )}
                   </div>
                   <div className="ml-auto text-center flex-shrink-0">
-                    <p className="text-(--fg) font-black text-lg leading-none">{mentor.matchScore}%</p>
-                    <p className="text-[10px] text-(--muted) mt-0.5">Match</p>
+                    <p className="text-[var()] font-black text-lg leading-none">{mentor.matchScore}%</p>
+                    <p className="text-[10px] text-[var()] mt-0.5">Match</p>
                   </div>
                 </motion.div>
 
@@ -173,7 +173,7 @@ export function MatchFoundModal({ mentor, onClose }: MatchFoundModalProps) {
                   <Link
                     href={`/book/${mentor.id}`}
                     onClick={onClose}
-                    className="flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm bg-(--fg) text-(--bg) transition-all hover:opacity-90 active:scale-97"
+                    className="flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm bg-[var()] text-[var()] transition-all hover:opacity-90 active:scale-97"
                   >
                     <BookOpen className="h-4 w-4" />
                     Book a Session
@@ -181,7 +181,7 @@ export function MatchFoundModal({ mentor, onClose }: MatchFoundModalProps) {
                   <Link
                     href={`/mentors/${mentor.id}`}
                     onClick={onClose}
-                    className="flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm bg-(--fg)/5 border border-(--hairline) text-(--fg) transition-all hover:bg-(--fg)/10"
+                    className="flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm bg-[var()]/5 border border-[var()] text-[var()] transition-all hover:bg-[var()]/10"
                   >
                     <MessageCircle className="h-4 w-4" />
                     View Full Profile
@@ -192,7 +192,7 @@ export function MatchFoundModal({ mentor, onClose }: MatchFoundModalProps) {
                 <button
                   type="button"
                   onClick={onClose}
-                  className="w-full mt-3 py-2 text-xs text-(--muted) hover:text-(--fg) transition-colors cursor-pointer"
+                  className="w-full mt-3 py-2 text-xs text-[var()] hover:text-[var()] transition-colors cursor-pointer"
                 >
                   Keep discovering mentors
                 </button>

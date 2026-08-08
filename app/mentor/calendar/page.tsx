@@ -132,9 +132,9 @@ export default function MentorCalendarPage() {
   return (
     <div className="flex flex-col gap-10">
       <div className="flex flex-col gap-2">
-        <p className="text-xs uppercase tracking-[0.22em] text-(--muted) font-bold">Workspace</p>
+        <p className="text-xs uppercase tracking-[0.22em] text-[var()] font-bold">Workspace</p>
         <h1 className="font-display text-4xl leading-tight font-bold">Calendar & Sessions</h1>
-        <p className="text-sm text-(--muted)">
+        <p className="text-sm text-[var()]">
           Manage calendar syncing, timezone, unavailable blocked dates, and upcoming sessions.
         </p>
       </div>
@@ -143,14 +143,14 @@ export default function MentorCalendarPage() {
         {/* ─── Column 1 & 2: Integration & Sessions ─── */}
         <div className="lg:col-span-2 flex flex-col gap-8">
           {/* Integration Status Card */}
-          <div className="rounded-2xl border border-(--hairline) bg-(--fg)/[0.02] p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="rounded-2xl border border-[var()] bg-[var()]/[0.02] p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className={`p-3 rounded-2xl ${connected ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"}`}>
                 <Calendar size={28} />
               </div>
               <div className="flex flex-col gap-0.5">
                 <span className="font-bold text-lg">Google Calendar Sync</span>
-                <span className="text-sm text-(--muted)">
+                <span className="text-sm text-[var()]">
                   {connected ? "Active & Syncing" : "Not connected"}
                 </span>
               </div>
@@ -185,8 +185,8 @@ export default function MentorCalendarPage() {
 
           {/* Timezone Settings (When connected) */}
           {connected && (
-            <div className="rounded-2xl border border-(--hairline) bg-(--fg)/[0.02] p-6 flex flex-col gap-4">
-              <div className="flex items-center gap-2 text-(--muted)">
+            <div className="rounded-2xl border border-[var()] bg-[var()]/[0.02] p-6 flex flex-col gap-4">
+              <div className="flex items-center gap-2 text-[var()]">
                 <Globe size={16} />
                 <span className="text-xs font-bold uppercase tracking-[0.18em]">Calendar Timezone</span>
               </div>
@@ -194,7 +194,7 @@ export default function MentorCalendarPage() {
                 <select
                   value={timezone}
                   onChange={(e) => setTimezone(e.target.value)}
-                  className="flex-1 bg-(--fg)/5 border border-(--fg)/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-(--accent)/20"
+                  className="flex-1 bg-[var()]/5 border border-[var()]/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var()]/20"
                 >
                   {[
                     "Asia/Kolkata", "Asia/Dubai", "America/New_York", "America/Los_Angeles",
@@ -207,7 +207,7 @@ export default function MentorCalendarPage() {
                 <button
                   type="button"
                   onClick={handleSaveTimezone}
-                  className="px-6 py-2.5 bg-(--fg) text-(--bg) rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity cursor-pointer whitespace-nowrap"
+                  className="px-6 py-2.5 bg-[var()] text-[var()] rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity cursor-pointer whitespace-nowrap"
                 >
                   Save Timezone
                 </button>
@@ -217,7 +217,7 @@ export default function MentorCalendarPage() {
 
           {/* Upcoming Sessions List */}
           <div>
-            <h2 className="text-xs uppercase tracking-[0.22em] text-(--muted) font-bold mb-4">
+            <h2 className="text-xs uppercase tracking-[0.22em] text-[var()] font-bold mb-4">
               Confirmed Upcoming Sessions
             </h2>
 
@@ -236,9 +236,9 @@ export default function MentorCalendarPage() {
                 ))}
               </div>
             ) : (
-              <div className="rounded-2xl bg-(--fg)/[0.02] border border-(--hairline) p-10 text-center">
-                <Clock className="h-8 w-8 text-(--muted) mx-auto mb-3" />
-                <p className="text-sm text-(--muted)">No upcoming sessions scheduled.</p>
+              <div className="rounded-2xl bg-[var()]/[0.02] border border-[var()] p-10 text-center">
+                <Clock className="h-8 w-8 text-[var()] mx-auto mb-3" />
+                <p className="text-sm text-[var()]">No upcoming sessions scheduled.</p>
               </div>
             )}
           </div>
@@ -246,34 +246,34 @@ export default function MentorCalendarPage() {
 
         {/* ─── Column 3: Blocked Dates Workspace ─── */}
         {connected && (
-          <div className="rounded-2xl border border-(--hairline) bg-(--fg)/[0.02] p-6 flex flex-col gap-6 self-start">
+          <div className="rounded-2xl border border-[var()] bg-[var()]/[0.02] p-6 flex flex-col gap-6 self-start">
             <div>
               <h3 className="font-bold text-lg mb-1">Blocked Days</h3>
-              <p className="text-xs text-(--muted)">
+              <p className="text-xs text-[var()]">
                 Mark full days as blocked. Mentees won't be able to book sessions on these dates.
               </p>
             </div>
 
             <div className="flex flex-col gap-3">
-              <label className="flex flex-col gap-1.5 text-xs font-bold text-(--muted) uppercase tracking-[0.18em]">
+              <label className="flex flex-col gap-1.5 text-xs font-bold text-[var()] uppercase tracking-[0.18em]">
                 Select Date
                 <input
                   type="date"
                   value={newBlockDate}
                   onChange={(e) => setNewBlockDate(e.target.value)}
                   min={new Date().toISOString().slice(0, 10)}
-                  className="bg-(--fg)/5 border border-(--fg)/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-(--accent)/20 font-medium"
+                  className="bg-[var()]/5 border border-[var()]/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var()]/20 font-medium"
                 />
               </label>
 
-              <label className="flex flex-col gap-1.5 text-xs font-bold text-(--muted) uppercase tracking-[0.18em]">
+              <label className="flex flex-col gap-1.5 text-xs font-bold text-[var()] uppercase tracking-[0.18em]">
                 Reason
                 <input
                   type="text"
                   value={newBlockReason}
                   onChange={(e) => setNewBlockReason(e.target.value)}
                   placeholder="e.g. Leave, Personal work"
-                  className="bg-(--fg)/5 border border-(--fg)/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-(--accent)/20"
+                  className="bg-[var()]/5 border border-[var()]/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var()]/20"
                 />
               </label>
 
@@ -281,7 +281,7 @@ export default function MentorCalendarPage() {
                 type="button"
                 onClick={handleAddBlockedDate}
                 disabled={addingDate}
-                className="w-full py-3 bg-(--accent) text-(--accent-fg) rounded-xl text-sm font-semibold hover:opacity-90 cursor-pointer disabled:opacity-50 transition-opacity whitespace-nowrap"
+                className="w-full py-3 bg-[var()] text-[var()] rounded-xl text-sm font-semibold hover:opacity-90 cursor-pointer disabled:opacity-50 transition-opacity whitespace-nowrap"
               >
                 {addingDate ? "Blocking…" : "+ Add Blocked Date"}
               </button>
@@ -289,16 +289,16 @@ export default function MentorCalendarPage() {
 
             {/* Blocked dates list */}
             {blockedData?.blockedDates && blockedData.blockedDates.length > 0 && (
-              <div className="flex flex-col gap-2 pt-2 border-t border-(--hairline)">
-                <span className="text-xs font-bold text-(--muted) uppercase tracking-[0.18em]">Currently Blocked</span>
+              <div className="flex flex-col gap-2 pt-2 border-t border-[var()]">
+                <span className="text-xs font-bold text-[var()] uppercase tracking-[0.18em]">Currently Blocked</span>
                 <div className="flex flex-col gap-2 max-h-60 overflow-y-auto">
                   {blockedData.blockedDates.map((bd) => (
-                    <div key={bd.id} className="flex items-center justify-between rounded-xl bg-(--fg)/3 border border-(--hairline) px-3.5 py-2">
+                    <div key={bd.id} className="flex items-center justify-between rounded-xl bg-[var()]/3 border border-[var()] px-3.5 py-2">
                       <div className="flex flex-col min-w-0">
                         <span className="text-xs font-semibold">
                           {new Date(bd.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                         </span>
-                        {bd.reason && <span className="text-[10px] text-(--muted) truncate">{bd.reason}</span>}
+                        {bd.reason && <span className="text-[10px] text-[var()] truncate">{bd.reason}</span>}
                       </div>
                       <button
                         type="button"

@@ -90,9 +90,9 @@ function ToastItem({ data, onDismiss }: { data: ToastData; onDismiss: (id: numbe
           setExiting(true);
           setTimeout(() => onDismiss(data.id), 300);
         }}
-        className="p-1 rounded-full hover:bg-(--fg)/10 transition-colors cursor-pointer shrink-0"
+        className="p-1 rounded-full hover:bg-[var()]/10 transition-colors cursor-pointer shrink-0"
       >
-        <X className="h-3.5 w-3.5 text-(--muted)" />
+        <X className="h-3.5 w-3.5 text-[var()]" />
       </button>
     </div>
   );

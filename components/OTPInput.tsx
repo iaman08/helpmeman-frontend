@@ -128,7 +128,7 @@ export default function OTPInput({
             ${
               error
                 ? "border-red-500/50 bg-red-500/5 focus:border-red-500 text-red-500"
-                : "border-transparent bg-(--fg)/5 focus:bg-(--fg)/8 text-(--fg) focus:border-(--accent) focus:ring-1 focus:ring-(--accent)"
+                : "border-transparent bg-[var()]/5 focus:bg-[var()]/8 text-[var()] focus:border-[var()] focus:ring-1 focus:ring-[var()]"
             }
             disabled:opacity-50 disabled:cursor-not-allowed
           `}

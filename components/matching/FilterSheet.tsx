@@ -72,7 +72,7 @@ export function FilterSheet({ isOpen, onClose, filters, onApply }: FilterSheetPr
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 32 }}
-            className="fixed bottom-0 left-0 right-0 md:left-1/2 md:-translate-x-1/2 md:max-w-xl md:bottom-6 rounded-t-3xl md:rounded-3xl z-50 max-h-[85vh] overflow-y-auto no-scrollbar shadow-2xl border-t md:border border-(--hairline)"
+            className="fixed bottom-0 left-0 right-0 md:left-1/2 md:-translate-x-1/2 md:max-w-xl md:bottom-6 rounded-t-3xl md:rounded-3xl z-50 max-h-[85vh] overflow-y-auto no-scrollbar shadow-2xl border-t md:border border-[var()]"
             style={{
               background: "var(--bg)",
               color: "var(--fg)",
@@ -80,16 +80,16 @@ export function FilterSheet({ isOpen, onClose, filters, onApply }: FilterSheetPr
           >
             {/* Handle */}
             <div className="flex justify-center pt-3 pb-1">
-              <div className="h-1 w-10 rounded-full bg-(--fg)/15" />
+              <div className="h-1 w-10 rounded-full bg-[var()]/15" />
             </div>
 
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-(--hairline)">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[var()]">
               <div className="flex items-center gap-2">
-                <SlidersHorizontal className="h-4.5 w-4.5 text-(--fg)" />
-                <h3 className="text-lg font-bold font-display text-(--fg)">Discovery Filters</h3>
+                <SlidersHorizontal className="h-4.5 w-4.5 text-[var()]" />
+                <h3 className="text-lg font-bold font-display text-[var()]">Discovery Filters</h3>
                 {activeCount > 0 && (
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-(--accent) text-[10px] font-bold text-(--accent-fg)">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var()] text-[10px] font-bold text-[var()]">
                     {activeCount}
                   </span>
                 )}
@@ -97,7 +97,7 @@ export function FilterSheet({ isOpen, onClose, filters, onApply }: FilterSheetPr
               <button
                 type="button"
                 onClick={onClose}
-                className="p-2 rounded-full bg-(--fg)/5 hover:bg-(--fg)/10 transition-colors cursor-pointer text-(--fg)"
+                className="p-2 rounded-full bg-[var()]/5 hover:bg-[var()]/10 transition-colors cursor-pointer text-[var()]"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -110,14 +110,14 @@ export function FilterSheet({ isOpen, onClose, filters, onApply }: FilterSheetPr
                   <select
                     value={local.category ?? ""}
                     onChange={(e) => update("category", e.target.value || undefined)}
-                    className="w-full appearance-none bg-(--fg)/4 border border-(--hairline) hover:border-(--fg)/20 rounded-xl px-4.5 py-3 text-sm text-(--fg) outline-none focus:border-(--fg)/30 focus:bg-(--fg)/8 cursor-pointer transition-all font-medium"
+                    className="w-full appearance-none bg-[var()]/4 border border-[var()] hover:border-[var()]/20 rounded-xl px-4.5 py-3 text-sm text-[var()] outline-none focus:border-[var()]/30 focus:bg-[var()]/8 cursor-pointer transition-all font-medium"
                   >
-                    <option value="" className="bg-(--bg) text-(--fg)">All Categories</option>
+                    <option value="" className="bg-[var()] text-[var()]">All Categories</option>
                     {categories.map((cat) => (
-                      <option key={cat.id} value={cat.slug} className="bg-(--bg) text-(--fg)">{cat.name}</option>
+                      <option key={cat.id} value={cat.slug} className="bg-[var()] text-[var()]">{cat.name}</option>
                     ))}
                   </select>
-                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-(--muted) pointer-events-none" />
+                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[var()] pointer-events-none" />
                 </div>
               </FilterSection>
 
@@ -131,7 +131,7 @@ export function FilterSheet({ isOpen, onClose, filters, onApply }: FilterSheetPr
                     onChange={(e) =>
                       update("minPrice", e.target.value ? Number(e.target.value) * 100 : undefined)
                     }
-                    className="bg-(--fg)/4 border border-(--hairline) hover:border-(--fg)/20 rounded-xl px-4.5 py-3 text-sm text-(--fg) outline-none focus:border-(--fg)/30 focus:bg-(--fg)/8 placeholder:text-(--muted)/60 transition-all font-medium"
+                    className="bg-[var()]/4 border border-[var()] hover:border-[var()]/20 rounded-xl px-4.5 py-3 text-sm text-[var()] outline-none focus:border-[var()]/30 focus:bg-[var()]/8 placeholder:text-[var()]/60 transition-all font-medium"
                   />
                   <input
                     type="number"
@@ -140,7 +140,7 @@ export function FilterSheet({ isOpen, onClose, filters, onApply }: FilterSheetPr
                     onChange={(e) =>
                       update("maxPrice", e.target.value ? Number(e.target.value) * 100 : undefined)
                     }
-                    className="bg-(--fg)/4 border border-(--hairline) hover:border-(--fg)/20 rounded-xl px-4.5 py-3 text-sm text-(--fg) outline-none focus:border-(--fg)/30 focus:bg-(--fg)/8 placeholder:text-(--muted)/60 transition-all font-medium"
+                    className="bg-[var()]/4 border border-[var()] hover:border-[var()]/20 rounded-xl px-4.5 py-3 text-sm text-[var()] outline-none focus:border-[var()]/30 focus:bg-[var()]/8 placeholder:text-[var()]/60 transition-all font-medium"
                   />
                 </div>
               </FilterSection>
@@ -238,20 +238,20 @@ export function FilterSheet({ isOpen, onClose, filters, onApply }: FilterSheetPr
                   placeholder="Search by name, skill, company…"
                   value={local.q ?? ""}
                   onChange={(e) => update("q", e.target.value || undefined)}
-                  className="w-full bg-(--fg)/5 border border-(--hairline) rounded-xl px-4 py-3 text-sm text-(--fg) outline-none focus:border-(--fg)/35 placeholder:text-(--muted) transition-all"
+                  className="w-full bg-[var()]/5 border border-[var()] rounded-xl px-4 py-3 text-sm text-[var()] outline-none focus:border-[var()]/35 placeholder:text-[var()] transition-all"
                 />
               </FilterSection>
             </div>
 
             {/* Footer */}
             <div 
-              className="sticky bottom-0 flex items-center gap-4 px-6 py-4.5 border-t border-(--hairline) backdrop-blur-md"
+              className="sticky bottom-0 flex items-center gap-4 px-6 py-4.5 border-t border-[var()] backdrop-blur-md"
               style={{ background: "color-mix(in srgb, var(--bg) 95%, transparent)" }}
             >
               <button
                 type="button"
                 onClick={handleClear}
-                className="flex-1 py-3 text-sm font-bold text-(--muted) hover:text-(--fg) transition-colors cursor-pointer"
+                className="flex-1 py-3 text-sm font-bold text-[var()] hover:text-[var()] transition-colors cursor-pointer"
               >
                 Clear All
               </button>
@@ -259,7 +259,7 @@ export function FilterSheet({ isOpen, onClose, filters, onApply }: FilterSheetPr
                 type="button"
                 onClick={handleApply}
                 whileTap={{ scale: 0.97 }}
-                className="flex-[2] py-3.5 rounded-xl text-sm font-bold bg-(--fg) text-(--bg) hover:opacity-90 active:scale-97 cursor-pointer"
+                className="flex-[2] py-3.5 rounded-xl text-sm font-bold bg-[var()] text-[var()] hover:opacity-90 active:scale-97 cursor-pointer"
               >
                 Apply Filters {activeCount > 0 ? `(${activeCount})` : ""}
               </motion.button>
@@ -274,7 +274,7 @@ export function FilterSheet({ isOpen, onClose, filters, onApply }: FilterSheetPr
 function FilterSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-2.5">
-      <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-(--muted)">{title}</p>
+      <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var()]">{title}</p>
       {children}
     </div>
   );
@@ -311,12 +311,12 @@ function Toggle({
 }) {
   return (
     <div
-      className="flex items-center justify-between gap-3 p-3 rounded-xl cursor-pointer transition-all hover:bg-(--fg)/5 border border-(--hairline)"
+      className="flex items-center justify-between gap-3 p-3 rounded-xl cursor-pointer transition-all hover:bg-[var()]/5 border border-[var()]"
       onClick={() => onChange(!value)}
     >
       <div>
-        <p className="text-sm font-medium text-(--fg)">{label}</p>
-        <p className="text-xs text-(--muted) mt-0.5">{description}</p>
+        <p className="text-sm font-medium text-[var()]">{label}</p>
+        <p className="text-xs text-[var()] mt-0.5">{description}</p>
       </div>
       <div
         className="relative h-6 w-11 rounded-full transition-all flex-shrink-0"

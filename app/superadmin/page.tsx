@@ -56,7 +56,7 @@ export default function SuperAdminDashboardPage() {
   return (
     <div className="flex flex-col gap-10">
       <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">Super Admin</p>
+        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Super Admin</p>
         <h1 className="font-display text-4xl leading-tight">Platform overview.</h1>
       </div>
 
@@ -65,9 +65,9 @@ export default function SuperAdminDashboardPage() {
           <div key={`${s.label}-${idx}`} className={`rounded-2xl p-5 flex flex-col gap-2 ${
             s.highlight && (data?.pendingApprovals ?? 0) > 0
               ? "bg-amber-500/10"
-              : "bg-(--fg)/[0.02]"
+              : "bg-[var()]/[0.02]"
           }`}>
-            <div className="flex items-center gap-2 text-(--muted)">
+            <div className="flex items-center gap-2 text-[var()]">
               <s.icon className="h-4 w-4" />
               <span className="text-[10px] uppercase tracking-[0.18em]">{s.label}</span>
             </div>
@@ -100,9 +100,9 @@ export default function SuperAdminDashboardPage() {
         )}
         <Link
           href="/superadmin/admin-management"
-          className="flex-1 flex items-center justify-between rounded-xl bg-(--fg)/[0.02] hover:bg-(--fg)/5 p-4 transition-colors"
+          className="flex-1 flex items-center justify-between rounded-xl bg-[var()]/[0.02] hover:bg-[var()]/5 p-4 transition-colors"
         >
-          <div className="flex items-center gap-3 text-(--fg)">
+          <div className="flex items-center gap-3 text-[var()]">
             <ShieldCheck className="h-5 w-5" />
             <span className="text-sm font-medium">Manage Administrators</span>
           </div>
@@ -111,8 +111,8 @@ export default function SuperAdminDashboardPage() {
 
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xs uppercase tracking-[0.22em] text-(--muted)">Recent Activities</h2>
-          <Link href="/superadmin/audit-logs" className="text-xs text-(--muted) hover:text-(--fg)">View all →</Link>
+          <h2 className="text-xs uppercase tracking-[0.22em] text-[var()]">Recent Activities</h2>
+          <Link href="/superadmin/audit-logs" className="text-xs text-[var()] hover:text-[var()]">View all →</Link>
         </div>
 
         {loading ? (
@@ -122,20 +122,20 @@ export default function SuperAdminDashboardPage() {
         ) : data?.recentActivities && data.recentActivities.length > 0 ? (
           <div className="flex flex-col gap-2">
             {data.recentActivities.map((log) => (
-              <div key={log.id} className="flex flex-col sm:flex-row sm:items-center justify-between rounded-xl bg-(--fg)/[0.02] px-5 py-3 text-sm gap-2">
+              <div key={log.id} className="flex flex-col sm:flex-row sm:items-center justify-between rounded-xl bg-[var()]/[0.02] px-5 py-3 text-sm gap-2">
                 <div className="flex items-center gap-3">
                   <span className="font-medium">{log.actor.name}</span>
-                  <span className="text-xs rounded-full bg-(--fg)/5 px-2 py-0.5 text-(--muted)">{log.action}</span>
-                  {log.target && <span className="text-(--muted) text-xs truncate max-w-[200px]">{log.target}</span>}
+                  <span className="text-xs rounded-full bg-[var()]/5 px-2 py-0.5 text-[var()]">{log.action}</span>
+                  {log.target && <span className="text-[var()] text-xs truncate max-w-[200px]">{log.target}</span>}
                 </div>
-                <span className="text-(--muted) text-xs shrink-0">{formatDate(log.createdAt)}</span>
+                <span className="text-[var()] text-xs shrink-0">{formatDate(log.createdAt)}</span>
               </div>
             ))}
           </div>
         ) : (
-          <div className="rounded-xl bg-(--fg)/[0.02] p-8 text-center">
-            <Activity className="h-8 w-8 text-(--muted) mx-auto mb-3" />
-            <p className="text-sm text-(--muted)">No recent activities found.</p>
+          <div className="rounded-xl bg-[var()]/[0.02] p-8 text-center">
+            <Activity className="h-8 w-8 text-[var()] mx-auto mb-3" />
+            <p className="text-sm text-[var()]">No recent activities found.</p>
           </div>
         )}
       </div>

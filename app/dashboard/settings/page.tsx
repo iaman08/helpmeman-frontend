@@ -206,21 +206,21 @@ export default function SettingsPage() {
     <>
       <div className="max-w-5xl mx-auto px-4 md:px-0 py-4 md:py-8">
         <div className="mb-8 md:mb-10">
-          <span className="uppercase tracking-[0.2em] text-[10px] md:text-xs text-(--muted) font-bold">Configuration</span>
+          <span className="uppercase tracking-[0.2em] text-[10px] md:text-xs text-[var()] font-bold">Configuration</span>
           <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mt-2 tracking-tight">Settings.</h1>
-          <p className="text-(--muted) mt-2 md:mt-3 text-sm md:text-base">Manage your account preferences and profile.</p>
+          <p className="text-[var()] mt-2 md:mt-3 text-sm md:text-base">Manage your account preferences and profile.</p>
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-1 sm:gap-2 mb-8 md:mb-10 bg-(--fg)/[0.02] p-1.5 rounded-2xl sm:rounded-full w-full border border-(--hairline)">
+        <div className="flex items-center gap-1 sm:gap-2 mb-8 md:mb-10 bg-[var()]/[0.02] p-1.5 rounded-2xl sm:rounded-full w-full border border-[var()]">
           {TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-5 py-2.5 rounded-xl sm:rounded-full text-[13px] sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === tab.id
-                  ? "bg-(--fg) text-(--bg) shadow-md"
-                  : "text-(--muted) hover:text-(--fg) hover:bg-(--fg)/5"
+                  ? "bg-[var()] text-[var()] shadow-md"
+                  : "text-[var()] hover:text-[var()] hover:bg-[var()]/5"
               }`}
             >
               <tab.icon className={`h-4 w-4 hidden sm:block ${activeTab === tab.id ? "" : "opacity-70"}`} />
@@ -233,10 +233,10 @@ export default function SettingsPage() {
         {activeTab === "profile" && (
           <>
             {/* Profile Photo Section */}
-            <div className="bg-(--fg)/[0.02] border border-(--hairline) rounded-3xl p-6 md:p-8 backdrop-blur-xl">
+            <div className="bg-[var()]/[0.02] border border-[var()] rounded-3xl p-6 md:p-8 backdrop-blur-xl">
               <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8">
                 <div className="relative group shrink-0">
-                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border border-(--hairline) bg-gradient-to-br from-(--fg)/10 to-(--fg)/5 flex items-center justify-center shadow-lg">
+                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border border-[var()] bg-gradient-to-br from-[var()]/10 to-[var()]/5 flex items-center justify-center shadow-lg">
                     {currentAvatar && !imageError ? (
                       <img
                         src={currentAvatar}
@@ -245,11 +245,11 @@ export default function SettingsPage() {
                         onError={() => setImageError(true)}
                       />
                     ) : (
-                      <span className="text-2xl md:text-3xl font-semibold text-(--fg) tracking-tight opacity-90">{initials}</span>
+                      <span className="text-2xl md:text-3xl font-semibold text-[var()] tracking-tight opacity-90">{initials}</span>
                     )}
                   </div>
 
-                  <label className="absolute bottom-0 right-0 bg-(--accent) text-(--accent-fg) p-2 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all shadow-md">
+                  <label className="absolute bottom-0 right-0 bg-[var()] text-[var()] p-2 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all shadow-md">
                     <Camera className="w-3.5 h-3.5" />
                     <input
                       ref={fileInputRef}
@@ -263,15 +263,15 @@ export default function SettingsPage() {
 
                 <div className="flex-1 text-center sm:text-left space-y-4">
                   <div className="space-y-1">
-                    <h3 className="text-xl md:text-2xl font-bold tracking-tight text-(--fg)">
+                    <h3 className="text-xl md:text-2xl font-bold tracking-tight text-[var()]">
                       {name || "Your Name"}
                     </h3>
                     {currentRole ? (
-                      <p className="text-xs sm:text-sm text-(--muted) font-medium">
+                      <p className="text-xs sm:text-sm text-[var()] font-medium">
                         {currentRole}
                       </p>
                     ) : (
-                      <p className="text-xs text-(--muted) italic font-medium">Add your current role below</p>
+                      <p className="text-xs text-[var()] italic font-medium">Add your current role below</p>
                     )}
                   </div>
                   <div className="flex flex-wrap gap-2.5 justify-center sm:justify-start">
@@ -279,7 +279,7 @@ export default function SettingsPage() {
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={avatarSaving}
-                      className="px-4 py-2 bg-(--fg) text-(--bg) hover:opacity-90 active:scale-[0.98] transition-all rounded-xl font-bold text-xs disabled:opacity-50 cursor-pointer shadow-sm"
+                      className="px-4 py-2 bg-[var()] text-[var()] hover:opacity-90 active:scale-[0.98] transition-all rounded-xl font-bold text-xs disabled:opacity-50 cursor-pointer shadow-sm"
                     >
                       {avatarSaving ? "Uploading..." : "Change Photo"}
                     </button>
@@ -287,7 +287,7 @@ export default function SettingsPage() {
                       <button
                         type="button"
                         onClick={removePhoto}
-                        className="px-4 py-2 bg-(--fg)/5 text-(--muted) hover:bg-(--fg)/10 hover:text-(--fg) active:scale-[0.98] transition-all rounded-xl font-bold text-xs cursor-pointer border border-(--hairline)"
+                        className="px-4 py-2 bg-[var()]/5 text-[var()] hover:bg-[var()]/10 hover:text-[var()] active:scale-[0.98] transition-all rounded-xl font-bold text-xs cursor-pointer border border-[var()]"
                       >
                         Remove
                       </button>
@@ -298,54 +298,54 @@ export default function SettingsPage() {
             </div>
 
             {/* Personal Information */}
-            <div className="bg-(--fg)/[0.02] border border-(--hairline) rounded-3xl p-6 md:p-8 backdrop-blur-xl">
+            <div className="bg-[var()]/[0.02] border border-[var()] rounded-3xl p-6 md:p-8 backdrop-blur-xl">
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-(--fg)/10 rounded-xl">
-                  <User className="w-4 h-4 text-(--fg)" />
+                <div className="p-2 bg-[var()]/10 rounded-xl">
+                  <User className="w-4 h-4 text-[var()]" />
                 </div>
                 <h3 className="text-lg font-bold">Personal Information</h3>
               </div>
 
               <form onSubmit={handleProfileSave} className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] uppercase tracking-[0.15em] text-(--muted) font-semibold ml-1">Full Name</label>
+                  <label className="text-[10px] uppercase tracking-[0.15em] text-[var()] font-semibold ml-1">Full Name</label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your name"
-                    className="w-full bg-(--fg)/5 border border-(--hairline) rounded-xl px-4 py-2.5 focus:border-(--fg)/20 focus:bg-(--fg)/10 outline-none transition-all placeholder:text-(--muted) text-xs sm:text-sm font-medium"
+                    className="w-full bg-[var()]/5 border border-[var()] rounded-xl px-4 py-2.5 focus:border-[var()]/20 focus:bg-[var()]/10 outline-none transition-all placeholder:text-[var()] text-xs sm:text-sm font-medium"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] uppercase tracking-[0.15em] text-(--muted) font-semibold ml-1">Username</label>
+                  <label className="text-[10px] uppercase tracking-[0.15em] text-[var()] font-semibold ml-1">Username</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-(--muted) font-semibold text-xs sm:text-sm">@</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var()] font-semibold text-xs sm:text-sm">@</span>
                     <input
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
                       placeholder="username"
-                      className="w-full bg-(--fg)/5 border border-(--hairline) rounded-xl pl-8 pr-4 py-2.5 focus:border-(--fg)/20 focus:bg-(--fg)/10 outline-none transition-all placeholder:text-(--muted) text-xs sm:text-sm font-medium"
+                      className="w-full bg-[var()]/5 border border-[var()] rounded-xl pl-8 pr-4 py-2.5 focus:border-[var()]/20 focus:bg-[var()]/10 outline-none transition-all placeholder:text-[var()] text-xs sm:text-sm font-medium"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] uppercase tracking-[0.15em] text-(--muted) font-semibold ml-1">Email Address</label>
+                  <label className="text-[10px] uppercase tracking-[0.15em] text-[var()] font-semibold ml-1">Email Address</label>
                   <input
                     type="email"
                     value={user?.email || ""}
                     disabled
-                    className="w-full bg-(--fg)/5 border border-(--hairline) rounded-xl px-4 py-2.5 opacity-40 cursor-not-allowed italic text-xs sm:text-sm font-medium"
+                    className="w-full bg-[var()]/5 border border-[var()] rounded-xl px-4 py-2.5 opacity-40 cursor-not-allowed italic text-xs sm:text-sm font-medium"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] uppercase tracking-[0.15em] text-(--muted) font-semibold ml-1">Phone Number</label>
+                  <label className="text-[10px] uppercase tracking-[0.15em] text-[var()] font-semibold ml-1">Phone Number</label>
                   <div className="flex gap-2">
-                    <div className="w-14 bg-(--fg)/5 border border-(--hairline) rounded-xl flex items-center justify-center font-mono text-(--muted) text-xs sm:text-sm py-2.5 font-medium">
+                    <div className="w-14 bg-[var()]/5 border border-[var()] rounded-xl flex items-center justify-center font-mono text-[var()] text-xs sm:text-sm py-2.5 font-medium">
                       +91
                     </div>
                     <input
@@ -354,31 +354,31 @@ export default function SettingsPage() {
                       value={phone}
                       onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
                       placeholder="10-digit number"
-                      className="flex-1 bg-(--fg)/5 border border-(--hairline) rounded-xl px-4 py-2.5 focus:border-(--fg)/20 focus:bg-(--fg)/10 outline-none transition-all placeholder:text-(--muted) text-xs sm:text-sm font-medium"
+                      className="flex-1 bg-[var()]/5 border border-[var()] rounded-xl px-4 py-2.5 focus:border-[var()]/20 focus:bg-[var()]/10 outline-none transition-all placeholder:text-[var()] text-xs sm:text-sm font-medium"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] uppercase tracking-[0.15em] text-(--muted) font-semibold ml-1">Current Role</label>
+                  <label className="text-[10px] uppercase tracking-[0.15em] text-[var()] font-semibold ml-1">Current Role</label>
                   <input
                     type="text"
                     value={currentRole}
                     onChange={(e) => setCurrentRole(e.target.value)}
                     placeholder="e.g. Software Engineer, Product Manager"
-                    className="w-full bg-(--fg)/5 border border-(--hairline) rounded-xl px-4 py-2.5 focus:border-(--fg)/20 focus:bg-(--fg)/10 outline-none transition-all placeholder:text-(--muted) text-xs sm:text-sm font-medium"
+                    className="w-full bg-[var()]/5 border border-[var()] rounded-xl px-4 py-2.5 focus:border-[var()]/20 focus:bg-[var()]/10 outline-none transition-all placeholder:text-[var()] text-xs sm:text-sm font-medium"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] uppercase tracking-[0.15em] text-(--muted) font-semibold ml-1">Preferred Currency</label>
+                  <label className="text-[10px] uppercase tracking-[0.15em] text-[var()] font-semibold ml-1">Preferred Currency</label>
                   <select
                     value={activeCurrency}
                     onChange={(e) => setCurrency(e.target.value, true)}
-                    className="w-full bg-(--fg)/5 border border-(--hairline) rounded-xl px-4 py-2.5 focus:border-(--fg)/20 focus:bg-(--fg)/10 outline-none transition-all text-xs sm:text-sm font-medium cursor-pointer"
+                    className="w-full bg-[var()]/5 border border-[var()] rounded-xl px-4 py-2.5 focus:border-[var()]/20 focus:bg-[var()]/10 outline-none transition-all text-xs sm:text-sm font-medium cursor-pointer"
                   >
                     {Object.entries(CURRENCY_CONFIGS).map(([code, config]) => (
-                      <option key={code} value={code} className="bg-(--bg) text-(--fg)">
+                      <option key={code} value={code} className="bg-[var()] text-[var()]">
                         {code} ({config.symbol}) - {config.name}
                       </option>
                     ))}
@@ -390,14 +390,14 @@ export default function SettingsPage() {
                     <button
                       type="button"
                       onClick={() => { setName(user?.name ?? ""); setPhone(user?.phone ?? ""); setUsername(user?.username ?? user?.email?.split("@")[0] ?? ""); setCurrentRole(user?.currentRole ?? ""); }}
-                      className="px-4 py-2 text-(--muted) hover:text-(--fg) transition-all font-bold text-xs cursor-pointer rounded-xl"
+                      className="px-4 py-2 text-[var()] hover:text-[var()] transition-all font-bold text-xs cursor-pointer rounded-xl"
                     >
                       Discard Changes
                     </button>
                     <button
                       type="submit"
                       disabled={saving}
-                      className="px-5 py-2 bg-(--fg) text-(--bg) rounded-xl font-bold text-xs hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer shadow-sm"
+                      className="px-5 py-2 bg-[var()] text-[var()] rounded-xl font-bold text-xs hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer shadow-sm"
                     >
                       {saving ? "Saving..." : "Save Changes"}
                     </button>
@@ -407,38 +407,38 @@ export default function SettingsPage() {
             </div>
 
             {/* Continue as Mentor Section */}
-            <div className="bg-(--fg)/[0.02] border border-(--hairline) rounded-3xl p-6 md:p-8 backdrop-blur-xl mt-6">
+            <div className="bg-[var()]/[0.02] border border-[var()] rounded-3xl p-6 md:p-8 backdrop-blur-xl mt-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-(--fg)/10 rounded-xl">
-                  <Briefcase className="w-4 h-4 text-(--fg)" />
+                <div className="p-2 bg-[var()]/10 rounded-xl">
+                  <Briefcase className="w-4 h-4 text-[var()]" />
                 </div>
                 <h3 className="text-lg font-bold">Continue as Mentor</h3>
               </div>
-              <p className="text-xs sm:text-sm text-(--muted) mb-6 leading-relaxed">
+              <p className="text-xs sm:text-sm text-[var()] mb-6 leading-relaxed">
                 Are you ready to share your expertise, guide other learners, and build your mentor profile? Switch to the mentor panel or start your mentor onboarding.
               </p>
               <button
                 type="button"
                 onClick={handleContinueAsMentor}
                 disabled={switching}
-                className="px-4 py-2 bg-(--fg) text-(--bg) rounded-xl font-bold text-xs hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer shadow-sm"
+                className="px-4 py-2 bg-[var()] text-[var()] rounded-xl font-bold text-xs hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer shadow-sm"
               >
                 {switching ? "Switching..." : (user?.role === "MENTOR" && mentor) ? "Switch to Mentor Panel" : "Become a Mentor"}
               </button>
             </div>
 
             {/* Platform Review Section */}
-            <div className="bg-(--fg)/[0.02] border border-(--hairline) rounded-3xl p-6 md:p-8 backdrop-blur-xl mt-6">
+            <div className="bg-[var()]/[0.02] border border-[var()] rounded-3xl p-6 md:p-8 backdrop-blur-xl mt-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-amber-500/10 text-amber-500 rounded-xl border border-amber-500/20">
                   <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
                 </div>
                 <div>
                   <h3 className="text-lg font-bold">Platform Review & Feedback</h3>
-                  <p className="text-xs text-(--muted) mt-0.5">Share your experience to help us improve HelpMeMan.</p>
+                  <p className="text-xs text-[var()] mt-0.5">Share your experience to help us improve HelpMeMan.</p>
                 </div>
               </div>
-              <p className="text-xs sm:text-sm text-(--muted) mb-6 leading-relaxed">
+              <p className="text-xs sm:text-sm text-[var()] mb-6 leading-relaxed">
                 Your feedback directly influences platform features and helps other mentees make informed decisions.
               </p>
               <button
@@ -448,7 +448,7 @@ export default function SettingsPage() {
                     window.dispatchEvent(new Event("open-platform-review-modal"));
                   }
                 }}
-                className="px-4 py-2 bg-(--fg) text-(--bg) rounded-xl font-bold text-xs hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer shadow-sm flex items-center gap-2"
+                className="px-4 py-2 bg-[var()] text-[var()] rounded-xl font-bold text-xs hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer shadow-sm flex items-center gap-2"
               >
                 <Star className="w-3.5 h-3.5 fill-current" />
                 <span>Leave or Edit Review</span>
@@ -462,21 +462,21 @@ export default function SettingsPage() {
 
         {activeTab === "payments" && (
           <div className="space-y-6">
-            <div className="bg-(--fg)/[0.02] border border-(--hairline) rounded-3xl p-6 md:p-8 backdrop-blur-xl">
+            <div className="bg-[var()]/[0.02] border border-[var()] rounded-3xl p-6 md:p-8 backdrop-blur-xl">
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-(--fg)/10 rounded-xl">
-                  <CreditCard className="w-4 h-4 text-(--fg)" />
+                <div className="p-2 bg-[var()]/10 rounded-xl">
+                  <CreditCard className="w-4 h-4 text-[var()]" />
                 </div>
                 <div>
                   <h3 className="text-lg font-bold">Payment History</h3>
-                  <p className="text-xs text-(--muted) mt-0.5">All payments you&apos;ve made on HelpMeMan.</p>
+                  <p className="text-xs text-[var()] mt-0.5">All payments you&apos;ve made on HelpMeMan.</p>
                 </div>
               </div>
 
-              <div className="flex flex-col items-center justify-center py-12 text-center bg-(--fg)/[0.01] rounded-2xl border border-dashed border-(--hairline)">
-                <CreditCard className="w-8 h-8 text-(--muted) mb-3" />
+              <div className="flex flex-col items-center justify-center py-12 text-center bg-[var()]/[0.01] rounded-2xl border border-dashed border-[var()]">
+                <CreditCard className="w-8 h-8 text-[var()] mb-3" />
                 <p className="text-sm font-semibold">No payments yet</p>
-                <p className="text-xs text-(--muted) mt-1">When you book sessions, your payment history will appear here.</p>
+                <p className="text-xs text-[var()] mt-1">When you book sessions, your payment history will appear here.</p>
               </div>
             </div>
           </div>

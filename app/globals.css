@@ -29,13 +29,16 @@ html[data-theme="yellow"] {
   --accent-fg: #f5c518;
 }
 
-html[data-theme="dark"] {
-  --bg: #0a0a0a;
-  --fg: #f4f4f4;
-  --muted: #9a9a9a;
-  --hairline: rgba(244, 244, 244, 0.10);
-  --accent: #f4f4f4;
-  --accent-fg: #0a0a0a;
+html[data-theme="dark"],
+html.dark,
+.dark {
+  --bg: #09090b;
+  --fg: #f4f4f5;
+  --muted: #a1a1aa;
+  --hairline: rgba(244, 244, 245, 0.12);
+  --accent: #f4f4f5;
+  --accent-fg: #09090b;
+  color-scheme: dark;
 }
 
 @theme inline {

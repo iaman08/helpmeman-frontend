@@ -40,9 +40,9 @@ export function Avatar({ name, url, size = "md", className = "", style }: Avatar
 
   return (
     <div
-      className={`relative shrink-0 rounded-full overflow-hidden flex items-center justify-center border border-(--hairline) select-none transition-all duration-200 ${selectedSizeClass} ${
+      className={`relative shrink-0 rounded-full overflow-hidden flex items-center justify-center border border-[var()] select-none transition-all duration-200 ${selectedSizeClass} ${
         !url || imgError
-          ? "bg-gradient-to-br from-(--fg)/10 to-(--fg)/20 text-(--fg)/80"
+          ? "bg-gradient-to-br from-[var()]/10 to-[var()]/20 text-[var()]/80"
           : "bg-transparent"
       } ${className}`}
       style={style}

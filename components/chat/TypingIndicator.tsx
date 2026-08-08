@@ -22,12 +22,12 @@ export function TypingIndicator({ typingUserName }: TypingIndicatorProps) {
       aria-live="polite"
       aria-label={`${typingUserName} is typing`}
     >
-      <div className="flex items-center gap-1 bg-(--fg)/5 border border-(--hairline)/20 rounded-full px-3 py-1.5">
+      <div className="flex items-center gap-1 bg-[var()]/5 border border-[var()]/20 rounded-full px-3 py-1.5">
         <div className="flex items-center gap-[3px]">
           {[0, 1, 2].map((i) => (
             <span
               key={i}
-              className="h-[6px] w-[6px] rounded-full bg-(--muted) opacity-60"
+              className="h-[6px] w-[6px] rounded-full bg-[var()] opacity-60"
               style={{
                 animation: `typingBounce 1.2s ease-in-out infinite`,
                 animationDelay: `${i * 0.16}s`,
@@ -35,7 +35,7 @@ export function TypingIndicator({ typingUserName }: TypingIndicatorProps) {
             />
           ))}
         </div>
-        <span className="text-[11px] text-(--muted) font-medium ml-1">
+        <span className="text-[11px] text-[var()] font-medium ml-1">
           {typingUserName} is typing
         </span>
       </div>

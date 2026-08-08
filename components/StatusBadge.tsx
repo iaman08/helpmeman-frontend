@@ -14,7 +14,7 @@ const styles: Record<string, string> = {
   OPEN: "bg-emerald-500/12 text-emerald-600",
   LOCKED: "bg-yellow-500/12 text-yellow-600",
   BOOKED: "bg-indigo-500/12 text-indigo-600",
-  CLOSED: "bg-(--fg)/8 text-(--fg)/60",
+  CLOSED: "bg-[var()]/8 text-[var()]/60",
 };
 
 type Props = {
@@ -27,7 +27,7 @@ export function StatusBadge({ status, className }: Props) {
     <span
       className={clsx(
         "inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wider",
-        styles[status] ?? "bg-(--fg)/8 text-(--fg)/60",
+        styles[status] ?? "bg-[var()]/8 text-[var()]/60",
         className,
       )}
     >

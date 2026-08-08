@@ -61,13 +61,13 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-8 pb-10">
       {/* ─── Greeting Section ─── */}
-      <div className="flex items-center gap-3.5 border-b border-(--hairline) pb-4 sm:pb-6">
+      <div className="flex items-center gap-3.5 border-b border-[var()] pb-4 sm:pb-6">
         <img src="/logo.svg" alt="HelpMeMan Logo" className="w-9 h-9 sm:w-11 sm:h-11 object-contain shrink-0" />
         <div className="flex flex-col gap-1 min-w-0">
-          <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.22em] text-(--muted) leading-none">
+          <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.22em] text-[var()] leading-none">
             Dashboard
           </p>
-          <h1 className="font-display text-xl sm:text-3xl font-extrabold tracking-tight text-(--fg) leading-tight truncate">
+          <h1 className="font-display text-xl sm:text-3xl font-extrabold tracking-tight text-[var()] leading-tight truncate">
             Welcome back, {user?.name?.split(" ")[0] || "Dilkhush"}.
           </h1>
         </div>
@@ -81,10 +81,10 @@ export default function DashboardPage() {
               <Star className="w-5 h-5 fill-amber-500 text-amber-500" />
             </div>
             <div className="flex flex-col gap-1">
-              <h3 className="font-bold text-sm text-(--fg)">
+              <h3 className="font-bold text-sm text-[var()]">
                 Rate your recent session with {pendingReviews[0].displayName}
               </h3>
-              <p className="text-xs text-(--muted) leading-normal">
+              <p className="text-xs text-[var()] leading-normal">
                 Share your feedback to help mentors improve and guide other mentees on the platform.
               </p>
             </div>
@@ -108,14 +108,14 @@ export default function DashboardPage() {
         {/* Stat Item 1 */}
         <div className="group relative overflow-hidden rounded-2xl border border-black/5 dark:border-white/5 bg-white/40 dark:bg-white/[0.02] p-3.5 sm:p-5 backdrop-blur-md hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex items-center justify-between">
           <div className="flex flex-col gap-1 min-w-0">
-            <span className="font-display text-xl sm:text-3xl font-extrabold tracking-tight text-(--fg)">
+            <span className="font-display text-xl sm:text-3xl font-extrabold tracking-tight text-[var()]">
               {bookingsLoading ? (
                 <Skeleton className="h-6 w-8 sm:h-9 sm:w-12" />
               ) : (
                 bookingData?.total ?? 0
               )}
             </span>
-            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-(--muted) truncate">
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[var()] truncate">
               <span className="sm:hidden">Bookings</span>
               <span className="hidden sm:inline">Total Bookings</span>
             </span>
@@ -135,7 +135,7 @@ export default function DashboardPage() {
                 upcomingBookings.length
               )}
             </span>
-            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-(--muted) truncate">
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[var()] truncate">
               <span className="sm:hidden">Upcoming</span>
               <span className="hidden sm:inline">Upcoming Sessions</span>
             </span>
@@ -151,7 +151,7 @@ export default function DashboardPage() {
             <span className="font-display text-xl sm:text-3xl font-extrabold tracking-tight text-indigo-500 dark:text-indigo-400">
               {notifData?.unreadCount ?? 0}
             </span>
-            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-(--muted) truncate">
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[var()] truncate">
               <span className="sm:hidden">Unread</span>
               <span className="hidden sm:inline">Unread Messages</span>
             </span>
@@ -165,12 +165,12 @@ export default function DashboardPage() {
       {/* ─── Upcoming Sessions ─── */}
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-[10px] uppercase tracking-widest font-bold text-(--muted)">
+          <h2 className="text-[10px] uppercase tracking-widest font-bold text-[var()]">
             Upcoming Sessions
           </h2>
           <Link
             href="/dashboard/bookings"
-            className="flex items-center gap-1 text-xs text-(--muted) hover:text-(--fg) font-semibold transition-colors group"
+            className="flex items-center gap-1 text-xs text-[var()] hover:text-[var()] font-semibold transition-colors group"
           >
             View all <ArrowRight className="h-3.5 w-3.5 transform group-hover:translate-x-0.5 transition-transform" />
           </Link>
@@ -191,14 +191,14 @@ export default function DashboardPage() {
                 className="group flex items-center justify-between rounded-2xl border border-black/5 dark:border-white/5 bg-white/40 dark:bg-white/[0.01] hover:bg-white/80 dark:hover:bg-white/[0.04] p-4.5 transition-all duration-300 hover:shadow-xs"
               >
                 <div className="flex items-center gap-4">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-(--fg)/8 text-sm font-bold text-(--fg) border border-(--hairline) shrink-0 group-hover:bg-gradient-to-br group-hover:from-indigo-500 group-hover:to-purple-500 group-hover:text-white transition-all">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var()]/8 text-sm font-bold text-[var()] border border-[var()] shrink-0 group-hover:bg-gradient-to-br group-hover:from-indigo-500 group-hover:to-purple-500 group-hover:text-white transition-all">
                     {booking.mentor?.displayName?.[0] ?? "M"}
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-bold text-(--fg) group-hover:text-(--accent) transition-colors">
+                    <span className="text-sm font-bold text-[var()] group-hover:text-[var()] transition-colors">
                       {booking.mentor?.displayName ?? "Mentor"}
                     </span>
-                    <span className="text-xs text-(--muted) font-medium">
+                    <span className="text-xs text-[var()] font-medium">
                       {formatDate(booking.scheduledAt)} at{" "}
                       {formatTime(booking.scheduledAt)} ·{" "}
                       {booking.durationMinutes} min
@@ -207,27 +207,27 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <StatusBadge status={booking.status} />
-                  <ArrowRight className="h-4 w-4 text-(--muted) opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                  <ArrowRight className="h-4 w-4 text-[var()] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                 </div>
               </Link>
             ))}
           </div>
         ) : (
-          <div className="relative overflow-hidden rounded-2xl border border-dashed border-(--hairline) bg-white/20 dark:bg-white/[0.01] p-6 sm:p-10 text-center flex flex-col items-center justify-center gap-4">
+          <div className="relative overflow-hidden rounded-2xl border border-dashed border-[var()] bg-white/20 dark:bg-white/[0.01] p-6 sm:p-10 text-center flex flex-col items-center justify-center gap-4">
             <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-indigo-500/10 text-indigo-500 shrink-0">
               <CalendarCheck className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
             <div className="flex flex-col gap-1">
-              <p className="text-sm font-bold text-(--fg)">
+              <p className="text-sm font-bold text-[var()]">
                 No sessions booked yet
               </p>
-              <p className="text-xs text-(--muted) max-w-xs leading-normal">
+              <p className="text-xs text-[var()] max-w-xs leading-normal">
                 Schedule a 1-on-1 session with a professional mentor to start accelerating your career growth.
               </p>
             </div>
             <Link
               href="/mentors"
-              className="inline-flex items-center gap-2 rounded-xl bg-(--fg) text-(--bg) px-5 py-2.5 sm:px-6 sm:py-3 text-xs font-bold hover:opacity-90 active:scale-95 transition-all shadow-md cursor-pointer mt-1"
+              className="inline-flex items-center gap-2 rounded-xl bg-[var()] text-[var()] px-5 py-2.5 sm:px-6 sm:py-3 text-xs font-bold hover:opacity-90 active:scale-95 transition-all shadow-md cursor-pointer mt-1"
             >
               Browse mentors <ArrowRight className="h-3.5 w-3.5" />
             </Link>
@@ -237,7 +237,7 @@ export default function DashboardPage() {
 
       {/* ─── Quick Actions ─── */}
       <div className="flex flex-col gap-4">
-        <h2 className="text-[10px] uppercase tracking-widest font-bold text-(--muted)">
+        <h2 className="text-[10px] uppercase tracking-widest font-bold text-[var()]">
           Quick Actions
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -249,10 +249,10 @@ export default function DashboardPage() {
               <CalendarCheck className="h-5 w-5" />
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-sm font-bold text-(--fg) group-hover:text-(--accent) transition-colors">
+              <span className="text-sm font-bold text-[var()] group-hover:text-[var()] transition-colors">
                 Book a session
               </span>
-              <span className="text-xs text-(--muted) font-medium">
+              <span className="text-xs text-[var()] font-medium">
                 Browse and connect with verified mentors
               </span>
             </div>
@@ -265,10 +265,10 @@ export default function DashboardPage() {
               <MessageCircle className="h-5 w-5" />
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-sm font-bold text-(--fg) group-hover:text-(--accent) transition-colors">
+              <span className="text-sm font-bold text-[var()] group-hover:text-[var()] transition-colors">
                 Open chat
               </span>
-              <span className="text-xs text-(--muted) font-medium">
+              <span className="text-xs text-[var()] font-medium">
                 Message your mentors in real-time
               </span>
             </div>

@@ -63,13 +63,13 @@ export default function SuperAdminFinancePage() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">Super Admin</p>
+        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Super Admin</p>
         <div className="flex items-center justify-between">
           <h1 className="font-display text-4xl leading-tight">Finance.</h1>
           <button
             onClick={handleExport}
             disabled={loading || !data?.earnings?.length}
-            className="flex items-center gap-2 px-4 py-2 bg-(--fg) text-(--bg) rounded-xl text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-opacity"
+            className="flex items-center gap-2 px-4 py-2 bg-[var()] text-[var()] rounded-xl text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-opacity"
           >
             <Download className="h-4 w-4" />
             Export CSV
@@ -79,8 +79,8 @@ export default function SuperAdminFinancePage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {stats.map((s) => (
-          <div key={s.label} className="rounded-2xl p-5 flex flex-col gap-2 bg-(--fg)/[0.02]">
-            <div className="flex items-center gap-2 text-(--muted)">
+          <div key={s.label} className="rounded-2xl p-5 flex flex-col gap-2 bg-[var()]/[0.02]">
+            <div className="flex items-center gap-2 text-[var()]">
               <DollarSign className="h-4 w-4" />
               <span className="text-[10px] uppercase tracking-[0.18em]">{s.label}</span>
             </div>
@@ -95,13 +95,13 @@ export default function SuperAdminFinancePage() {
         ))}
       </div>
 
-      <div className="bg-(--fg)/[0.02] rounded-2xl overflow-hidden border border-(--hairline)">
-        <div className="px-6 py-4 border-b border-(--hairline)">
+      <div className="bg-[var()]/[0.02] rounded-2xl overflow-hidden border border-[var()]">
+        <div className="px-6 py-4 border-b border-[var()]">
           <h2 className="text-sm font-medium">Recent Earnings & Payouts</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-xs uppercase tracking-wider text-(--muted) bg-(--fg)/5">
+            <thead className="text-xs uppercase tracking-wider text-[var()] bg-[var()]/5">
               <tr>
                 <th className="px-6 py-4 font-medium">Mentor</th>
                 <th className="px-6 py-4 font-medium">Amount</th>
@@ -109,7 +109,7 @@ export default function SuperAdminFinancePage() {
                 <th className="px-6 py-4 font-medium">Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-(--hairline)">
+            <tbody className="divide-y divide-[var()]">
               {loading ? (
                 Array(5).fill(0).map((_, i) => (
                   <tr key={i}>
@@ -121,12 +121,12 @@ export default function SuperAdminFinancePage() {
                 ))
               ) : !data?.earnings || data.earnings.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-10 text-center text-(--muted)">No financial records found.</td>
+                  <td colSpan={4} className="px-6 py-10 text-center text-[var()]">No financial records found.</td>
                 </tr>
               ) : (
                 data.earnings.map((earning) => (
-                  <tr key={earning.id} className="hover:bg-(--fg)/5 transition-colors">
-                    <td className="px-6 py-4 font-medium text-(--fg)">
+                  <tr key={earning.id} className="hover:bg-[var()]/5 transition-colors">
+                    <td className="px-6 py-4 font-medium text-[var()]">
                       {earning.mentor?.user?.name || 'Unknown'}
                     </td>
                     <td className="px-6 py-4 font-medium">
@@ -135,7 +135,7 @@ export default function SuperAdminFinancePage() {
                     <td className="px-6 py-4">
                       <StatusBadge status={earning.status} />
                     </td>
-                    <td className="px-6 py-4 text-(--muted)">
+                    <td className="px-6 py-4 text-[var()]">
                       {new Date(earning.createdAt).toLocaleDateString()}
                     </td>
                   </tr>

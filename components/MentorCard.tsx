@@ -39,7 +39,7 @@ export function MentorCard({ mentor, onShare }: Props) {
   return (
     <Link
       href={`/mentors/${mentor.id}`}
-      className="group flex flex-col gap-4 rounded-2xl bg-(--fg)/[0.02] hover:bg-(--fg)/5 p-5 sm:p-6 transition-colors border border-transparent hover:border-(--hairline)"
+      className="group flex flex-col gap-4 rounded-2xl bg-[var()]/[0.02] hover:bg-[var()]/5 p-5 sm:p-6 transition-colors border border-transparent hover:border-[var()]"
     >
       {/* ─── Header ─── */}
       <div className="flex items-start justify-between gap-4">
@@ -48,11 +48,11 @@ export function MentorCard({ mentor, onShare }: Props) {
             <img
               src={avatarUrl}
               alt={mentor.displayName}
-              className="h-14 w-14 rounded-full object-cover shrink-0 border border-(--hairline)"
+              className="h-14 w-14 rounded-full object-cover shrink-0 border border-[var()]"
               onError={() => setAvatarError(true)}
             />
           ) : (
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-(--fg)/8 text-lg font-medium shrink-0 border border-(--hairline)">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var()]/8 text-lg font-medium shrink-0 border border-[var()]">
               {initials}
             </div>
           )}
@@ -67,7 +67,7 @@ export function MentorCard({ mentor, onShare }: Props) {
               {mentor.displayName}
             </span>
             {mentor.currentRole && (
-              <span className="text-xs text-(--muted) truncate">
+              <span className="text-xs text-[var()] truncate">
                 {mentor.currentRole}
               </span>
             )}
@@ -82,10 +82,10 @@ export function MentorCard({ mentor, onShare }: Props) {
               e.stopPropagation();
               onShare(mentor);
             }}
-            className="p-2 bg-(--fg)/5 hover:bg-(--fg)/10 border border-(--hairline) rounded-full transition-colors cursor-pointer shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100 transition-all"
+            className="p-2 bg-[var()]/5 hover:bg-[var()]/10 border border-[var()] rounded-full transition-colors cursor-pointer shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100 transition-all"
             title="Share profile"
           >
-            <Share2 className="h-3.5 w-3.5 text-(--muted) hover:text-(--fg)" />
+            <Share2 className="h-3.5 w-3.5 text-[var()] hover:text-[var()]" />
           </button>
         )}
       </div>
@@ -100,13 +100,13 @@ export function MentorCard({ mentor, onShare }: Props) {
       </div>
 
       {/* ─── Bio snippet ─── */}
-      <p className="text-sm text-(--muted) leading-relaxed line-clamp-2 mt-1">
+      <p className="text-sm text-[var()] leading-relaxed line-clamp-2 mt-1">
         {mentor.bio}
       </p>
 
       {/* ─── Profile Details (Location, Active Status) ─── */}
       {(mentor.location || mentor.activeStatus || mentor.averageResponseTime) && (
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-(--muted) mt-1">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var()] mt-1">
           {mentor.location && (
             <span className="flex items-center gap-1 shrink-0">
               <Globe className="h-3 w-3 shrink-0" />
@@ -123,7 +123,7 @@ export function MentorCard({ mentor, onShare }: Props) {
       )}
 
       {/* ─── Footer ─── */}
-      <div className="flex items-center justify-between mt-auto pt-3 border-t border-(--hairline)">
+      <div className="flex items-center justify-between mt-auto pt-3 border-t border-[var()]">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1">
             <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
@@ -131,11 +131,11 @@ export function MentorCard({ mentor, onShare }: Props) {
               {mentor.rating > 0 ? mentor.rating.toFixed(1) : "New"}
             </span>
           </div>
-          <span className="text-xs text-(--muted) font-medium">
+          <span className="text-xs text-[var()] font-medium">
             {mentor.totalSessions} session{mentor.totalSessions !== 1 ? "s" : ""}
           </span>
         </div>
-        <span className="font-display text-lg text-(--accent)">
+        <span className="font-display text-lg text-[var()]">
           <PriceDisplay amountInPaise={mentor.pricePerSession} />
         </span>
       </div>

@@ -11,7 +11,7 @@ interface SwipeEmptyStateProps {
 
 export function SwipeEmptyState({ onExpandFilters, hasFilters }: SwipeEmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center h-full px-6 py-12 text-center text-(--fg)">
+    <div className="flex flex-col items-center justify-center h-full px-6 py-12 text-center text-[var()]">
       {/* Illustration */}
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
@@ -49,10 +49,10 @@ export function SwipeEmptyState({ onExpandFilters, hasFilters }: SwipeEmptyState
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2 }}
       >
-        <h3 className="text-xl font-bold font-display mb-2 text-(--fg)">
+        <h3 className="text-xl font-bold font-display mb-2 text-[var()]">
           {hasFilters ? "No mentors match your filters" : "You've seen all mentors!"}
         </h3>
-        <p className="text-sm text-(--muted) max-w-xs mx-auto leading-relaxed">
+        <p className="text-sm text-[var()] max-w-xs mx-auto leading-relaxed">
           {hasFilters
             ? "Try broadening your search criteria to discover more mentors."
             : "Check back soon — new mentors join HelpMeMan every day."}
@@ -69,7 +69,7 @@ export function SwipeEmptyState({ onExpandFilters, hasFilters }: SwipeEmptyState
           <button
             type="button"
             onClick={onExpandFilters}
-            className="flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm bg-(--fg) text-(--bg) hover:opacity-90 active:scale-97 cursor-pointer"
+            className="flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm bg-[var()] text-[var()] hover:opacity-90 active:scale-97 cursor-pointer"
           >
             <Filter className="h-4 w-4" />
             Expand Filters
@@ -82,7 +82,7 @@ export function SwipeEmptyState({ onExpandFilters, hasFilters }: SwipeEmptyState
             // Trigger clear/browse from parent
             window.location.href = "/mentors";
           }}
-          className="flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm bg-(--fg)/5 border border-(--hairline) text-(--fg) hover:bg-(--fg)/10 active:scale-97 cursor-pointer transition-all"
+          className="flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm bg-[var()]/5 border border-[var()] text-[var()] hover:bg-[var()]/10 active:scale-97 cursor-pointer transition-all"
         >
           <Users className="h-4 w-4" />
           Browse All Mentors
@@ -90,7 +90,7 @@ export function SwipeEmptyState({ onExpandFilters, hasFilters }: SwipeEmptyState
 
         <Link
           href="/mentors?sortBy=rating"
-          className="flex items-center justify-center gap-2 py-3 rounded-xl text-sm text-(--muted) hover:text-(--fg) transition-colors"
+          className="flex items-center justify-center gap-2 py-3 rounded-xl text-sm text-[var()] hover:text-[var()] transition-colors"
         >
           <TrendingUp className="h-4 w-4" />
           See Top-Rated Mentors
@@ -108,7 +108,7 @@ export function SwipeEmptyState({ onExpandFilters, hasFilters }: SwipeEmptyState
           <Link
             key={tag}
             href={`/mentors?tab=discover&category=${tag.toLowerCase().replace(/\s+/g, "-")}`}
-            className="px-3 py-1.5 rounded-full text-xs font-semibold border border-(--hairline) text-(--muted) hover:text-(--fg) hover:bg-(--fg)/5 transition-colors"
+            className="px-3 py-1.5 rounded-full text-xs font-semibold border border-[var()] text-[var()] hover:text-[var()] hover:bg-[var()]/5 transition-colors"
           >
             {tag}
           </Link>

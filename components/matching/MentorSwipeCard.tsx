@@ -171,7 +171,7 @@ export function MentorSwipeCard({
         )}
 
         {/* Photo Container (Top 46%) */}
-        <div className="relative h-[46%] w-full overflow-hidden bg-(--fg)/3">
+        <div className="relative h-[46%] w-full overflow-hidden bg-[var()]/3">
           <img
             src={avatarUrl}
             alt={mentor.displayName}
@@ -211,10 +211,10 @@ export function MentorSwipeCard({
         </div>
 
         {/* Divider */}
-        <div className="w-full h-px bg-(--hairline)" />
+        <div className="w-full h-px bg-[var()]" />
 
         {/* Info Area (Bottom 54%) */}
-        <div className="flex-1 flex flex-col justify-between p-5 bg-transparent text-(--fg)">
+        <div className="flex-1 flex flex-col justify-between p-5 bg-transparent text-[var()]">
           <div>
             {/* Name + Verified */}
             <div className="flex items-center gap-1.5 mb-1.5">
@@ -229,36 +229,36 @@ export function MentorSwipeCard({
 
             {/* Role + Company */}
             {mentor.currentRole && (
-              <p className="text-xs text-(--muted) leading-snug mb-3 line-clamp-2">
+              <p className="text-xs text-[var()] leading-snug mb-3 line-clamp-2">
                 {mentor.currentRole}
                 {mentor.institutionName && (
-                  <span className="font-semibold text-(--fg)/80"> @ {mentor.institutionName}</span>
+                  <span className="font-semibold text-[var()]/80"> @ {mentor.institutionName}</span>
                 )}
               </p>
             )}
 
             {/* Structured Stats Section */}
-            <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 border-t border-b border-(--hairline) py-2.5 my-2">
-              <div className="flex items-center gap-1.5 text-[11px] text-(--muted)">
+            <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 border-t border-b border-[var()] py-2.5 my-2">
+              <div className="flex items-center gap-1.5 text-[11px] text-[var()]">
                 <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500 flex-shrink-0" />
-                <span className="font-bold text-(--fg)">
+                <span className="font-bold text-[var()]">
                   {mentor.rating > 0 ? mentor.rating.toFixed(1) : "New"}
                 </span>
                 {mentor.totalSessions > 0 && <span>({mentor.totalSessions} sessions)</span>}
               </div>
               
               {mentor.experienceYears !== undefined && mentor.experienceYears !== null && (
-                <div className="flex items-center gap-1.5 text-[11px] text-(--muted)">
-                  <span className="font-bold text-(--fg)">{mentor.experienceYears}y</span>
+                <div className="flex items-center gap-1.5 text-[11px] text-[var()]">
+                  <span className="font-bold text-[var()]">{mentor.experienceYears}y</span>
                   <span>experience</span>
                 </div>
               )}
 
               {mentor.averageResponseTime && (
-                <div className="flex items-center gap-1.5 text-[11px] text-(--muted) col-span-2">
+                <div className="flex items-center gap-1.5 text-[11px] text-[var()] col-span-2">
                   <Clock className="h-3 w-3 flex-shrink-0" />
                   <span>Replies:</span>
-                  <span className="font-semibold text-(--fg)">{mentor.averageResponseTime}</span>
+                  <span className="font-semibold text-[var()]">{mentor.averageResponseTime}</span>
                 </div>
               )}
             </div>
@@ -269,7 +269,7 @@ export function MentorSwipeCard({
                 {mentor.expertise.slice(0, 3).map((skill) => (
                   <span
                     key={skill}
-                    className="px-2 py-0.5 rounded text-[9px] font-bold tracking-wide uppercase bg-(--fg)/5 text-(--muted) border border-(--hairline)"
+                    className="px-2 py-0.5 rounded text-[9px] font-bold tracking-wide uppercase bg-[var()]/5 text-[var()] border border-[var()]"
                   >
                     {skill}
                   </span>
@@ -280,9 +280,9 @@ export function MentorSwipeCard({
 
           <div className="mt-auto">
             {/* Price + Tap to View */}
-            <div className="flex items-center justify-between border-t border-(--hairline) pt-3.5 mt-4">
+            <div className="flex items-center justify-between border-t border-[var()] pt-3.5 mt-4">
               {languages.length > 0 ? (
-                <span className="flex items-center gap-1 text-[10px] text-(--muted)">
+                <span className="flex items-center gap-1 text-[10px] text-[var()]">
                   <Globe className="h-3 w-3" />
                   {languages.slice(0, 2).join(" • ")}
                 </span>
@@ -290,8 +290,8 @@ export function MentorSwipeCard({
                 <span />
               )}
               <div className="text-right">
-                <span className="text-sm text-(--muted) mr-1">Session:</span>
-                <span className="text-base font-bold font-display text-(--accent)">
+                <span className="text-sm text-[var()] mr-1">Session:</span>
+                <span className="text-base font-bold font-display text-[var()]">
                   {mentor.pricePerSession === 0 ? (
                     <span className="text-emerald-500">Free</span>
                   ) : (
@@ -309,7 +309,7 @@ export function MentorSwipeCard({
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="w-full mt-3 py-2 rounded-xl text-xs font-bold bg-(--fg) text-(--bg) hover:opacity-90 transition-opacity cursor-pointer text-center"
+                className="w-full mt-3 py-2 rounded-xl text-xs font-bold bg-[var()] text-[var()] hover:opacity-90 transition-opacity cursor-pointer text-center"
               >
                 View Details & Calendar
               </motion.button>
@@ -341,19 +341,19 @@ export function SwipeCardSkeleton({ stackIndex }: { stackIndex: number }) {
       }}
     >
       <div className="h-full w-full rounded-[1.5rem] overflow-hidden flex flex-col">
-        <div className="h-[46%] w-full bg-(--fg)/5 border-b border-(--hairline)" />
+        <div className="h-[46%] w-full bg-[var()]/5 border-b border-[var()]" />
         <div className="flex-1 p-5 flex flex-col justify-between">
           <div>
-            <div className="h-5 w-36 bg-(--fg)/8 rounded mb-2" />
-            <div className="h-3 w-48 bg-(--fg)/5 rounded mb-3" />
+            <div className="h-5 w-36 bg-[var()]/8 rounded mb-2" />
+            <div className="h-3 w-48 bg-[var()]/5 rounded mb-3" />
             <div className="flex gap-2">
-              <div className="h-4 w-16 bg-(--fg)/5 rounded" />
-              <div className="h-4 w-16 bg-(--fg)/5 rounded" />
+              <div className="h-4 w-16 bg-[var()]/5 rounded" />
+              <div className="h-4 w-16 bg-[var()]/5 rounded" />
             </div>
           </div>
-          <div className="mt-auto pt-4 border-t border-(--hairline) flex justify-between items-end">
-            <div className="h-3 w-20 bg-(--fg)/5 rounded" />
-            <div className="h-5 w-24 bg-(--fg)/8 rounded" />
+          <div className="mt-auto pt-4 border-t border-[var()] flex justify-between items-end">
+            <div className="h-3 w-20 bg-[var()]/5 rounded" />
+            <div className="h-5 w-24 bg-[var()]/8 rounded" />
           </div>
         </div>
       </div>

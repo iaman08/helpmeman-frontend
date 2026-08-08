@@ -38,12 +38,12 @@ export function SidebarShell({
   navItems,
   rootPath,
   brandLabel,
-  brandColor = "text-(--muted)",
+  brandColor = "text-[var()]",
   userName,
   userEmail,
   userAvatar,
   userBadge,
-  avatarColor = "bg-(--fg)/8 text-(--fg)",
+  avatarColor = "bg-[var()]/8 text-[var()]",
   notificationsPath = "/dashboard/notifications",
   onLogout,
   className,
@@ -94,7 +94,7 @@ export function SidebarShell({
       <div className="px-6 py-6 flex items-start justify-between gap-3">
         <div>
           <Link href="/" className="font-display text-xl tracking-tight">
-            HelpMeMan<span className="text-(--muted)">.</span>
+            HelpMeMan<span className="text-[var()]">.</span>
           </Link>
           <p className={`text-[10px] uppercase tracking-[0.22em] mt-1 ${brandColor}`}>
             {brandLabel}
@@ -111,12 +111,12 @@ export function SidebarShell({
           <div className="flex flex-col min-w-0">
             <span className="text-sm font-medium truncate">{userName}</span>
             {userBadge && (
-              <span className="text-[11px] text-(--muted) truncate">
+              <span className="text-[11px] text-[var()] truncate">
                 {userBadge}
               </span>
             )}
             {userEmail && !userBadge && (
-              <span className="text-[11px] text-(--muted) truncate">
+              <span className="text-[11px] text-[var()] truncate">
                 {userEmail}
               </span>
             )}
@@ -143,8 +143,8 @@ export function SidebarShell({
                   if (mobileOpen) setMobileOpen(false);
                 }}
                 className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors cursor-pointer ${active
-                    ? "bg-(--fg)/8 text-(--fg)"
-                    : "text-(--muted) hover:text-(--fg) hover:bg-(--fg)/4"
+                    ? "bg-[var()]/8 text-[var()]"
+                    : "text-[var()] hover:text-[var()] hover:bg-[var()]/4"
                   }`}
               >
                 <item.icon className="h-4 w-4 shrink-0" />
@@ -173,8 +173,8 @@ export function SidebarShell({
                 }
               }}
               className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${active
-                  ? "bg-(--fg)/8 text-(--fg)"
-                  : "text-(--muted) hover:text-(--fg) hover:bg-(--fg)/4"
+                  ? "bg-[var()]/8 text-[var()]"
+                  : "text-[var()] hover:text-[var()] hover:bg-[var()]/4"
                 }`}
             >
               <item.icon className="h-4 w-4 shrink-0" />
@@ -190,15 +190,15 @@ export function SidebarShell({
       </nav>
 
       <div className="px-4 pb-6 flex flex-col gap-2">
-        <div className="flex items-center gap-1 rounded-xl bg-(--fg)/5 p-1 mb-2">
+        <div className="flex items-center gap-1 rounded-xl bg-[var()]/5 p-1 mb-2">
           {THEMES.map((t) => (
             <button
               key={t}
               type="button"
               onClick={() => setTheme(t)}
               className={`flex-1 h-8 rounded-lg text-[11px] font-medium transition-colors cursor-pointer capitalize ${theme === t
-                  ? "bg-(--accent) text-(--accent-fg)"
-                  : "text-(--muted) hover:text-(--fg)"
+                  ? "bg-[var()] text-[var()]"
+                  : "text-[var()] hover:text-[var()]"
                 }`}
             >
               {t}
@@ -209,7 +209,7 @@ export function SidebarShell({
         <button
           type="button"
           onClick={onLogout}
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-(--muted) hover:text-red-500 hover:bg-red-500/5 transition-colors cursor-pointer"
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-[var()] hover:text-red-500 hover:bg-red-500/5 transition-colors cursor-pointer"
         >
           <LogOut className="h-4 w-4 shrink-0" />
           Sign out
@@ -221,12 +221,12 @@ export function SidebarShell({
   return (
     <div className="min-h-screen flex">
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex fixed inset-y-0 left-0 z-40 w-64 flex-col bg-(--bg) border-r border-(--hairline)">
+      <aside className="hidden md:flex fixed inset-y-0 left-0 z-40 w-64 flex-col bg-[var()] border-r border-[var()]">
         {sidebarContent}
       </aside>
 
       {/* Mobile header bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-4 backdrop-blur-xl bg-(--bg)/80 border-b border-(--hairline)">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-4 backdrop-blur-xl bg-[var()]/80 border-b border-[var()]">
         {/* Left: hamburger / close only */}
         <button
           type="button"
@@ -239,7 +239,7 @@ export function SidebarShell({
 
         {/* Center: brand */}
         <Link href="/" className="font-display text-lg tracking-tight absolute left-1/2 -translate-x-1/2">
-          HelpMeMan<span className="text-(--muted)">.</span>
+          HelpMeMan<span className="text-[var()]">.</span>
         </Link>
 
         {/* Right: avatar + notification bell */}
@@ -263,7 +263,7 @@ export function SidebarShell({
             onClick={() => setMobileOpen(false)}
             aria-hidden
           />
-          <aside className="md:hidden fixed inset-y-0 left-0 z-50 w-72 flex flex-col bg-(--bg) shadow-2xl animate-in slide-in-from-left duration-300 border-r border-(--hairline)">
+          <aside className="md:hidden fixed inset-y-0 left-0 z-50 w-72 flex flex-col bg-[var()] shadow-2xl animate-in slide-in-from-left duration-300 border-r border-[var()]">
             {sidebarContent}
           </aside>
         </>

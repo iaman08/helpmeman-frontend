@@ -37,7 +37,7 @@ export function FeaturedMentors() {
     <div className="w-full px-5 sm:px-10 lg:px-24 py-16 sm:py-24">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div className="max-w-2xl">
-          <p className="text-[10px] sm:text-xs uppercase tracking-[0.22em] text-(--muted) font-bold mb-3">
+          <p className="text-[10px] sm:text-xs uppercase tracking-[0.22em] text-[var()] font-bold mb-3">
             Top Rated
           </p>
           <h2 className="font-display text-[clamp(1.6rem,4.5vw,3.6rem)] leading-[1.05]">
@@ -47,7 +47,7 @@ export function FeaturedMentors() {
         </div>
         <Link 
           href="/signin" 
-          className="text-sm font-bold border-b border-(--fg) pb-1 hover:text-(--muted) hover:border-(--muted) transition-colors"
+          className="text-sm font-bold border-b border-[var()] pb-1 hover:text-[var()] hover:border-[var()] transition-colors"
         >
           View all mentors →
         </Link>
@@ -56,7 +56,7 @@ export function FeaturedMentors() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {MENTORS.map((m) => (
           <div key={m.name} className="group relative flex flex-col gap-4">
-            <div className="aspect-[4/5] w-full rounded-[2rem] overflow-hidden bg-(--fg)/5 border border-(--hairline)">
+            <div className="aspect-[4/5] w-full rounded-[2rem] overflow-hidden bg-[var()]/5 border border-[var()]">
               <img 
                 src={m.img} 
                 alt={m.name} 
@@ -69,10 +69,10 @@ export function FeaturedMentors() {
             </div>
             <div className="flex flex-col gap-1">
               <h3 className="font-display text-xl">{m.name}</h3>
-              <p className="text-sm text-(--muted)">{m.role}</p>
+              <p className="text-sm text-[var()]">{m.role}</p>
               <div className="flex flex-wrap gap-2 mt-2">
                 {m.tags.map(t => (
-                  <span key={t} className="text-[10px] uppercase tracking-wider font-bold bg-(--fg)/5 px-2 py-0.5 rounded-full">
+                  <span key={t} className="text-[10px] uppercase tracking-wider font-bold bg-[var()]/5 px-2 py-0.5 rounded-full">
                     {t}
                   </span>
                 ))}

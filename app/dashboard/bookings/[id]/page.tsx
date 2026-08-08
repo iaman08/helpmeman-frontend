@@ -136,10 +136,10 @@ export default function BookingDetailPage() {
   if (error || !booking) {
     return (
       <div className="flex flex-col gap-4 items-center py-20">
-        <p className="text-(--muted)">{error || "Booking not found"}</p>
+        <p className="text-[var()]">{error || "Booking not found"}</p>
         <Link
           href="/dashboard/bookings"
-          className="text-sm text-(--fg) underline-offset-4 hover:underline"
+          className="text-sm text-[var()] underline-offset-4 hover:underline"
         >
           Back to bookings
         </Link>
@@ -156,7 +156,7 @@ export default function BookingDetailPage() {
     <div className="flex flex-col gap-8">
       <Link
         href="/dashboard/bookings"
-        className="flex items-center gap-2 text-sm text-(--muted) hover:text-(--fg) transition-colors self-start"
+        className="flex items-center gap-2 text-sm text-[var()] hover:text-[var()] transition-colors self-start"
       >
         <ArrowLeft className="h-4 w-4" />
         All bookings
@@ -169,13 +169,13 @@ export default function BookingDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* ─── Session Info ─── */}
-        <div className="rounded-2xl bg-(--fg)/[0.02] p-6 flex flex-col gap-5">
-          <h2 className="text-xs uppercase tracking-[0.22em] text-(--muted)">
+        <div className="rounded-2xl bg-[var()]/[0.02] p-6 flex flex-col gap-5">
+          <h2 className="text-xs uppercase tracking-[0.22em] text-[var()]">
             Session
           </h2>
 
           <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-(--fg)/8 text-sm font-medium shrink-0">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var()]/8 text-sm font-medium shrink-0">
               {(booking as unknown as { mentor?: { displayName?: string } }).mentor?.displayName?.[0] ?? "M"}
             </div>
             <div className="flex flex-col gap-0.5">
@@ -183,7 +183,7 @@ export default function BookingDetailPage() {
                 {(booking as unknown as { mentor?: { displayName?: string } }).mentor?.displayName ?? "Mentor"}
               </span>
               {(booking as unknown as { mentor?: { institutionName?: string } }).mentor?.institutionName && (
-                <span className="text-xs text-(--muted)">
+                <span className="text-xs text-[var()]">
                   {(booking as unknown as { mentor?: { institutionName?: string } }).mentor?.institutionName}
                 </span>
               )}
@@ -191,12 +191,12 @@ export default function BookingDetailPage() {
           </div>
 
           <div className="flex flex-col gap-3 text-sm">
-            <div className="flex items-center gap-3 text-(--fg)/80">
-              <Calendar className="h-4 w-4 text-(--muted)" />
+            <div className="flex items-center gap-3 text-[var()]/80">
+              <Calendar className="h-4 w-4 text-[var()]" />
               {formatDate(booking.scheduledAt)}
             </div>
-            <div className="flex items-center gap-3 text-(--fg)/80">
-              <Clock className="h-4 w-4 text-(--muted)" />
+            <div className="flex items-center gap-3 text-[var()]/80">
+              <Clock className="h-4 w-4 text-[var()]" />
               {formatTime(booking.scheduledAt)} · {booking.durationMinutes} minutes
             </div>
           </div>
@@ -217,7 +217,7 @@ export default function BookingDetailPage() {
                 className={`flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-all ${
                   joinable
                     ? "bg-green-500 text-white hover:bg-green-600 shadow-lg shadow-green-500/20"
-                    : "bg-(--fg)/8 text-(--muted) opacity-60 cursor-not-allowed"
+                    : "bg-[var()]/8 text-[var()] opacity-60 cursor-not-allowed"
                 }`}
                 onClick={!joinable ? (e) => e.preventDefault() : undefined}
                 title={!joinable ? "Join button opens 15 minutes before the session" : "Join Google Meet"}
@@ -236,8 +236,8 @@ export default function BookingDetailPage() {
         </div>
 
         {/* ─── Payment Info ─── */}
-        <div className="rounded-2xl bg-(--fg)/[0.02] p-6 flex flex-col gap-5">
-          <h2 className="text-xs uppercase tracking-[0.22em] text-(--muted)">
+        <div className="rounded-2xl bg-[var()]/[0.02] p-6 flex flex-col gap-5">
+          <h2 className="text-xs uppercase tracking-[0.22em] text-[var()]">
             Payment
           </h2>
 
@@ -249,17 +249,17 @@ export default function BookingDetailPage() {
           </div>
 
           {booking.paymentId && (
-            <div className="text-xs text-(--muted)">
+            <div className="text-xs text-[var()]">
               Payment ID: {booking.paymentId}
             </div>
           )}
 
           {booking.mentorNotes && (
             <div>
-              <h3 className="text-xs uppercase tracking-[0.18em] text-(--muted) mb-2">
+              <h3 className="text-xs uppercase tracking-[0.18em] text-[var()] mb-2">
                 Mentor Notes
               </h3>
-              <p className="text-sm text-(--fg)/80 leading-relaxed bg-(--fg)/3 rounded-lg p-3">
+              <p className="text-sm text-[var()]/80 leading-relaxed bg-[var()]/3 rounded-lg p-3">
                 {booking.mentorNotes}
               </p>
             </div>
@@ -281,7 +281,7 @@ export default function BookingDetailPage() {
               <button
                 type="button"
                 onClick={() => setReviewOpen(true)}
-                className="rounded-full bg-(--fg)/5 px-6 py-3 text-sm hover:bg-(--fg)/8 transition-colors cursor-pointer"
+                className="rounded-full bg-[var()]/5 px-6 py-3 text-sm hover:bg-[var()]/8 transition-colors cursor-pointer"
               >
                 Leave a Review
               </button>
@@ -292,8 +292,8 @@ export default function BookingDetailPage() {
 
       {/* ─── Existing Review ─── */}
       {booking.review && (
-        <div className="rounded-2xl bg-(--fg)/[0.02] p-6 flex flex-col gap-3">
-          <h2 className="text-xs uppercase tracking-[0.22em] text-(--muted)">
+        <div className="rounded-2xl bg-[var()]/[0.02] p-6 flex flex-col gap-3">
+          <h2 className="text-xs uppercase tracking-[0.22em] text-[var()]">
             Your Review
           </h2>
           <div className="flex items-center gap-1">
@@ -303,13 +303,13 @@ export default function BookingDetailPage() {
                 className={`h-4 w-4 ${
                   s <= booking.review!.rating
                     ? "text-amber-500 fill-amber-500"
-                    : "text-(--fg)/15"
+                    : "text-[var()]/15"
                 }`}
               />
             ))}
           </div>
           {booking.review.comment && (
-            <p className="text-sm text-(--fg)/80">{booking.review.comment}</p>
+            <p className="text-sm text-[var()]/80">{booking.review.comment}</p>
           )}
         </div>
       )}
@@ -324,7 +324,7 @@ export default function BookingDetailPage() {
             <h2 className="font-display text-2xl">Leave a review</h2>
 
             <div>
-              <p className="text-xs uppercase tracking-[0.18em] text-(--muted) mb-2">
+              <p className="text-xs uppercase tracking-[0.18em] text-[var()] mb-2">
                 Rating
               </p>
               <div className="flex gap-1">
@@ -339,7 +339,7 @@ export default function BookingDetailPage() {
                       className={`h-7 w-7 ${
                         s <= rating
                           ? "text-amber-500 fill-amber-500"
-                          : "text-(--fg)/15 hover:text-amber-400"
+                          : "text-[var()]/15 hover:text-amber-400"
                       }`}
                     />
                   </button>
@@ -348,7 +348,7 @@ export default function BookingDetailPage() {
             </div>
 
             <label className="flex flex-col gap-2 text-sm">
-              <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">
+              <span className="text-[var()] text-xs uppercase tracking-[0.18em]">
                 Comment (optional)
               </span>
               <textarea
@@ -356,7 +356,7 @@ export default function BookingDetailPage() {
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="How was your session?"
                 rows={3}
-                className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors resize-none"
+                className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors resize-none"
               />
             </label>
 
@@ -365,14 +365,14 @@ export default function BookingDetailPage() {
                 type="button"
                 onClick={handleReview}
                 disabled={reviewSubmitting}
-                className="flex-1 rounded-full bg-(--accent) text-(--accent-fg) py-3 text-sm hover:opacity-90 cursor-pointer disabled:opacity-50"
+                className="flex-1 rounded-full bg-[var()] text-[var()] py-3 text-sm hover:opacity-90 cursor-pointer disabled:opacity-50"
               >
                 {reviewSubmitting ? "Submitting…" : "Submit Review"}
               </button>
               <button
                 type="button"
                 onClick={() => setReviewOpen(false)}
-                className="rounded-full bg-(--fg)/5 px-6 py-3 text-sm hover:bg-(--fg)/8 cursor-pointer"
+                className="rounded-full bg-[var()]/5 px-6 py-3 text-sm hover:bg-[var()]/8 cursor-pointer"
               >
                 Cancel
               </button>
@@ -391,14 +391,14 @@ export default function BookingDetailPage() {
             <h2 className="font-display text-2xl">Reschedule Session</h2>
             
             <label className="flex flex-col gap-2 text-sm">
-              <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">
+              <span className="text-[var()] text-xs uppercase tracking-[0.18em]">
                 New Date & Time
               </span>
               <input
                 type="datetime-local"
                 value={newDate}
                 onChange={(e) => setNewDate(e.target.value)}
-                className="bg-(--fg)/5 rounded-lg px-4 py-3 outline-none focus:bg-(--fg)/8 transition-colors"
+                className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors"
                 min={new Date().toISOString().slice(0, 16)}
               />
             </label>
@@ -408,14 +408,14 @@ export default function BookingDetailPage() {
                 type="button"
                 onClick={handleReschedule}
                 disabled={rescheduling}
-                className="flex-1 rounded-full bg-(--accent) text-(--accent-fg) py-3 text-sm hover:opacity-90 cursor-pointer disabled:opacity-50"
+                className="flex-1 rounded-full bg-[var()] text-[var()] py-3 text-sm hover:opacity-90 cursor-pointer disabled:opacity-50"
               >
                 {rescheduling ? "Rescheduling…" : "Confirm Reschedule"}
               </button>
               <button
                 type="button"
                 onClick={() => setRescheduleOpen(false)}
-                className="rounded-full bg-(--fg)/5 px-6 py-3 text-sm hover:bg-(--fg)/8 cursor-pointer"
+                className="rounded-full bg-[var()]/5 px-6 py-3 text-sm hover:bg-[var()]/8 cursor-pointer"
               >
                 Cancel
               </button>

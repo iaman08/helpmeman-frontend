@@ -101,7 +101,7 @@ export default function MentorOverviewPage() {
       )}
 
       <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">
+        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">
           Mentor Dashboard
         </p>
         <h1 className="font-display text-4xl leading-tight">Your overview.</h1>
@@ -116,8 +116,8 @@ export default function MentorOverviewPage() {
           { label: "Avg Rating", value: stats?.avgRating, icon: Star, format: (v: number) => v > 0 ? v.toFixed(1) : "New" },
           { label: "Reviews", value: stats?.totalReviews, icon: Users, format: (v: number) => String(v) },
         ].map((card) => (
-          <div key={card.label} className="rounded-2xl bg-(--fg)/[0.02] p-5 flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-(--muted)">
+          <div key={card.label} className="rounded-2xl bg-[var()]/[0.02] p-5 flex flex-col gap-2">
+            <div className="flex items-center gap-2 text-[var()]">
               <card.icon className="h-4 w-4" />
               <span className="text-xs uppercase tracking-[0.18em]">{card.label}</span>
             </div>
@@ -137,8 +137,8 @@ export default function MentorOverviewPage() {
       {/* ─── Upcoming Sessions ─── */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xs uppercase tracking-[0.22em] text-(--muted)">Upcoming Sessions</h2>
-          <Link href="/mentor/bookings" className="text-xs text-(--muted) hover:text-(--fg) flex items-center gap-1">
+          <h2 className="text-xs uppercase tracking-[0.22em] text-[var()]">Upcoming Sessions</h2>
+          <Link href="/mentor/bookings" className="text-xs text-[var()] hover:text-[var()] flex items-center gap-1">
             View all <TrendingUp className="h-3 w-3" />
           </Link>
         </div>
@@ -153,15 +153,15 @@ export default function MentorOverviewPage() {
               <Link
                 key={b.id}
                 href={`/mentor/bookings`}
-                className="flex items-center justify-between rounded-xl bg-(--fg)/[0.02] hover:bg-(--fg)/5 p-4 transition-colors"
+                className="flex items-center justify-between rounded-xl bg-[var()]/[0.02] hover:bg-[var()]/5 p-4 transition-colors"
               >
                 <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-(--fg)/8 text-xs font-medium shrink-0">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var()]/8 text-xs font-medium shrink-0">
                     {b.user?.name?.[0]?.toUpperCase() ?? "U"}
                   </div>
                   <div className="flex flex-col gap-0.5">
                     <span className="text-sm font-medium">{b.user?.name ?? "Student"}</span>
-                    <span className="text-xs text-(--muted)">
+                    <span className="text-xs text-[var()]">
                       {formatDate(b.scheduledAt)} at {formatTime(b.scheduledAt)} · {b.durationMinutes} min
                     </span>
                   </div>
@@ -171,8 +171,8 @@ export default function MentorOverviewPage() {
             ))}
           </div>
         ) : (
-          <div className="rounded-xl bg-(--fg)/[0.02] p-8 text-center">
-            <p className="text-sm text-(--muted)">No upcoming sessions.</p>
+          <div className="rounded-xl bg-[var()]/[0.02] p-8 text-center">
+            <p className="text-sm text-[var()]">No upcoming sessions.</p>
           </div>
         )}
       </div>

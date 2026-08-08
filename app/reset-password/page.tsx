@@ -85,14 +85,14 @@ export default function ResetPasswordPage() {
               Invalid link
             </p>
             <h1 className="font-display text-5xl leading-none">Oops.</h1>
-            <p className="text-(--muted) leading-relaxed">
+            <p className="text-[var()] leading-relaxed">
               This reset link is invalid or has already been used. Reset links
               expire after 1 hour for security.
             </p>
           </div>
           <Link
             href="/forgot-password"
-            className="self-start rounded-full bg-(--accent) text-(--accent-fg) px-7 py-3.5 text-sm font-semibold hover:opacity-90 transition-opacity cursor-pointer"
+            className="self-start rounded-full bg-[var()] text-[var()] px-7 py-3.5 text-sm font-semibold hover:opacity-90 transition-opacity cursor-pointer"
           >
             Request a new link
           </Link>
@@ -105,7 +105,7 @@ export default function ResetPasswordPage() {
   if (!token && !tokenError) {
     return (
       <main className="min-h-screen flex items-center justify-center">
-        <div className="h-5 w-5 rounded-full border-2 border-(--fg)/20 border-t-(--fg) animate-spin" />
+        <div className="h-5 w-5 rounded-full border-2 border-[var()]/20 border-t-[var()] animate-spin" />
       </main>
     );
   }
@@ -120,14 +120,14 @@ export default function ResetPasswordPage() {
               Success
             </p>
             <h1 className="font-display text-5xl leading-none">All set!</h1>
-            <p className="text-(--muted) leading-relaxed">
+            <p className="text-[var()] leading-relaxed">
               Your password has been reset. You can now sign in with your new
               password.
             </p>
           </div>
           <Link
             href="/signin"
-            className="self-start rounded-full bg-(--accent) text-(--accent-fg) px-10 py-4 text-sm font-semibold hover:opacity-90 transition-opacity cursor-pointer"
+            className="self-start rounded-full bg-[var()] text-[var()] px-10 py-4 text-sm font-semibold hover:opacity-90 transition-opacity cursor-pointer"
           >
             Sign in now
           </Link>
@@ -142,11 +142,11 @@ export default function ResetPasswordPage() {
       <div className="w-full max-w-md flex flex-col gap-10">
 
         <div className="flex flex-col gap-3 animate-fade-in">
-          <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">
+          <p className="text-sm uppercase tracking-[0.22em] text-[var()]">
             Reset Password
           </p>
           <h1 className="font-display text-5xl leading-none">New password.</h1>
-          <p className="text-(--muted) leading-relaxed">
+          <p className="text-[var()] leading-relaxed">
             Create a strong, secure new password for your account.
           </p>
         </div>
@@ -160,7 +160,7 @@ export default function ResetPasswordPage() {
         <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
           {/* New password */}
           <label className="flex flex-col gap-2 text-sm">
-            <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">
+            <span className="text-[var()] text-xs uppercase tracking-[0.18em]">
               New Password
             </span>
             <div className="relative w-full">
@@ -170,14 +170,14 @@ export default function ResetPasswordPage() {
                 placeholder="At least 8 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-(--fg)/5 rounded-lg pl-4 pr-11 py-3 outline-none focus:bg-(--fg)/8 transition-colors"
+                className="w-full bg-[var()]/5 rounded-lg pl-4 pr-11 py-3 outline-none focus:bg-[var()]/8 transition-colors"
                 minLength={8}
                 autoComplete="new-password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-(--muted) hover:text-(--fg) transition-colors focus:outline-none cursor-pointer"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var()] hover:text-[var()] transition-colors focus:outline-none cursor-pointer"
               >
                 {showPassword ? (
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -196,7 +196,7 @@ export default function ResetPasswordPage() {
 
           {/* Confirm password */}
           <label className="flex flex-col gap-2 text-sm">
-            <span className="text-(--muted) text-xs uppercase tracking-[0.18em]">
+            <span className="text-[var()] text-xs uppercase tracking-[0.18em]">
               Confirm New Password
             </span>
             <div className="relative w-full">
@@ -206,14 +206,14 @@ export default function ResetPasswordPage() {
                 placeholder="Repeat new password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full bg-(--fg)/5 rounded-lg pl-4 pr-11 py-3 outline-none focus:bg-(--fg)/8 transition-colors"
+                className="w-full bg-[var()]/5 rounded-lg pl-4 pr-11 py-3 outline-none focus:bg-[var()]/8 transition-colors"
                 minLength={8}
                 autoComplete="new-password"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirm(!showConfirm)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-(--muted) hover:text-(--fg) transition-colors focus:outline-none cursor-pointer"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var()] hover:text-[var()] transition-colors focus:outline-none cursor-pointer"
               >
                 {showConfirm ? (
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -232,7 +232,7 @@ export default function ResetPasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="self-start rounded-full bg-(--accent) text-(--accent-fg) px-7 py-3.5 text-sm font-semibold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="self-start rounded-full bg-[var()] text-[var()] px-7 py-3.5 text-sm font-semibold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Updating password…" : "Reset Password"}
           </button>

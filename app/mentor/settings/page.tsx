@@ -53,7 +53,7 @@ const SESSION_DURATIONS = [
 // ─── Sub-components ───
 function InputLabel({ children }: { children: React.ReactNode }) {
   return (
-    <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-(--muted)">
+    <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var()]">
       {children}
     </span>
   );
@@ -64,13 +64,13 @@ function Field({ label, children, description }: { label: string; children: Reac
     <div className="flex flex-col gap-1.5 w-full">
       <InputLabel>{label}</InputLabel>
       {children}
-      {description && <p className="text-[10px] text-(--muted) italic">{description}</p>}
+      {description && <p className="text-[10px] text-[var()] italic">{description}</p>}
     </div>
   );
 }
 
 function inputCls() {
-  return "w-full bg-(--fg)/5 border border-(--fg)/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-(--accent)/20 focus:border-(--accent)/40 transition-all placeholder:text-(--muted)";
+  return "w-full bg-[var()]/5 border border-[var()]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var()]/20 focus:border-[var()]/40 transition-all placeholder:text-[var()]";
 }
 
 export default function MentorSettingsPage() {
@@ -317,20 +317,20 @@ export default function MentorSettingsPage() {
       <div className="max-w-3xl flex flex-col gap-8">
         {/* ─── Header ─── */}
         <div className="flex flex-col gap-1">
-          <p className="text-xs uppercase tracking-[0.22em] text-(--muted) font-bold">Mentor Panel</p>
+          <p className="text-xs uppercase tracking-[0.22em] text-[var()] font-bold">Mentor Panel</p>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
             Edit your profile<span className="text-orange-500">.</span>
           </h1>
-          <p className="text-sm text-(--muted)">
+          <p className="text-sm text-[var()]">
             Configure how potential mentees see your professional profile and services.
           </p>
         </div>
 
         <form onSubmit={handleSave} className="flex flex-col gap-6">
           {/* ─── Card: Mentor Information ─── */}
-          <div className="rounded-2xl border border-(--fg)/10 bg-(--fg)/[0.02] overflow-hidden">
+          <div className="rounded-2xl border border-[var()]/10 bg-[var()]/[0.02] overflow-hidden">
             {/* Card header */}
-            <div className="px-4 sm:px-6 py-4 border-b border-(--fg)/10 flex items-center justify-between bg-(--fg)/[0.02]">
+            <div className="px-4 sm:px-6 py-4 border-b border-[var()]/10 flex items-center justify-between bg-[var()]/[0.02]">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-orange-500/10 rounded-lg">
                   <User size={18} className="text-orange-500" />
@@ -339,7 +339,7 @@ export default function MentorSettingsPage() {
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 size={14} className="text-orange-500" />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-(--muted)">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[var()]">
                   Public Profile
                 </span>
               </div>
@@ -347,13 +347,13 @@ export default function MentorSettingsPage() {
 
             <div className="p-4 sm:p-6 flex flex-col gap-8">
               {/* ─── Photo Section ─── */}
-              <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-(--fg)/10">
+              <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-[var()]/10">
                 <div className="relative group shrink-0">
-                  <div className="w-28 h-28 rounded-full overflow-hidden bg-(--fg)/8 border-2 border-dashed border-(--fg)/20 flex items-center justify-center ring-4 ring-orange-500/10 group-hover:border-orange-500/40 transition-all">
+                  <div className="w-28 h-28 rounded-full overflow-hidden bg-[var()]/8 border-2 border-dashed border-[var()]/20 flex items-center justify-center ring-4 ring-orange-500/10 group-hover:border-orange-500/40 transition-all">
                     {currentAvatar && !imageError ? (
                       <img src={currentAvatar} alt="Avatar" className="w-full h-full object-cover" onError={() => setImageError(true)} />
                     ) : (
-                      <span className="text-3xl font-bold text-(--fg)/30">{initials}</span>
+                      <span className="text-3xl font-bold text-[var()]/30">{initials}</span>
                     )}
                     {/* Hover overlay */}
                     <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer transition-opacity rounded-full">
@@ -390,11 +390,11 @@ export default function MentorSettingsPage() {
                     {displayName || "Mentor Name"}
                   </h3>
                   {company ? (
-                    <p className="text-sm text-(--muted) font-medium flex items-center justify-center sm:justify-start gap-1.5">
+                    <p className="text-sm text-[var()] font-medium flex items-center justify-center sm:justify-start gap-1.5">
                       <Building2 size={14} /> {company}
                     </p>
                   ) : (
-                    <p className="text-xs text-(--muted) italic">Add a company below</p>
+                    <p className="text-xs text-[var()] italic">Add a company below</p>
                   )}
                   <div className="flex gap-2 mt-3 justify-center sm:justify-start">
                     <button
@@ -409,7 +409,7 @@ export default function MentorSettingsPage() {
                       <button
                         type="button"
                         onClick={() => setAvatarPreview(null)}
-                        className="px-4 py-2 text-xs font-bold rounded-xl bg-(--fg)/5 text-(--muted) hover:text-(--fg) transition-colors"
+                        className="px-4 py-2 text-xs font-bold rounded-xl bg-[var()]/5 text-[var()] hover:text-[var()] transition-colors"
                       >
                         Remove
                       </button>
@@ -433,7 +433,7 @@ export default function MentorSettingsPage() {
 
                 <Field label="LinkedIn URL">
                   <div className="relative">
-                    <LinkIcon size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-(--muted)" />
+                    <LinkIcon size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var()]" />
                     <input
                       type="url"
                       placeholder="https://linkedin.com/in/username"
@@ -460,7 +460,7 @@ export default function MentorSettingsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <Field label="Current Role">
                   <div className="relative">
-                    <Briefcase size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-(--muted)" />
+                    <Briefcase size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var()]" />
                     <input
                       type="text"
                       placeholder="e.g. Senior Software Engineer"
@@ -494,8 +494,8 @@ export default function MentorSettingsPage() {
               </div>
 
               {/* ─── Geographic Address ─── */}
-              <div className="flex flex-col gap-1.5 border border-(--fg)/10 p-5 rounded-2xl bg-(--fg)/[0.01]">
-                <h3 className="font-bold text-sm text-(--fg) flex items-center gap-2 mb-2">
+              <div className="flex flex-col gap-1.5 border border-[var()]/10 p-5 rounded-2xl bg-[var()]/[0.01]">
+                <h3 className="font-bold text-sm text-[var()] flex items-center gap-2 mb-2">
                   <Globe size={16} className="text-orange-500" />
                   Geographic Location
                 </h3>
@@ -516,41 +516,41 @@ export default function MentorSettingsPage() {
               </Field>
 
               {/* ─── Presence & Performance Read-only Card ─── */}
-              <div className="rounded-2xl border border-(--fg)/10 bg-(--fg)/[0.02] overflow-hidden my-4">
-                <div className="px-4 sm:px-6 py-4 border-b border-(--fg)/10 flex items-center gap-3 bg-(--fg)/[0.02]">
+              <div className="rounded-2xl border border-[var()]/10 bg-[var()]/[0.02] overflow-hidden my-4">
+                <div className="px-4 sm:px-6 py-4 border-b border-[var()]/10 flex items-center gap-3 bg-[var()]/[0.02]">
                   <div className="p-2 bg-emerald-500/10 rounded-lg">
                     <Zap size={18} className="text-emerald-500" />
                   </div>
-                  <h2 className="font-bold text-base text-(--fg)">Presence & Performance Metrics</h2>
+                  <h2 className="font-bold text-base text-[var()]">Presence & Performance Metrics</h2>
                 </div>
                 <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  <div className="flex flex-col gap-1 p-4 rounded-xl bg-(--fg)/5 border border-(--fg)/5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-(--muted)">Presence Status</span>
+                  <div className="flex flex-col gap-1 p-4 rounded-xl bg-[var()]/5 border border-[var()]/5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var()]">Presence Status</span>
                     <div className="flex items-center gap-2 mt-2">
                       <span className={`h-2.5 w-2.5 rounded-full ${isOnlineIndicator ? 'bg-emerald-500' : 'bg-gray-400'}`} />
-                      <span className="text-sm font-bold text-(--fg)">{activePresenceStatus}</span>
+                      <span className="text-sm font-bold text-[var()]">{activePresenceStatus}</span>
                     </div>
-                    <p className="text-[10px] text-(--muted) mt-2 leading-relaxed">
+                    <p className="text-[10px] text-[var()] mt-2 leading-relaxed">
                       Automatically updated based on active browser page focus and mouse interactions.
                     </p>
                   </div>
 
-                  <div className="flex flex-col gap-1 p-4 rounded-xl bg-(--fg)/5 border border-(--fg)/5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-(--muted)">Avg. Response Time</span>
-                    <span className="text-sm font-bold mt-2 text-(--fg)">{responseTimeText}</span>
-                    <p className="text-[10px] text-(--muted) mt-2 leading-relaxed">
+                  <div className="flex flex-col gap-1 p-4 rounded-xl bg-[var()]/5 border border-[var()]/5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var()]">Avg. Response Time</span>
+                    <span className="text-sm font-bold mt-2 text-[var()]">{responseTimeText}</span>
+                    <p className="text-[10px] text-[var()] mt-2 leading-relaxed">
                       Calculated as the average interval between a student's first message and your first reply.
                     </p>
                   </div>
 
-                  <div className="flex flex-col gap-1 p-4 rounded-xl bg-(--fg)/5 border border-(--fg)/5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-(--muted)">Platform Verification</span>
+                  <div className="flex flex-col gap-1 p-4 rounded-xl bg-[var()]/5 border border-[var()]/5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var()]">Platform Verification</span>
                     <div className="flex items-center gap-2 mt-2">
                       <span className="text-emerald-500 text-xs font-bold bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-md">
                         {mentor?.approvalStatus === 'APPROVED' ? 'Verified Partner' : 'Pending Review'}
                       </span>
                     </div>
-                    <p className="text-[10px] text-(--muted) mt-2 leading-relaxed">
+                    <p className="text-[10px] text-[var()] mt-2 leading-relaxed">
                       Managed directly by the platform administration team.
                     </p>
                   </div>
@@ -560,19 +560,19 @@ export default function MentorSettingsPage() {
               {/* ─── Preferred Language ─── */}
               <Field label="Preferred Language">
                 <div className="relative">
-                  <Languages size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-(--muted) pointer-events-none" />
+                  <Languages size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var()] pointer-events-none" />
                   <select
                     value={preferredLanguage}
                     onChange={(e) => setPreferredLanguage(e.target.value)}
                     className={`${inputCls()} pl-10 pr-10 appearance-none cursor-pointer`}
                   >
                     {LANGUAGES.map((lang) => (
-                      <option key={lang.value} value={lang.value} className="bg-(--bg) text-(--fg)">
+                      <option key={lang.value} value={lang.value} className="bg-[var()] text-[var()]">
                         {lang.label}
                       </option>
                     ))}
                   </select>
-                  <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-(--muted) pointer-events-none" />
+                  <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[var()] pointer-events-none" />
                 </div>
               </Field>
 
@@ -582,7 +582,7 @@ export default function MentorSettingsPage() {
                 description="Type a skill and press Enter or comma to add. Click suggestions to select."
               >
                 <div className="relative">
-                  <div className="min-h-[52px] w-full bg-(--fg)/5 border border-(--fg)/10 rounded-xl p-2 flex flex-wrap gap-2 focus-within:ring-2 focus-within:ring-(--accent)/20 focus-within:border-(--accent)/40 transition-all">
+                  <div className="min-h-[52px] w-full bg-[var()]/5 border border-[var()]/10 rounded-xl p-2 flex flex-wrap gap-2 focus-within:ring-2 focus-within:ring-[var()]/20 focus-within:border-[var()]/40 transition-all">
                     {skills.map((skill, index) => (
                       <span
                         key={index}
@@ -612,13 +612,13 @@ export default function MentorSettingsPage() {
 
                   {/* Suggestion dropdown */}
                   {showSuggestions && filteredSuggestions.length > 0 && (
-                    <div className="absolute z-50 left-0 right-0 top-full mt-2 bg-(--bg) border border-(--fg)/10 rounded-xl shadow-2xl max-h-48 overflow-y-auto">
+                    <div className="absolute z-50 left-0 right-0 top-full mt-2 bg-[var()] border border-[var()]/10 rounded-xl shadow-2xl max-h-48 overflow-y-auto">
                       {filteredSuggestions.map((suggestion, idx) => (
                         <button
                           key={idx}
                           type="button"
                           onMouseDown={() => addSkill(suggestion)}
-                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-orange-500/10 hover:text-orange-500 transition-colors flex items-center justify-between group border-b border-(--fg)/5 last:border-0"
+                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-orange-500/10 hover:text-orange-500 transition-colors flex items-center justify-between group border-b border-[var()]/5 last:border-0"
                         >
                           {suggestion}
                           <Plus size={13} className="opacity-0 group-hover:opacity-100" />
@@ -633,7 +633,7 @@ export default function MentorSettingsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <Field label="Session Pricing (₹)">
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-(--muted) font-bold text-sm">₹</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var()] font-bold text-sm">₹</span>
                     <input
                       type="number"
                       placeholder="499"
@@ -647,30 +647,30 @@ export default function MentorSettingsPage() {
 
                 <Field label="Default Session Duration">
                   <div className="relative">
-                    <Clock size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-(--muted) pointer-events-none" />
+                    <Clock size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var()] pointer-events-none" />
                     <select
                       value={sessionDuration}
                       onChange={(e) => setSessionDuration(e.target.value)}
                       className={`${inputCls()} pl-10 pr-10 appearance-none cursor-pointer`}
                     >
                       {SESSION_DURATIONS.map((d) => (
-                        <option key={d.value} value={d.value} className="bg-(--bg) text-(--fg)">
+                        <option key={d.value} value={d.value} className="bg-[var()] text-[var()]">
                           {d.label}
                         </option>
                       ))}
                     </select>
-                    <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-(--muted) pointer-events-none" />
+                    <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[var()] pointer-events-none" />
                   </div>
                 </Field>
               </div>
             </div>
 
             {/* ─── Footer / Save ─── */}
-            <div className="px-4 sm:px-6 py-4 border-t border-(--fg)/10 bg-(--fg)/[0.01] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="px-4 sm:px-6 py-4 border-t border-[var()]/10 bg-[var()]/[0.01] flex flex-col sm:flex-row items-center justify-between gap-4">
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-(--fg) text-(--bg) px-8 py-3 rounded-xl font-bold text-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 shadow-lg"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[var()] text-[var()] px-8 py-3 rounded-xl font-bold text-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 shadow-lg"
               >
                 <Save size={16} className={saving ? "animate-pulse" : ""} />
                 {saving ? "Saving..." : "Save Profile Updates"}
@@ -680,20 +680,20 @@ export default function MentorSettingsPage() {
         </form>
 
         {/* ─── Continue as Mentee Section ─── */}
-        <div className="mt-8 bg-(--fg)/5 border border-(--hairline) rounded-2xl sm:rounded-[2rem] p-6 sm:p-8 md:p-10 backdrop-blur-xl">
+        <div className="mt-8 bg-[var()]/5 border border-[var()] rounded-2xl sm:rounded-[2rem] p-6 sm:p-8 md:p-10 backdrop-blur-xl">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-(--fg)/10 rounded-xl">
-              <Zap size={20} className="text-(--fg)" />
+            <div className="p-2 bg-[var()]/10 rounded-xl">
+              <Zap size={20} className="text-[var()]" />
             </div>
             <h3 className="text-lg sm:text-xl font-bold">Continue as a Mentee</h3>
           </div>
-          <p className="text-sm text-(--muted) mb-6">
+          <p className="text-sm text-[var()] mb-6">
             Want to explore other domains, browse available mentors, or book a guidance session? Switch to the mentee workspace.
           </p>
           <button
             type="button"
             onClick={() => router.push("/dashboard")}
-            className="px-6 py-3 bg-(--fg) text-(--bg) hover:opacity-90 rounded-xl font-bold text-sm transition-all cursor-pointer"
+            className="px-6 py-3 bg-[var()] text-[var()] hover:opacity-90 rounded-xl font-bold text-sm transition-all cursor-pointer"
           >
             Switch to Mentee Panel
           </button>

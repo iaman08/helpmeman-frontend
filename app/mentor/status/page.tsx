@@ -30,7 +30,7 @@ export default function MentorStatusPage() {
   if (onboardingStatus === "LOADING") {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center gap-6 px-6 text-center">
-        <div className="h-6 w-6 rounded-full border-2 border-(--fg)/20 border-t-(--fg) animate-spin" />
+        <div className="h-6 w-6 rounded-full border-2 border-[var()]/20 border-t-[var()] animate-spin" />
       </main>
     );
   }
@@ -81,10 +81,10 @@ export default function MentorStatusPage() {
         {c.icon}
       </div>
       <h1 className="font-display text-3xl">{c.title}</h1>
-      <p className="text-(--muted) max-w-md leading-relaxed">{c.description}</p>
+      <p className="text-[var()] max-w-md leading-relaxed">{c.description}</p>
       <Link
         href={c.cta.href}
-        className="mt-2 rounded-full bg-(--accent) text-(--accent-fg) px-7 py-3 text-sm hover:opacity-90"
+        className="mt-2 rounded-full bg-[var()] text-[var()] px-7 py-3 text-sm hover:opacity-90"
       >
         {c.cta.label}
       </Link>

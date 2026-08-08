@@ -11,17 +11,17 @@ export default function PrivacyPage() {
   });
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)]">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/80 border-b border-zinc-200">
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[var(--bg)]/80 border-b border-[var(--hairline)]">
         <nav className="mx-auto flex max-w-[1000px] items-center justify-between px-6 sm:px-10 py-5">
-          <Link href="/" className="font-bold text-xl tracking-tight text-zinc-900 flex items-center gap-2 select-none">
+          <Link href="/" className="font-bold text-xl tracking-tight text-[var(--fg)] flex items-center gap-2 select-none">
             <img src="/logo.svg" alt="HelpMeMan Logo" className="w-6 h-6 object-contain" />
             <span>HelpMeMan</span>
           </Link>
           <Link
             href="/"
-            className="text-sm text-zinc-500 hover:text-zinc-800 transition-colors"
+            className="text-sm text-[var(--muted)] hover:text-[var(--fg)] transition-colors"
           >
             ← Back to home
           </Link>
@@ -29,15 +29,15 @@ export default function PrivacyPage() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 mx-auto max-w-[800px] px-6 sm:px-10 pt-28 pb-16 w-full text-zinc-700">
+      <main className="flex-1 mx-auto max-w-[800px] px-6 sm:px-10 pt-28 pb-16 w-full text-[var(--fg)]/90">
         <div className="flex flex-col gap-2 mb-8">
-          <p className="text-xs uppercase tracking-[0.22em] text-zinc-500 font-semibold">
+          <p className="text-xs uppercase tracking-[0.22em] text-[var(--muted)] font-semibold">
             Legal Agreements
           </p>
-          <h1 className="font-bold text-3xl sm:text-4xl text-zinc-900 tracking-tight">
+          <h1 className="font-bold text-3xl sm:text-4xl text-[var(--fg)] tracking-tight">
             Privacy Policy
           </h1>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-[var(--muted)] mt-1">
             Last Updated: {lastUpdated}
           </p>
         </div>

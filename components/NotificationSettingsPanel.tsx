@@ -117,19 +117,19 @@ export function NotificationSettingsPanel() {
   }
 
   if (isLoading || !prefs) {
-    return <p className="text-sm text-(--muted)">Loading notification settings...</p>;
+    return <p className="text-sm text-[var()]">Loading notification settings...</p>;
   }
 
   return (
     <div className="space-y-8">
-      <div className="bg-(--fg)/5 border border-(--hairline) rounded-2xl sm:rounded-[2rem] p-5 sm:p-6 md:p-10 backdrop-blur-xl">
+      <div className="bg-[var()]/5 border border-[var()] rounded-2xl sm:rounded-[2rem] p-5 sm:p-6 md:p-10 backdrop-blur-xl">
         <div className="flex items-center gap-3 mb-6 sm:mb-8">
-          <div className="p-2 sm:p-2.5 bg-(--fg)/10 rounded-xl sm:rounded-2xl">
-            <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-(--fg)" />
+          <div className="p-2 sm:p-2.5 bg-[var()]/10 rounded-xl sm:rounded-2xl">
+            <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-[var()]" />
           </div>
           <div>
             <h3 className="text-lg sm:text-xl md:text-2xl font-bold">Notification preferences</h3>
-            <p className="text-sm text-(--muted) mt-0.5">Control how HelpMeMan reaches you.</p>
+            <p className="text-sm text-[var()] mt-0.5">Control how HelpMeMan reaches you.</p>
           </div>
         </div>
 
@@ -153,18 +153,18 @@ export function NotificationSettingsPanel() {
             return (
               <label
                 key={item.key}
-                className={`flex items-start justify-between gap-4 rounded-2xl border border-(--hairline) bg-(--bg)/60 px-4 py-4 ${
+                className={`flex items-start justify-between gap-4 rounded-2xl border border-[var()] bg-[var()]/60 px-4 py-4 ${
                   isBlocked ? "opacity-80" : ""
                 }`}
               >
                 <span>
                   <span className="flex items-center gap-2 text-sm font-semibold">
                     {item.key === "chatSounds" ? (
-                      <Volume2 className="h-4 w-4 text-(--muted)" />
+                      <Volume2 className="h-4 w-4 text-[var()]" />
                     ) : item.key.includes("email") || item.key === "marketingEmails" ? (
-                      <Mail className="h-4 w-4 text-(--muted)" />
+                      <Mail className="h-4 w-4 text-[var()]" />
                     ) : (
-                      <Smartphone className="h-4 w-4 text-(--muted)" />
+                      <Smartphone className="h-4 w-4 text-[var()]" />
                     )}
                     {item.label}
                     {isBlocked && (
@@ -173,7 +173,7 @@ export function NotificationSettingsPanel() {
                       </span>
                     )}
                   </span>
-                  <span className="mt-1 block text-sm text-(--muted)">
+                  <span className="mt-1 block text-sm text-[var()]">
                     {isBlocked
                       ? "Notifications are blocked by your browser settings."
                       : item.description}
@@ -186,7 +186,7 @@ export function NotificationSettingsPanel() {
                   disabled={saving}
                   onClick={() => toggle(item.key)}
                   className={`relative h-7 w-12 shrink-0 rounded-full transition ${
-                    prefs[item.key] ? "bg-(--accent)" : "bg-(--fg)/15"
+                    prefs[item.key] ? "bg-[var()]" : "bg-[var()]/15"
                   }`}
                 >
                   <span

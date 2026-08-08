@@ -68,25 +68,25 @@ export default function SuperAdminUsersPage() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">Super Admin</p>
+        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Super Admin</p>
         <h1 className="font-display text-4xl leading-tight">Users.</h1>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 mb-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--muted)" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var()]" />
           <input
             type="text"
             placeholder="Search by name or email..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="w-full bg-(--fg)/5 border-none rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-(--fg)/20"
+            className="w-full bg-[var()]/5 border-none rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-[var()]/20"
           />
         </div>
         <select
           value={role}
           onChange={(e) => { setRole(e.target.value); setPage(1); }}
-          className="bg-(--fg)/5 border-none rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-(--fg)/20"
+          className="bg-[var()]/5 border-none rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-[var()]/20"
         >
           <option value="All">All Roles</option>
           <option value="STUDENT">Student</option>
@@ -97,7 +97,7 @@ export default function SuperAdminUsersPage() {
         <select
           value={status}
           onChange={(e) => { setStatus(e.target.value); setPage(1); }}
-          className="bg-(--fg)/5 border-none rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-(--fg)/20"
+          className="bg-[var()]/5 border-none rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-[var()]/20"
         >
           <option value="All">All Statuses</option>
           <option value="ACTIVE">Active</option>
@@ -106,10 +106,10 @@ export default function SuperAdminUsersPage() {
         </select>
       </div>
 
-      <div className="bg-(--fg)/[0.02] rounded-2xl overflow-hidden border border-(--hairline)">
+      <div className="bg-[var()]/[0.02] rounded-2xl overflow-hidden border border-[var()]">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-xs uppercase tracking-wider text-(--muted) bg-(--fg)/5">
+            <thead className="text-xs uppercase tracking-wider text-[var()] bg-[var()]/5">
               <tr>
                 <th className="px-6 py-4 font-medium">User</th>
                 <th className="px-6 py-4 font-medium">Role</th>
@@ -117,7 +117,7 @@ export default function SuperAdminUsersPage() {
                 <th className="px-6 py-4 font-medium">Joined</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-(--hairline)">
+            <tbody className="divide-y divide-[var()]">
               {loading ? (
                 Array(5).fill(0).map((_, i) => (
                   <tr key={i}>
@@ -129,19 +129,19 @@ export default function SuperAdminUsersPage() {
                 ))
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-10 text-center text-(--muted)">No users found.</td>
+                  <td colSpan={4} className="px-6 py-10 text-center text-[var()]">No users found.</td>
                 </tr>
               ) : (
                 users.map((user) => (
                   <React.Fragment key={user.id}>
                     <tr 
-                      className="hover:bg-(--fg)/5 cursor-pointer transition-colors"
+                      className="hover:bg-[var()]/5 cursor-pointer transition-colors"
                       onClick={() => setExpandedId(expandedId === user.id ? null : user.id)}
                     >
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
-                          <span className="font-medium text-(--fg)">{user.name}</span>
-                          <span className="text-xs text-(--muted)">{user.email}</span>
+                          <span className="font-medium text-[var()]">{user.name}</span>
+                          <span className="text-xs text-[var()]">{user.email}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -157,15 +157,15 @@ export default function SuperAdminUsersPage() {
                       <td className="px-6 py-4">
                         <StatusBadge status={user.status} />
                       </td>
-                      <td className="px-6 py-4 text-(--muted)">
+                      <td className="px-6 py-4 text-[var()]">
                         {new Date(user.createdAt).toLocaleDateString()}
                       </td>
                     </tr>
                     {expandedId === user.id && (
-                      <tr className="bg-(--fg)/[0.01]">
+                      <tr className="bg-[var()]/[0.01]">
                         <td colSpan={4} className="px-6 py-4 border-l-4 border-violet-500">
                           <div className="flex flex-col gap-3">
-                            <h4 className="text-xs uppercase tracking-wider text-(--muted) flex items-center gap-2">
+                            <h4 className="text-xs uppercase tracking-wider text-[var()] flex items-center gap-2">
                               <UserCog className="h-3 w-3" /> Manage Role
                             </h4>
                             <div className="flex gap-2">
@@ -176,8 +176,8 @@ export default function SuperAdminUsersPage() {
                                   disabled={user.role === r}
                                   className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${
                                     user.role === r 
-                                      ? 'bg-(--fg)/10 text-(--fg) cursor-not-allowed' 
-                                      : 'bg-(--fg)/5 hover:bg-(--fg)/10 text-(--muted) hover:text-(--fg)'
+                                      ? 'bg-[var()]/10 text-[var()] cursor-not-allowed' 
+                                      : 'bg-[var()]/5 hover:bg-[var()]/10 text-[var()] hover:text-[var()]'
                                   }`}
                                 >
                                   Make {r}
@@ -197,22 +197,22 @@ export default function SuperAdminUsersPage() {
         
         {/* Pagination */}
         {!loading && totalPages > 1 && (
-          <div className="flex items-center justify-between px-6 py-4 border-t border-(--hairline)">
-            <span className="text-sm text-(--muted)">
+          <div className="flex items-center justify-between px-6 py-4 border-t border-[var()]">
+            <span className="text-sm text-[var()]">
               Page {page} of {totalPages}
             </span>
             <div className="flex gap-2">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="p-1 rounded bg-(--fg)/5 disabled:opacity-50 hover:bg-(--fg)/10"
+                className="p-1 rounded bg-[var()]/5 disabled:opacity-50 hover:bg-[var()]/10"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="p-1 rounded bg-(--fg)/5 disabled:opacity-50 hover:bg-(--fg)/10"
+                className="p-1 rounded bg-[var()]/5 disabled:opacity-50 hover:bg-[var()]/10"
               >
                 <ChevronRight className="h-5 w-5" />
               </button>

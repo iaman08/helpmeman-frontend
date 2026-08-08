@@ -116,13 +116,13 @@ export default function MentorReviewsAnalyticsPage() {
     <div className="flex flex-col gap-8 pb-12">
       {/* Header */}
       <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">
+        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">
           Mentor Analytics
         </p>
         <h1 className="font-display text-4xl leading-tight">
           Rating & Feedback
         </h1>
-        <p className="text-sm text-(--muted)">
+        <p className="text-sm text-[var()]">
           Insights and reviews from your completed mentorship sessions.
         </p>
       </div>
@@ -139,43 +139,43 @@ export default function MentorReviewsAnalyticsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             {/* Avg Rating Card */}
             <div className="rounded-2xl border p-6 flex flex-col gap-2 bg-linear-to-br from-amber-500/5 to-transparent dark:from-amber-500/10 border-amber-500/10 shadow-xs hover:shadow-md hover:border-amber-500/30 transition-all duration-300">
-              <div className="flex items-center justify-between text-(--muted)">
-                <span className="text-xs uppercase tracking-widest font-extrabold text-(--muted)/85">Average Rating</span>
+              <div className="flex items-center justify-between text-[var()]">
+                <span className="text-xs uppercase tracking-widest font-extrabold text-[var()]/85">Average Rating</span>
                 <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-500">
                   <Star className="w-4 h-4 fill-amber-500" />
                 </div>
               </div>
               <div className="flex items-baseline gap-2 mt-2">
-                <span className="font-display text-4.5xl font-black text-(--fg)">{avgRating}</span>
-                <span className="text-xs text-(--muted) font-semibold">out of 5.0</span>
+                <span className="font-display text-4.5xl font-black text-[var()]">{avgRating}</span>
+                <span className="text-xs text-[var()] font-semibold">out of 5.0</span>
               </div>
             </div>
 
             {/* Total Reviews Card */}
             <div className="rounded-2xl border p-6 flex flex-col gap-2 bg-linear-to-br from-blue-500/5 to-transparent dark:from-blue-500/10 border-blue-500/10 shadow-xs hover:shadow-md hover:border-blue-500/30 transition-all duration-300">
-              <div className="flex items-center justify-between text-(--muted)">
-                <span className="text-xs uppercase tracking-widest font-extrabold text-(--muted)/85">Total Reviews</span>
+              <div className="flex items-center justify-between text-[var()]">
+                <span className="text-xs uppercase tracking-widest font-extrabold text-[var()]/85">Total Reviews</span>
                 <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-500">
                   <MessageSquare className="w-4 h-4" />
                 </div>
               </div>
               <div className="flex items-baseline gap-2 mt-2">
-                <span className="font-display text-4.5xl font-black text-(--fg)">{total}</span>
-                <span className="text-xs text-(--muted) font-semibold">completed sessions</span>
+                <span className="font-display text-4.5xl font-black text-[var()]">{total}</span>
+                <span className="text-xs text-[var()] font-semibold">completed sessions</span>
               </div>
             </div>
 
             {/* 5-Star Ratio Card */}
             <div className="rounded-2xl border p-6 flex flex-col gap-2 bg-linear-to-br from-emerald-500/5 to-transparent dark:from-emerald-500/10 border-emerald-500/10 shadow-xs hover:shadow-md hover:border-emerald-500/30 transition-all duration-300">
-              <div className="flex items-center justify-between text-(--muted)">
-                <span className="text-xs uppercase tracking-widest font-extrabold text-(--muted)/85">5-Star Ratio</span>
+              <div className="flex items-center justify-between text-[var()]">
+                <span className="text-xs uppercase tracking-widest font-extrabold text-[var()]/85">5-Star Ratio</span>
                 <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-500">
                   <TrendingUp className="w-4 h-4" />
                 </div>
               </div>
               <div className="flex items-baseline gap-2 mt-2">
-                <span className="font-display text-4.5xl font-black text-(--fg)">{fiveStarPercent}%</span>
-                <span className="text-xs text-(--muted) font-semibold">5-star ratings</span>
+                <span className="font-display text-4.5xl font-black text-[var()]">{fiveStarPercent}%</span>
+                <span className="text-xs text-[var()] font-semibold">5-star ratings</span>
               </div>
             </div>
           </div>
@@ -183,8 +183,8 @@ export default function MentorReviewsAnalyticsPage() {
           {/* Rating Breakdown & Tag Insights */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Rating Breakdown */}
-            <div className="rounded-2xl border p-6 flex flex-col gap-5 bg-white dark:bg-[#18181B] border-(--hairline) shadow-sm">
-              <h3 className="text-xs font-extrabold uppercase tracking-widest text-(--fg)">
+            <div className="rounded-2xl border p-6 flex flex-col gap-5 bg-white dark:bg-[#18181B] border-[var()] shadow-sm">
+              <h3 className="text-xs font-extrabold uppercase tracking-widest text-[var()]">
                 Rating Distribution
               </h3>
 
@@ -194,10 +194,10 @@ export default function MentorReviewsAnalyticsPage() {
                   const pct = total > 0 ? Math.round((count / total) * 100) : 0;
                   return (
                     <div key={stars} className="flex items-center gap-4 text-xs">
-                      <span className="w-10 font-bold text-(--muted) flex items-center justify-end gap-1 shrink-0">
+                      <span className="w-10 font-bold text-[var()] flex items-center justify-end gap-1 shrink-0">
                         {stars} ★
                       </span>
-                      <div className="flex-1 h-3 rounded-full bg-(--fg)/5 dark:bg-white/5 overflow-hidden">
+                      <div className="flex-1 h-3 rounded-full bg-[var()]/5 dark:bg-white/5 overflow-hidden">
                         <div
                           className="h-full rounded-full transition-all duration-500"
                           style={{
@@ -211,8 +211,8 @@ export default function MentorReviewsAnalyticsPage() {
                           }}
                         />
                       </div>
-                      <span className="w-16 text-right font-semibold text-(--fg)/80 shrink-0">
-                        {pct}% <span className="text-(--muted) text-[10px] font-normal">({count})</span>
+                      <span className="w-16 text-right font-semibold text-[var()]/80 shrink-0">
+                        {pct}% <span className="text-[var()] text-[10px] font-normal">({count})</span>
                       </span>
                     </div>
                   );
@@ -221,8 +221,8 @@ export default function MentorReviewsAnalyticsPage() {
             </div>
 
             {/* Tag Insights */}
-            <div className="rounded-2xl border p-6 flex flex-col gap-6 bg-white dark:bg-[#18181B] border-(--hairline) shadow-sm">
-              <h3 className="text-xs font-extrabold uppercase tracking-widest text-(--fg)">
+            <div className="rounded-2xl border p-6 flex flex-col gap-6 bg-white dark:bg-[#18181B] border-[var()] shadow-sm">
+              <h3 className="text-xs font-extrabold uppercase tracking-widest text-[var()]">
                 Feedback Highlights
               </h3>
 
@@ -246,12 +246,12 @@ export default function MentorReviewsAnalyticsPage() {
                     ))}
                   </div>
                 ) : (
-                  <span className="text-xs text-(--muted) font-medium italic">No positive tags collected yet.</span>
+                  <span className="text-xs text-[var()] font-medium italic">No positive tags collected yet.</span>
                 )}
               </div>
 
               {/* Areas to Improve */}
-              <div className="flex flex-col gap-3 pt-4 border-t border-(--hairline)">
+              <div className="flex flex-col gap-3 pt-4 border-t border-[var()]">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400">
                   <div className="p-1 rounded-md bg-amber-500/10">
                     <AlertCircle className="w-3.5 h-3.5" />
@@ -270,7 +270,7 @@ export default function MentorReviewsAnalyticsPage() {
                     ))}
                   </div>
                 ) : (
-                  <span className="text-xs text-(--muted) font-medium italic">No areas to improve logged — keep up the excellent work!</span>
+                  <span className="text-xs text-[var()] font-medium italic">No areas to improve logged — keep up the excellent work!</span>
                 )}
               </div>
             </div>
@@ -278,7 +278,7 @@ export default function MentorReviewsAnalyticsPage() {
 
           {/* Recent Reviews List */}
           <div className="flex flex-col gap-4 mt-2">
-            <h2 className="text-xs uppercase tracking-[0.22em] text-(--muted)">
+            <h2 className="text-xs uppercase tracking-[0.22em] text-[var()]">
               Recent Student Reviews
             </h2>
 

@@ -28,8 +28,8 @@ function formatDate(d: string) {
 }
 
 function PresenceDot({ status }: { status?: string }) {
-  if (status === "ONLINE") return <span className="h-2.5 w-2.5 rounded-full bg-green-400 border-2 border-(--bg) shadow-sm" />;
-  if (status === "AWAY") return <span className="h-2.5 w-2.5 rounded-full bg-amber-400 border-2 border-(--bg) shadow-sm" />;
+  if (status === "ONLINE") return <span className="h-2.5 w-2.5 rounded-full bg-green-400 border-2 border-[var()] shadow-sm" />;
+  if (status === "AWAY") return <span className="h-2.5 w-2.5 rounded-full bg-amber-400 border-2 border-[var()] shadow-sm" />;
   return null;
 }
 
@@ -125,9 +125,9 @@ export function ThreadList({
                   key={thread.id}
                   type="button"
                   onClick={() => onSelectThread(thread)}
-                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 transition-all hover:bg-(--fg)/4 cursor-pointer text-left border-b border-(--hairline)/10 last:border-b-0 relative ${
+                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 transition-all hover:bg-[var()]/4 cursor-pointer text-left border-b border-[var()]/10 last:border-b-0 relative ${
                     isActive
-                      ? "bg-(--fg)/[0.04] border-l-2 border-l-(--accent) pl-[14px]"
+                      ? "bg-[var()]/[0.04] border-l-2 border-l-[var()] pl-[14px]"
                       : "border-l-2 border-l-transparent"
                   }`}
                 >
@@ -135,16 +135,16 @@ export function ThreadList({
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-0.5">
-                      <span className={`text-sm font-semibold truncate ${unread > 0 ? "text-(--fg)" : "text-(--fg)/80"}`}>
+                      <span className={`text-sm font-semibold truncate ${unread > 0 ? "text-[var()]" : "text-[var()]/80"}`}>
                         {displayName}
                       </span>
-                      <span className="text-[10px] text-(--muted) shrink-0 ml-2">
+                      <span className="text-[10px] text-[var()] shrink-0 ml-2">
                         {formatDate(thread.updatedAt)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between gap-2">
                       <span className={`text-xs truncate ${
-                        unread > 0 ? "text-(--fg)/70 font-medium" : "text-(--fg)/45"
+                        unread > 0 ? "text-[var()]/70 font-medium" : "text-[var()]/45"
                       }`}>
                         {lastMsg?.deletedAt
                           ? "Message deleted"
@@ -155,7 +155,7 @@ export function ThreadList({
                           : "No messages yet"}
                       </span>
                       {unread > 0 && (
-                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-(--accent) text-(--accent-fg) text-[10px] font-bold px-1.5 shrink-0 animate-in zoom-in duration-200">
+                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[var()] text-[var()] text-[10px] font-bold px-1.5 shrink-0 animate-in zoom-in duration-200">
                           {unread > 99 ? "99+" : unread}
                         </span>
                       )}

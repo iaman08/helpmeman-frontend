@@ -56,7 +56,7 @@ function PresenceLabel({ status }: { status?: string }) {
   if (status === "AWAY") {
     return <span className="text-[11px] text-amber-400 font-medium">Away</span>;
   }
-  return <span className="text-[11px] text-(--muted)/60">Offline</span>;
+  return <span className="text-[11px] text-[var()]/60">Offline</span>;
 }
 
 function EditBanner({
@@ -71,11 +71,11 @@ function EditBanner({
       <Pencil className="h-3.5 w-3.5 text-amber-500 shrink-0" />
       <div className="flex-1 min-w-0">
         <p className="text-[10px] font-semibold text-amber-500 uppercase tracking-wider">Editing message</p>
-        <p className="text-xs text-(--fg)/60 truncate">{msg.body}</p>
+        <p className="text-xs text-[var()]/60 truncate">{msg.body}</p>
       </div>
       <button
         onClick={onCancel}
-        className="p-1 rounded-full hover:bg-(--fg)/10 text-(--muted) cursor-pointer shrink-0"
+        className="p-1 rounded-full hover:bg-[var()]/10 text-[var()] cursor-pointer shrink-0"
       >
         <X className="h-3 w-3" />
       </button>
@@ -427,7 +427,7 @@ export function ChatWindow({
   return (
     <div className="flex flex-1 flex-col h-full min-w-0 overflow-hidden" style={{ background: "var(--bg, #fff)" }}>
       {/* ── Header ── */}
-      <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-3 border-b border-(--hairline) shrink-0" style={{ background: "var(--bg, #fff)", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
+      <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-3 border-b border-[var()] shrink-0" style={{ background: "var(--bg, #fff)", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
           <button
             type="button"
@@ -591,8 +591,8 @@ export function ChatWindow({
 
       {/* ── Input area ── */}
       {isInputBlocked ? (
-        <div className="px-5 py-4 border-t border-(--hairline) text-center shrink-0 bg-(--fg)/[0.002]">
-          <div className="flex items-center justify-center gap-2 text-sm text-(--muted) mb-3">
+        <div className="px-5 py-4 border-t border-[var()] text-center shrink-0 bg-[var()]/[0.002]">
+          <div className="flex items-center justify-center gap-2 text-sm text-[var()] mb-3">
             <Lock className="h-4 w-4 text-amber-500 shrink-0" />
             <span>
               {thread.status === "CLOSED"
@@ -603,7 +603,7 @@ export function ChatWindow({
           {thread.status !== "CLOSED" && !isMentor && (
             <a
               href={`/book?mentorId=${thread.mentorId}`}
-              className="inline-flex items-center gap-1.5 bg-(--accent) text-(--accent-fg) text-xs font-semibold px-4 py-2 rounded-full hover:opacity-90 transition-opacity shadow-sm"
+              className="inline-flex items-center gap-1.5 bg-[var()] text-[var()] text-xs font-semibold px-4 py-2 rounded-full hover:opacity-90 transition-opacity shadow-sm"
             >
               Book a session →
             </a>

@@ -27,7 +27,7 @@ export function HowItWorks() {
       <ol className="grid grid-cols-1 sm:grid-cols-3 gap-8">
         {steps.map((s, i) => (
           <li key={s.n} className="flex flex-col gap-3">
-            <span className="font-display text-4xl leading-none text-(--muted)">
+            <span className="font-display text-4xl leading-none text-[var()]">
               {s.n}
             </span>
             <div
@@ -36,7 +36,7 @@ export function HowItWorks() {
               style={{ background: i === 0 ? "var(--accent)" : "var(--hairline)" }}
             />
             <h3 className="font-display text-xl leading-snug">{s.t}</h3>
-            <p className="text-sm text-(--muted)">{s.d}</p>
+            <p className="text-sm text-[var()]">{s.d}</p>
           </li>
         ))}
       </ol>

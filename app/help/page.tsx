@@ -294,21 +294,21 @@ export default function HelpPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)]">
       {/* ── Navbar ── */}
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/80 border-b border-zinc-200">
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[var(--bg)]/80 border-b border-[var(--hairline)]">
         <nav className="mx-auto flex max-w-[1100px] items-center justify-between px-6 sm:px-10 py-4">
-          <Link href="/" className="font-bold text-lg tracking-tight text-zinc-900 flex items-center gap-2 select-none">
+          <Link href="/" className="font-bold text-lg tracking-tight text-[var(--fg)] flex items-center gap-2 select-none">
             <img src="/logo.svg" alt="HelpMeMan Logo" className="w-6 h-6 object-contain" />
             <span>HelpMeMan</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/signin" className="text-sm text-zinc-500 hover:text-zinc-800 transition-colors">
+            <Link href="/signin" className="text-sm text-[var(--muted)] hover:text-[var(--fg)] transition-colors">
               Sign in
             </Link>
             <Link
               href="/"
-              className="text-sm text-zinc-500 hover:text-zinc-800 transition-colors flex items-center gap-1"
+              className="text-sm text-[var(--muted)] hover:text-[var(--fg)] transition-colors flex items-center gap-1"
             >
               ← Home
             </Link>

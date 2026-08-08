@@ -31,13 +31,13 @@ export function Hero() {
       <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
         <Link
           href="/signin"
-          className="rounded-full bg-(--accent) text-(--accent-fg) px-8 py-4 text-sm font-bold tracking-wide hover:opacity-90 transition-opacity text-center"
+          className="rounded-full bg-[var()] text-[var()] px-8 py-4 text-sm font-bold tracking-wide hover:opacity-90 transition-opacity text-center"
         >
           Find Your Mentor →
         </Link>
         <Link
           href="/signin"
-          className="rounded-full bg-(--fg)/6 text-(--fg) px-8 py-4 text-sm font-bold tracking-wide hover:bg-(--fg)/10 transition-colors text-center"
+          className="rounded-full bg-[var()]/6 text-[var()] px-8 py-4 text-sm font-bold tracking-wide hover:bg-[var()]/10 transition-colors text-center"
         >
           Browse Mentors
         </Link>
@@ -48,16 +48,16 @@ export function Hero() {
         {STATS.map((s) => (
           <div key={s.label} className="flex flex-col gap-1">
             <span className="font-display text-2xl sm:text-3xl">{s.value}</span>
-            <span className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-(--muted)">{s.label}</span>
+            <span className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-[var()]">{s.label}</span>
           </div>
         ))}
       </div>
 
       {/* Logos Section */}
-      <div className="mt-16 sm:mt-24 pt-12 border-t border-(--hairline)">
+      <div className="mt-16 sm:mt-24 pt-12 border-t border-[var()]">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
           <div className="max-w-md">
-            <p className="text-[10px] sm:text-xs uppercase tracking-[0.22em] text-(--muted) font-bold mb-3">
+            <p className="text-[10px] sm:text-xs uppercase tracking-[0.22em] text-[var()] font-bold mb-3">
               Trusted Experts
             </p>
             <h2 className="text-2xl sm:text-3xl font-display leading-tight">
@@ -69,11 +69,11 @@ export function Hero() {
                <img 
                  key={i}
                  src={`https://i.pravatar.cc/100?img=${i+10}`} 
-                 className="h-10 w-10 sm:h-12 sm:w-12 rounded-full border-2 border-(--bg) object-cover" 
+                 className="h-10 w-10 sm:h-12 sm:w-12 rounded-full border-2 border-[var()] object-cover" 
                  alt="Mentor"
                />
              ))}
-             <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full border-2 border-(--bg) bg-(--fg)/5 flex items-center justify-center text-[10px] font-bold">
+             <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full border-2 border-[var()] bg-[var()]/5 flex items-center justify-center text-[10px] font-bold">
                +500
              </div>
           </div>
@@ -83,9 +83,9 @@ export function Hero() {
           {LOGOS.map((logo) => (
             <div
               key={logo.name}
-              className="flex flex-col items-center justify-center gap-3 p-6 rounded-[2rem] border border-(--hairline) bg-(--fg)/[0.02] hover:bg-(--fg)/5 transition-all hover:scale-[1.02] group cursor-default"
+              className="flex flex-col items-center justify-center gap-3 p-6 rounded-[2rem] border border-[var()] bg-[var()]/[0.02] hover:bg-[var()]/5 transition-all hover:scale-[1.02] group cursor-default"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-(--bg) overflow-hidden shadow-sm border border-(--hairline) group-hover:shadow-md transition-shadow">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var()] overflow-hidden shadow-sm border border-[var()] group-hover:shadow-md transition-shadow">
                 <img src={logo.img} alt={logo.name} className="h-full w-full object-contain p-2" />
               </div>
               <span className="font-bold text-xs sm:text-sm text-center">{logo.name}</span>

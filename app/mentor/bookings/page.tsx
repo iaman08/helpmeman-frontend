@@ -62,7 +62,7 @@ export default function MentorBookingsPage() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">Sessions</p>
+        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Sessions</p>
         <h1 className="font-display text-4xl leading-tight">Your bookings.</h1>
       </div>
 
@@ -73,7 +73,7 @@ export default function MentorBookingsPage() {
             type="button"
             onClick={() => setStatus(tab.value)}
             className={`rounded-full px-4 py-2 text-xs uppercase tracking-wider transition-colors cursor-pointer ${
-              status === tab.value ? "bg-(--accent) text-(--accent-fg)" : "bg-(--fg)/5 text-(--fg)/70 hover:bg-(--fg)/8"
+              status === tab.value ? "bg-[var()] text-[var()]" : "bg-[var()]/5 text-[var()]/70 hover:bg-[var()]/8"
             }`}
           >
             {tab.label}
@@ -88,15 +88,15 @@ export default function MentorBookingsPage() {
       ) : bookings.length > 0 ? (
         <div className="flex flex-col gap-3">
           {bookings.map((b) => (
-            <div key={b.id} className="rounded-xl bg-(--fg)/[0.02] p-5 flex flex-col gap-3">
+            <div key={b.id} className="rounded-xl bg-[var()]/[0.02] p-5 flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-(--fg)/8 text-xs font-medium shrink-0">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var()]/8 text-xs font-medium shrink-0">
                     {b.user?.name?.[0]?.toUpperCase() ?? "U"}
                   </div>
                   <div className="flex flex-col gap-0.5">
                     <span className="font-medium">{b.user?.name ?? "Student"}</span>
-                    <span className="text-xs text-(--muted)">
+                    <span className="text-xs text-[var()]">
                       {formatDate(b.scheduledAt)} at {formatTime(b.scheduledAt)} · {b.durationMinutes} min · {formatPrice(b.amountPaid, b.currency)}
                     </span>
                   </div>
@@ -105,8 +105,8 @@ export default function MentorBookingsPage() {
               </div>
 
               {b.mentorNotes && (
-                <div className="text-xs text-(--fg)/70 bg-(--fg)/3 rounded-lg p-3">
-                  <span className="text-(--muted) uppercase tracking-wider">Notes: </span>{b.mentorNotes}
+                <div className="text-xs text-[var()]/70 bg-[var()]/3 rounded-lg p-3">
+                  <span className="text-[var()] uppercase tracking-wider">Notes: </span>{b.mentorNotes}
                 </div>
               )}
 
@@ -116,7 +116,7 @@ export default function MentorBookingsPage() {
                     href={b.meetLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-full bg-(--accent) text-(--accent-fg) px-4 py-2 text-xs hover:opacity-90"
+                    className="rounded-full bg-[var()] text-[var()] px-4 py-2 text-xs hover:opacity-90"
                   >
                     Join Meet
                   </a>
@@ -127,7 +127,7 @@ export default function MentorBookingsPage() {
                     setNoteBookingId(b.id);
                     setNoteText(b.mentorNotes ?? "");
                   }}
-                  className="rounded-full bg-(--fg)/5 px-4 py-2 text-xs hover:bg-(--fg)/8 cursor-pointer"
+                  className="rounded-full bg-[var()]/5 px-4 py-2 text-xs hover:bg-[var()]/8 cursor-pointer"
                 >
                   {b.mentorNotes ? "Edit notes" : "Add notes"}
                 </button>
@@ -139,7 +139,7 @@ export default function MentorBookingsPage() {
                     value={noteText}
                     onChange={(e) => setNoteText(e.target.value)}
                     rows={2}
-                    className="flex-1 bg-(--fg)/5 rounded-lg px-3 py-2 text-sm outline-none focus:bg-(--fg)/8 resize-none"
+                    className="flex-1 bg-[var()]/5 rounded-lg px-3 py-2 text-sm outline-none focus:bg-[var()]/8 resize-none"
                     placeholder="Notes for this session..."
                   />
                   <div className="flex flex-col gap-1">
@@ -147,14 +147,14 @@ export default function MentorBookingsPage() {
                       type="button"
                       onClick={() => saveNote(b.id)}
                       disabled={saving}
-                      className="rounded-full bg-(--accent) text-(--accent-fg) px-4 py-2 text-xs cursor-pointer disabled:opacity-50"
+                      className="rounded-full bg-[var()] text-[var()] px-4 py-2 text-xs cursor-pointer disabled:opacity-50"
                     >
                       Save
                     </button>
                     <button
                       type="button"
                       onClick={() => setNoteBookingId(null)}
-                      className="rounded-full bg-(--fg)/5 px-4 py-2 text-xs cursor-pointer"
+                      className="rounded-full bg-[var()]/5 px-4 py-2 text-xs cursor-pointer"
                     >
                       Cancel
                     </button>

@@ -221,7 +221,7 @@ export function ChatInput({
       )}
 
       {isDragging && (
-        <div className="text-center text-sm text-(--muted) font-medium mb-2 py-1">
+        <div className="text-center text-sm text-[var()] font-medium mb-2 py-1">
           📎 Drop to attach
         </div>
       )}
@@ -338,7 +338,7 @@ export function ChatInput({
         </button>
       </div>
 
-      <p className="text-[10px] text-(--muted)/40 mt-1.5 ml-12 select-none hidden sm:block">
+      <p className="text-[10px] text-[var()]/40 mt-1.5 ml-12 select-none hidden sm:block">
         Enter to send · Shift+Enter for new line
       </p>
     </div>

@@ -52,13 +52,13 @@ export default function SuperAdminAuditLogsPage() {
     if (act.includes('CREATE') || act.includes('APPROVE')) return 'bg-emerald-500/10 text-emerald-500';
     if (act.includes('DELETE') || act.includes('REJECT') || act.includes('DISABLE')) return 'bg-red-500/10 text-red-500';
     if (act.includes('UPDATE') || act.includes('CHANGE')) return 'bg-blue-500/10 text-blue-500';
-    return 'bg-(--fg)/10 text-(--fg)';
+    return 'bg-[var()]/10 text-[var()]';
   };
 
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">Super Admin</p>
+        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">Super Admin</p>
         <h1 className="font-display text-4xl leading-tight">Audit Logs.</h1>
       </div>
 
@@ -66,7 +66,7 @@ export default function SuperAdminAuditLogsPage() {
         <select
           value={action}
           onChange={(e) => { setAction(e.target.value); setPage(1); }}
-          className="bg-(--fg)/5 border-none rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-(--fg)/20"
+          className="bg-[var()]/5 border-none rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-[var()]/20"
         >
           <option value="All">All Actions</option>
           <option value="USER_ROLE_CHANGE">Role Changes</option>
@@ -78,10 +78,10 @@ export default function SuperAdminAuditLogsPage() {
         </select>
       </div>
 
-      <div className="bg-(--fg)/[0.02] rounded-2xl overflow-hidden border border-(--hairline)">
+      <div className="bg-[var()]/[0.02] rounded-2xl overflow-hidden border border-[var()]">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-xs uppercase tracking-wider text-(--muted) bg-(--fg)/5">
+            <thead className="text-xs uppercase tracking-wider text-[var()] bg-[var()]/5">
               <tr>
                 <th className="px-6 py-4 font-medium">Timestamp</th>
                 <th className="px-6 py-4 font-medium">Actor</th>
@@ -89,7 +89,7 @@ export default function SuperAdminAuditLogsPage() {
                 <th className="px-6 py-4 font-medium">Target</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-(--hairline)">
+            <tbody className="divide-y divide-[var()]">
               {loading ? (
                 Array(10).fill(0).map((_, i) => (
                   <tr key={i}>
@@ -101,8 +101,8 @@ export default function SuperAdminAuditLogsPage() {
                 ))
               ) : logs.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-10 text-center text-(--muted)">
-                    <Activity className="h-8 w-8 text-(--muted) mx-auto mb-3 opacity-50" />
+                  <td colSpan={4} className="px-6 py-10 text-center text-[var()]">
+                    <Activity className="h-8 w-8 text-[var()] mx-auto mb-3 opacity-50" />
                     No audit logs found.
                   </td>
                 </tr>
@@ -110,18 +110,18 @@ export default function SuperAdminAuditLogsPage() {
                 logs.map((log) => (
                   <React.Fragment key={log.id}>
                     <tr 
-                      className="hover:bg-(--fg)/5 cursor-pointer transition-colors"
+                      className="hover:bg-[var()]/5 cursor-pointer transition-colors"
                       onClick={() => setExpandedId(expandedId === log.id ? null : log.id)}
                     >
-                      <td className="px-6 py-4 text-xs text-(--muted) whitespace-nowrap">
+                      <td className="px-6 py-4 text-xs text-[var()] whitespace-nowrap">
                         {new Date(log.createdAt).toLocaleString('en-IN', {
                           dateStyle: 'short', timeStyle: 'medium'
                         })}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
-                          <span className="font-medium text-(--fg)">{log.actor?.name || 'System'}</span>
-                          <span className="text-[10px] text-(--muted)">{log.actor?.email || ''}</span>
+                          <span className="font-medium text-[var()]">{log.actor?.name || 'System'}</span>
+                          <span className="text-[10px] text-[var()]">{log.actor?.email || ''}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -129,29 +129,29 @@ export default function SuperAdminAuditLogsPage() {
                           {log.action}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-(--muted) truncate max-w-[200px]">
+                      <td className="px-6 py-4 text-[var()] truncate max-w-[200px]">
                         {log.target || '-'}
                       </td>
                     </tr>
                     {expandedId === log.id && (
-                      <tr className="bg-(--fg)/[0.01]">
-                        <td colSpan={4} className="px-6 py-4 border-l-4 border-(--fg)/20">
+                      <tr className="bg-[var()]/[0.01]">
+                        <td colSpan={4} className="px-6 py-4 border-l-4 border-[var()]/20">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                             {log.oldValue && log.newValue && (
-                              <div className="md:col-span-2 flex items-start gap-4 p-3 bg-(--bg) rounded-lg border border-(--hairline)">
+                              <div className="md:col-span-2 flex items-start gap-4 p-3 bg-[var()] rounded-lg border border-[var()]">
                                 <div className="flex-1">
-                                  <div className="text-(--muted) mb-1 uppercase tracking-wider text-[10px]">Previous Value</div>
+                                  <div className="text-[var()] mb-1 uppercase tracking-wider text-[10px]">Previous Value</div>
                                   <pre className="font-mono text-red-500/80 overflow-auto whitespace-pre-wrap">{JSON.stringify(log.oldValue, null, 2)}</pre>
                                 </div>
-                                <div className="text-(--muted) mt-4">→</div>
+                                <div className="text-[var()] mt-4">→</div>
                                 <div className="flex-1">
-                                  <div className="text-(--muted) mb-1 uppercase tracking-wider text-[10px]">New Value</div>
+                                  <div className="text-[var()] mb-1 uppercase tracking-wider text-[10px]">New Value</div>
                                   <pre className="font-mono text-emerald-500/80 overflow-auto whitespace-pre-wrap">{JSON.stringify(log.newValue, null, 2)}</pre>
                                 </div>
                               </div>
                             )}
                             {(log.ipAddress || log.userAgent) && (
-                              <div className="md:col-span-2 flex gap-4 text-(--muted)">
+                              <div className="md:col-span-2 flex gap-4 text-[var()]">
                                 {log.ipAddress && <div><span className="uppercase tracking-wider text-[10px]">IP:</span> {log.ipAddress}</div>}
                                 {log.userAgent && <div className="truncate"><span className="uppercase tracking-wider text-[10px]">Client:</span> {log.userAgent}</div>}
                               </div>
@@ -168,20 +168,20 @@ export default function SuperAdminAuditLogsPage() {
         </div>
         
         {!loading && totalPages > 1 && (
-          <div className="flex items-center justify-between px-6 py-4 border-t border-(--hairline)">
-            <span className="text-sm text-(--muted)">Page {page} of {totalPages}</span>
+          <div className="flex items-center justify-between px-6 py-4 border-t border-[var()]">
+            <span className="text-sm text-[var()]">Page {page} of {totalPages}</span>
             <div className="flex gap-2">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="p-1 rounded bg-(--fg)/5 disabled:opacity-50 hover:bg-(--fg)/10"
+                className="p-1 rounded bg-[var()]/5 disabled:opacity-50 hover:bg-[var()]/10"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="p-1 rounded bg-(--fg)/5 disabled:opacity-50 hover:bg-(--fg)/10"
+                className="p-1 rounded bg-[var()]/5 disabled:opacity-50 hover:bg-[var()]/10"
               >
                 <ChevronRight className="h-5 w-5" />
               </button>

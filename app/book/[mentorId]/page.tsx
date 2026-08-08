@@ -160,10 +160,10 @@ export default function BookMentorPage() {
   if (authLoading || isLoading) {
     return (
       <div className="min-h-screen">
-        <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-(--bg)/70">
+        <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[var()]/70">
           <nav className="mx-auto flex max-w-[1000px] items-center justify-between px-6 sm:px-10 py-5">
             <Link href="/" className="font-display text-2xl tracking-tight">
-              HelpMeMan<span className="text-(--muted)">.</span>
+              HelpMeMan<span className="text-[var()]">.</span>
             </Link>
           </nav>
         </header>
@@ -191,7 +191,7 @@ export default function BookMentorPage() {
           action={
             <Link
               href="/mentors"
-              className="rounded-full bg-(--accent) text-(--accent-fg) px-6 py-3 text-sm"
+              className="rounded-full bg-[var()] text-[var()] px-6 py-3 text-sm"
             >
               Browse mentors
             </Link>
@@ -203,14 +203,14 @@ export default function BookMentorPage() {
 
   return (
     <div className="min-h-screen">
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-(--bg)/70">
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[var()]/70">
         <nav className="mx-auto flex max-w-[1000px] items-center justify-between px-6 sm:px-10 py-5">
           <Link href="/" className="font-display text-2xl tracking-tight">
-            HelpMeMan<span className="text-(--muted)">.</span>
+            HelpMeMan<span className="text-[var()]">.</span>
           </Link>
           <Link
             href={`/mentors/${mentorId}`}
-            className="text-sm text-(--fg)/80 hover:text-(--fg) transition-colors"
+            className="text-sm text-[var()]/80 hover:text-[var()] transition-colors"
           >
             ← Back to profile
           </Link>
@@ -219,7 +219,7 @@ export default function BookMentorPage() {
 
       <main className="mx-auto max-w-[1000px] px-6 sm:px-10 pt-28 pb-16">
         <div className="flex flex-col gap-2 mb-8">
-          <p className="text-sm uppercase tracking-[0.22em] text-(--muted)">
+          <p className="text-sm uppercase tracking-[0.22em] text-[var()]">
             Book a session
           </p>
           <h1 className="font-display text-[clamp(1.8rem,4vw,2.8rem)] leading-tight">
@@ -230,7 +230,7 @@ export default function BookMentorPage() {
               institutionName={mentor.institutionName}
               institutionType={mentor.institutionType}
             />
-            <span className="text-sm text-(--muted)">
+            <span className="text-sm text-[var()]">
               <PriceDisplay amountInPaise={mentor.pricePerSession} /> / {mentor.sessionDuration}{" "}
               min
             </span>
@@ -242,7 +242,7 @@ export default function BookMentorPage() {
           <div className="lg:col-span-3 flex flex-col gap-6">
             {/* Date picker */}
             <div>
-              <h2 className="text-xs uppercase tracking-[0.22em] text-(--muted) mb-4">
+              <h2 className="text-xs uppercase tracking-[0.22em] text-[var()] mb-4">
                 <Calendar className="h-3.5 w-3.5 inline mr-2" />
                 Select a date
               </h2>
@@ -260,8 +260,8 @@ export default function BookMentorPage() {
                       }}
                       className={`flex flex-col items-center gap-1 rounded-xl py-3 text-sm transition-colors cursor-pointer ${
                         isSelected
-                          ? "bg-(--accent) text-(--accent-fg)"
-                          : "bg-(--fg)/[0.02] hover:bg-(--fg)/5"
+                          ? "bg-[var()] text-[var()]"
+                          : "bg-[var()]/[0.02] hover:bg-[var()]/5"
                       }`}
                     >
                       <span className="text-[10px] uppercase tracking-wider opacity-70">
@@ -279,7 +279,7 @@ export default function BookMentorPage() {
             {/* Time picker */}
             {selectedDate && (
               <div>
-                <h2 className="text-xs uppercase tracking-[0.22em] text-(--muted) mb-4">
+                <h2 className="text-xs uppercase tracking-[0.22em] text-[var()] mb-4">
                   <Clock className="h-3.5 w-3.5 inline mr-2" />
                   Select a time
                 </h2>
@@ -293,8 +293,8 @@ export default function BookMentorPage() {
                         onClick={() => setSelectedTime(slot)}
                         className={`rounded-lg py-2.5 text-sm transition-colors cursor-pointer ${
                           isSelected
-                            ? "bg-(--accent) text-(--accent-fg)"
-                            : "bg-(--fg)/[0.02] hover:bg-(--fg)/5"
+                            ? "bg-[var()] text-[var()]"
+                            : "bg-[var()]/[0.02] hover:bg-[var()]/5"
                         }`}
                       >
                         {slot}
@@ -308,23 +308,23 @@ export default function BookMentorPage() {
 
           {/* ─── Right: Summary ─── */}
           <div className="lg:col-span-2">
-            <div className="sticky top-28 rounded-2xl bg-(--fg)/[0.02] p-6 flex flex-col gap-5">
-              <h2 className="text-xs uppercase tracking-[0.22em] text-(--muted)">
+            <div className="sticky top-28 rounded-2xl bg-[var()]/[0.02] p-6 flex flex-col gap-5">
+              <h2 className="text-xs uppercase tracking-[0.22em] text-[var()]">
                 <CreditCard className="h-3.5 w-3.5 inline mr-2" />
                 Summary
               </h2>
 
               <div className="flex flex-col gap-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-(--muted)">Mentor</span>
+                  <span className="text-[var()]">Mentor</span>
                   <span className="font-medium">{mentor.displayName}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-(--muted)">Duration</span>
+                  <span className="text-[var()]">Duration</span>
                   <span>{mentor.sessionDuration} min</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-(--muted)">Date</span>
+                  <span className="text-[var()]">Date</span>
                   <span>
                     {selectedDate
                       ? formatDateShort(selectedDate)
@@ -332,7 +332,7 @@ export default function BookMentorPage() {
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-(--muted)">Time</span>
+                  <span className="text-[var()]">Time</span>
                   <span>{selectedTime ?? "Not selected"}</span>
                 </div>
               </div>
@@ -344,7 +344,7 @@ export default function BookMentorPage() {
               />
 
               <div className="flex items-baseline justify-between">
-                <span className="text-sm text-(--muted)">Total</span>
+                <span className="text-sm text-[var()]">Total</span>
                 <span className="font-display text-2xl">
                   <PriceDisplay amountInPaise={mentor.pricePerSession} />
                 </span>
@@ -360,17 +360,17 @@ export default function BookMentorPage() {
                 type="button"
                 onClick={handleBook}
                 disabled={!selectedDate || !selectedTime || booking}
-                className="w-full rounded-full bg-(--accent) text-(--accent-fg) py-3.5 text-sm hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-full rounded-full bg-[var()] text-[var()] py-3.5 text-sm hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {booking ? "Processing…" : "Pay & Book"}
               </button>
 
-              <p className="text-[11px] text-(--muted) text-center leading-relaxed">
+              <p className="text-[11px] text-[var()] text-center leading-relaxed">
                 Secure payment via Razorpay. You&rsquo;ll receive a Google Meet
                 link upon confirmation.
               </p>
 
-              <p className="text-[11px] text-(--muted) text-center leading-relaxed">
+              <p className="text-[11px] text-[var()] text-center leading-relaxed">
                 By proceeding with the payment, the user agrees to the{" "}
                 <Link href="/refund-policy" className="text-[#2563EB] hover:underline font-medium">
                   Refund & Cancellation Policy

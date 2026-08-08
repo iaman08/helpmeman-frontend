@@ -45,7 +45,7 @@ export default function BookingsPage() {
   return (
     <div className="flex flex-col gap-6 sm:gap-8">
       <div className="flex flex-col gap-2">
-        <p className="text-[10px] md:text-xs uppercase tracking-[0.22em] text-(--muted) font-bold">
+        <p className="text-[10px] md:text-xs uppercase tracking-[0.22em] text-[var()] font-bold">
           Bookings
         </p>
         <h1 className="font-display text-3xl sm:text-4xl md:text-5xl leading-tight font-bold tracking-tight">Your sessions.</h1>
@@ -63,8 +63,8 @@ export default function BookingsPage() {
             }}
             className={`rounded-full px-4 sm:px-5 py-2 sm:py-2.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer active:scale-95 ${
               statusFilter === tab.value
-                ? "bg-(--accent) text-(--accent-fg) shadow-lg"
-                : "bg-(--fg)/5 text-(--muted) hover:text-(--fg) border border-(--hairline)"
+                ? "bg-[var()] text-[var()] shadow-lg"
+                : "bg-[var()]/5 text-[var()] hover:text-[var()] border border-[var()]"
             }`}
           >
             {tab.label}
@@ -87,10 +87,10 @@ export default function BookingsPage() {
                 <Link
                   key={booking.id}
                   href={`/dashboard/bookings/${booking.id}`}
-                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between rounded-2xl sm:rounded-[2rem] bg-(--fg)/[0.03] border border-(--hairline) hover:border-(--fg)/15 hover:bg-(--fg)/5 p-4 sm:p-6 md:p-8 transition-all group"
+                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between rounded-2xl sm:rounded-[2rem] bg-[var()]/[0.03] border border-[var()] hover:border-[var()]/15 hover:bg-[var()]/5 p-4 sm:p-6 md:p-8 transition-all group"
                 >
                   <div className="flex items-center gap-4 sm:gap-5 w-full sm:w-auto">
-                    <div className="flex h-11 w-11 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl bg-(--fg)/8 text-(--muted) text-sm sm:text-base font-bold shrink-0 group-hover:scale-105 transition-transform">
+                    <div className="flex h-11 w-11 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl bg-[var()]/8 text-[var()] text-sm sm:text-base font-bold shrink-0 group-hover:scale-105 transition-transform">
                       {booking.mentor?.displayName
                         ?.split(" ")
                         .map((w) => w[0])
@@ -102,16 +102,16 @@ export default function BookingsPage() {
                       <span className="font-bold text-base sm:text-lg md:text-xl truncate group-hover:opacity-90 transition-colors">
                         {booking.mentor?.displayName ?? "Mentor"}
                       </span>
-                      <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 text-[11px] sm:text-xs md:text-sm text-(--muted)">
+                      <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 text-[11px] sm:text-xs md:text-sm text-[var()]">
                         <span>{formatDate(booking.scheduledAt)}</span>
-                        <span className="hidden sm:inline h-1 w-1 rounded-full bg-(--fg)/20" />
+                        <span className="hidden sm:inline h-1 w-1 rounded-full bg-[var()]/20" />
                         <span>{formatTime(booking.scheduledAt)}</span>
-                        <span className="hidden sm:inline h-1 w-1 rounded-full bg-(--fg)/20" />
+                        <span className="hidden sm:inline h-1 w-1 rounded-full bg-[var()]/20" />
                         <span>{booking.durationMinutes} min</span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between w-full sm:w-auto mt-4 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-0 border-(--hairline)">
+                  <div className="flex items-center justify-between w-full sm:w-auto mt-4 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-0 border-[var()]">
                     <span className="text-base sm:text-lg font-bold sm:mr-6">{formatPrice(booking.amountPaid, booking.currency)}</span>
                     <StatusBadge status={booking.status} />
                   </div>
@@ -130,8 +130,8 @@ export default function BookingsPage() {
                       onClick={() => setPage(p)}
                       className={`h-9 w-9 sm:h-10 sm:w-10 rounded-xl text-sm font-bold transition-all active:scale-90 cursor-pointer ${
                         data.page === p
-                          ? "bg-(--accent) text-(--accent-fg) shadow-lg"
-                          : "bg-(--fg)/5 text-(--muted) hover:text-(--fg) border border-(--hairline)"
+                          ? "bg-[var()] text-[var()] shadow-lg"
+                          : "bg-[var()]/5 text-[var()] hover:text-[var()] border border-[var()]"
                       }`}
                     >
                       {p}
@@ -143,13 +143,13 @@ export default function BookingsPage() {
           </>
         ) : (
           <EmptyState
-            icon={<div className="p-4 bg-(--fg)/5 rounded-2xl mb-4"><CalendarCheck className="h-8 w-8 text-(--muted)" /></div>}
+            icon={<div className="p-4 bg-[var()]/5 rounded-2xl mb-4"><CalendarCheck className="h-8 w-8 text-[var()]" /></div>}
             title="No bookings yet"
             description="Book your first session with a verified mentor to get started on your journey."
             action={
               <Link
                 href="/mentors"
-                className="rounded-2xl bg-(--accent) text-(--accent-fg) px-8 py-4 text-sm font-bold hover:opacity-90 transition-all active:scale-95 inline-block"
+                className="rounded-2xl bg-[var()] text-[var()] px-8 py-4 text-sm font-bold hover:opacity-90 transition-all active:scale-95 inline-block"
               >
                 Browse mentors
               </Link>

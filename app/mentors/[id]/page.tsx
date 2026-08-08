@@ -59,7 +59,7 @@ function StarRating({ rating }: { rating: number }) {
           className={`h-4 w-4 ${
             star <= rating
               ? "text-amber-500 fill-amber-500"
-              : "text-(--fg)/15"
+              : "text-[var()]/15"
           }`}
         />
       ))}
@@ -106,7 +106,7 @@ export default function MentorProfilePage() {
   if (isLoading) {
     return (
       <div className="max-w-[1000px] mx-auto px-6 sm:px-10 py-24 flex flex-col gap-10">
-        <div className="flex flex-col md:flex-row gap-6 md:gap-8 pb-6 border-b border-(--hairline)">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8 pb-6 border-b border-[var()]">
           <Skeleton className="h-28 w-28 rounded-full shrink-0" />
           <div className="flex-1 flex flex-col gap-3">
             <Skeleton className="h-8 w-64 rounded-lg" />
@@ -135,7 +135,7 @@ export default function MentorProfilePage() {
           action={
             <Link
               href="/"
-              className="rounded-full bg-(--accent) text-(--accent-fg) px-6 py-2.5 text-sm hover:opacity-90 transition-opacity"
+              className="rounded-full bg-[var()] text-[var()] px-6 py-2.5 text-sm hover:opacity-90 transition-opacity"
             >
               Back to Home
             </Link>
@@ -150,19 +150,19 @@ export default function MentorProfilePage() {
       {/* Back Button */}
       <Link
         href="/mentors"
-        className="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-(--muted) hover:text-(--fg) mb-6 transition-colors"
+        className="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-[var()] hover:text-[var()] mb-6 transition-colors"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
         Back to Explore
       </Link>
 
       {/* ─── Profile Content ─── */}
-      <div className="flex flex-col gap-12 text-(--fg)">
+      <div className="flex flex-col gap-12 text-[var()]">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* ─── Left: Profile Details ─── */}
           <div className="lg:col-span-2 flex flex-col gap-8">
             {/* Profile Info Details Card */}
-            <div className="relative border border-(--hairline) rounded-3xl p-6 bg-(--bg) shadow-sm">
+            <div className="relative border border-[var()] rounded-3xl p-6 bg-[var()] shadow-sm">
               
               {/* Profile Details Container */}
               <div className="flex flex-col md:flex-row items-start md:items-center gap-6 relative">
@@ -172,17 +172,17 @@ export default function MentorProfilePage() {
                     name={mentor.displayName}
                     url={mentor.avatar}
                     size="custom"
-                    className="h-24 w-24 md:h-28 md:w-28 rounded-full border border-(--hairline) object-cover bg-(--fg)/5"
+                    className="h-24 w-24 md:h-28 md:w-28 rounded-full border border-[var()] object-cover bg-[var()]/5"
                   />
                   {mentor.isOnline && (
-                    <span className="absolute bottom-1 right-1 h-4.5 w-4.5 rounded-full bg-emerald-500 border-2 border-(--bg) animate-pulse" />
+                    <span className="absolute bottom-1 right-1 h-4.5 w-4.5 rounded-full bg-emerald-500 border-2 border-[var()] animate-pulse" />
                   )}
                 </div>
 
                 {/* Info Column */}
                 <div className="flex-1 min-w-0 flex flex-col gap-1.5">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-(--fg)">
+                    <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-[var()]">
                       {mentor.displayName}
                     </h1>
                     {mentor.isOnline ? (
@@ -190,7 +190,7 @@ export default function MentorProfilePage() {
                         Online
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 rounded bg-(--muted)/10 text-(--muted) px-2 py-0.5 text-[9px] font-bold border border-(--hairline) shrink-0">
+                      <span className="inline-flex items-center gap-1 rounded bg-[var()]/10 text-[var()] px-2 py-0.5 text-[9px] font-bold border border-[var()] shrink-0">
                         Offline
                       </span>
                     )}
@@ -203,7 +203,7 @@ export default function MentorProfilePage() {
                   </div>
 
                   {mentor.currentRole && (
-                    <p className="text-sm font-semibold text-(--muted) truncate">
+                    <p className="text-sm font-semibold text-[var()] truncate">
                       {mentor.currentRole} {mentor.company ? `@ ${mentor.company}` : ""}
                     </p>
                   )}
@@ -214,7 +214,7 @@ export default function MentorProfilePage() {
                   <button
                     type="button"
                     onClick={() => setIsShareOpen(true)}
-                    className="flex items-center gap-1.5 rounded border border-(--hairline) px-3 py-1.5 text-xs font-bold hover:bg-(--fg)/5 transition-colors cursor-pointer text-(--fg)"
+                    className="flex items-center gap-1.5 rounded border border-[var()] px-3 py-1.5 text-xs font-bold hover:bg-[var()]/5 transition-colors cursor-pointer text-[var()]"
                   >
                     <Share2 className="h-3.5 w-3.5" />
                     Save
@@ -222,7 +222,7 @@ export default function MentorProfilePage() {
                   
                   <Link
                     href={`/dashboard/chat?mentorId=${mentor.id}`}
-                    className="flex items-center gap-1.5 rounded bg-(--fg)/5 border border-(--hairline) px-3 py-1.5 text-xs font-bold hover:bg-(--fg)/10 transition-colors text-(--fg)"
+                    className="flex items-center gap-1.5 rounded bg-[var()]/5 border border-[var()] px-3 py-1.5 text-xs font-bold hover:bg-[var()]/10 transition-colors text-[var()]"
                   >
                     <MessageCircle className="h-3.5 w-3.5" />
                     Message
@@ -233,7 +233,7 @@ export default function MentorProfilePage() {
                       href={mentor.linkedinUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center h-7 w-7 rounded border border-(--hairline) hover:bg-(--fg)/5 text-(--fg) transition-colors"
+                      className="flex items-center justify-center h-7 w-7 rounded border border-[var()] hover:bg-[var()]/5 text-[var()] transition-colors"
                       title="LinkedIn profile"
                     >
                       <FaLinkedin className="h-3.5 w-3.5" />
@@ -244,32 +244,32 @@ export default function MentorProfilePage() {
             </div>
 
             {/* Metadata Summary Card */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 border border-(--hairline) rounded-2xl p-5 bg-(--bg) shadow-sm my-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 border border-[var()] rounded-2xl p-5 bg-[var()] shadow-sm my-2">
               <div>
-                <div className="text-[10px] uppercase tracking-wider font-extrabold text-(--muted)">From</div>
-                <div className="text-sm font-bold mt-1 text-(--fg)">{mentor.location || "Not specified"}</div>
+                <div className="text-[10px] uppercase tracking-wider font-extrabold text-[var()]">From</div>
+                <div className="text-sm font-bold mt-1 text-[var()]">{mentor.location || "Not specified"}</div>
               </div>
               <div>
-                <div className="text-[10px] uppercase tracking-wider font-extrabold text-(--muted)">Member Since</div>
-                <div className="text-sm font-bold mt-1 text-(--fg)">
+                <div className="text-[10px] uppercase tracking-wider font-extrabold text-[var()]">Member Since</div>
+                <div className="text-sm font-bold mt-1 text-[var()]">
                   {mentor.createdAt ? new Date(mentor.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : "Recent"}
                 </div>
               </div>
               <div>
-                <div className="text-[10px] uppercase tracking-wider font-extrabold text-(--muted)">Response time</div>
-                <div className="text-sm font-bold mt-1 text-(--fg)">{mentor.averageResponseTime || "Not specified"}</div>
+                <div className="text-[10px] uppercase tracking-wider font-extrabold text-[var()]">Response time</div>
+                <div className="text-sm font-bold mt-1 text-[var()]">{mentor.averageResponseTime || "Not specified"}</div>
               </div>
               <div>
-                <div className="text-[10px] uppercase tracking-wider font-extrabold text-(--muted)">Sessions Completed</div>
-                <div className="text-sm font-bold mt-1 text-(--fg)">{mentor.totalSessions || 0} sessions</div>
+                <div className="text-[10px] uppercase tracking-wider font-extrabold text-[var()]">Sessions Completed</div>
+                <div className="text-sm font-bold mt-1 text-[var()]">{mentor.totalSessions || 0} sessions</div>
               </div>
               <div>
-                <div className="text-[10px] uppercase tracking-wider font-extrabold text-(--muted)">Experience</div>
-                <div className="text-sm font-bold mt-1 text-(--fg)">{mentor.experienceYears ? `${mentor.experienceYears}+ Years` : "Not specified"}</div>
+                <div className="text-[10px] uppercase tracking-wider font-extrabold text-[var()]">Experience</div>
+                <div className="text-sm font-bold mt-1 text-[var()]">{mentor.experienceYears ? `${mentor.experienceYears}+ Years` : "Not specified"}</div>
               </div>
               <div>
-                <div className="text-[10px] uppercase tracking-wider font-extrabold text-(--muted)">Languages</div>
-                <div className="text-sm font-bold mt-1 text-(--fg) truncate" title={Array.isArray(mentor.languages) ? mentor.languages.join(", ") : mentor.languages || "English"}>
+                <div className="text-[10px] uppercase tracking-wider font-extrabold text-[var()]">Languages</div>
+                <div className="text-sm font-bold mt-1 text-[var()] truncate" title={Array.isArray(mentor.languages) ? mentor.languages.join(", ") : mentor.languages || "English"}>
                   {Array.isArray(mentor.languages) ? mentor.languages.join(", ") : mentor.languages || "English"}
                 </div>
               </div>
@@ -277,10 +277,10 @@ export default function MentorProfilePage() {
 
             {/* Bio */}
             <div className="flex flex-col gap-3">
-              <h2 className="text-[10px] uppercase tracking-[0.22em] font-extrabold text-(--muted)">
+              <h2 className="text-[10px] uppercase tracking-[0.22em] font-extrabold text-[var()]">
                 About
               </h2>
-              <p className="text-base text-(--fg)/90 leading-relaxed whitespace-pre-line font-sans">
+              <p className="text-base text-[var()]/90 leading-relaxed whitespace-pre-line font-sans">
                 {mentor.bio}
               </p>
             </div>
@@ -288,14 +288,14 @@ export default function MentorProfilePage() {
             {/* Expertise */}
             {mentor.expertise.length > 0 && (
               <div className="flex flex-col gap-3">
-                <h2 className="text-[10px] uppercase tracking-[0.22em] font-extrabold text-(--muted)">
+                <h2 className="text-[10px] uppercase tracking-[0.22em] font-extrabold text-[var()]">
                   Expertise
                 </h2>
                 <div className="flex flex-wrap gap-2">
                   {mentor.expertise.map((tag) => (
                     <span
                       key={tag}
-                      className="px-3.5 py-1.5 text-xs font-semibold rounded bg-(--fg)/5 border border-(--hairline) text-(--fg)"
+                      className="px-3.5 py-1.5 text-xs font-semibold rounded bg-[var()]/5 border border-[var()] text-[var()]"
                     >
                       {tag}
                     </span>
@@ -310,7 +310,7 @@ export default function MentorProfilePage() {
                 href={mentor.linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-(--muted) hover:text-(--fg) transition-colors font-bold mb-4 block w-fit"
+                className="inline-flex items-center gap-2 text-sm text-[var()] hover:text-[var()] transition-colors font-bold mb-4 block w-fit"
               >
                 <ExternalLink className="h-4 w-4" />
                 LinkedIn Profile
@@ -318,8 +318,8 @@ export default function MentorProfilePage() {
             )}
 
             {/* Reviews Section */}
-            <div className="flex flex-col gap-6 pt-8 border-t border-(--hairline) mt-6">
-              <h2 className="text-[10px] uppercase tracking-[0.22em] font-extrabold text-(--muted)">
+            <div className="flex flex-col gap-6 pt-8 border-t border-[var()] mt-6">
+              <h2 className="text-[10px] uppercase tracking-[0.22em] font-extrabold text-[var()]">
                 Student Reviews ({reviewData?.total ?? 0})
               </h2>
 
@@ -357,8 +357,8 @@ export default function MentorProfilePage() {
                           onClick={() => setReviewPage(i + 1)}
                           className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-colors cursor-pointer ${
                             reviewPage === i + 1
-                              ? "bg-(--fg) text-(--bg) border-(--fg)"
-                              : "bg-(--bg) text-(--fg) border-(--hairline) hover:bg-(--fg)/5"
+                              ? "bg-[var()] text-[var()] border-[var()]"
+                              : "bg-[var()] text-[var()] border-[var()] hover:bg-[var()]/5"
                           }`}
                         >
                           {i + 1}
@@ -369,7 +369,7 @@ export default function MentorProfilePage() {
                 </div>
               ) : (
                 <EmptyState
-                  icon={<Star className="h-6 w-6 text-(--muted)" />}
+                  icon={<Star className="h-6 w-6 text-[var()]" />}
                   title="No reviews yet"
                   description="This mentor has not received any session reviews yet."
                 />
@@ -380,46 +380,46 @@ export default function MentorProfilePage() {
 
           {/* ─── Right: Booking Card ─── */}
           <div className="lg:col-span-1">
-            <div className="sticky top-28 rounded-2xl border border-(--hairline) p-6 flex flex-col gap-5 bg-(--bg) shadow-lg">
+            <div className="sticky top-28 rounded-2xl border border-[var()] p-6 flex flex-col gap-5 bg-[var()] shadow-lg">
               <div className="flex items-baseline justify-between">
-                <span className="font-display text-3xl font-black text-(--fg)">
+                <span className="font-display text-3xl font-black text-[var()]">
                   <PriceDisplay amountInPaise={mentor.pricePerSession} />
                 </span>
-                <span className="text-xs text-(--muted) font-semibold">
+                <span className="text-xs text-[var()] font-semibold">
                   / {mentor.sessionDuration} min
                 </span>
               </div>
 
               <div
                 aria-hidden
-                className="h-px w-full bg-(--hairline)"
+                className="h-px w-full bg-[var()]"
               />
 
-              <ul className="flex flex-col gap-3 text-sm text-(--fg)/85 font-medium">
+              <ul className="flex flex-col gap-3 text-sm text-[var()]/85 font-medium">
                 <li className="flex items-center gap-3">
-                  <span className="h-1.5 w-1.5 rounded-full bg-(--fg)" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var()]" />
                   1-on-1 video call
                 </li>
                 <li className="flex items-center gap-3">
-                  <span className="h-1.5 w-1.5 rounded-full bg-(--fg)" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var()]" />
                   Google Meet link
                 </li>
                 <li className="flex items-center gap-3">
-                  <span className="h-1.5 w-1.5 rounded-full bg-(--fg)" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var()]" />
                   Notes & follow-up
                 </li>
               </ul>
 
               <Link
                 href={`/book/${mentor.id}`}
-                className="text-center rounded-xl bg-(--fg) text-(--bg) px-7 py-3.5 text-sm font-bold hover:opacity-90 active:scale-97 transition-all cursor-pointer"
+                className="text-center rounded-xl bg-[var()] text-[var()] px-7 py-3.5 text-sm font-bold hover:opacity-90 active:scale-97 transition-all cursor-pointer"
               >
                 Book a session
               </Link>
 
               <Link
                 href={`/dashboard/chat?mentorId=${mentor.id}`}
-                className="flex items-center justify-center gap-2 rounded-xl bg-(--fg)/5 border border-(--hairline) px-7 py-3.5 text-sm font-bold hover:bg-(--fg)/10 transition-colors text-center text-(--fg) cursor-pointer"
+                className="flex items-center justify-center gap-2 rounded-xl bg-[var()]/5 border border-[var()] px-7 py-3.5 text-sm font-bold hover:bg-[var()]/10 transition-colors text-center text-[var()] cursor-pointer"
               >
                 <MessageCircle className="h-4 w-4" />
                 Chat first
@@ -428,7 +428,7 @@ export default function MentorProfilePage() {
               <button
                 type="button"
                 onClick={() => setIsShareOpen(true)}
-                className="flex items-center justify-center gap-2 rounded-xl border border-(--hairline) px-7 py-3.5 text-sm font-bold hover:bg-(--fg)/5 transition-colors cursor-pointer text-(--fg)"
+                className="flex items-center justify-center gap-2 rounded-xl border border-[var()] px-7 py-3.5 text-sm font-bold hover:bg-[var()]/5 transition-colors cursor-pointer text-[var()]"
               >
                 <Share2 className="h-4 w-4" />
                 Share profile
