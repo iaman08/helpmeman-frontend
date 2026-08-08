@@ -48,21 +48,20 @@ type Stage = "role" | "name" | "preparing" | "tour" | "chat";
 const DEMO_QUESTIONS: Question[] = [
   { key: "full_name", phase: "Identity", type: "text", text: "Let's begin with your name.", prompt: "What's your full name?", placeholder: "Enter your name" },
   { key: "preferred_name", phase: "Identity", type: "text", text: "What should mentees call you?", placeholder: "Example: Rahul, Dr. Mehta, Priya" },
-  { key: "role_type", phase: "Identity", type: "single_choice", text: "Which best describes your current work?", options: ["Founder", "Product leader", "Engineer", "Designer", "Marketer", "Operator", "Investor", "Other"] },
-  { key: "role_company", phase: "Identity", type: "text", text: "Where are you doing your work right now?", placeholder: "Example: Senior PM at Razorpay" },
+  { key: "role_type", phase: "Identity", type: "single_choice", text: "Which best describes your current work or study?", options: ["Student / Aspirant", "Software Engineer", "Product Leader", "Founder", "Designer", "Operator", "Other"] },
+  { key: "role_company", phase: "Identity", type: "text", text: "Where are you studying or working right now?", placeholder: "Example: 3rd year B.Tech CSE at IIT Delhi / Senior PM at Razorpay" },
+  { key: "academic_background", phase: "Background", type: "text", text: "Could you share your background details? (e.g. B.Tech branch, year, whether you took a gap/dropper year, your prep procedure, or JEE/NEET rank)", placeholder: "Example: B.Tech CSE (3rd Yr), took 1-year drop for JEE Adv Rank 1420" },
   { key: "location", phase: "Identity", type: "text", text: "Where are you based?", placeholder: "City, country, or remote" },
-  { key: "skills", phase: "Expertise", type: "multi_choice", text: "Pick the skills you feel strongest in.", options: ["Product strategy", "Software engineering", "AI/ML", "Growth", "Fundraising", "Leadership", "Design", "Career growth"] },
-  { key: "topics", phase: "Expertise", type: "text", text: "What topics can you mentor people in?", placeholder: "Add a few topics, separated by commas" },
-  { key: "experience", phase: "Expertise", type: "single_choice", text: "How many years of experience do you have?", options: ["1-3 years", "4-6 years", "7-10 years", "10+ years", "15+ years"] },
-  { key: "industries", phase: "Expertise", type: "multi_choice", text: "Which industries have shaped your experience?", options: ["SaaS", "Fintech", "AI", "Consumer", "Healthcare", "Education", "E-commerce", "Enterprise"] },
+  { key: "skills", phase: "Expertise", type: "multi_choice", text: "Pick the areas you feel strongest mentoring in.", options: ["JEE Prep", "NEET Prep", "Software engineering", "DSA & Coding", "Product strategy", "Career growth", "AI/ML", "College Admissions", "Dropper Strategy"] },
+  { key: "topics", phase: "Expertise", type: "text", text: "What specific topics or exam strategies can you mentor people in?", placeholder: "Add a few topics, separated by commas" },
+  { key: "experience", phase: "Expertise", type: "single_choice", text: "How many years of experience or study do you have in this field?", options: ["1-2 years", "3-5 years", "6-8 years", "8+ years"] },
+  { key: "industries", phase: "Expertise", type: "multi_choice", text: "Which fields or domains have shaped your experience?", options: ["EdTech / Entrance Exams", "SaaS", "Fintech", "AI", "Consumer", "Education", "E-commerce"] },
   { key: "focus", phase: "Expertise", type: "text", text: "What are you currently focused on?", placeholder: "A product, goal, learning curve, or mission" },
-  { key: "journey", phase: "Background", type: "text", text: "Tell me the short version of your career journey.", placeholder: "A few lines is perfect" },
-  { key: "achievement", phase: "Background", type: "text", text: "What's an achievement you're proud of?", placeholder: "Something that still feels meaningful" },
-  { key: "leadership_projects", phase: "Background", type: "single_choice", text: "Have you founded a startup, led a team, or owned a major project?", options: ["Founded a startup", "Led a team", "Owned a major project", "Not yet", "A mix of these"] },
-  { key: "why_mentor", phase: "Mentoring style", type: "text", text: "Why do you mentor?", placeholder: "What makes it worth your time?" },
-  { key: "mentoring_style", phase: "Mentoring style", type: "multi_choice", text: "How do you usually help people?", options: ["Direct feedback", "Hands-on problem solving", "Strategy sessions", "Accountability", "Career clarity", "Network introductions"] },
-  { key: "preferred_mentees", phase: "Mentoring style", type: "single_choice", text: "What type of mentees do you enjoy working with most?", options: ["Early-career professionals", "Founders", "Students", "Career switchers", "Senior leaders", "Builders with an idea"] },
-  { key: "personal", phase: "Personal", type: "text", text: "Last one: what motivates you, inspires you, or keeps you curious outside work?", placeholder: "Books, creators, leaders, hobbies, long-term goals" },
+  { key: "journey", phase: "Background", type: "text", text: "Tell me the short version of your prep or career journey.", placeholder: "A few lines is perfect" },
+  { key: "why_mentor", phase: "Mentoring style", type: "text", text: "Why do you want to mentor others?", placeholder: "What makes it worth your time?" },
+  { key: "mentoring_style", phase: "Mentoring style", type: "multi_choice", text: "How do you usually help people?", options: ["Direct feedback", "1-on-1 Strategy & Roadmap", "Problem solving", "Exam prep strategy", "Accountability", "Career clarity"] },
+  { key: "preferred_mentees", phase: "Mentoring style", type: "single_choice", text: "What type of mentees do you enjoy working with most?", options: ["Engineering Aspirants / JEE Mentees", "Medical Aspirants / NEET", "Early-career professionals", "College Students", "Career Switchers", "Droppers / Gap Year Aspirants"] },
+  { key: "personal", phase: "Personal", type: "text", text: "Last one: what motivates you, inspires you, or keeps you curious outside work/study?", placeholder: "Books, creators, leaders, hobbies, long-term goals" },
 ];
 
 const PHASES = ["Identity", "Expertise", "Background", "Mentoring style", "Personal"];
@@ -557,19 +556,30 @@ export default function OnboardingPage() {
     <main className="relative flex h-screen overflow-hidden bg-bg px-0 py-0 sm:px-6 sm:py-6 text-fg">
       <Aura />
       <section className="relative z-10 mx-auto flex h-full w-full max-w-4xl flex-col overflow-hidden rounded-none sm:rounded-[28px] border-0 sm:border border-hairline bg-bg/88 shadow-none sm:shadow-[0_28px_120px_rgba(0,0,0,.12)] backdrop-blur-xl">
-        <header className="flex shrink-0 items-center justify-between border-b border-hairline px-4 py-4 sm:px-6">
+        <header className="flex shrink-0 items-center justify-between border-b border-hairline px-4 py-3.5 sm:px-6 sm:py-4">
           <div className="flex min-w-0 items-center gap-3">
             <RuthMark size="sm" />
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold">Ruth AI onboarding</p>
-              <p className="truncate text-xs text-muted">Question {Math.min((state?.currentQuestion || 0) + 1, state?.totalQuestions || 1)} of {state?.totalQuestions} · {question?.phase}</p>
+              <p className="truncate text-xs text-muted">Step {Math.min((state?.currentQuestion || 0) + 1, state?.totalQuestions || 1)} of {state?.totalQuestions} · {question?.phase}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden h-1.5 w-28 overflow-hidden rounded-full bg-fg/10 sm:block">
-              <motion.div animate={{ width: `${progress}%` }} className="h-full rounded-full bg-fg" />
+          <div className="flex items-center gap-2.5 sm:gap-4">
+            {/* Percentage Complete Badge Pill */}
+            <div className="flex items-center gap-1.5 rounded-full border border-hairline bg-fg/5 px-2.5 py-1 text-xs font-bold text-fg">
+              <span>{progress}% Complete</span>
             </div>
-            <button onClick={() => router.replace("/mentor/status")} className="flex items-center gap-2 rounded-full border border-hairline px-3 py-2 text-xs text-muted hover:text-fg">
+
+            {/* Responsive Animated Progress Bar */}
+            <div className="h-2 w-14 sm:w-32 overflow-hidden rounded-full bg-fg/10">
+              <motion.div
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="h-full rounded-full bg-fg"
+              />
+            </div>
+
+            <button onClick={() => router.replace("/mentor/status")} className="flex items-center gap-1.5 rounded-full border border-hairline px-3 py-1.5 text-xs text-muted hover:text-fg transition-colors shrink-0">
               <Clock3 className="h-3.5 w-3.5" /> Later
             </button>
           </div>
