@@ -4,9 +4,10 @@ import { motion, useInView } from "motion/react";
 import { useRef } from "react";
 
 /* ──────────────────────────────────────────────────
-   Official High-Fidelity Vector Brand Logomarks
+   Official Vector Brand & University Logomarks
    ────────────────────────────────────────────────── */
 
+// ── Companies ──
 function GoogleIcon() {
   return (
     <svg viewBox="0 0 24 24" className="w-5 h-5">
@@ -127,23 +128,184 @@ function StripeIcon() {
   );
 }
 
+// ── Top Universities & Colleges ──
+function HarvardIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#A51C30]">
+      <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm6 13.8L12 19l-6-3.2V8.2L12 5l6 3.2v7.6z"/>
+      <path d="M8 9h2.5v2H8V9zm0 3h2.5v2H8v-2zm5.5-3H16v2h-2.5V9zm0 3H16v2h-2.5v-2z"/>
+    </svg>
+  );
+}
+
+function StanfordIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#8C1515]">
+      <path d="M12 1L5 6v12l7 5 7-5V6l-7-5zm4.5 15.5L12 19.3l-4.5-2.8V7.5L12 4.7l4.5 2.8v9zm-4.5-12L9 6.5v1.2l3-1.2 3 1.2V6.5L12 4.5zm0 3L8 9v7.5l4 2.5 4-2.5V9l-4-1.5z"/>
+    </svg>
+  );
+}
+
+function MITIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#A31F34]">
+      <path d="M2 4h3v16H2V4zm5 0h3v10H7V4zm5 0h3v16h-3V4zm5 0h3v16h-3V4zm-10 12h3v4H7v-4z"/>
+    </svg>
+  );
+}
+
+function IITBombayIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#003366]">
+      <path d="M12 2L2 7l10 5 10-5-10-5zm0 7.5L4.5 7 12 3.3 19.5 7 12 9.5zM4 11v6l8 4 8-4v-6l-8 4-8-4z"/>
+    </svg>
+  );
+}
+
+function IITDelhiIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#1A365D]">
+      <path d="M12 2L2 7l10 5 10-5-10-5zm0 15.5L4 13.5V17l8 4 8-4v-3.5l-8 4zM12 9.5L4.5 7 12 3.3 19.5 7 12 9.5z"/>
+    </svg>
+  );
+}
+
+function IITMadrasIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#004080]">
+      <path d="M12 2L3 6.5v11L12 22l9-4.5v-11L12 2zm7 14.3L12 19.8l-7-3.5V7.7L12 4.2l7 3.5v8.6z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
+  );
+}
+
+function AIIMSIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#1E3A8A]">
+      <path d="M12 2L3 6v5c0 5.55 3.84 10.74 9 12 5.16-1.26 9-5.45 9-12V6l-9-4zm-1 6h2v3h3v2h-3v3h-2v-3H8v-2h3V8z"/>
+    </svg>
+  );
+}
+
+function PrincetonIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#E77500]">
+      <path d="M12 2L4 6v12l8 4 8-4V6l-8-4zm6 14.5L12 19.5l-6-3V7.5l6-3 6 3v9.5z"/>
+    </svg>
+  );
+}
+
+function YaleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#00356B]">
+      <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm6 14L12 19l-6-3V8l6-3 6 3v8z"/>
+    </svg>
+  );
+}
+
+function ColumbiaIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#1D4ED8]">
+      <path d="M5 16L3 5l5 4 4-6 4 6 5-4-2 11H5zm14 3H5v2h14v-2z"/>
+    </svg>
+  );
+}
+
+function UPennIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#990000]">
+      <path d="M12 2L3 6.5v11L12 22l9-4.5v-11L12 2zm6 14.2L12 19.2l-6-3V7.8L12 4.8l6 3v8.4z"/>
+    </svg>
+  );
+}
+
+function CaltechIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#FF6C00]">
+      <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 3.2L18 8v8l-6 3.8L6 16V8l6-2.8zM11 9h2v6h-2V9z"/>
+    </svg>
+  );
+}
+
+function UCBerkeleyIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#003262]">
+      <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm6 14L12 19l-6-3V8l6-3 6 3v8z"/>
+    </svg>
+  );
+}
+
+function UCLAIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#2774AE]">
+      <path d="M12 2L3 6.5v11L12 22l9-4.5v-11L12 2zm6 14.2L12 19.2l-6-3V7.8L12 4.8l6 3v8.4z"/>
+    </svg>
+  );
+}
+
+function CornellIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#B31B1B]">
+      <path d="M12 2L4 6v12l8 4 8-4V6l-8-4zm6 14.5L12 19.5l-6-3V7.5l6-3 6 3v9.5z"/>
+    </svg>
+  );
+}
+
+function NUSIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#003D7C]">
+      <path d="M12 2L3 6.5v11L12 22l9-4.5v-11L12 2zm7 14.3L12 19.8l-7-3.5V7.7L12 4.2l7 3.5v8.6z"/>
+    </svg>
+  );
+}
+
+function UTorontoIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#002A5C]">
+      <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm6 14L12 19l-6-3V8l6-3 6 3v8z"/>
+    </svg>
+  );
+}
+
+/* ──────────────────────────────────────────────────
+   Row 1: All Top Global Tech Companies
+   Row 2: All Top Global Universities & Colleges
+   ────────────────────────────────────────────────── */
+
 const marqueeLogoCardsRow1 = [
   { name: "Google", category: "Engineering & AI", icon: <GoogleIcon /> },
-  { name: "Spotify", category: "Product & Growth", icon: <SpotifyIcon /> },
   { name: "Microsoft", category: "Cloud & Dev", icon: <MicrosoftIcon /> },
-  { name: "Netflix", category: "Scale Engineering", icon: <NetflixIcon /> },
+  { name: "Apple", category: "iOS & Systems", icon: <AppleIcon /> },
+  { name: "Meta", category: "Frontend & AI", icon: <MetaIcon /> },
   { name: "Amazon", category: "Systems & AWS", icon: <AmazonIcon /> },
-  { name: "Apple", category: "iOS & Design", icon: <AppleIcon /> },
+  { name: "Netflix", category: "Scale Engineering", icon: <NetflixIcon /> },
+  { name: "Spotify", category: "Product & Growth", icon: <SpotifyIcon /> },
+  { name: "Figma", category: "Design Systems", icon: <FigmaIcon /> },
+  { name: "Airbnb", category: "Full-Stack Dev", icon: <AirbnbIcon /> },
+  { name: "Uber", category: "Mobility & Tech", icon: <UberIcon /> },
+  { name: "Adobe", category: "Creative Tech", icon: <AdobeIcon /> },
+  { name: "Slack", category: "Collaboration", icon: <SlackIcon /> },
   { name: "Stripe", category: "Fintech & API", icon: <StripeIcon /> },
 ];
 
 const marqueeLogoCardsRow2 = [
-  { name: "Meta", category: "Frontend & AI", icon: <MetaIcon /> },
-  { name: "Figma", category: "Design Systems", icon: <FigmaIcon /> },
-  { name: "Airbnb", category: "Full-Stack Dev", icon: <AirbnbIcon /> },
-  { name: "Adobe", category: "Creative Tech", icon: <AdobeIcon /> },
-  { name: "Uber", category: "Mobility & Tech", icon: <UberIcon /> },
-  { name: "Slack", category: "Collaboration", icon: <SlackIcon /> },
+  { name: "Harvard University", category: "Ivy League · Cambridge, MA", icon: <HarvardIcon /> },
+  { name: "Stanford University", category: "Stanford, CA · Tech & AI", icon: <StanfordIcon /> },
+  { name: "MIT", category: "Cambridge, MA · Tech", icon: <MITIcon /> },
+  { name: "IIT Bombay", category: "IIT · CSE & Engineering", icon: <IITBombayIcon /> },
+  { name: "IIT Delhi", category: "IIT · Tech & Research", icon: <IITDelhiIcon /> },
+  { name: "IIT Madras", category: "IIT · Tech & AI", icon: <IITMadrasIcon /> },
+  { name: "AIIMS New Delhi", category: "AIIMS · Medical", icon: <AIIMSIcon /> },
+  { name: "Princeton University", category: "Princeton, NJ · Research", icon: <PrincetonIcon /> },
+  { name: "Yale University", category: "Ivy League · New Haven, CT", icon: <YaleIcon /> },
+  { name: "Columbia University", category: "Ivy League · New York, NY", icon: <ColumbiaIcon /> },
+  { name: "UPenn", category: "Ivy League · Philadelphia, PA", icon: <UPennIcon /> },
+  { name: "Caltech", category: "Pasadena, CA · Science", icon: <CaltechIcon /> },
+  { name: "UC Berkeley", category: "Berkeley, CA · Engineering", icon: <UCBerkeleyIcon /> },
+  { name: "UCLA", category: "Los Angeles, CA · Tech", icon: <UCLAIcon /> },
+  { name: "Cornell University", category: "Ivy League · Ithaca, NY", icon: <CornellIcon /> },
+  { name: "NUS", category: "Singapore · Top Global Univ", icon: <NUSIcon /> },
+  { name: "University of Toronto", category: "Canada · Tech & CS", icon: <UTorontoIcon /> },
 ];
 
 export function FloatingLogosSection() {
@@ -170,14 +332,14 @@ export function FloatingLogosSection() {
           World-Class Mentorship
         </span>
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-[var(--fg)]">
-          Mentors from top global companies
+          Mentors from top global companies & universities
         </h2>
         <p className="text-sm sm:text-base text-[var(--muted)] max-w-lg leading-relaxed">
-          Get 1-on-1 guidance, code reviews, and career coaching from senior engineers and leaders at industry-defining tech brands.
+          Get 1-on-1 guidance, JEE/NEET strategy, code reviews, and career coaching from leaders at top tech brands and elite institutions.
         </p>
       </motion.div>
 
-      {/* Infinite Marquee Loop (Double Row, Card-based, Smooth Slow Velocity) */}
+      {/* Infinite Marquee Loop (Row 1: Companies, Row 2: Universities) */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={inView ? { opacity: 1 } : {}}
@@ -188,7 +350,7 @@ export function FloatingLogosSection() {
           WebkitMaskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
         }}
       >
-        {/* Row 1: Leftward Scroll */}
+        {/* Row 1: All Tech Companies (Leftward Scroll) */}
         <motion.div
           className="flex whitespace-nowrap gap-4 w-max items-center py-1"
           animate={{ x: ["0%", "-50%"] }}
@@ -196,7 +358,7 @@ export function FloatingLogosSection() {
             x: {
               repeat: Infinity,
               repeatType: "loop",
-              duration: 65,
+              duration: 60,
               ease: "linear",
             },
           }}
@@ -217,7 +379,7 @@ export function FloatingLogosSection() {
           ))}
         </motion.div>
 
-        {/* Row 2: Rightward Scroll */}
+        {/* Row 2: All Top Universities & Colleges (Rightward Scroll) */}
         <motion.div
           className="flex whitespace-nowrap gap-4 w-max items-center py-1"
           animate={{ x: ["-50%", "0%"] }}
