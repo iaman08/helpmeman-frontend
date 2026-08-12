@@ -123,12 +123,12 @@ export default function OTPInput({
           disabled={disabled}
           autoComplete={i === 0 ? "one-time-code" : "off"}
           className={`
-            flex-1 min-w-0 aspect-[5/6] max-w-[3.5rem] text-center text-lg sm:text-xl font-semibold rounded-xl outline-none
-            transition-all duration-150 border-2
+            flex-1 min-w-0 aspect-[5/6] max-w-[3.5rem] text-center text-xl sm:text-2xl font-bold font-mono rounded-xl outline-none
+            transition-all duration-150 border-2 shadow-sm
             ${
               error
-                ? "border-red-500/50 bg-red-500/5 focus:border-red-500 text-red-500"
-                : "border-transparent bg-[var()]/5 focus:bg-[var()]/8 text-[var()] focus:border-[var()] focus:ring-1 focus:ring-[var()]"
+                ? "border-red-500/60 bg-red-500/10 focus:border-red-500 text-red-400 caret-red-400"
+                : "border-zinc-800 bg-zinc-950/90 text-white dark:text-white dark:bg-zinc-950/90 dark:border-zinc-800 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 focus:bg-zinc-900 caret-amber-400"
             }
             disabled:opacity-50 disabled:cursor-not-allowed
           `}

@@ -105,12 +105,12 @@ export function LanguageMultiSelect({ selectedLanguages = [], onChange }: Langua
           setIsOpen(!isOpen);
           setTimeout(() => inputRef.current?.focus(), 50);
         }}
-        className={`min-h-[52px] w-full bg-[var()]/5 border ${
-          isOpen ? "border-orange-500/50 ring-2 ring-orange-500/10" : "border-[var()]/10"
+        className={`min-h-[52px] w-full bg-[color:var(--fg)]/5 border ${
+          isOpen ? "border-orange-500/50 ring-2 ring-orange-500/10" : "border-[color:var(--hairline)]"
         } rounded-xl p-2 flex flex-wrap items-center gap-2 focus-within:ring-2 focus-within:ring-orange-500/10 focus-within:border-orange-500/40 transition-all cursor-pointer`}
       >
         {selectedLanguages.length === 0 ? (
-          <span className="text-sm text-[var()] px-2 py-1 select-none">
+          <span className="text-sm text-[color:var(--muted)] px-2 py-1 select-none">
             Select languages spoken...
           </span>
         ) : (
@@ -133,17 +133,17 @@ export function LanguageMultiSelect({ selectedLanguages = [], onChange }: Langua
         <div className="ml-auto pr-2 flex items-center">
           <ChevronDown
             size={15}
-            className={`text-[var()] transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+            className={`text-[color:var(--muted)] transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
           />
         </div>
       </div>
 
       {/* Dropdown panel */}
       {isOpen && (
-        <div className="absolute z-50 left-0 right-0 top-full mt-2 bg-[var()] border border-[var()]/15 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+        <div className="absolute z-50 left-0 right-0 top-full mt-2 bg-[color:var(--bg)] border border-[color:var(--hairline)] rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
           {/* Search Bar inside panel */}
-          <div className="relative border-b border-[var()]/10 px-3 py-2.5">
-            <Search size={14} className="absolute left-6 top-1/2 -translate-y-1/2 text-[var()]" />
+          <div className="relative border-b border-[color:var(--hairline)] px-3 py-2.5">
+            <Search size={14} className="absolute left-6 top-1/2 -translate-y-1/2 text-[color:var(--muted)]" />
             <input
               ref={inputRef}
               type="text"
@@ -151,21 +151,21 @@ export function LanguageMultiSelect({ selectedLanguages = [], onChange }: Langua
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="w-full bg-[var()]/5 border border-[var()]/5 rounded-lg pl-9 pr-4 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-orange-500/10 focus:border-orange-500/30 transition-all placeholder:text-[var()]"
+              className="w-full bg-[color:var(--fg)]/5 border border-[color:var(--hairline)] rounded-lg pl-9 pr-4 py-1.5 text-xs text-[color:var(--fg)] focus:outline-none focus:ring-2 focus:ring-orange-500/10 focus:border-orange-500/30 transition-all placeholder:text-[color:var(--muted)]"
             />
           </div>
 
           {/* Languages Options List */}
           <div className="max-h-60 overflow-y-auto">
             {filteredOptions.length === 0 ? (
-              <div className="px-4 py-3 text-xs text-[var()] italic text-center">
+              <div className="px-4 py-3 text-xs text-[color:var(--muted)] italic text-center">
                 No matching languages found
               </div>
             ) : (
               <>
                 {/* Popular Group */}
                 {filteredOptions.some(l => l.popular) && (
-                  <div className="px-3 py-1.5 bg-[var()]/[0.02] border-b border-[var()]/5 text-[9px] uppercase font-bold tracking-wider text-[var()]">
+                  <div className="px-3 py-1.5 bg-[color:var(--fg)]/[0.02] border-b border-[color:var(--hairline)] text-[9px] uppercase font-bold tracking-wider text-[color:var(--muted)]">
                     Popular Languages
                   </div>
                 )}
@@ -180,19 +180,19 @@ export function LanguageMultiSelect({ selectedLanguages = [], onChange }: Langua
                         key={lang.value}
                         type="button"
                         onClick={() => toggleLanguage(lang.value)}
-                        className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between border-b border-[var()]/5 last:border-0 ${
+                        className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between border-b border-[color:var(--hairline)] last:border-0 ${
                           isSelected
                             ? "bg-orange-500/10 text-orange-500 font-bold"
                             : isActive
-                            ? "bg-[var()]/5 text-[var()]"
-                            : "hover:bg-[var()]/5 text-[var()]"
+                            ? "bg-[color:var(--fg)]/5 text-[color:var(--fg)]"
+                            : "hover:bg-[color:var(--fg)]/5 text-[color:var(--fg)]"
                         }`}
                       >
                         <span>{lang.label}</span>
                         {isSelected ? (
                           <Check size={14} className="text-orange-500" />
                         ) : (
-                          <span className="h-1.5 w-1.5 rounded-full bg-[var()]/10" />
+                          <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--fg)]/10" />
                         )}
                       </button>
                     );
@@ -200,7 +200,7 @@ export function LanguageMultiSelect({ selectedLanguages = [], onChange }: Langua
 
                 {/* Other Group */}
                 {filteredOptions.some(l => !l.popular) && (
-                  <div className="px-3 py-1.5 bg-[var()]/[0.02] border-b border-t border-[var()]/5 text-[9px] uppercase font-bold tracking-wider text-[var()]">
+                  <div className="px-3 py-1.5 bg-[color:var(--fg)]/[0.02] border-b border-t border-[color:var(--hairline)] text-[9px] uppercase font-bold tracking-wider text-[color:var(--muted)]">
                     Other Languages
                   </div>
                 )}
@@ -216,19 +216,19 @@ export function LanguageMultiSelect({ selectedLanguages = [], onChange }: Langua
                         key={lang.value}
                         type="button"
                         onClick={() => toggleLanguage(lang.value)}
-                        className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between border-b border-[var()]/5 last:border-0 ${
+                        className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between border-b border-[color:var(--hairline)] last:border-0 ${
                           isSelected
                             ? "bg-orange-500/10 text-orange-500 font-bold"
                             : isActive
-                            ? "bg-[var()]/5 text-[var()]"
-                            : "hover:bg-[var()]/5 text-[var()]"
+                            ? "bg-[color:var(--fg)]/5 text-[color:var(--fg)]"
+                            : "hover:bg-[color:var(--fg)]/5 text-[color:var(--fg)]"
                         }`}
                       >
                         <span>{lang.label}</span>
                         {isSelected ? (
                           <Check size={14} className="text-orange-500" />
                         ) : (
-                          <span className="h-1.5 w-1.5 rounded-full bg-[var()]/10" />
+                          <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--fg)]/10" />
                         )}
                       </button>
                     );
