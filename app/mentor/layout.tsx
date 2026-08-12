@@ -141,14 +141,7 @@ export default function MentorLayout({
   }, [user, socket]);
 
 
-  // Show spinner while loading or while redirect is in flight
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}>
-        <div className="h-6 w-6 rounded-full border-2 animate-spin" style={{ borderColor: "var(--hairline)", borderTopColor: "var(--fg)" }} />
-      </div>
-    );
-  }
+  if (loading) return null;
   const isTeam = user?.email?.toLowerCase().endsWith("@helpmeman.com") || user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
   if (!user || (!isMentor && !isTeam)) return null;
 

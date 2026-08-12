@@ -56,11 +56,10 @@ function StarRating({ rating }: { rating: number }) {
       {[1, 2, 3, 4, 5].map((star) => (
         <Star
           key={star}
-          className={`h-4 w-4 ${
-            star <= rating
+          className={`h-4 w-4 ${star <= rating
               ? "text-amber-500 fill-amber-500"
               : "text-[var()]/15"
-          }`}
+            }`}
         />
       ))}
     </div>
@@ -88,7 +87,7 @@ export default function MentorProfilePage() {
       return true;
     });
   }, [reviewData?.reviews]);
-  
+
   const [isShareOpen, setIsShareOpen] = useState(false);
 
   const mentor = data?.mentor;
@@ -163,7 +162,7 @@ export default function MentorProfilePage() {
           <div className="lg:col-span-2 flex flex-col gap-8">
             {/* Profile Info Details Card */}
             <div className="relative border border-[var()] rounded-3xl p-6 bg-[var()] shadow-sm">
-              
+
               {/* Profile Details Container */}
               <div className="flex flex-col md:flex-row items-start md:items-center gap-6 relative">
                 {/* Avatar */}
@@ -219,7 +218,7 @@ export default function MentorProfilePage() {
                     <Share2 className="h-3.5 w-3.5" />
                     Save
                   </button>
-                  
+
                   <Link
                     href={`/dashboard/chat?mentorId=${mentor.id}`}
                     className="flex items-center gap-1.5 rounded bg-[var()]/5 border border-[var()] px-3 py-1.5 text-xs font-bold hover:bg-[var()]/10 transition-colors text-[var()]"
@@ -355,11 +354,10 @@ export default function MentorProfilePage() {
                         <button
                           key={i}
                           onClick={() => setReviewPage(i + 1)}
-                          className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-colors cursor-pointer ${
-                            reviewPage === i + 1
+                          className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-colors cursor-pointer ${reviewPage === i + 1
                               ? "bg-[var()] text-[var()] border-[var()]"
                               : "bg-[var()] text-[var()] border-[var()] hover:bg-[var()]/5"
-                          }`}
+                            }`}
                         >
                           {i + 1}
                         </button>

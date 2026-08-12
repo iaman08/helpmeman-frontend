@@ -124,13 +124,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return BASE_NAV;
   }, [isSuperAdmin]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="h-6 w-6 rounded-full border-2 border-[var()]/20 border-t-[var()] animate-spin" />
-      </div>
-    );
-  }
+  if (loading) return null;
   if (!user || !isAdmin) return null;
 
   return (

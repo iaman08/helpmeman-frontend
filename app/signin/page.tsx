@@ -85,24 +85,8 @@ export default function SignInPage() {
     return () => clearInterval(timer);
   }, [cooldown]);
 
-  // Show spinner while auth is resolving; show nothing if user already logged in (redirect in progress)
-  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="h-6 w-6 rounded-full border-2 border-gray-200 border-t-gray-800 dark:border-zinc-700 dark:border-t-zinc-200 animate-spin" /></div>;
-  if (user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#121214]">
-        <div className="h-6 w-6 rounded-full border-2 border-gray-200 border-t-gray-800 dark:border-zinc-700 dark:border-t-zinc-200 animate-spin" />
-      </div>
-    );
-  }
-
-  // Don't render form while checking auth or if already logged in
-  if (loading || user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#121214]">
-        <div className="h-6 w-6 rounded-full border-2 border-gray-200 border-t-gray-800 dark:border-zinc-700 dark:border-t-zinc-200 animate-spin" />
-      </div>
-    );
-  }
+  // Return null while checking auth state or if already logged in (redirect in progress)
+  if (loading || user) return null;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();

@@ -79,13 +79,7 @@ export default function DashboardLayout({
     }
   }, [loading, user, isMentor, isAdmin, mentor, router]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}>
-        <div className="h-6 w-6 rounded-full border-2 animate-spin" style={{ borderColor: "var(--hairline)", borderTopColor: "var(--fg)" }} />
-      </div>
-    );
-  }
+  if (loading) return null;
   if (!user) return null;
 
   return (

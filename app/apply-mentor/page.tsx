@@ -63,21 +63,8 @@ export default function ApplyMentorPage() {
     return () => clearInterval(timer);
   }, [cooldown]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#09090B]">
-        <div className="h-7 w-7 rounded-full border-2 border-zinc-800 border-t-amber-400 animate-spin" />
-      </div>
-    );
-  }
-
-  if (user && step === 1) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#09090B]">
-        <div className="h-7 w-7 rounded-full border-2 border-zinc-800 border-t-amber-400 animate-spin" />
-      </div>
-    );
-  }
+  // Return null while checking auth state or if redirecting
+  if (loading || (user && step === 1)) return null;
 
   async function handleRegisterSubmit(e: FormEvent) {
     e.preventDefault();

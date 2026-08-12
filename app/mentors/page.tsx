@@ -522,11 +522,18 @@ function MentorsContent() {
 export default function MentorsPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-[var()] text-[var()]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 rounded-full border-2 border-[var()] border-t-transparent animate-spin" />
-          <p className="text-xs text-[var()]">Loading explore page...</p>
-        </div>
+      <div className="min-h-screen bg-[var()] text-[var()]">
+        <Navbar />
+        <main className="max-w-[1200px] mx-auto px-6 sm:px-10 pt-28 pb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <MentorCardSkeleton />
+            <MentorCardSkeleton />
+            <MentorCardSkeleton />
+            <MentorCardSkeleton />
+            <MentorCardSkeleton />
+            <MentorCardSkeleton />
+          </div>
+        </main>
       </div>
     }>
       <MentorsContent />

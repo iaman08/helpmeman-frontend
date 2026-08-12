@@ -59,13 +59,7 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
     }
   }, [loading, user, isAdmin, isSuperAdmin, isMentor, mentor, router]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}>
-        <div className="h-6 w-6 rounded-full border-2 animate-spin" style={{ borderColor: "var(--hairline)", borderTopColor: "var(--fg)" }} />
-      </div>
-    );
-  }
+  if (loading) return null;
 
   if (!user || !isSuperAdmin) return null;
 
