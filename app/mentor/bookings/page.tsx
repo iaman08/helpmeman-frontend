@@ -10,6 +10,8 @@ import type { Booking } from "@/lib/types";
 import { AxiosError } from "axios";
 import { formatCurrency } from "@/lib/currency-context";
 
+import { PreSessionBriefCard } from "@/components/PreSessionBriefCard";
+
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
 }
@@ -109,6 +111,15 @@ export default function MentorBookingsPage() {
                 </div>
                 <StatusBadge status={b.status} />
               </div>
+
+              {/* Pre-Session AI Briefing Card */}
+              {(b.aiBriefSummary || b.intakeAnswers) && (
+                <PreSessionBriefCard
+                  aiBriefSummary={b.aiBriefSummary}
+                  intakeAnswers={b.intakeAnswers}
+                  menteeName={b.user?.name || "Student"}
+                />
+              )}
 
               {b.mentorNotes && (
                 <div className="text-xs font-medium rounded-lg p-3" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}>

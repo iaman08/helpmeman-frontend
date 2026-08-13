@@ -118,6 +118,8 @@ export interface Booking {
   amountPaidINR?: number | null;
   userNotes?: string | null;
   mentorNotes?: string | null;
+  intakeAnswers?: any;
+  aiBriefSummary?: string | null;
   review?: Review | null;
   createdAt: string;
 }

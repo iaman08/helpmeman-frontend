@@ -19,6 +19,9 @@ import { AxiosError } from "axios";
 import { formatCurrency } from "@/lib/currency-context";
 import { CountdownTimer, isJoinable } from "@/components/CountdownTimer";
 import { useState as useLiveState, useEffect as useLiveEffect } from "react";
+import { PreSessionIntakeModal } from "@/components/PreSessionIntakeModal";
+import { PreSessionBriefCard } from "@/components/PreSessionBriefCard";
+import { Sparkles, Edit3 } from "lucide-react";
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-IN", {
@@ -51,6 +54,7 @@ export default function BookingDetailPage() {
   const [rescheduleOpen, setRescheduleOpen] = useState(false);
   const [newDate, setNewDate] = useState("");
   const [rescheduling, setRescheduling] = useState(false);
+  const [intakeModalOpen, setIntakeModalOpen] = useState(false);
   // Live join-ability state (re-evaluated every 30s)
   const [joinable, setJoinable] = useLiveState(false);
 
@@ -235,7 +239,50 @@ export default function BookingDetailPage() {
               ⏳ Google Meet link will be available after the mentor connects their Google Calendar.
             </div>
           )}
+
+          {/* ─── Pre-Session Prerequisites & AI Briefing ─── */}
+          {booking.status === "CONFIRMED" && (
+            <div className="flex flex-col gap-3 pt-2">
+              {(booking.aiBriefSummary || booking.intakeAnswers) ? (
+                <div className="space-y-3">
+                  <PreSessionBriefCard
+                    aiBriefSummary={booking.aiBriefSummary}
+                    intakeAnswers={booking.intakeAnswers}
+                    menteeName={booking.user?.name || "Mentee"}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIntakeModalOpen(true)}
+                    className="text-xs text-amber-400 hover:underline font-semibold flex items-center gap-1.5 cursor-pointer ml-1"
+                  >
+                    <Edit3 size={13} />
+                    <span>Edit Session Prerequisites</span>
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setIntakeModalOpen(true)}
+                  className="w-full py-3.5 px-4 bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-500/20 border border-amber-500/40 hover:border-amber-400 text-amber-300 font-bold text-xs rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer group"
+                >
+                  <Sparkles size={16} className="text-amber-400 group-hover:rotate-12 transition-transform" />
+                  <span>⚡ Add Pre-Session Prerequisites (1-Min AI Form)</span>
+                </button>
+              )}
+            </div>
+          )}
         </div>
+
+        {/* Modal */}
+        <PreSessionIntakeModal
+          isOpen={intakeModalOpen}
+          onClose={() => setIntakeModalOpen(false)}
+          bookingId={booking.id}
+          mentorName={booking.mentor?.displayName || "Mentor"}
+          onSuccess={(summary) => {
+            setBooking((prev) => prev && { ...prev, aiBriefSummary: summary });
+          }}
+        />
 
         {/* ─── Payment Info ─── */}
         <div className="rounded-2xl p-6 flex flex-col gap-5" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
