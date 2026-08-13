@@ -186,6 +186,37 @@ function MentorsContent() {
             </button>
           </div>
         </div>
+
+        {/* Quick Category Filter Pills */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1 pb-1">
+          <button
+            type="button"
+            onClick={() => updateFilter("category", undefined)}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${!filters.category
+              ? "bg-amber-500 text-black shadow-md"
+              : "bg-zinc-900/80 text-zinc-400 hover:text-white border border-zinc-800"
+              }`}
+          >
+            🌟 All Mentors
+          </button>
+          {categories.map((cat) => {
+            const isSelected = filters.category === cat.slug;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => updateFilter("category", isSelected ? undefined : cat.slug)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${isSelected
+                  ? "bg-amber-500 text-black shadow-md font-extrabold"
+                  : "bg-zinc-900/80 text-zinc-300 hover:text-white border border-zinc-800"
+                  }`}
+              >
+                <span>{cat.icon || "🎓"}</span>
+                <span>{cat.name}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* ─── Filters Dialog Modal ─── */}
