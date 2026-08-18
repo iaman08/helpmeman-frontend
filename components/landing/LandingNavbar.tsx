@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth-context";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 const navLinks = [
+  { label: "Services", id: "services" },
   { label: "Mentors", id: "mentors" },
   { label: "Reviews", id: "success" },
   { label: "Pricing", id: "pricing" },
