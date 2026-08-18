@@ -6,7 +6,6 @@ import { useEffect, useState, Suspense } from "react";
 import { LandingNavbar } from "@/components/landing/LandingNavbar";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { FloatingStatsSection } from "@/components/landing/FloatingStatsSection";
-import { ServicesSection } from "@/components/landing/ServicesSection";
 import { FloatingLogosSection } from "@/components/landing/FloatingLogosSection";
 import { AIDemoSection } from "@/components/landing/AIDemoSection";
 import { FeaturedMentorsSection } from "@/components/landing/FeaturedMentorsSection";
@@ -117,7 +116,6 @@ function LandingPageContent() {
       <div className="relative z-10 rounded-b-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.10)] border-b border-[var(--hairline)] overflow-hidden" style={{ background: 'var(--bg)' }}>
         <HeroSection />
         <FloatingStatsSection />
-        <ServicesSection />
         <AIDemoSection />
         <FeaturedMentorsSection />
         <TestimonialsSection />

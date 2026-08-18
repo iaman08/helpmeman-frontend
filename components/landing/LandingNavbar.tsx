@@ -2,22 +2,25 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 const navLinks = [
-  { label: "Services", id: "services" },
-  { label: "Mentors", id: "mentors" },
-  { label: "Reviews", id: "success" },
-  { label: "Pricing", id: "pricing" },
-  { label: "AI", id: "about" },
+  { label: "Services", href: "/services" },
+  { label: "Mentors", href: "/mentors" },
+  { label: "Reviews", href: "/#success", id: "success" },
+  { label: "Pricing", href: "/#pricing", id: "pricing" },
+  { label: "AI", href: "/#about", id: "about" },
 ];
 
 export function LandingNavbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user, mentor, loading } = useAuth();
+  const pathname = usePathname();
+  const router = useRouter();
 
   /** Compute the correct dashboard path for the current user */
   const dashboardPath = useMemo(() => {
@@ -39,9 +42,13 @@ export function LandingNavbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollTo = (id: string) => {
+  const handleNavClick = (link: (typeof navLinks)[number]) => {
     setMobileOpen(false);
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    if (link.id && pathname === "/") {
+      document.getElementById(link.id)?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      router.push(link.href);
+    }
   };
 
   const isLoggedIn = !loading && user;
@@ -50,10 +57,13 @@ export function LandingNavbar() {
     <nav className={`landing-nav-capsule ${scrolled ? "nav-scrolled" : ""}`}>
       <div className="px-4 sm:px-5 py-2.5 flex items-center justify-between relative">
         {/* Left Side: Logo */}
-        <div className="flex items-center gap-2 font-semibold text-[15px] tracking-tight text-[var(--fg)] select-none shrink-0">
+        <Link
+          href="/"
+          className="flex items-center gap-2 font-semibold text-[15px] tracking-tight text-[var(--fg)] select-none shrink-0 no-underline"
+        >
           <img src="/logo.svg" alt="HelpMeMan Logo" className="w-7 h-7 object-contain" />
           <span className="font-bold tracking-tight">HelpMeMan</span>
-        </div>
+        </Link>
 
         {/* Desktop Navigation Links */}
         <div
@@ -63,8 +73,8 @@ export function LandingNavbar() {
         >
           {navLinks.map((link) => (
             <button
-              key={link.id}
-              onClick={() => scrollTo(link.id)}
+              key={link.label}
+              onClick={() => handleNavClick(link)}
               className="nav-link-pill text-[13px] font-medium text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-none cursor-pointer py-1 whitespace-nowrap"
             >
               {link.label}
@@ -109,8 +119,8 @@ export function LandingNavbar() {
             <div className="flex flex-col gap-1">
               {navLinks.map((link) => (
                 <button
-                  key={link.id}
-                  onClick={() => scrollTo(link.id)}
+                  key={link.label}
+                  onClick={() => handleNavClick(link)}
                   className="text-left py-2.5 text-[14px] font-medium text-[var(--fg)] bg-transparent border-none cursor-pointer"
                 >
                   {link.label}
