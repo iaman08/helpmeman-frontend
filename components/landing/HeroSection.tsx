@@ -3,9 +3,51 @@
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { motion } from "motion/react";
+import { useState, useEffect } from "react";
 import { LogoStack } from "./LogoStack";
 
+const TYPED_WORDS = [
+  "IITian",
+  "Doctor",
+  "Nutritionist",
+  "Magician",
+  "Developer",
+  "Lawyer",
+  "Founder",
+  "personal",
+];
+
 export function HeroSection() {
+  const [wordIndex, setWordIndex] = useState(0);
+  const [currentText, setCurrentText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const currentFullWord = TYPED_WORDS[wordIndex];
+    let timer: NodeJS.Timeout;
+
+    if (isDeleting) {
+      timer = setTimeout(() => {
+        setCurrentText((prev) => prev.slice(0, -1));
+      }, 40);
+    } else {
+      timer = setTimeout(() => {
+        setCurrentText((prev) => currentFullWord.slice(0, prev.length + 1));
+      }, 80);
+    }
+
+    if (!isDeleting && currentText === currentFullWord) {
+      timer = setTimeout(() => {
+        setIsDeleting(true);
+      }, 1800);
+    } else if (isDeleting && currentText === "") {
+      setIsDeleting(false);
+      setWordIndex((prev) => (prev + 1) % TYPED_WORDS.length);
+    }
+
+    return () => clearTimeout(timer);
+  }, [currentText, isDeleting, wordIndex]);
+
   const scrollToAI = () => {
     document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
   };
@@ -17,15 +59,21 @@ export function HeroSection() {
         {/* Mobbin-style Stacked Logo Cards — directly above hero headline */}
         <LogoStack />
 
-        {/* Headline */}
+        {/* Headline with Typing Effect */}
         <motion.h1
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="text-[clamp(38px,7vw,76px)] font-semibold leading-[1.06] tracking-[-0.035em] text-[var(--fg)] max-w-[820px] mx-auto"
+          className="text-[clamp(38px,7vw,76px)] font-semibold leading-[1.06] tracking-[-0.035em] text-[var(--fg)] max-w-[880px] mx-auto"
         >
-          Find personal mentors{" "}
-          <br className="hidden sm:block" />
+          Find{" "}
+          <span className="inline-block relative">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 font-bold">
+              {currentText || "\u00A0"}
+            </span>
+            <span className="inline-block w-[3px] h-[0.8em] ml-0.5 bg-blue-600 dark:bg-blue-400 animate-pulse align-middle rounded-full" />
+          </span>{" "}
+          mentors <br className="hidden sm:block" />
           in seconds.
         </motion.h1>
 
