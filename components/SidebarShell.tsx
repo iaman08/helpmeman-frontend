@@ -57,11 +57,14 @@ export function SidebarShell({
   const isPrivilegedUser =
     user?.role === "ADMIN" ||
     user?.role === "SUPER_ADMIN" ||
+    user?.role === "DEVELOPER" ||
     userEmail?.toLowerCase().endsWith("@helpmeman.com") ||
     rootPath === "/admin" ||
     rootPath === "/superadmin" ||
+    rootPath === "/dev" ||
     userBadge?.toLowerCase().includes("admin") ||
-    userBadge?.toLowerCase().includes("super");
+    userBadge?.toLowerCase().includes("super") ||
+    userBadge?.toLowerCase().includes("dev");
 
   useEffect(() => {
     const handleOpen = () => setAiOpen(true);
@@ -144,6 +147,22 @@ export function SidebarShell({
                 border: "1px solid var(--hairline)",
               }}
             >
+              {(user?.role === "DEVELOPER" || user?.email === "riturdev@gmail.com") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    sessionStorage.setItem("hmm.activeRole", "dev");
+                    window.location.href = "/dev/dashboard";
+                  }}
+                  className="flex-1 py-1 text-[10px] font-semibold rounded-lg transition-colors cursor-pointer text-center"
+                  style={{
+                    background: rootPath === "/dev" ? "var(--fg)" : "transparent",
+                    color: rootPath === "/dev" ? "var(--bg)" : "var(--muted)",
+                  }}
+                >
+                  Dev
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => {
