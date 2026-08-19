@@ -121,50 +121,64 @@ export function SidebarShell({
         </div>
 
         {/* Panel Switcher for Team Members & Admins */}
-        {(userEmail?.toLowerCase().endsWith("@helpmeman.com") || rootPath === "/admin" || userBadge?.toLowerCase().includes("admin")) && (
-          <div className="mt-3 flex items-center gap-1 p-1 rounded-xl" style={{ background: "color-mix(in srgb, var(--fg) 4%, transparent)", border: "1px solid var(--hairline)" }}>
-            <button
-              type="button"
-              onClick={() => {
-                sessionStorage.setItem("hmm.activeRole", "admin");
-                window.location.href = "/admin";
-              }}
-              className="flex-1 py-1 text-[10px] font-semibold rounded-lg transition-colors cursor-pointer text-center"
+        {(userEmail?.toLowerCase().endsWith("@helpmeman.com") ||
+          rootPath === "/admin" ||
+          rootPath === "/superadmin" ||
+          userBadge?.toLowerCase().includes("admin")) && (
+          <div className="mt-3 flex flex-col gap-1">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.14em] px-0.5" style={{ color: "var(--muted)" }}>
+              View as:
+            </span>
+            <div
+              className="flex items-center gap-1 p-1 rounded-xl"
               style={{
-                background: rootPath === "/admin" ? "var(--fg)" : "transparent",
-                color: rootPath === "/admin" ? "var(--bg)" : "var(--muted)",
+                background: "color-mix(in srgb, var(--fg) 4%, transparent)",
+                border: "1px solid var(--hairline)",
               }}
             >
-              Admin
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                sessionStorage.setItem("hmm.activeRole", "mentor");
-                window.location.href = "/mentor";
-              }}
-              className="flex-1 py-1 text-[10px] font-semibold rounded-lg transition-colors cursor-pointer text-center"
-              style={{
-                background: rootPath === "/mentor" ? "var(--fg)" : "transparent",
-                color: rootPath === "/mentor" ? "var(--bg)" : "var(--muted)",
-              }}
-            >
-              Mentor
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                sessionStorage.setItem("hmm.activeRole", "mentee");
-                window.location.href = "/dashboard";
-              }}
-              className="flex-1 py-1 text-[10px] font-semibold rounded-lg transition-colors cursor-pointer text-center"
-              style={{
-                background: rootPath === "/dashboard" ? "var(--fg)" : "transparent",
-                color: rootPath === "/dashboard" ? "var(--bg)" : "var(--muted)",
-              }}
-            >
-              Student
-            </button>
+              <button
+                type="button"
+                onClick={() => {
+                  sessionStorage.setItem("hmm.activeRole", "admin");
+                  window.location.href = rootPath === "/superadmin" ? "/superadmin" : "/admin";
+                }}
+                className="flex-1 py-1 text-[10px] font-semibold rounded-lg transition-colors cursor-pointer text-center"
+                style={{
+                  background: (rootPath === "/admin" || rootPath === "/superadmin") ? "var(--fg)" : "transparent",
+                  color: (rootPath === "/admin" || rootPath === "/superadmin") ? "var(--bg)" : "var(--muted)",
+                }}
+              >
+                Admin
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  sessionStorage.setItem("hmm.activeRole", "mentor");
+                  window.location.href = "/mentor";
+                }}
+                className="flex-1 py-1 text-[10px] font-semibold rounded-lg transition-colors cursor-pointer text-center"
+                style={{
+                  background: rootPath === "/mentor" ? "var(--fg)" : "transparent",
+                  color: rootPath === "/mentor" ? "var(--bg)" : "var(--muted)",
+                }}
+              >
+                Mentor
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  sessionStorage.setItem("hmm.activeRole", "mentee");
+                  window.location.href = "/dashboard";
+                }}
+                className="flex-1 py-1 text-[10px] font-semibold rounded-lg transition-colors cursor-pointer text-center"
+                style={{
+                  background: rootPath === "/dashboard" ? "var(--fg)" : "transparent",
+                  color: rootPath === "/dashboard" ? "var(--bg)" : "var(--muted)",
+                }}
+              >
+                Student
+              </button>
+            </div>
           </div>
         )}
       </div>
