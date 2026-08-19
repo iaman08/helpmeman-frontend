@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { StatusBadge } from "@/components/StatusBadge";
-import { Search, ChevronLeft, ChevronRight, UserCog } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, UserCog, PauseCircle, PlayCircle, AlertTriangle, X } from "lucide-react";
 
 interface User {
   id: string;
@@ -24,6 +24,12 @@ export default function SuperAdminUsersPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  // Status modal
+  const [statusModalUser, setStatusModalUser] = useState<User | null>(null);
+  const [targetStatus, setTargetStatus] = useState<"ACTIVE" | "ON_HOLD" | "DISABLED">("ON_HOLD");
+  const [holdReason, setHoldReason] = useState("");
+  const [updating, setUpdating] = useState(false);
 
   // Debounced search
   useEffect(() => {
@@ -62,6 +68,24 @@ export default function SuperAdminUsersPage() {
       fetchUsers();
     } catch (err) {
       alert("Failed to update role");
+    }
+  };
+
+  const handleUpdateStatus = async () => {
+    if (!statusModalUser) return;
+    setUpdating(true);
+    try {
+      await api.post(`/admin/users/${statusModalUser.id}/status`, {
+        status: targetStatus,
+        reason: holdReason,
+      });
+      fetchUsers();
+      setStatusModalUser(null);
+      setHoldReason("");
+    } catch (err) {
+      alert("Failed to update account status");
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -116,6 +140,7 @@ export default function SuperAdminUsersPage() {
         >
           <option value="All" style={{ background: "var(--bg)" }}>All Statuses</option>
           <option value="ACTIVE" style={{ background: "var(--bg)" }}>Active</option>
+          <option value="ON_HOLD" style={{ background: "var(--bg)" }}>On Hold</option>
           <option value="DISABLED" style={{ background: "var(--bg)" }}>Disabled</option>
           <option value="DELETED" style={{ background: "var(--bg)" }}>Deleted</option>
         </select>
@@ -130,6 +155,7 @@ export default function SuperAdminUsersPage() {
                 <th className="px-6 py-4">Role</th>
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4">Joined</th>
+                <th className="px-6 py-4">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -140,75 +166,106 @@ export default function SuperAdminUsersPage() {
                     <td className="px-6 py-4"><Skeleton className="h-5 w-20" /></td>
                     <td className="px-6 py-4"><Skeleton className="h-5 w-20" /></td>
                     <td className="px-6 py-4"><Skeleton className="h-5 w-24" /></td>
+                    <td className="px-6 py-4"><Skeleton className="h-5 w-20" /></td>
                   </tr>
                 ))
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-10 text-center text-sm" style={{ color: "var(--muted)" }}>No users found.</td>
+                  <td colSpan={5} className="px-6 py-10 text-center text-sm" style={{ color: "var(--muted)" }}>No users found.</td>
                 </tr>
               ) : (
-                users.map((user, idx) => (
-                  <React.Fragment key={user.id}>
-                    <tr 
-                      className="cursor-pointer transition-colors"
-                      style={{ borderBottom: idx < users.length - 1 || expandedId === user.id ? "1px solid var(--hairline)" : "none" }}
-                      onClick={() => setExpandedId(expandedId === user.id ? null : user.id)}
-                      onMouseEnter={(el) => (el.currentTarget.style.background = "color-mix(in srgb, var(--fg) 3%, transparent)")}
-                      onMouseLeave={(el) => (el.currentTarget.style.background = "transparent")}
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col">
-                          <span className="font-medium" style={{ color: "var(--fg)" }}>{user.name}</span>
-                          <span className="text-xs" style={{ color: "var(--muted)" }}>{user.email}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`text-[10px] uppercase tracking-wider px-2.5 py-0.5 rounded-full font-semibold ${
-                          user.role === 'SUPER_ADMIN' ? 'bg-violet-500/10 text-violet-600' :
-                          user.role === 'ADMIN' ? 'bg-red-500/10 text-red-600' :
-                          user.role === 'MENTOR' ? 'bg-amber-500/10 text-amber-600' :
-                          'bg-blue-500/10 text-blue-600'
-                        }`}>
-                          {user.role}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <StatusBadge status={user.status} />
-                      </td>
-                      <td className="px-6 py-4 text-xs font-mono" style={{ color: "var(--muted)" }}>
-                        {new Date(user.createdAt).toLocaleDateString()}
-                      </td>
-                    </tr>
-                    {expandedId === user.id && (
-                      <tr style={{ background: "color-mix(in srgb, var(--fg) 2%, transparent)", borderBottom: "1px solid var(--hairline)" }}>
-                        <td colSpan={4} className="px-6 py-4 border-l-4 border-violet-500">
-                          <div className="flex flex-col gap-3">
-                            <h4 className="text-xs uppercase tracking-wider font-semibold flex items-center gap-2" style={{ color: "var(--fg)" }}>
-                              <UserCog className="h-3.5 w-3.5 text-violet-500" /> Manage Role
-                            </h4>
-                            <div className="flex gap-2">
-                              {['STUDENT', 'MENTOR', 'ADMIN', 'SUPER_ADMIN'].map(r => (
-                                <button
-                                  key={r}
-                                  onClick={() => handleRoleChange(user.id, r)}
-                                  disabled={user.role === r}
-                                  className="px-3 py-1.5 text-xs rounded-lg font-medium transition-colors cursor-pointer disabled:opacity-40"
-                                  style={{
-                                    border: "1px solid var(--hairline)",
-                                    background: user.role === r ? "color-mix(in srgb, var(--fg) 10%, transparent)" : "color-mix(in srgb, var(--fg) 4%, transparent)",
-                                    color: "var(--fg)",
-                                  }}
-                                >
-                                  Make {r}
-                                </button>
-                              ))}
-                            </div>
+                users.map((user, idx) => {
+                  const isOnHold = user.status === "ON_HOLD";
+                  return (
+                    <React.Fragment key={user.id}>
+                      <tr 
+                        className="cursor-pointer transition-colors"
+                        style={{ borderBottom: idx < users.length - 1 || expandedId === user.id ? "1px solid var(--hairline)" : "none" }}
+                        onClick={() => setExpandedId(expandedId === user.id ? null : user.id)}
+                        onMouseEnter={(el) => (el.currentTarget.style.background = "color-mix(in srgb, var(--fg) 3%, transparent)")}
+                        onMouseLeave={(el) => (el.currentTarget.style.background = "transparent")}
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col">
+                            <span className="font-medium" style={{ color: "var(--fg)" }}>{user.name}</span>
+                            <span className="text-xs" style={{ color: "var(--muted)" }}>{user.email}</span>
                           </div>
                         </td>
+                        <td className="px-6 py-4">
+                          <span className={`text-[10px] uppercase tracking-wider px-2.5 py-0.5 rounded-full font-semibold ${
+                            user.role === 'SUPER_ADMIN' ? 'bg-violet-500/10 text-violet-600' :
+                            user.role === 'ADMIN' ? 'bg-red-500/10 text-red-600' :
+                            user.role === 'MENTOR' ? 'bg-amber-500/10 text-amber-600' :
+                            'bg-blue-500/10 text-blue-600'
+                          }`}>
+                            {user.role}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <StatusBadge status={user.status} />
+                        </td>
+                        <td className="px-6 py-4 text-xs font-mono" style={{ color: "var(--muted)" }}>
+                          {new Date(user.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                          {isOnHold ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setStatusModalUser(user);
+                                setTargetStatus("ACTIVE");
+                                setHoldReason("");
+                              }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 transition-colors cursor-pointer border border-emerald-500/20"
+                            >
+                              <PlayCircle className="w-3.5 h-3.5" /> Reactivate
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setStatusModalUser(user);
+                                setTargetStatus("ON_HOLD");
+                                setHoldReason("");
+                              }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 transition-colors cursor-pointer border border-amber-500/20"
+                            >
+                              <PauseCircle className="w-3.5 h-3.5" /> Put On Hold
+                            </button>
+                          )}
+                        </td>
                       </tr>
-                    )}
-                  </React.Fragment>
-                ))
+                      {expandedId === user.id && (
+                        <tr style={{ background: "color-mix(in srgb, var(--fg) 2%, transparent)", borderBottom: "1px solid var(--hairline)" }}>
+                          <td colSpan={5} className="px-6 py-4 border-l-4 border-violet-500">
+                            <div className="flex flex-col gap-3">
+                              <h4 className="text-xs uppercase tracking-wider font-semibold flex items-center gap-2" style={{ color: "var(--fg)" }}>
+                                <UserCog className="h-3.5 w-3.5 text-violet-500" /> Manage Role
+                              </h4>
+                              <div className="flex gap-2">
+                                {['STUDENT', 'MENTOR', 'ADMIN', 'SUPER_ADMIN'].map(r => (
+                                  <button
+                                    key={r}
+                                    onClick={() => handleRoleChange(user.id, r)}
+                                    disabled={user.role === r}
+                                    className="px-3 py-1.5 text-xs rounded-lg font-medium transition-colors cursor-pointer disabled:opacity-40"
+                                    style={{
+                                      border: "1px solid var(--hairline)",
+                                      background: user.role === r ? "color-mix(in srgb, var(--fg) 10%, transparent)" : "color-mix(in srgb, var(--fg) 4%, transparent)",
+                                      color: "var(--fg)",
+                                    }}
+                                  >
+                                    Make {r}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -241,6 +298,80 @@ export default function SuperAdminUsersPage() {
           </div>
         )}
       </div>
+
+      {/* Account Status Modal */}
+      {statusModalUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div
+            className="w-full max-w-md rounded-2xl p-6 shadow-2xl flex flex-col gap-4 border"
+            style={{ background: "var(--bg)", borderColor: "var(--hairline)" }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {targetStatus === "ON_HOLD" ? (
+                  <AlertTriangle className="w-5 h-5 text-amber-500" />
+                ) : (
+                  <PlayCircle className="w-5 h-5 text-emerald-500" />
+                )}
+                <h3 className="text-base font-bold text-[var(--fg)]">
+                  {targetStatus === "ON_HOLD" ? "Place Account On Hold" : "Reactivate Account"}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setStatusModalUser(null)}
+                className="text-[var(--muted)] hover:text-[var(--fg)] p-1 bg-transparent border-none cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-sm text-[var(--muted)] leading-relaxed">
+              Updating status for <strong className="text-[var(--fg)]">{statusModalUser.name}</strong> ({statusModalUser.email}). An automated email notification will be sent to the user.
+            </p>
+
+            {targetStatus === "ON_HOLD" && (
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
+                  Reason for Hold:
+                </label>
+                <textarea
+                  rows={3}
+                  value={holdReason}
+                  onChange={(e) => setHoldReason(e.target.value)}
+                  placeholder="e.g. Policy review, verification update pending, reported conduct issue..."
+                  className="w-full rounded-xl p-3 text-sm outline-none resize-none"
+                  style={{
+                    border: "1px solid var(--hairline)",
+                    background: "color-mix(in srgb, var(--fg) 3%, transparent)",
+                    color: "var(--fg)",
+                  }}
+                />
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-3 mt-2">
+              <button
+                type="button"
+                onClick={() => setStatusModalUser(null)}
+                className="px-4 py-2 text-xs font-semibold rounded-xl text-[var(--fg)] border border-[var(--hairline)] bg-transparent hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleUpdateStatus}
+                disabled={updating}
+                className={`px-5 py-2 text-xs font-semibold rounded-xl text-white transition-all cursor-pointer disabled:opacity-50 ${
+                  targetStatus === "ON_HOLD" ? "bg-amber-600 hover:bg-amber-500" : "bg-emerald-600 hover:bg-emerald-500"
+                }`}
+              >
+                {updating ? "Saving..." : targetStatus === "ON_HOLD" ? "Confirm Hold & Send Email" : "Confirm Reactivation"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

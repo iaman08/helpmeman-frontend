@@ -31,6 +31,7 @@ export interface User {
   phone?: string | null;
   avatar?: string | null;
   role: Role;
+  status?: string;
   onboardingRole?: string | null;
   currentRole?: string | null;
   isEmailVerified: boolean;
