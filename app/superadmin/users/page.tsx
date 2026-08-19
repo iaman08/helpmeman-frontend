@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { StatusBadge } from "@/components/StatusBadge";
-import { Search, ChevronLeft, ChevronRight, UserCog, PauseCircle, PlayCircle, AlertTriangle, X } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, UserCog, PauseCircle, PlayCircle, AlertTriangle, X, ShieldOff, CheckCircle2 } from "lucide-react";
 
 interface User {
   id: string;
@@ -15,49 +15,80 @@ interface User {
   createdAt: string;
 }
 
+type TargetStatus = "ACTIVE" | "ON_HOLD" | "DISABLED";
+
+function getStatusModalTitle(to: TargetStatus) {
+  if (to === "ON_HOLD") return "Place Account On Hold";
+  if (to === "DISABLED") return "Disable Account";
+  return "Reactivate Account";
+}
+
+function StatusModalIcon({ status }: { status: TargetStatus }) {
+  if (status === "ON_HOLD") return <AlertTriangle className="w-5 h-5 text-amber-500" />;
+  if (status === "DISABLED") return <ShieldOff className="w-5 h-5 text-red-500" />;
+  return <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
+}
+
+function confirmBtnClass(status: TargetStatus) {
+  if (status === "ON_HOLD") return "bg-amber-600 hover:bg-amber-500";
+  if (status === "DISABLED") return "bg-red-600 hover:bg-red-500";
+  return "bg-emerald-600 hover:bg-emerald-500";
+}
+
+function confirmBtnLabel(status: TargetStatus, updating: boolean) {
+  if (updating) return "Saving & Notifying...";
+  if (status === "ON_HOLD") return "Confirm Hold & Send Email";
+  if (status === "DISABLED") return "Disable & Notify User";
+  return "Confirm Reactivation";
+}
+
 export default function SuperAdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [role, setRole] = useState("All");
-  const [status, setStatus] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  // Status modal
   const [statusModalUser, setStatusModalUser] = useState<User | null>(null);
-  const [targetStatus, setTargetStatus] = useState<"ACTIVE" | "ON_HOLD" | "DISABLED">("ON_HOLD");
+  const [targetStatus, setTargetStatus] = useState<TargetStatus>("ON_HOLD");
   const [holdReason, setHoldReason] = useState("");
   const [updating, setUpdating] = useState(false);
 
-  // Debounced search
   useEffect(() => {
-    const timer = setTimeout(() => {
-      fetchUsers();
-    }, 300);
+    const timer = setTimeout(() => { fetchUsers(); }, 300);
     return () => clearTimeout(timer);
-  }, [search, role, status, page]);
+  }, [search, role, statusFilter, page]);
 
   const fetchUsers = async () => {
     setLoading(true);
     try {
       const res = await api.get(`/super-admin/users`, {
         params: {
-          q: search,
+          q: search || undefined,
           role: role !== "All" ? role : undefined,
-          status: status !== "All" ? status : undefined,
+          status: statusFilter !== "All" ? statusFilter : undefined,
           page,
-          limit: 20
-        }
+          limit: 20,
+        },
       });
       setUsers(res.data.users || []);
       setTotalPages(res.data.totalPages || 1);
+      setTotal(res.data.total || 0);
     } catch (err) {
       console.error("Failed to fetch users", err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const openStatusModal = (user: User, status: TargetStatus) => {
+    setStatusModalUser(user);
+    setTargetStatus(status);
+    setHoldReason("");
   };
 
   const handleRoleChange = async (userId: string, newRole: string) => {
@@ -82,7 +113,7 @@ export default function SuperAdminUsersPage() {
       fetchUsers();
       setStatusModalUser(null);
       setHoldReason("");
-    } catch (err) {
+    } catch {
       alert("Failed to update account status");
     } finally {
       setUpdating(false);
@@ -94,6 +125,7 @@ export default function SuperAdminUsersPage() {
       <div className="flex flex-col gap-1.5">
         <p className="text-xs uppercase tracking-[0.22em]" style={{ color: "var(--muted)" }}>Super Admin</p>
         <h1 className="font-display text-4xl leading-tight" style={{ color: "var(--fg)" }}>Users.</h1>
+        <p className="text-sm" style={{ color: "var(--muted)" }}>{!loading && `${total} total users`}</p>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 mb-2">
@@ -129,8 +161,8 @@ export default function SuperAdminUsersPage() {
           <option value="SUPER_ADMIN" style={{ background: "var(--bg)" }}>Super Admin</option>
         </select>
         <select
-          value={status}
-          onChange={(e) => { setStatus(e.target.value); setPage(1); }}
+          value={statusFilter}
+          onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
           className="rounded-xl px-4 py-2.5 text-sm outline-none cursor-pointer"
           style={{
             border: "1px solid var(--hairline)",
@@ -175,7 +207,10 @@ export default function SuperAdminUsersPage() {
                 </tr>
               ) : (
                 users.map((user, idx) => {
-                  const isOnHold = user.status === "ON_HOLD";
+                  const userStatus = user.status || "ACTIVE";
+                  const isActive = userStatus === "ACTIVE";
+                  const isOnHold = userStatus === "ON_HOLD";
+                  const isDisabled = userStatus === "DISABLED";
                   return (
                     <React.Fragment key={user.id}>
                       <tr 
@@ -208,31 +243,35 @@ export default function SuperAdminUsersPage() {
                           {new Date(user.createdAt).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
-                          {isOnHold ? (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setStatusModalUser(user);
-                                setTargetStatus("ACTIVE");
-                                setHoldReason("");
-                              }}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 transition-colors cursor-pointer border border-emerald-500/20"
-                            >
-                              <PlayCircle className="w-3.5 h-3.5" /> Reactivate
-                            </button>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setStatusModalUser(user);
-                                setTargetStatus("ON_HOLD");
-                                setHoldReason("");
-                              }}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 transition-colors cursor-pointer border border-amber-500/20"
-                            >
-                              <PauseCircle className="w-3.5 h-3.5" /> Put On Hold
-                            </button>
-                          )}
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {!isActive && (
+                              <button
+                                type="button"
+                                onClick={() => openStatusModal(user, "ACTIVE")}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 transition-colors cursor-pointer border border-emerald-500/20"
+                              >
+                                <PlayCircle className="w-3 h-3" /> Reactivate
+                              </button>
+                            )}
+                            {!isOnHold && (
+                              <button
+                                type="button"
+                                onClick={() => openStatusModal(user, "ON_HOLD")}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 transition-colors cursor-pointer border border-amber-500/20"
+                              >
+                                <PauseCircle className="w-3 h-3" /> Hold
+                              </button>
+                            )}
+                            {!isDisabled && (
+                              <button
+                                type="button"
+                                onClick={() => openStatusModal(user, "DISABLED")}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-red-500/10 text-red-600 hover:bg-red-500/20 transition-colors cursor-pointer border border-red-500/20"
+                              >
+                                <ShieldOff className="w-3 h-3" /> Disable
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                       {expandedId === user.id && (
@@ -271,11 +310,10 @@ export default function SuperAdminUsersPage() {
           </table>
         </div>
         
-        {/* Pagination */}
         {!loading && totalPages > 1 && (
           <div className="flex items-center justify-between px-6 py-4" style={{ borderTop: "1px solid var(--hairline)" }}>
             <span className="text-sm" style={{ color: "var(--muted)" }}>
-              Page {page} of {totalPages}
+              Page {page} of {totalPages} · {total} users
             </span>
             <div className="flex gap-2">
               <button
@@ -308,13 +346,9 @@ export default function SuperAdminUsersPage() {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                {targetStatus === "ON_HOLD" ? (
-                  <AlertTriangle className="w-5 h-5 text-amber-500" />
-                ) : (
-                  <PlayCircle className="w-5 h-5 text-emerald-500" />
-                )}
+                <StatusModalIcon status={targetStatus} />
                 <h3 className="text-base font-bold text-[var(--fg)]">
-                  {targetStatus === "ON_HOLD" ? "Place Account On Hold" : "Reactivate Account"}
+                  {getStatusModalTitle(targetStatus)}
                 </h3>
               </div>
               <button
@@ -327,20 +361,29 @@ export default function SuperAdminUsersPage() {
             </div>
 
             <p className="text-sm text-[var(--muted)] leading-relaxed">
-              Updating status for <strong className="text-[var(--fg)]">{statusModalUser.name}</strong> ({statusModalUser.email}). An automated email notification will be sent to the user.
+              Changing status for{" "}
+              <strong className="text-[var(--fg)]">{statusModalUser.name}</strong>{" "}
+              ({statusModalUser.email}) from{" "}
+              <strong className="text-[var(--fg)]">{statusModalUser.status || "ACTIVE"}</strong>{" → "}
+              <strong className="text-[var(--fg)]">{targetStatus}</strong>.{" "}
+              An automated email will be sent to the user.
             </p>
 
-            {targetStatus === "ON_HOLD" && (
+            {(targetStatus === "ON_HOLD" || targetStatus === "DISABLED") && (
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
-                  Reason for Hold:
+                  {targetStatus === "ON_HOLD" ? "Reason for Hold:" : "Reason for Disabling:"}
                 </label>
                 <textarea
                   rows={3}
                   value={holdReason}
                   onChange={(e) => setHoldReason(e.target.value)}
-                  placeholder="e.g. Policy review, verification update pending, reported conduct issue..."
-                  className="w-full rounded-xl p-3 text-sm outline-none resize-none"
+                  placeholder={
+                    targetStatus === "ON_HOLD"
+                      ? "e.g. Policy review, verification pending, reported conduct issue..."
+                      : "e.g. Repeated violations, fraudulent activity, user request..."
+                  }
+                  className="w-full rounded-xl p-3 text-sm outline-none resize-none transition-colors"
                   style={{
                     border: "1px solid var(--hairline)",
                     background: "color-mix(in srgb, var(--fg) 3%, transparent)",
@@ -362,11 +405,9 @@ export default function SuperAdminUsersPage() {
                 type="button"
                 onClick={handleUpdateStatus}
                 disabled={updating}
-                className={`px-5 py-2 text-xs font-semibold rounded-xl text-white transition-all cursor-pointer disabled:opacity-50 ${
-                  targetStatus === "ON_HOLD" ? "bg-amber-600 hover:bg-amber-500" : "bg-emerald-600 hover:bg-emerald-500"
-                }`}
+                className={`px-5 py-2 text-xs font-semibold rounded-xl text-white transition-all cursor-pointer disabled:opacity-50 ${confirmBtnClass(targetStatus)}`}
               >
-                {updating ? "Saving..." : targetStatus === "ON_HOLD" ? "Confirm Hold & Send Email" : "Confirm Reactivation"}
+                {confirmBtnLabel(targetStatus, updating)}
               </button>
             </div>
           </div>

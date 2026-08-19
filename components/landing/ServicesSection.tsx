@@ -33,7 +33,7 @@ export interface ServiceItem {
   category: "domain" | "platform";
   badge: string;
   icon: React.ElementType;
-  iconGradient: string;
+  iconColor: string;
   description: string;
   highlights: string[];
   ctaText: string;
@@ -49,7 +49,7 @@ const SERVICES: ServiceItem[] = [
     category: "platform",
     badge: "Core Service",
     icon: Video,
-    iconGradient: "from-blue-500 to-indigo-600",
+    iconColor: "#2563EB",
     description:
       "Direct, face-to-face 1:1 strategy calls with verified toppers, senior engineers, doctors, and advocates tailored to your exact questions.",
     highlights: [
@@ -67,7 +67,7 @@ const SERVICES: ServiceItem[] = [
     category: "platform",
     badge: "AI Powered",
     icon: Bot,
-    iconGradient: "from-purple-500 to-pink-600",
+    iconColor: "#7C3AED",
     description:
       "Get instant answers to prep questions, generate study schedules, match with ideal mentors, and receive automated post-session summaries.",
     highlights: [
@@ -85,7 +85,7 @@ const SERVICES: ServiceItem[] = [
     category: "platform",
     badge: "High Impact",
     icon: FileText,
-    iconGradient: "from-emerald-500 to-teal-600",
+    iconColor: "#059669",
     description:
       "Get your resume, ATS formatting, GitHub projects, and portfolio reviewed line-by-line by recruiters and top industry practitioners.",
     highlights: [
@@ -102,7 +102,7 @@ const SERVICES: ServiceItem[] = [
     category: "platform",
     badge: "Interview Ready",
     icon: UserCheck,
-    iconGradient: "from-amber-500 to-orange-600",
+    iconColor: "#F59E0B",
     description:
       "Simulate real coding rounds, system design challenges, or behavioral HR interviews with mentors currently working at top tier companies.",
     highlights: [
@@ -120,7 +120,7 @@ const SERVICES: ServiceItem[] = [
     category: "platform",
     badge: "Seamless",
     icon: Calendar,
-    iconGradient: "from-cyan-500 to-blue-600",
+    iconColor: "#0EA5E9",
     description:
       "Simply text our AI assistant your free time slots in plain language. We automatically manage availability, timezone shifts, and reminders.",
     highlights: [
@@ -137,7 +137,7 @@ const SERVICES: ServiceItem[] = [
     category: "platform",
     badge: "Personalized",
     icon: Compass,
-    iconGradient: "from-rose-500 to-red-600",
+    iconColor: "#E11D48",
     description:
       "Receive personalized week-by-week roadmaps tailored to your target exam date, career transition, or skill acquisition goal.",
     highlights: [
@@ -156,7 +156,7 @@ const SERVICES: ServiceItem[] = [
     category: "domain",
     badge: "IITian Mentors",
     icon: BookOpen,
-    iconGradient: "from-blue-600 to-cyan-500",
+    iconColor: "#1D4ED8",
     description:
       "Cracking Physics, Chemistry & Math with top AIR rankers from IIT Bombay, Delhi, Madras & Roorkee. Master problem-solving & exam strategy.",
     highlights: [
@@ -174,7 +174,7 @@ const SERVICES: ServiceItem[] = [
     category: "domain",
     badge: "AIIMS Toppers",
     icon: Stethoscope,
-    iconGradient: "from-emerald-600 to-teal-500",
+    iconColor: "#10B981",
     description:
       "NCERT Biology retention techniques, Physics numerical strategies, and Medical college counseling directly from top AIIMS & medical rankers.",
     highlights: [
@@ -192,7 +192,7 @@ const SERVICES: ServiceItem[] = [
     category: "domain",
     badge: "Top SDEs",
     icon: Laptop,
-    iconGradient: "from-indigo-600 to-purple-600",
+    iconColor: "#4F46E5",
     description:
       "Land high-paying Software Engineering roles at Rubrik, Cohesity, Salesforce, Google, Meta & Amazon with 1:1 System Design & DSA coaching.",
     highlights: [
@@ -210,7 +210,7 @@ const SERVICES: ServiceItem[] = [
     category: "domain",
     badge: "Doctors & Nutritionists",
     icon: HeartPulse,
-    iconGradient: "from-rose-500 to-pink-500",
+    iconColor: "#F43F5E",
     description:
       "Personalized diet planning, student energy optimization, clinical nutrition, and healthy lifestyle coaching by qualified MBBS doctors.",
     highlights: [
@@ -227,7 +227,7 @@ const SERVICES: ServiceItem[] = [
     category: "domain",
     badge: "High Court Advocates",
     icon: Scale,
-    iconGradient: "from-amber-600 to-yellow-500",
+    iconColor: "#D97706",
     description:
       "CLAT UG/PG exam preparation, NLU admission roadmaps, Moot Court mastery, and corporate litigation career guidance by NLSIU alumni.",
     highlights: [
@@ -244,7 +244,7 @@ const SERVICES: ServiceItem[] = [
     category: "domain",
     badge: "Tier-1 Placement",
     icon: GraduationCap,
-    iconGradient: "from-violet-600 to-indigo-500",
+    iconColor: "#6D28D9",
     description:
       "Crack college placement drives, aptitude tests, technical rounds, and off-campus tech applications for engineering & degree students.",
     highlights: [
@@ -261,7 +261,7 @@ const SERVICES: ServiceItem[] = [
     category: "domain",
     badge: "YC & IIT Founders",
     icon: Rocket,
-    iconGradient: "from-orange-500 to-red-600",
+    iconColor: "#EA580C",
     description:
       "Build, launch, and scale your startup. Get feedback on MVP tech stack, product-market fit, pitch decks, and early-stage fundraising.",
     highlights: [
@@ -278,7 +278,7 @@ const SERVICES: ServiceItem[] = [
     category: "domain",
     badge: "IIM Alumni",
     icon: BarChart,
-    iconGradient: "from-emerald-500 to-green-600",
+    iconColor: "#16A34A",
     description:
       "CAT exam preparation, WAT/GD-PI interview prep, profile building, and specialization advice for top B-schools in India and abroad.",
     highlights: [
@@ -295,7 +295,7 @@ const SERVICES: ServiceItem[] = [
     category: "domain",
     badge: "IAS / IPS Guides",
     icon: Landmark,
-    iconGradient: "from-blue-700 to-slate-800",
+    iconColor: "#1E40AF",
     description:
       "Prelims elimination tactics, Mains answer writing practice, optional subject selection, and interview guidance for UPSC IAS/IPS aspirants.",
     highlights: [
@@ -312,7 +312,7 @@ const SERVICES: ServiceItem[] = [
     category: "domain",
     badge: "Senior Designers",
     icon: Palette,
-    iconGradient: "from-fuchsia-500 to-purple-600",
+    iconColor: "#C026D3",
     description:
       "Build industry-ready UI/UX portfolios, master Figma design systems, conduct user research, and prepare for product design interview rounds.",
     highlights: [
@@ -480,7 +480,8 @@ export function ServicesSection() {
                     <div className="flex items-center justify-between mb-4">
                       {/* Icon Badge */}
                       <div
-                        className={`w-12 h-12 rounded-xl bg-gradient-to-br ${service.iconGradient} flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform duration-300`}
+                        className="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform duration-300"
+                        style={{ backgroundColor: service.iconColor }}
                       >
                         <IconComponent className="w-6 h-6" />
                       </div>
@@ -540,27 +541,31 @@ export function ServicesSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-16 rounded-3xl p-8 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 dark:from-[#121214] dark:via-[#18181B] dark:to-[#121214] text-white border border-blue-500/20 shadow-2xl relative overflow-hidden"
+          className="mt-16 rounded-3xl p-8 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/50 shadow-sm relative overflow-hidden"
         >
+          {/* Subtle decorative blob */}
+          <div className="absolute -top-10 -right-10 w-48 h-48 bg-blue-200/40 dark:bg-blue-700/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-8 -left-8 w-36 h-36 bg-indigo-200/40 dark:bg-indigo-700/20 rounded-full blur-2xl pointer-events-none" />
+
           <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
             <div className="max-w-xl text-center lg:text-left">
-              <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
+              <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
                 Not sure which service or mentor you need?
               </h3>
-              <p className="mt-2 text-sm md:text-base text-slate-300 leading-relaxed">
+              <p className="mt-2 text-sm md:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
                 Chat with Ruth AI right now. Describe your goals in plain words, and let our AI match you with the exact right mentor and path in under 30 seconds.
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row items-center gap-4 shrink-0">
+            <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
               <Link
                 href="/?auth=signup"
-                className="w-full sm:w-auto px-6 py-3.5 text-sm font-semibold rounded-xl bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-lg text-center no-underline"
+                className="w-full sm:w-auto px-6 py-3.5 text-sm font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-md shadow-blue-200 dark:shadow-blue-900/40 text-center no-underline"
               >
                 Find My Mentor Now
               </Link>
               <Link
                 href="/#about"
-                className="w-full sm:w-auto px-6 py-3.5 text-sm font-semibold rounded-xl bg-white/10 hover:bg-white/15 text-white border border-white/20 transition-all text-center no-underline"
+                className="w-full sm:w-auto px-6 py-3.5 text-sm font-semibold rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 transition-all text-center no-underline"
               >
                 Ask Ruth AI
               </Link>
