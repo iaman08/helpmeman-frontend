@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Menu, X, LogOut } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
 import { useTheme, THEMES } from "./ThemeProvider";
 import { NotificationBell } from "./NotificationBell";
 import { Avatar } from "./Avatar";
@@ -48,9 +49,19 @@ export function SidebarShell({
   className,
 }: SidebarShellProps) {
   const pathname = usePathname();
+  const { user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const [aiOpen, setAiOpen] = useState(false);
+
+  const isPrivilegedUser =
+    user?.role === "ADMIN" ||
+    user?.role === "SUPER_ADMIN" ||
+    userEmail?.toLowerCase().endsWith("@helpmeman.com") ||
+    rootPath === "/admin" ||
+    rootPath === "/superadmin" ||
+    userBadge?.toLowerCase().includes("admin") ||
+    userBadge?.toLowerCase().includes("super");
 
   useEffect(() => {
     const handleOpen = () => setAiOpen(true);
@@ -121,10 +132,7 @@ export function SidebarShell({
         </div>
 
         {/* Panel Switcher for Team Members & Admins */}
-        {(userEmail?.toLowerCase().endsWith("@helpmeman.com") ||
-          rootPath === "/admin" ||
-          rootPath === "/superadmin" ||
-          userBadge?.toLowerCase().includes("admin")) && (
+        {isPrivilegedUser && (
           <div className="mt-3 flex flex-col gap-1">
             <span className="text-[10px] font-semibold uppercase tracking-[0.14em] px-0.5" style={{ color: "var(--muted)" }}>
               View as:
@@ -140,7 +148,8 @@ export function SidebarShell({
                 type="button"
                 onClick={() => {
                   sessionStorage.setItem("hmm.activeRole", "admin");
-                  window.location.href = rootPath === "/superadmin" ? "/superadmin" : "/admin";
+                  const dest = user?.role === "SUPER_ADMIN" ? "/superadmin" : "/admin";
+                  window.location.href = dest;
                 }}
                 className="flex-1 py-1 text-[10px] font-semibold rounded-lg transition-colors cursor-pointer text-center"
                 style={{
