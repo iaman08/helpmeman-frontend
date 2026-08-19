@@ -78,28 +78,6 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
       }}
     >
       <div className="relative min-h-[calc(100vh-80px)]">
-        {/* Red Wine Ambient Background Glare (Super Admin Executive Theme) */}
-        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden>
-          <div
-            className="absolute -top-[10%] left-[-10%] w-[65vw] h-[65vw] max-w-[850px] max-h-[850px] rounded-full opacity-35 dark:opacity-50 blur-[130px] transition-all duration-700"
-            style={{
-              background: "radial-gradient(circle, #800f2f 0%, #4a0418 55%, transparent 100%)",
-            }}
-          />
-          <div
-            className="absolute top-[30%] right-[-15%] w-[60vw] h-[60vw] max-w-[750px] max-h-[750px] rounded-full opacity-25 dark:opacity-40 blur-[140px] transition-all duration-700"
-            style={{
-              background: "radial-gradient(circle, #a4133c 0%, #590d22 60%, transparent 100%)",
-            }}
-          />
-          <div
-            className="absolute -bottom-[15%] left-[20%] w-[55vw] h-[55vw] max-w-[700px] max-h-[700px] rounded-full opacity-20 dark:opacity-35 blur-[140px] transition-all duration-700"
-            style={{
-              background: "radial-gradient(circle, #c9184a 0%, #38040e 65%, transparent 100%)",
-            }}
-          />
-        </div>
-
         {/* Page Content */}
         <div className="relative z-10">
           {children}
