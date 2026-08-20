@@ -36,8 +36,8 @@ export function PreSessionIntakeModal({
     if (categorySlug.includes("medical") || categorySlug.includes("neet")) {
       return "Example: Need strategy to score 650+ in NEET UG / Biology NCERT revision plan";
     }
-    if (categorySlug.includes("health") || categorySlug.includes("nutrition")) {
-      return "Example: Personal diet plan for energy, weight management & student focus";
+    if (categorySlug.includes("health") || categorySlug.includes("nutrition") || categorySlug.includes("fitness") || categorySlug.includes("gym")) {
+      return "Example: Custom fat loss & hypertrophy workout split + daily macro breakdown";
     }
     if (categorySlug.includes("law")) {
       return "Example: CLAT UG legal reasoning strategy & NLU admission counseling";
@@ -49,8 +49,8 @@ export function PreSessionIntakeModal({
     if (categorySlug.includes("medical") || categorySlug.includes("neet")) {
       return "1. How to improve Physics numerical speed?\n2. Recommended 3-month revision timetable?\n3. AIIMS vs MAMC cutoff guidance";
     }
-    if (categorySlug.includes("health") || categorySlug.includes("nutrition")) {
-      return "1. Best macro breakdown for studying late nights?\n2. Supplements/vitamins recommendation?\n3. High-protein vegetarian meal options";
+    if (categorySlug.includes("health") || categorySlug.includes("nutrition") || categorySlug.includes("fitness") || categorySlug.includes("gym")) {
+      return "1. Optimal 4-day workout split for fat loss without muscle loss?\n2. High-protein meal options & daily macro targets?\n3. Progressive overload strategy & injury prevention tips";
     }
     return "1. How should I structure my 45-min preparation?\n2. Key areas I should improve based on my background\n3. Next steps for career transition";
   };
