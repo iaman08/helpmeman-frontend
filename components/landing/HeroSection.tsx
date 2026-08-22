@@ -8,7 +8,7 @@ import { LogoStack } from "./LogoStack";
 import { HeroFloatingLogos } from "./HeroFloatingLogos";
 
 const TYPED_WORDS = [
-  "Fitness Coach",
+  "Fitness",
   "IITian",
   "Doctor",
   "Nutritionist",

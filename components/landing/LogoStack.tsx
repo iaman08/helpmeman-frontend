@@ -30,9 +30,9 @@ interface LogoCard {
 
 /* ─── 17 Logo card definitions ─── */
 const LOGOS: LogoCard[] = [
-  /* ── Gym & Fitness Coach ── */
+  /* ── Gym & Fitness ── */
   {
-    name: "Gym & Fitness Coach",
+    name: "Gym & Fitness",
     bg: "#059669",
     icon: (
       <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
