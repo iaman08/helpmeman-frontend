@@ -10,17 +10,56 @@ interface LogoItem {
   mobileSize: number;
 }
 
-function GymIcon() {
+function DumbbellIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="w-6 h-6 fill-none stroke-[#059669] stroke-2" strokeLinecap="round" strokeLinejoin="round">
+    <svg viewBox="0 0 24 24" className="w-6 h-6 fill-none stroke-[#059669] stroke-[2.2]" strokeLinecap="round" strokeLinejoin="round">
       <path d="M6.5 6.5h11M6.5 17.5h11M6 4v16M18 4v16M3 7v10M21 7v10M9.5 12h5" />
+    </svg>
+  );
+}
+
+function KettlebellIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-6 h-6 fill-none stroke-[#F59E0B] stroke-[2.2]" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8 10V6a4 4 0 0 1 8 0v4" />
+      <circle cx="12" cy="15" r="6" />
+      <circle cx="12" cy="15" r="2.2" fill="#F59E0B" />
+    </svg>
+  );
+}
+
+function FitnessPulseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-6 h-6 fill-none stroke-[#E11D48] stroke-[2.2]" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+    </svg>
+  );
+}
+
+function FlameIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-6 h-6 fill-[#EA580C] stroke-[#EA580C]" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3.5Z" />
+    </svg>
+  );
+}
+
+function TrophyIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-6 h-6 fill-none stroke-[#D97706] stroke-[2.2]" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+      <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+      <path d="M4 22h16" />
+      <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
     </svg>
   );
 }
 
 function NutritionIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="w-6 h-6 fill-none stroke-[#65A30D] stroke-2" strokeLinecap="round" strokeLinejoin="round">
+    <svg viewBox="0 0 24 24" className="w-6 h-6 fill-none stroke-[#65A30D] stroke-[2.2]" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.91 4.91 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z" />
       <path d="M10 2c1 .5 2 2 2 5" />
     </svg>
@@ -29,17 +68,17 @@ function NutritionIcon() {
 
 function MedicalIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="w-6 h-6 fill-none stroke-[#2563EB] stroke-2" strokeLinecap="round" strokeLinejoin="round">
+    <svg viewBox="0 0 24 24" className="w-6 h-6 fill-none stroke-[#2563EB] stroke-[2.2]" strokeLinecap="round" strokeLinejoin="round">
       <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .2.3" />
       <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4" />
-      <circle cx="20" cy="10" r="2" fill="#2563EB" />
+      <circle cx="20" cy="10" r="2.2" fill="#2563EB" />
     </svg>
   );
 }
 
 function LegalIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="w-6 h-6 fill-none stroke-[#D97706] stroke-2" strokeLinecap="round" strokeLinejoin="round">
+    <svg viewBox="0 0 24 24" className="w-6 h-6 fill-none stroke-[#D97706] stroke-[2.2]" strokeLinecap="round" strokeLinejoin="round">
       <path d="m16 16 3-8 3 8c-.87.65-2.07 1-3 1s-2.13-.35-3-1Z" />
       <path d="m2 16 3-8 3 8c-.87.65-2.07 1-3 1s-2.13-.35-3-1Z" />
       <path d="M7 21h10M12 3v18M3 7h18" />
@@ -48,6 +87,14 @@ function LegalIcon() {
 }
 
 const HERO_LOGOS: LogoItem[] = [
+  { name: "Dumbbell Gym", customIcon: <DumbbellIcon />, size: 60, mobileSize: 42 },
+  { name: "Kettlebell Weights", customIcon: <KettlebellIcon />, size: 58, mobileSize: 40 },
+  { name: "Fitness Pulse", customIcon: <FitnessPulseIcon />, size: 58, mobileSize: 40 },
+  { name: "Flame Calories", customIcon: <FlameIcon />, size: 56, mobileSize: 38 },
+  { name: "Trophy PR", customIcon: <TrophyIcon />, size: 58, mobileSize: 40 },
+  { name: "Clinical Nutrition", customIcon: <NutritionIcon />, size: 58, mobileSize: 40 },
+  { name: "Medical Doctor", customIcon: <MedicalIcon />, size: 58, mobileSize: 40 },
+  { name: "Legal Counsel", customIcon: <LegalIcon />, size: 58, mobileSize: 40 },
   { name: "Google", slug: "google", size: 60, mobileSize: 42 },
   { name: "Apple", slug: "apple", size: 58, mobileSize: 40 },
   { name: "Spotify", slug: "spotify", size: 58, mobileSize: 40 },
@@ -60,29 +107,29 @@ const HERO_LOGOS: LogoItem[] = [
   { name: "Airbnb", slug: "airbnb", size: 60, mobileSize: 42 },
   { name: "Adobe", slug: "adobe", size: 56, mobileSize: 38 },
   { name: "Uber", slug: "uber", size: 58, mobileSize: 40 },
-  { name: "Gym & Fitness", customIcon: <GymIcon />, size: 58, mobileSize: 40 },
-  { name: "Clinical Nutrition", customIcon: <NutritionIcon />, size: 58, mobileSize: 40 },
-  { name: "Medical Doctor", customIcon: <MedicalIcon />, size: 58, mobileSize: 40 },
-  { name: "Legal Counsel", customIcon: <LegalIcon />, size: 58, mobileSize: 40 },
 ];
 
 const INITIAL_SPREAD = [
-  { xPct: 0.06, yPct: 0.15 },
-  { xPct: 0.04, yPct: 0.48 },
-  { xPct: 0.08, yPct: 0.78 },
-  { xPct: 0.89, yPct: 0.12 },
-  { xPct: 0.92, yPct: 0.45 },
-  { xPct: 0.88, yPct: 0.80 },
-  { xPct: 0.14, yPct: 0.32 },
-  { xPct: 0.83, yPct: 0.62 },
-  { xPct: 0.18, yPct: 0.84 },
-  { xPct: 0.78, yPct: 0.28 },
-  { xPct: 0.10, yPct: 0.60 },
-  { xPct: 0.86, yPct: 0.90 },
-  { xPct: 0.22, yPct: 0.12 },
-  { xPct: 0.72, yPct: 0.16 },
-  { xPct: 0.25, yPct: 0.72 },
-  { xPct: 0.70, yPct: 0.84 },
+  { xPct: 0.05, yPct: 0.12 },
+  { xPct: 0.03, yPct: 0.42 },
+  { xPct: 0.07, yPct: 0.75 },
+  { xPct: 0.90, yPct: 0.10 },
+  { xPct: 0.93, yPct: 0.42 },
+  { xPct: 0.87, yPct: 0.78 },
+  { xPct: 0.12, yPct: 0.28 },
+  { xPct: 0.85, yPct: 0.60 },
+  { xPct: 0.16, yPct: 0.88 },
+  { xPct: 0.80, yPct: 0.25 },
+  { xPct: 0.08, yPct: 0.58 },
+  { xPct: 0.84, yPct: 0.88 },
+  { xPct: 0.20, yPct: 0.10 },
+  { xPct: 0.75, yPct: 0.14 },
+  { xPct: 0.22, yPct: 0.68 },
+  { xPct: 0.72, yPct: 0.82 },
+  { xPct: 0.04, yPct: 0.92 },
+  { xPct: 0.94, yPct: 0.92 },
+  { xPct: 0.28, yPct: 0.04 },
+  { xPct: 0.68, yPct: 0.04 },
 ];
 
 export function HeroFloatingLogos() {
