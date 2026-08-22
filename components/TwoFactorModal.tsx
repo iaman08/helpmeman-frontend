@@ -13,6 +13,7 @@ interface TwoFactorModalProps {
   onClose: () => void;
   mode: "verify" | "setup";
   tempToken?: string;
+  isMandatory?: boolean;
   onSuccess?: () => void;
 }
 
@@ -21,9 +22,10 @@ export default function TwoFactorModal({
   onClose,
   mode,
   tempToken,
+  isMandatory = false,
   onSuccess,
 }: TwoFactorModalProps) {
-  const { verify2FALogin } = useAuth();
+  const { verify2FALogin, updateUser } = useAuth();
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -78,6 +80,7 @@ export default function TwoFactorModal({
         if (dest) window.location.replace(dest);
       } else if (mode === "setup") {
         await api.post("/auth/2fa/enable", { code });
+        updateUser({ twoFactorEnabled: true });
         setSuccessMsg("Google Authenticator 2FA enabled successfully!");
         setTimeout(() => {
           onClose();
@@ -105,8 +108,8 @@ export default function TwoFactorModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          onClick={onClose}
-          className="absolute inset-0 bg-black/70 backdrop-blur-md"
+          onClick={isMandatory ? undefined : onClose}
+          className="absolute inset-0 bg-black/75 backdrop-blur-md"
         />
 
         {/* Modal Card */}
@@ -117,13 +120,15 @@ export default function TwoFactorModal({
           transition={{ duration: 0.25, ease: "easeOut" }}
           className="relative w-full max-w-md bg-white dark:bg-[#121214] border border-stone-200 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden p-6 sm:p-8 flex flex-col z-10"
         >
-          {/* Close button */}
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-600 dark:hover:text-white rounded-full transition-colors"
-          >
-            <X size={18} />
-          </button>
+          {/* Close button (hidden if mandatory setup) */}
+          {!isMandatory && (
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-600 dark:hover:text-white rounded-full transition-colors"
+            >
+              <X size={18} />
+            </button>
+          )}
 
           {/* Header */}
           <div className="flex flex-col items-center text-center mb-6">
@@ -131,11 +136,17 @@ export default function TwoFactorModal({
               {mode === "setup" ? <QrCode size={24} /> : <ShieldCheck size={24} />}
             </div>
             <h2 className="text-2xl font-bold text-stone-900 dark:text-white tracking-tight">
-              {mode === "setup" ? "Setup Google Authenticator" : "Two-Step Verification"}
-            </h2>
-            <p className="text-xs text-stone-500 dark:text-zinc-400 mt-1 max-w-xs">
               {mode === "setup"
-                ? "Scan the QR code with your authenticator app to enable 2FA protection."
+                ? isMandatory
+                  ? "Mandatory 2FA Setup"
+                  : "Setup Google Authenticator"
+                : "Two-Step Verification"}
+            </h2>
+            <p className="text-xs text-stone-500 dark:text-zinc-400 mt-1 max-w-xs leading-relaxed">
+              {mode === "setup"
+                ? isMandatory
+                  ? "Security Policy: Google Authenticator 2FA is required for all Administrator accounts before continuing."
+                  : "Scan the QR code with your authenticator app to enable 2FA protection."
                 : "Enter the 6-digit code from your Google Authenticator app."}
             </p>
           </div>

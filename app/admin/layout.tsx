@@ -103,6 +103,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [loading, user, isAdmin, isMentor, mentor, router]);
 
+  // Mandatory 2FA Setup enforcement for Admin & Super Admin accounts
+  const is2FAMandatory = (isAdmin || isSuperAdmin) && !user?.twoFactorEnabled;
+
+  useEffect(() => {
+    if (user && is2FAMandatory && !user.mustChangePassword) {
+      setTwoFactorSetupOpen(true);
+    }
+  }, [user?.id, is2FAMandatory, user?.mustChangePassword]);
+
   // Show the role-selection modal for team members once per session,
   // but only AFTER they've set their permanent password.
   useEffect(() => {
@@ -175,6 +184,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         isOpen={twoFactorSetupOpen}
         onClose={() => setTwoFactorSetupOpen(false)}
         mode="setup"
+        isMandatory={is2FAMandatory}
       />
     </SidebarShell>
   );

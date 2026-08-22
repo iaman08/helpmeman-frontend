@@ -36,6 +36,7 @@ export interface User {
   currentRole?: string | null;
   isEmailVerified: boolean;
   mustChangePassword?: boolean;
+  twoFactorEnabled?: boolean;
   currency?: string | null;
   createdAt: string;
 }

@@ -15,6 +15,8 @@ import {
   Activity,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { useState } from "react";
+import TwoFactorModal from "@/components/TwoFactorModal";
 import { SidebarShell } from "@/components/SidebarShell";
 
 const NAV_ITEMS = [
@@ -34,6 +36,15 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
   const { user, mentor, loading, logout, isMentor, isAdmin, isSuperAdmin } = useAuth();
   const router = useRouter();
   const hasRedirectedRef = useRef(false);
+  const [twoFactorSetupOpen, setTwoFactorSetupOpen] = useState(false);
+
+  const is2FAMandatory = (isAdmin || isSuperAdmin) && !user?.twoFactorEnabled;
+
+  useEffect(() => {
+    if (user && is2FAMandatory) {
+      setTwoFactorSetupOpen(true);
+    }
+  }, [user?.id, is2FAMandatory]);
 
   useEffect(() => {
     if (loading) return;
@@ -83,6 +94,14 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
           {children}
         </div>
       </div>
+
+      {/* Mandatory Google Authenticator 2FA Setup Modal */}
+      <TwoFactorModal
+        isOpen={twoFactorSetupOpen}
+        onClose={() => setTwoFactorSetupOpen(false)}
+        mode="setup"
+        isMandatory={is2FAMandatory}
+      />
     </SidebarShell>
   );
 }
