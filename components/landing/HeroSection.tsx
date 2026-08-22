@@ -5,8 +5,6 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import { motion } from "motion/react";
 import { useState, useEffect } from "react";
 import { LogoStack } from "./LogoStack";
-import { HeroFloatingLogos } from "./HeroFloatingLogos";
-
 const TYPED_WORDS = [
   "Fitness",
   "IITian",
@@ -55,9 +53,6 @@ export function HeroSection() {
 
   return (
     <section className="relative pt-16 pb-20 md:pt-24 md:pb-28 lg:pt-28 lg:pb-36 px-6 overflow-hidden min-h-[640px] md:min-h-[720px] flex flex-col justify-center">
-      {/* ── Interactive Physics Floating Logos Background ── */}
-      <HeroFloatingLogos />
-
       {/* ── Main Hero Content ── */}
       <div className="max-w-[1200px] mx-auto text-center relative z-20">
         {/* Mobbin-style Stacked Logo Cards — directly above hero headline */}
