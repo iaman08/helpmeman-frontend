@@ -8,8 +8,6 @@ import { AxiosError } from "axios";
 import OTPInput from "@/components/OTPInput";
 import api from "@/lib/api";
 
-import { TalkamoreBackground } from "@/components/TalkamoreBackground";
-
 export default function SignInPage() {
   const { login, verifySignupOTP, loginWithGoogle, user, mentor, loading } = useAuth();
   const router = useRouter();
@@ -29,6 +27,10 @@ export default function SignInPage() {
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
+  // Track when a form-handler has already initiated navigation so the redirect
+  // useEffect below doesn't fire a competing router.replace() on top of
+  // the router.push() that handleSubmit already called.
+  // Stable React ref — survives re-renders without triggering re-renders.
   const isNavigatingRef = useRef(false);
 
   // Resend OTP states
@@ -36,6 +38,9 @@ export default function SignInPage() {
   const [resending, setResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState("");
 
+  // Pre-warm all possible post-login destinations while the user is on this
+  // page. Next.js starts compiling those route bundles in the background so
+  // the first navigation after login is instant instead of 20+ seconds.
   useEffect(() => {
     router.prefetch("/dashboard");
     router.prefetch("/mentor");
@@ -43,25 +48,35 @@ export default function SignInPage() {
     router.prefetch("/admin");
     router.prefetch("/onboarding");
 
+    // Auto-fix corrupted OAuth states
     if (typeof window !== "undefined" && window.location.search.includes("bad_oauth_state")) {
       console.warn("Detected bad_oauth_state. Clearing corrupted local data.");
       localStorage.clear();
       sessionStorage.clear();
       document.cookie = "helpmeman.accessToken=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+      // Remove the error from the URL so it doesn't loop
       window.history.replaceState({}, document.title, window.location.pathname);
       window.location.reload();
     }
   }, [router]);
 
+  // Redirect if already logged in — fires on direct URL navigation (/signin
+  // visited while already authenticated). Also fires after form submission when
+  // React commits setUser(), but isNavigatingRef guards against that case.
   useEffect(() => {
+    // Form handler has already called router.push() — don't race it with
+    // window.location.replace(). The router.push() soft navigation preserves
+    // the mounted AuthProvider and its committed user state.
     if (isNavigatingRef.current) return;
 
     if (!loading && user) {
       const dest = getLoginDest(user, mentor);
       router.replace(dest);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, mentor, loading, router]);
 
+  // Cooldown countdown timer
   useEffect(() => {
     if (cooldown <= 0) return;
     const timer = setInterval(() => {
@@ -70,6 +85,7 @@ export default function SignInPage() {
     return () => clearInterval(timer);
   }, [cooldown]);
 
+  // Return null while checking auth state or if already logged in (redirect in progress)
   if (loading || user) return null;
 
   async function handleSubmit(e: FormEvent) {
@@ -84,6 +100,8 @@ export default function SignInPage() {
     setSubmitting(true);
     try {
       const dest = await login(email, password);
+      // Mark navigation as in-flight BEFORE router.push so the redirect
+      // useEffect (which fires when React commits setUser()) is suppressed.
       isNavigatingRef.current = true;
       router.push(dest);
     } catch (err) {
@@ -113,7 +131,7 @@ export default function SignInPage() {
     setSubmitting(true);
     try {
       const dest = await verifySignupOTP({
-        name: "",
+        name: "", // Not needed as it resolved on backend for existing users
         email: unverifiedEmail.toLowerCase(),
         password,
         otp,
@@ -155,21 +173,21 @@ export default function SignInPage() {
     }
   }
 
+
+
   return (
-    <main className="relative min-h-screen flex flex-col justify-center items-center py-12 px-6 sm:px-6 lg:px-8 transition-colors duration-300 overflow-hidden">
-      {/* Talkamore Ambient Background */}
-      <TalkamoreBackground />
+    <main className="min-h-screen bg-gray-50 dark:bg-[#0A0A0B] flex flex-col justify-center items-center py-12 px-6 sm:px-6 lg:px-8 transition-colors duration-300">
 
       {/* Brand logo at the top */}
-      <div className="relative z-10 flex flex-col items-center justify-center mb-6">
+      <div className="flex flex-col items-center justify-center mb-6">
         <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity select-none">
           <img src="/logo.svg" alt="HelpMeMan Logo" className="w-8 h-8 object-contain" />
           <span className="font-bold text-xl tracking-tight text-[var(--fg)]">HelpMeMan</span>
         </Link>
       </div>
 
-      {/* Glassmorphic Centered login Card */}
-      <div className="relative z-10 w-full max-w-md bg-white/80 dark:bg-[#121214]/85 backdrop-blur-xl py-8 px-6 sm:px-10 border border-stone-200/80 dark:border-zinc-800/80 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_12px_40px_rgb(0,0,0,0.5)]">
+      {/* ChatGPT-style Centered login Card */}
+      <div className="w-full max-w-md bg-white dark:bg-[#121214] py-8 px-6 sm:px-10 border border-gray-200/60 dark:border-zinc-800/80 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.03)] dark:shadow-[0_12px_40px_rgb(0,0,0,0.5)]">
         {step === "login" ? (
           <>
             <h2 className="text-center text-[28px] font-bold text-[var(--fg)] tracking-tight mb-1 select-none">

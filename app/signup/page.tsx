@@ -8,7 +8,6 @@ import { AxiosError } from "axios";
 import OTPInput from "@/components/OTPInput";
 import api from "@/lib/api";
 import PasswordStrength from "@/components/PasswordStrength";
-import { TalkamoreBackground } from "@/components/TalkamoreBackground";
 
 export default function SignUpPage() {
   const { register, verifySignupOTP, loginWithGoogle, user, mentor, loading } = useAuth();
@@ -170,20 +169,18 @@ export default function SignUpPage() {
   }
 
   return (
-    <main className="relative min-h-screen flex flex-col justify-center items-center py-12 px-6 sm:px-6 lg:px-8 transition-colors duration-300 overflow-hidden">
-      {/* Talkamore Ambient Background */}
-      <TalkamoreBackground />
+    <main className="min-h-screen bg-gray-50 dark:bg-[#0A0A0B] flex flex-col justify-center items-center py-12 px-6 sm:px-6 lg:px-8 transition-colors duration-300">
       
       {/* Brand logo at the top */}
-      <div className="relative z-10 flex flex-col items-center justify-center mb-6">
+      <div className="flex flex-col items-center justify-center mb-6">
         <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity select-none">
           <img src="/logo.svg" alt="HelpMeMan Logo" className="w-8 h-8 object-contain" />
           <span className="font-bold text-xl tracking-tight text-[var(--fg)]">HelpMeMan</span>
         </Link>
       </div>
 
-      {/* Glassmorphic Centered signup Card */}
-      <div className="relative z-10 w-full max-w-md bg-white/80 dark:bg-[#121214]/85 backdrop-blur-xl py-8 px-6 sm:px-10 border border-stone-200/80 dark:border-zinc-800/80 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_12px_40px_rgb(0,0,0,0.5)]">
+      {/* ChatGPT-style Centered signup Card */}
+      <div className="w-full max-w-md bg-white dark:bg-[#121214] py-8 px-6 sm:px-10 border border-gray-200/60 dark:border-zinc-800/80 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.03)] dark:shadow-[0_12px_40px_rgb(0,0,0,0.5)]">
         {step === 1 ? (
           <>
             <h2 className="text-center text-[28px] font-bold text-[var(--fg)] tracking-tight mb-1 select-none">
