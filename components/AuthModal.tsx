@@ -224,17 +224,20 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-black/60 backdrop-blur-md"
+          className="absolute inset-0 bg-black/65 backdrop-blur-lg"
         />
 
-        {/* Modal Card */}
+        {/* Modal Card with Talkamore Glass & Ambient Glows */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
-          className="relative w-full max-w-md bg-white dark:bg-[#121214] border border-gray-200/60 dark:border-zinc-800/80 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden max-h-[90vh] flex flex-col z-10"
+          className="relative w-full max-w-md bg-white/90 dark:bg-[#121214]/90 backdrop-blur-2xl border border-stone-200/80 dark:border-zinc-800/80 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.18)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.6)] overflow-hidden max-h-[90vh] flex flex-col z-10"
         >
+          {/* Ambient Glows */}
+          <div className="absolute -top-24 -left-24 w-48 h-48 bg-amber-500/15 dark:bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-emerald-500/10 dark:bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
           {/* Close button */}
           <button
             onClick={onClose}
