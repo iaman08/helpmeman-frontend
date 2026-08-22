@@ -369,12 +369,51 @@ function UTorontoIcon() {
   );
 }
 
+function GymFitnessIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-[#059669] stroke-2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6.5 6.5h11M6.5 17.5h11M6 4v16M18 4v16M3 7v10M21 7v10M9.5 12h5" />
+    </svg>
+  );
+}
+
+function ClinicalNutritionIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-[#65A30D] stroke-2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.91 4.91 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z" />
+      <path d="M10 2c1 .5 2 2 2 5" />
+    </svg>
+  );
+}
+
+function MedicalDoctorIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-[#2563EB] stroke-2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .2.3" />
+      <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4" />
+      <circle cx="20" cy="10" r="2" fill="#2563EB" />
+    </svg>
+  );
+}
+
+function LegalAdvocateIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-[#D97706] stroke-2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m16 16 3-8 3 8c-.87.65-2.07 1-3 1s-2.13-.35-3-1Z" />
+      <path d="m2 16 3-8 3 8c-.87.65-2.07 1-3 1s-2.13-.35-3-1Z" />
+      <path d="M7 21h10M12 3v18M3 7h18" />
+    </svg>
+  );
+}
+
 /* ──────────────────────────────────────────────────
-   Row 1: All Top Global Tech Companies
-   Row 2: All Top Global Universities & Colleges
+   Row 1: All Top Global Tech Companies & Multi-Domain Leaders
+   Row 2: All Top Global Universities, Medical & Legal Institutions
    ────────────────────────────────────────────────── */
 
 const marqueeLogoCardsRow1 = [
+  { name: "Gym & Fitness Coaches", category: "Fat Loss & Hypertrophy", icon: <GymFitnessIcon /> },
+  { name: "Clinical Nutritionists", category: "Diet & Macro Guidance", icon: <ClinicalNutritionIcon /> },
   { name: "Google", category: "Engineering & AI", icon: <GoogleIcon /> },
   { name: "Microsoft", category: "Cloud & Dev", icon: <MicrosoftIcon /> },
   { name: "Apple", category: "iOS & Systems", icon: <AppleIcon /> },
@@ -391,6 +430,8 @@ const marqueeLogoCardsRow1 = [
 ];
 
 const marqueeLogoCardsRow2 = [
+  { name: "AIIMS Medical Doctors", category: "NEET UG & Medical Prep", icon: <MedicalDoctorIcon /> },
+  { name: "Legal & Advocate Counsel", category: "CLAT & Legal Advisory", icon: <LegalAdvocateIcon /> },
   { name: "Harvard University", category: "Ivy League · Cambridge, MA", icon: <HarvardIcon /> },
   { name: "Stanford University", category: "Stanford, CA · Tech & AI", icon: <StanfordIcon /> },
   { name: "MIT", category: "Cambridge, MA · Tech", icon: <MITIcon /> },
@@ -434,10 +475,10 @@ export function FloatingLogosSection() {
           World-Class Mentorship
         </span>
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-[var(--fg)]">
-          Mentors from top global companies & universities
+          Mentors across Fitness, Healthcare, Law, Tech & Elite Universities
         </h2>
         <p className="text-sm sm:text-base text-[var(--muted)] max-w-lg leading-relaxed">
-          Get 1-on-1 guidance, JEE/NEET strategy, code reviews, and career coaching from leaders at top tech brands and elite institutions.
+          Get 1-on-1 guidance from Gym & Fitness Coaches, Clinical Nutritionists, Doctors, Advocates, Tech Leaders, and Founders.
         </p>
       </motion.div>
 

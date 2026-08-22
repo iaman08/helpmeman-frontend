@@ -30,6 +30,55 @@ interface LogoCard {
 
 /* ─── 17 Logo card definitions ─── */
 const LOGOS: LogoCard[] = [
+  /* ── Gym & Fitness Coach ── */
+  {
+    name: "Gym & Fitness Coach",
+    bg: "#059669",
+    icon: (
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6.5 6.5h11M6.5 17.5h11M6 4v16M18 4v16M3 7v10M21 7v10M9.5 12h5" />
+      </svg>
+    ),
+  },
+
+  /* ── Clinical Nutritionist ── */
+  {
+    name: "Clinical Nutritionist",
+    bg: "#65A30D",
+    icon: (
+      <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.91 4.91 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z" />
+        <path d="M10 2c1 .5 2 2 2 5" />
+      </svg>
+    ),
+  },
+
+  /* ── Medical Doctor ── */
+  {
+    name: "Medical Doctor (AIIMS)",
+    bg: "#2563EB",
+    icon: (
+      <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .2.3" />
+        <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4" />
+        <circle cx="20" cy="10" r="2" fill="white" />
+      </svg>
+    ),
+  },
+
+  /* ── Legal Counsel ── */
+  {
+    name: "Lawyer & Legal Counsel",
+    bg: "#D97706",
+    icon: (
+      <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m16 16 3-8 3 8c-.87.65-2.07 1-3 1s-2.13-.35-3-1Z" />
+        <path d="m2 16 3-8 3 8c-.87.65-2.07 1-3 1s-2.13-.35-3-1Z" />
+        <path d="M7 21h10M12 3v18M3 7h18" />
+      </svg>
+    ),
+  },
+
   /* ── Google ── */
   {
     name: "Google",

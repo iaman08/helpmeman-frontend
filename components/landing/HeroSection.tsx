@@ -7,14 +7,14 @@ import { useState, useEffect } from "react";
 import { LogoStack } from "./LogoStack";
 
 const TYPED_WORDS = [
+  "Fitness Coach",
   "IITian",
   "Doctor",
   "Nutritionist",
-  "Magician",
-  "Developer",
   "Lawyer",
+  "Gym Trainer",
+  "Developer",
   "Founder",
-  "personal",
 ];
 
 export function HeroSection() {
