@@ -29,7 +29,8 @@ interface AuthState {
   mentor: MentorMeta | null;
   loading: boolean;
   googleAuthenticating: boolean;
-  login: (email: string, password: string) => Promise<string>;
+  login: (email: string, password: string) => Promise<string | { requires2FA: boolean; tempToken: string }>;
+  verify2FALogin: (tempToken: string, code: string) => Promise<string>;
   loginWithGoogle: (onboardingRole?: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<OTPResponse>;
   verifySignupOTP: (formData: { name: string; email: string; password: string; phone?: string; otp: string; role?: string; onboardingRole?: string }) => Promise<string>;
@@ -294,8 +295,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /* ─── Login (email / password) ─── */
   const login = useCallback(
-    async (email: string, password: string): Promise<string> => {
-      const { data } = await api.post<AuthResponse>("/auth/login", { email, password }, {
+    async (email: string, password: string): Promise<string | { requires2FA: boolean; tempToken: string }> => {
+      const { data } = await api.post<AuthResponse & { requires2FA?: boolean; tempToken?: string }>("/auth/login", { email, password }, {
+        headers: { "x-show-loader": "true" }
+      });
+      if (data.requires2FA && data.tempToken) {
+        return { requires2FA: true, tempToken: data.tempToken };
+      }
+      return persist(data);
+    },
+    [persist],
+  );
+
+  /* ─── Verify 2FA Login ─── */
+  const verify2FALogin = useCallback(
+    async (tempToken: string, code: string): Promise<string> => {
+      const { data } = await api.post<AuthResponse>("/auth/2fa/verify-login", { tempToken, code }, {
         headers: { "x-show-loader": "true" }
       });
       return persist(data);
@@ -419,6 +434,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       googleAuthenticating,
       login,
+      verify2FALogin,
       loginWithGoogle,
       register,
       verifySignupOTP,

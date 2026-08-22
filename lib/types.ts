@@ -283,6 +283,9 @@ export interface AuthResponse {
   mentor?: { id: string; approvalStatus: ApprovalStatus; isActive?: boolean; onboardingCompleted?: boolean } | null;
   accessToken: string;
   refreshToken: string;
+  requires2FA?: boolean;
+  tempToken?: string;
+  requires2FASetup?: boolean;
 }
 
 export interface MentorSearchResponse {

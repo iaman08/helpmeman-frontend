@@ -9,6 +9,8 @@ import PasswordStrength from "@/components/PasswordStrength";
 import { X, Eye, EyeOff } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
+import TwoFactorModal from "@/components/TwoFactorModal";
+
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -27,10 +29,12 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
   const [showPassword, setShowPassword] = useState(false);
   const [agreed, setAgreed] = useState(false);
 
-  // OTP flow states
+  // OTP & 2FA flow states
   const [step, setStep] = useState<"form" | "otp">("form");
   const [unverifiedEmail, setUnverifiedEmail] = useState("");
   const [otp, setOtp] = useState("");
+  const [twoFactorModalOpen, setTwoFactorModalOpen] = useState(false);
+  const [twoFactorTempToken, setTwoFactorTempToken] = useState("");
 
   // General states
   const [error, setError] = useState("");
@@ -92,12 +96,15 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
 
     setSubmitting(true);
     try {
-      const dest = await login(email, password);
+      const result = await login(email, password);
+      if (typeof result === "object" && result?.requires2FA) {
+        setTwoFactorTempToken(result.tempToken);
+        setTwoFactorModalOpen(true);
+        return;
+      }
       onClose();
-      if (dest) {
-        // Hard navigation so the middleware fires at the edge and the
-        // dashboard loads directly — no landing-page flash, no React delay.
-        window.location.replace(dest);
+      if (typeof result === "string" && result) {
+        window.location.replace(result);
       }
     } catch (err) {
       if (err instanceof AxiosError && err.response?.status === 403 && err.response?.data?.requiresVerification) {
@@ -669,6 +676,13 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
           </div>
         </motion.div>
       </div>
+
+      <TwoFactorModal
+        isOpen={twoFactorModalOpen}
+        onClose={() => setTwoFactorModalOpen(false)}
+        mode="verify"
+        tempToken={twoFactorTempToken}
+      />
     </AnimatePresence>
   );
 }

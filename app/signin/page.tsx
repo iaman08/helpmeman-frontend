@@ -7,6 +7,7 @@ import { useAuth, getLoginDest } from "@/lib/auth-context";
 import { AxiosError } from "axios";
 import OTPInput from "@/components/OTPInput";
 import api from "@/lib/api";
+import TwoFactorModal from "@/components/TwoFactorModal";
 
 export default function SignInPage() {
   const { login, verifySignupOTP, loginWithGoogle, user, mentor, loading } = useAuth();
@@ -17,10 +18,12 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // OTP flow states
+  // OTP & 2FA flow states
   const [step, setStep] = useState<"login" | "otp">("login");
   const [unverifiedEmail, setUnverifiedEmail] = useState("");
   const [otp, setOtp] = useState("");
+  const [twoFactorModalOpen, setTwoFactorModalOpen] = useState(false);
+  const [twoFactorTempToken, setTwoFactorTempToken] = useState("");
 
   // General flow states
   const [error, setError] = useState("");
@@ -99,11 +102,16 @@ export default function SignInPage() {
 
     setSubmitting(true);
     try {
-      const dest = await login(email, password);
+      const result = await login(email, password);
+      if (typeof result === "object" && result?.requires2FA) {
+        setTwoFactorTempToken(result.tempToken);
+        setTwoFactorModalOpen(true);
+        return;
+      }
       // Mark navigation as in-flight BEFORE router.push so the redirect
       // useEffect (which fires when React commits setUser()) is suppressed.
       isNavigatingRef.current = true;
-      router.push(dest);
+      if (typeof result === "string") router.push(result);
     } catch (err) {
       if (err instanceof AxiosError && err.response?.status === 403 && err.response?.data?.requiresVerification) {
         setUnverifiedEmail(err.response.data.email || email);
@@ -401,6 +409,14 @@ export default function SignInPage() {
           </>
         )}
       </div>
+
+      {/* 2FA Verification Modal */}
+      <TwoFactorModal
+        isOpen={twoFactorModalOpen}
+        onClose={() => setTwoFactorModalOpen(false)}
+        mode="verify"
+        tempToken={twoFactorTempToken}
+      />
     </main>
   );
 }
