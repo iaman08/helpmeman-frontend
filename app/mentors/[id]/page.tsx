@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
+import { motion } from "motion/react";
 import {
   Star,
   Clock,
@@ -72,6 +73,11 @@ export default function MentorProfilePage() {
   const unreadChatCount = unreadData?.unreadCount ?? 0;
 
   const { id } = useParams();
+  const searchParams = useSearchParams();
+  const fromDiscover = searchParams.get("from") === "discover";
+  const backHref = fromDiscover ? "/mentors?tab=discover" : "/mentors";
+  const backLabel = fromDiscover ? "Back to Discover" : "Back to Explore";
+
   const { data, isLoading, error } = useMentor(id as string);
   const [reviewPage, setReviewPage] = useState(1);
   const {
@@ -145,14 +151,19 @@ export default function MentorProfilePage() {
   }
 
   const content = (
-    <div className={`w-full max-w-[1000px] ${user ? 'px-4 sm:px-6 pt-6 sm:pt-8' : 'mx-auto px-5 sm:px-10 pt-24 sm:pt-28'} pb-10`}>
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      className={`w-full max-w-[1000px] ${user ? 'px-4 sm:px-6 pt-6 sm:pt-8' : 'mx-auto px-5 sm:px-10 pt-24 sm:pt-28'} pb-10`}
+    >
       {/* Back Button */}
       <Link
-        href="/mentors"
-        className="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-[var()] hover:text-[var()] mb-6 transition-colors"
+        href={backHref}
+        className="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-[var()] hover:text-[var()] mb-6 transition-colors cursor-pointer"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
-        Back to Explore
+        {backLabel}
       </Link>
 
       {/* ─── Profile Content ─── */}
@@ -443,7 +454,7 @@ export default function MentorProfilePage() {
           mentor={mentor}
         />
       )}
-    </div>
+    </motion.div>
   );
 
   if (user) {

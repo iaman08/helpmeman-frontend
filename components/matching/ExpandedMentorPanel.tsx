@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { useMemo, useEffect } from "react";
+import { motion, AnimatePresence, type PanInfo } from "motion/react";
 import {
   X,
   Star,
@@ -12,9 +12,6 @@ import {
   GraduationCap,
   ExternalLink,
   BookOpen,
-  MessageCircle,
-  Share2,
-  Flag,
   CheckCircle2,
   Award,
   Zap,
@@ -22,6 +19,9 @@ import {
   MessageSquare,
   Target,
   FileText,
+  Heart,
+  Sparkles,
+  ArrowRight,
 } from "lucide-react";
 import { FaLinkedin } from "react-icons/fa";
 import Link from "next/link";
@@ -32,67 +32,95 @@ import { PriceDisplay } from "@/components/PriceDisplay";
 interface ExpandedMentorPanelProps {
   mentor: ScoredMentor | null;
   onClose: () => void;
+  isInterested?: boolean;
+  onSwipeAction?: (action: "skip" | "interested" | "priority") => void;
   onAction?: (actionType: string) => void;
 }
 
 const SESSION_TYPES = [
-  { icon: Video, label: "Video Call" },
-  { icon: MessageSquare, label: "Chat" },
-  { icon: Target, label: "Career Guidance" },
-  { icon: Zap, label: "Interview Prep" },
-  { icon: FileText, label: "Resume Review" },
+  { icon: Video, label: "1-on-1 Video Call", desc: "Live consultation & strategy" },
+  { icon: MessageSquare, label: "Chat Consultation", desc: "Asynchronous Q&A" },
+  { icon: Target, label: "Career Roadmap", desc: "Goal setting & planning" },
+  { icon: Zap, label: "Interview Mock Prep", desc: "Real questions & live feedback" },
+  { icon: FileText, label: "Resume & Portfolio", desc: "Detailed line-by-line review" },
 ];
 
 function InfoChip({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
   return (
-    <div
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-white/60"
-      style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
-    >
-      <Icon className="h-3 w-3 text-white/40" />
-      {label}
+    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-[var()]/5 border border-[var()] text-[var()] shadow-xs">
+      <Icon className="h-3.5 w-3.5 text-[var()]/60" />
+      <span>{label}</span>
     </div>
   );
 }
 
-function ReviewCard({ review }: { review: { userName?: string | null; rating: number; comment?: string | null; createdAt: string } }) {
+function ReviewCard({
+  review,
+}: {
+  review: {
+    userName?: string | null;
+    rating: number;
+    comment?: string | null;
+    createdAt: string;
+  };
+}) {
   return (
-    <div
-      className="flex-shrink-0 w-64 p-4 rounded-2xl"
-      style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
-    >
-      <div className="flex items-center gap-2 mb-2">
-        <div className="h-7 w-7 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-[10px] font-bold text-white">
-          {(review.userName || "U").charAt(0).toUpperCase()}
+    <div className="flex-shrink-0 w-72 p-4 rounded-2xl bg-[var()]/4 border border-[var()] flex flex-col justify-between shadow-xs">
+      <div>
+        <div className="flex items-center gap-2.5 mb-2.5">
+          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white shadow-sm">
+            {(review.userName || "U").charAt(0).toUpperCase()}
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-bold text-[var()] truncate">{review.userName || "Mentee"}</p>
+            <p className="text-[10px] text-[var()]/60">Verified Session</p>
+          </div>
+          <div className="ml-auto flex items-center gap-0.5">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                className="h-3 w-3"
+                style={{
+                  fill: i < review.rating ? "#f59e0b" : "none",
+                  stroke: i < review.rating ? "#f59e0b" : "var(--muted)",
+                }}
+              />
+            ))}
+          </div>
         </div>
-        <span className="text-xs font-medium text-white/70">{review.userName || "Mentee"}</span>
-        <div className="ml-auto flex items-center gap-0.5">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Star
-              key={i}
-              className="h-2.5 w-2.5"
-              style={{ fill: i < review.rating ? "#f59e0b" : "none", stroke: i < review.rating ? "#f59e0b" : "#4b5563" }}
-            />
-          ))}
-        </div>
+        {review.comment && (
+          <p className="text-xs text-[var()]/85 leading-relaxed line-clamp-3 italic">
+            &ldquo;{review.comment}&rdquo;
+          </p>
+        )}
       </div>
-      {review.comment && (
-        <p className="text-xs text-white/50 leading-relaxed line-clamp-3">{review.comment}</p>
-      )}
     </div>
   );
 }
 
-export function ExpandedMentorPanel({ mentor, onClose, onAction }: ExpandedMentorPanelProps) {
-  if (!mentor) return null;
+export function ExpandedMentorPanel({
+  mentor,
+  onClose,
+  isInterested = false,
+  onSwipeAction,
+  onAction,
+}: ExpandedMentorPanelProps) {
+  // Close on Escape key
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose]);
 
-  const languages: string[] = Array.isArray(mentor.languages)
+  const languages: string[] = Array.isArray(mentor?.languages)
     ? mentor.languages
-    : typeof mentor.languages === "string"
+    : typeof mentor?.languages === "string"
     ? mentor.languages.split(",").map((l) => l.trim())
     : [];
 
-  const reviews = mentor.reviews ?? [];
+  const reviews = mentor?.reviews ?? [];
 
   const uniquePanelReviews = useMemo(() => {
     const seen = new Set<string>();
@@ -105,6 +133,12 @@ export function ExpandedMentorPanel({ mentor, onClose, onAction }: ExpandedMento
     });
   }, [reviews]);
 
+  const handleDragEnd = (_: unknown, info: PanInfo) => {
+    if (info.offset.y > 100 || info.velocity.y > 500) {
+      onClose();
+    }
+  };
+
   return (
     <AnimatePresence>
       {mentor && (
@@ -114,268 +148,321 @@ export function ExpandedMentorPanel({ mentor, onClose, onAction }: ExpandedMento
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
             onClick={onClose}
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm"
           />
 
-          {/* Panel */}
+          {/* Slide-over Drawer / Sheet */}
           <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", stiffness: 320, damping: 34 }}
-            className="fixed bottom-0 left-0 right-0 z-40 max-h-[92vh] overflow-y-auto no-scrollbar"
+            initial={{ y: "100%", opacity: 0.5, scale: 0.98 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: "100%", opacity: 0, scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 340, damping: 30, mass: 0.8 }}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.5 }}
+            onDragEnd={handleDragEnd}
+            className="fixed bottom-0 left-0 right-0 md:left-1/2 md:-translate-x-1/2 md:max-w-2xl md:bottom-3 rounded-t-3xl md:rounded-3xl z-50 max-h-[92vh] overflow-y-auto no-scrollbar shadow-2xl border-t md:border border-[var()] will-change-transform"
             style={{
-              background: "linear-gradient(180deg, #141414 0%, #0d0d0d 100%)",
-              borderTop: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: "1.5rem 1.5rem 0 0",
+              background: "var(--bg)",
+              color: "var(--fg)",
             }}
           >
-            {/* Drag handle */}
-            <div className="flex justify-center pt-3 pb-1 sticky top-0 z-10"
-              style={{ background: "linear-gradient(180deg, #141414 80%, transparent)" }}>
-              <div className="h-1 w-10 rounded-full bg-white/20" />
+            {/* Grab Handle */}
+            <div className="flex justify-center pt-3 pb-1 sticky top-0 z-20 bg-[var()]/90 backdrop-blur-md cursor-grab active:cursor-grabbing">
+              <div className="h-1.5 w-12 rounded-full bg-[var()]/25" />
             </div>
 
-            {/* Close */}
-            <div className="flex justify-end px-5 pb-2 sticky top-5 z-10">
-              <button
-                type="button"
-                onClick={onClose}
-                className="p-2.5 rounded-full bg-black/60 hover:bg-white/10 border border-white/10 transition-colors cursor-pointer backdrop-blur-sm"
-              >
-                <X className="h-4 w-4 text-white/70" />
-              </button>
+            {/* Top Toolbar */}
+            <div className="flex items-center justify-between px-6 py-2 sticky top-5 z-20">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-[var()]/60 flex items-center gap-1.5">
+                  {isInterested && <Heart className="h-3.5 w-3.5 text-emerald-500 fill-emerald-500" />}
+                  {isInterested ? "Liked Profile" : "Mentor Details"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-[var()]/8 hover:bg-[var()]/15 transition-colors cursor-pointer text-[var()]"
+                >
+                  <span>Next Mentor</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="p-2 rounded-full bg-[var()]/8 hover:bg-[var()]/15 transition-colors cursor-pointer text-[var()]"
+                  aria-label="Close mentor preview"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
             </div>
 
-            <div className="px-5 pb-32 -mt-12">
-              {/* Hero */}
-              <div className="flex items-start gap-4 mb-6">
+            <div className="px-6 pt-2 pb-32 flex flex-col gap-5">
+              {/* Liked Banner if opened via interested swipe */}
+              {isInterested && (
+                <motion.div
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.15 }}
+                  className="flex items-center gap-3 p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
+                >
+                  <div className="p-2 rounded-xl bg-emerald-500/20">
+                    <Heart className="h-4 w-4 fill-emerald-500" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold leading-tight">
+                      Saved to your Interested List!
+                    </p>
+                    <p className="text-[11px] opacity-80 mt-0.5">
+                      Explore availability below or book an introductory session.
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Hero Banner with Avatar */}
+              <div className="flex items-start gap-4 p-4 rounded-2xl bg-[var()]/3 border border-[var()]">
                 <div className="relative flex-shrink-0">
                   <img
                     src={mentor.avatar || `https://i.pravatar.cc/300?u=${mentor.id}`}
                     alt={mentor.displayName}
-                    className="h-20 w-20 rounded-2xl object-cover"
-                    style={{ border: "2px solid rgba(255,255,255,0.1)" }}
+                    className="h-20 w-20 rounded-2xl object-cover border border-[var()] shadow-md"
                   />
                   {mentor.isOnline && (
-                    <div
-                      className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-[#141414]"
-                      style={{ background: "#22c55e", boxShadow: "0 0 8px rgba(34,197,94,0.6)" }}
-                    />
+                    <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-[var()] bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]" />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h2 className="text-xl font-bold text-white leading-tight">{mentor.displayName}</h2>
-                    <CheckCircle2 className="h-4 w-4 text-blue-400 flex-shrink-0" />
+                    <h2 className="text-xl sm:text-2xl font-black font-display text-[var()] leading-tight">
+                      {mentor.displayName}
+                    </h2>
+                    <CheckCircle2 className="h-4 w-4 text-blue-500 flex-shrink-0" />
                     {mentor.rating >= 4.8 && (
-                      <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-400 px-2 py-0.5 rounded-full">
-                        <Award className="h-2.5 w-2.5" />
+                      <span className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-500 px-2 py-0.5 rounded-full border border-amber-500/30">
+                        <Award className="h-3 w-3" />
                         Top Mentor
                       </span>
                     )}
                   </div>
                   {mentor.currentRole && (
-                    <p className="text-sm text-white/60 mt-0.5 truncate">{mentor.currentRole}</p>
+                    <p className="text-xs sm:text-sm text-[var()]/80 mt-1 font-medium">
+                      {mentor.currentRole}
+                      {mentor.institutionName && (
+                        <span className="font-bold text-[var()]"> @ {mentor.institutionName}</span>
+                      )}
+                    </p>
                   )}
-                  {mentor.institutionName && (
-                    <p className="text-xs text-indigo-400/80 mt-0.5 truncate">{mentor.institutionName}</p>
-                  )}
-                  <div className="flex items-center gap-3 mt-2 flex-wrap">
+                  <div className="flex items-center gap-3 mt-2 flex-wrap text-xs">
                     <div className="flex items-center gap-1">
                       <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
-                      <span className="text-sm font-bold text-white">{mentor.rating > 0 ? mentor.rating.toFixed(1) : "New"}</span>
+                      <span className="font-bold text-[var()]">
+                        {mentor.rating > 0 ? mentor.rating.toFixed(1) : "New"}
+                      </span>
                       {mentor.totalSessions > 0 && (
-                        <span className="text-xs text-white/35">({mentor.totalSessions} sessions)</span>
+                        <span className="text-[var()]/60">({mentor.totalSessions} sessions)</span>
                       )}
                     </div>
-                    {mentor.experienceYears && (
-                      <span className="text-xs text-white/40">• {mentor.experienceYears}yr exp</span>
+                    {mentor.experienceYears !== undefined && (
+                      <span className="text-[var()]/60">• {mentor.experienceYears}y exp</span>
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* Price + Quick stats */}
-              <div
-                className="grid grid-cols-3 gap-3 p-4 rounded-2xl mb-5"
-                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-              >
-                <div className="text-center">
-                  <p className="text-lg font-black text-white">
-                    <PriceDisplay amountInPaise={mentor.pricePerSession} />
+              {/* Price & Key Metrics */}
+              <div className="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-[var()]/4 border border-[var()] text-center">
+                <div>
+                  <p className="text-lg sm:text-xl font-black font-display text-[var()]">
+                    {mentor.pricePerSession === 0 ? (
+                      <span className="text-emerald-500">Free</span>
+                    ) : (
+                      <PriceDisplay amountInPaise={mentor.pricePerSession} />
+                    )}
                   </p>
-                  <p className="text-[10px] text-white/35 mt-0.5">per session</p>
+                  <p className="text-[10px] uppercase tracking-wider font-bold text-[var()]/60 mt-0.5">
+                    per session
+                  </p>
                 </div>
-                <div className="text-center border-x border-white/8">
-                  <p className="text-lg font-black text-white">{mentor.totalSessions}</p>
-                  <p className="text-[10px] text-white/35 mt-0.5">sessions</p>
+                <div className="border-x border-[var()]">
+                  <p className="text-lg sm:text-xl font-black font-display text-[var()]">
+                    {mentor.totalSessions}
+                  </p>
+                  <p className="text-[10px] uppercase tracking-wider font-bold text-[var()]/60 mt-0.5">
+                    sessions
+                  </p>
                 </div>
-                <div className="text-center">
-                  <p className="text-sm font-bold text-white">{mentor.averageResponseTime || "–"}</p>
-                  <p className="text-[10px] text-white/35 mt-0.5">response</p>
+                <div>
+                  <p className="text-sm sm:text-base font-bold text-[var()]">
+                    {mentor.averageResponseTime || "Fast"}
+                  </p>
+                  <p className="text-[10px] uppercase tracking-wider font-bold text-[var()]/60 mt-0.5">
+                    response
+                  </p>
                 </div>
               </div>
 
-              {/* AI Match Score */}
-              <div
-                className="p-4 rounded-2xl mb-5"
-                style={{
-                  background: "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(168,85,247,0.06))",
-                  border: "1px solid rgba(99,102,241,0.2)",
-                }}
-              >
+              {/* AI Match Breakdown Card */}
+              <div className="p-5 rounded-2xl bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent border border-indigo-500/20">
                 <AIMatchScore score={mentor.matchScore} reasons={mentor.matchReasons} />
-                <div className="mt-3 p-3 rounded-xl text-xs text-white/50 leading-relaxed"
-                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}>
-                  <span className="text-indigo-400 font-semibold">✦ Why this mentor? </span>
-                  Based on your profile, career goals, preferred learning style and budget, this mentor has a high compatibility rating with you.
-                </div>
               </div>
 
-              {/* About */}
+              {/* Bio / About */}
               {mentor.bio && (
-                <Section title="About">
-                  <p className="text-sm text-white/55 leading-relaxed">{mentor.bio}</p>
-                </Section>
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var()]/60 mb-2">
+                    About Mentor
+                  </p>
+                  <p className="text-sm text-[var()]/85 leading-relaxed bg-[var()]/3 p-4 rounded-2xl border border-[var()]">
+                    {mentor.bio}
+                  </p>
+                </div>
               )}
 
-              {/* Skills / Expertise */}
+              {/* Expertise Skills */}
               {mentor.expertise && mentor.expertise.length > 0 && (
-                <Section title="Skills & Expertise">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var()]/60 mb-2">
+                    Skills & Areas of Expertise
+                  </p>
                   <div className="flex flex-wrap gap-2">
                     {mentor.expertise.map((skill) => (
                       <span
                         key={skill}
-                        className="px-2.5 py-1 rounded-full text-xs font-medium text-indigo-300"
-                        style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.25)" }}
+                        className="px-3 py-1 rounded-full text-xs font-bold bg-[var()]/5 text-[var()] border border-[var()] shadow-xs"
                       >
                         {skill}
                       </span>
                     ))}
                   </div>
-                </Section>
+                </div>
               )}
 
-              {/* Session types */}
-              <Section title="Session Types">
-                <div className="grid grid-cols-2 gap-2">
-                  {SESSION_TYPES.map(({ icon: Icon, label }) => (
+              {/* Session Types Provided */}
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var()]/60 mb-2">
+                  Session Formats Available
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {SESSION_TYPES.map(({ icon: Icon, label, desc }) => (
                     <div
                       key={label}
-                      className="flex items-center gap-2 p-2.5 rounded-xl text-xs text-white/60"
-                      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+                      className="flex items-center gap-3 p-3 rounded-xl bg-[var()]/3 border border-[var()]"
                     >
-                      <Icon className="h-3.5 w-3.5 text-indigo-400 flex-shrink-0" />
-                      {label}
+                      <Icon className="h-4 w-4 text-indigo-400 flex-shrink-0" />
+                      <div>
+                        <p className="text-xs font-bold text-[var()]">{label}</p>
+                        <p className="text-[10px] text-[var()]/60">{desc}</p>
+                      </div>
                     </div>
                   ))}
                 </div>
-              </Section>
+              </div>
 
-              {/* Quick info chips */}
-              <div className="flex flex-wrap gap-2 mb-5">
+              {/* Info Chips */}
+              <div className="flex flex-wrap gap-2">
                 {mentor.location && <InfoChip icon={MapPin} label={mentor.location} />}
-                {mentor.averageResponseTime && <InfoChip icon={Clock} label={mentor.averageResponseTime} />}
-                {languages.length > 0 && (
-                  <InfoChip icon={Globe} label={languages.slice(0, 2).join(" • ")} />
+                {mentor.averageResponseTime && (
+                  <InfoChip icon={Clock} label={`Replies: ${mentor.averageResponseTime}`} />
                 )}
-                {mentor.experienceYears && (
-                  <InfoChip icon={Briefcase} label={`${mentor.experienceYears} years exp`} />
+                {languages.length > 0 && (
+                  <InfoChip icon={Globe} label={`Speaks ${languages.join(", ")}`} />
+                )}
+                {mentor.experienceYears !== undefined && (
+                  <InfoChip icon={Briefcase} label={`${mentor.experienceYears} Years Experience`} />
                 )}
                 {mentor.institutionType && (
                   <InfoChip icon={GraduationCap} label={mentor.institutionType} />
                 )}
               </div>
 
-              {/* Reviews */}
+              {/* Mentee Reviews */}
               {uniquePanelReviews.length > 0 && (
-                <Section title={`Reviews (${uniquePanelReviews.length})`}>
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var()]/60 mb-2.5">
+                    Recent Mentee Feedback ({uniquePanelReviews.length})
+                  </p>
                   <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
                     {uniquePanelReviews.slice(0, 5).map((rev: any) => {
                       const mappedRev = {
                         ...rev,
-                        userName: rev.userName || rev.user?.name || "Mentee"
+                        userName: rev.userName || rev.user?.name || "Mentee",
                       };
                       return (
-                        <ReviewCard key={rev.id || rev.comment || `${mappedRev.userName}-${rev.createdAt}`} review={mappedRev} />
+                        <ReviewCard
+                          key={rev.id || rev.comment || `${mappedRev.userName}-${rev.createdAt}`}
+                          review={mappedRev}
+                        />
                       );
                     })}
                   </div>
-                </Section>
+                </div>
               )}
 
-              {/* Links */}
-              {(mentor.linkedinUrl) && (
-                <Section title="Connect">
-                  <div className="flex flex-wrap gap-2">
-                    {mentor.linkedinUrl && (
-                      <a
-                        href={mentor.linkedinUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={() => onAction?.("profile_opened")}
-                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-blue-400 hover:bg-blue-500/10 transition-colors"
-                        style={{ border: "1px solid rgba(59,130,246,0.25)" }}
-                      >
-                        <FaLinkedin className="h-3.5 w-3.5" />
-                        LinkedIn
-                        <ExternalLink className="h-3 w-3 opacity-50" />
-                      </a>
-                    )}
-                  </div>
-                </Section>
+              {/* LinkedIn & Socials */}
+              {mentor.linkedinUrl && (
+                <div className="flex items-center gap-3">
+                  <a
+                    href={mentor.linkedinUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => onAction?.("profile_opened")}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-blue-500 bg-blue-500/10 border border-blue-500/30 hover:bg-blue-500/20 transition-colors"
+                  >
+                    <FaLinkedin className="h-4 w-4" />
+                    <span>View LinkedIn Profile</span>
+                    <ExternalLink className="h-3 w-3 opacity-60" />
+                  </a>
+                </div>
               )}
             </div>
 
-            {/* Sticky CTA */}
-            <div
-              className="fixed bottom-0 left-0 right-0 z-50 px-5 py-4 flex gap-3"
-              style={{
-                background: "linear-gradient(0deg, #0d0d0d 70%, transparent)",
-                backdropFilter: "blur(8px)",
-              }}
-            >
+            {/* Sticky Action Footer */}
+            <div className="fixed bottom-0 left-0 right-0 md:left-1/2 md:-translate-x-1/2 md:max-w-2xl px-6 py-4 flex items-center gap-3 border-t border-[var()] bg-[var()]/95 backdrop-blur-md z-30">
               <Link
                 href={`/book/${mentor.id}`}
-                onClick={() => onAction?.("session_booked")}
-                className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm text-black transition-all hover:opacity-90 active:scale-97"
-                style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }}
+                onClick={() => {
+                  onAction?.("session_booked");
+                  onClose();
+                }}
+                className="flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-bold text-sm bg-[var()] text-[var()] hover:opacity-90 active:scale-98 transition-all shadow-md"
               >
-                <BookOpen className="h-4 w-4 text-white" />
-                <span className="text-white">Book Session</span>
+                <BookOpen className="h-4 w-4" />
+                <span>Book 1-on-1 Session</span>
               </Link>
+
+              <Link
+                href={`/dashboard/chat?mentorId=${mentor.id}`}
+                onClick={() => {
+                  onAction?.("chat_opened");
+                  onClose();
+                }}
+                className="flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-xl font-bold text-xs bg-[var()]/5 border border-[var()] text-[var()] hover:bg-[var()]/10 transition-all"
+              >
+                <MessageSquare className="h-4 w-4" />
+                <span>Chat</span>
+              </Link>
+
               <Link
                 href={`/mentors/${mentor.id}`}
-                onClick={() => onAction?.("profile_opened")}
-                className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-bold text-sm text-white transition-all hover:bg-white/8"
-                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
+                onClick={() => {
+                  onAction?.("profile_opened");
+                  onClose();
+                }}
+                className="flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-xl font-bold text-xs bg-[var()]/5 border border-[var()] text-[var()] hover:bg-[var()]/10 transition-all"
               >
                 <ExternalLink className="h-4 w-4" />
-                Profile
+                <span>Profile</span>
               </Link>
-              <button
-                type="button"
-                onClick={() => onAction?.("share_clicked")}
-                className="flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl font-bold text-sm text-white/50 hover:text-white transition-all hover:bg-white/5 cursor-pointer"
-                style={{ border: "1px solid rgba(255,255,255,0.06)" }}
-              >
-                <Share2 className="h-4 w-4" />
-              </button>
             </div>
           </motion.div>
         </>
       )}
     </AnimatePresence>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="mb-5">
-      <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-white/30 mb-2.5">{title}</p>
-      {children}
-    </div>
   );
 }

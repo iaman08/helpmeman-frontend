@@ -87,7 +87,7 @@ export function MatchFoundModal({ mentor, onClose }: MatchFoundModalProps) {
             >
               {/* Brand top strip */}
               <div
-                className="h-1.5 w-full bg-[var()]"
+                className="h-1.5 w-full bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600"
               />
 
               <div className="p-6">
@@ -179,7 +179,7 @@ export function MatchFoundModal({ mentor, onClose }: MatchFoundModalProps) {
                     Book a Session
                   </Link>
                   <Link
-                    href={`/mentors/${mentor.id}`}
+                    href={`/mentors/${mentor.id}?from=discover`}
                     onClick={onClose}
                     className="flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm bg-[var()]/5 border border-[var()] text-[var()] transition-all hover:bg-[var()]/10"
                   >

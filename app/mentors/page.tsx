@@ -141,7 +141,7 @@ function MentorsContent() {
       </div>
 
       {activeTab === "discover" ? (
-        <div className="-mx-5 sm:-mx-10" style={{ height: "calc(100vh - 280px)", minHeight: "560px" }}>
+        <div className="w-full flex justify-center py-2">
           <SwipeArena />
         </div>
       ) : (
