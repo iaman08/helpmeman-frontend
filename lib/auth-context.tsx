@@ -29,7 +29,7 @@ interface AuthState {
   mentor: MentorMeta | null;
   loading: boolean;
   googleAuthenticating: boolean;
-  login: (email: string, password: string) => Promise<string | { requires2FA: boolean; tempToken: string }>;
+  login: (email: string, password: string) => Promise<string | { requires2FA?: boolean; requires2FASetup?: boolean; tempToken: string }>;
   verify2FALogin: (tempToken: string, code: string) => Promise<string>;
   loginWithGoogle: (onboardingRole?: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<OTPResponse>;
@@ -295,12 +295,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /* ─── Login (email / password) ─── */
   const login = useCallback(
-    async (email: string, password: string): Promise<string | { requires2FA: boolean; tempToken: string }> => {
-      const { data } = await api.post<AuthResponse & { requires2FA?: boolean; tempToken?: string }>("/auth/login", { email, password }, {
+    async (email: string, password: string): Promise<string | { requires2FA?: boolean; requires2FASetup?: boolean; tempToken: string }> => {
+      const { data } = await api.post<AuthResponse & { requires2FA?: boolean; requires2FASetup?: boolean; tempToken?: string }>("/auth/login", { email, password }, {
         headers: { "x-show-loader": "true" }
       });
       if (data.requires2FA && data.tempToken) {
         return { requires2FA: true, tempToken: data.tempToken };
+      }
+      if (data.requires2FASetup && data.accessToken) {
+        persist(data);
+        return { requires2FASetup: true, tempToken: data.accessToken };
       }
       return persist(data);
     },

@@ -34,6 +34,7 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
   const [unverifiedEmail, setUnverifiedEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [twoFactorModalOpen, setTwoFactorModalOpen] = useState(false);
+  const [twoFactorModalMode, setTwoFactorModalMode] = useState<"verify" | "setup">("verify");
   const [twoFactorTempToken, setTwoFactorTempToken] = useState("");
 
   // General states
@@ -97,10 +98,19 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
     setSubmitting(true);
     try {
       const result = await login(email, password);
-      if (typeof result === "object" && result?.requires2FA) {
-        setTwoFactorTempToken(result.tempToken);
-        setTwoFactorModalOpen(true);
-        return;
+      if (typeof result === "object") {
+        if (result?.requires2FA) {
+          setTwoFactorTempToken(result.tempToken);
+          setTwoFactorModalMode("verify");
+          setTwoFactorModalOpen(true);
+          return;
+        }
+        if (result?.requires2FASetup) {
+          setTwoFactorTempToken(result.tempToken);
+          setTwoFactorModalMode("setup");
+          setTwoFactorModalOpen(true);
+          return;
+        }
       }
       onClose();
       if (typeof result === "string" && result) {
@@ -680,7 +690,7 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
       <TwoFactorModal
         isOpen={twoFactorModalOpen}
         onClose={() => setTwoFactorModalOpen(false)}
-        mode="verify"
+        mode={twoFactorModalMode}
         tempToken={twoFactorTempToken}
       />
     </AnimatePresence>

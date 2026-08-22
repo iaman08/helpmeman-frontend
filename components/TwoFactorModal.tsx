@@ -51,7 +51,8 @@ export default function TwoFactorModal({
     setSetupLoading(true);
     setError("");
     try {
-      const { data } = await api.get("/auth/2fa/setup");
+      const authHeader = tempToken ? { Authorization: `Bearer ${tempToken}` } : undefined;
+      const { data } = await api.get("/auth/2fa/setup", { headers: authHeader });
       setQrCodeUrl(data.qrCodeUrl);
       setSecret(data.secret);
     } catch (err) {
@@ -79,7 +80,8 @@ export default function TwoFactorModal({
         onClose();
         if (dest) window.location.replace(dest);
       } else if (mode === "setup") {
-        await api.post("/auth/2fa/enable", { code });
+        const authHeader = tempToken ? { Authorization: `Bearer ${tempToken}` } : undefined;
+        await api.post("/auth/2fa/enable", { code }, { headers: authHeader });
         updateUser({ twoFactorEnabled: true });
         setSuccessMsg("Google Authenticator 2FA enabled successfully!");
         setTimeout(() => {

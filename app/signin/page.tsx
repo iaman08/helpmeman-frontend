@@ -23,6 +23,7 @@ export default function SignInPage() {
   const [unverifiedEmail, setUnverifiedEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [twoFactorModalOpen, setTwoFactorModalOpen] = useState(false);
+  const [twoFactorModalMode, setTwoFactorModalMode] = useState<"verify" | "setup">("verify");
   const [twoFactorTempToken, setTwoFactorTempToken] = useState("");
 
   // General flow states
@@ -103,10 +104,19 @@ export default function SignInPage() {
     setSubmitting(true);
     try {
       const result = await login(email, password);
-      if (typeof result === "object" && result?.requires2FA) {
-        setTwoFactorTempToken(result.tempToken);
-        setTwoFactorModalOpen(true);
-        return;
+      if (typeof result === "object") {
+        if (result?.requires2FA) {
+          setTwoFactorTempToken(result.tempToken);
+          setTwoFactorModalMode("verify");
+          setTwoFactorModalOpen(true);
+          return;
+        }
+        if (result?.requires2FASetup) {
+          setTwoFactorTempToken(result.tempToken);
+          setTwoFactorModalMode("setup");
+          setTwoFactorModalOpen(true);
+          return;
+        }
       }
       // Mark navigation as in-flight BEFORE router.push so the redirect
       // useEffect (which fires when React commits setUser()) is suppressed.
@@ -414,7 +424,7 @@ export default function SignInPage() {
       <TwoFactorModal
         isOpen={twoFactorModalOpen}
         onClose={() => setTwoFactorModalOpen(false)}
-        mode="verify"
+        mode={twoFactorModalMode}
         tempToken={twoFactorTempToken}
       />
     </main>
