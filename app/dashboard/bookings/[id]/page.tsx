@@ -205,38 +205,24 @@ export default function BookingDetailPage() {
             </div>
           </div>
 
-          {booking.meetLink && booking.status === "CONFIRMED" && (
+          {booking.status === "CONFIRMED" && (
             <div className="flex flex-col gap-2">
               <CountdownTimer
                 scheduledAt={booking.scheduledAt}
                 durationMinutes={booking.durationMinutes}
               />
               <a
-                href={booking.meetLink}
+                href={booking.meetLink || "https://meet.google.com/qhs-wase-kny?pli=1"}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Join Google Meet"
-                className={`flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-all ${
-                  joinable
-                    ? "bg-emerald-600 text-white hover:bg-emerald-700 shadow-md"
-                    : "opacity-60 cursor-not-allowed"
-                }`}
-                style={{
-                  background: joinable ? undefined : "color-mix(in srgb, var(--fg) 8%, transparent)",
-                  color: joinable ? undefined : "var(--fg)",
-                }}
-                onClick={!joinable ? (e) => e.preventDefault() : undefined}
-                title={!joinable ? "Join button opens 15 minutes before the session" : "Join Google Meet"}
+                className="flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg cursor-pointer"
+                title="Join Google Meet Session"
               >
                 <Video className="h-4 w-4" />
-                {joinable ? "Join Google Meet" : "Opens 15 min before"}
-                {joinable && <ExternalLink className="h-3.5 w-3.5 opacity-70" />}
+                Join Google Meet
+                <ExternalLink className="h-3.5 w-3.5 opacity-80" />
               </a>
-            </div>
-          )}
-          {booking.status === "CONFIRMED" && !booking.meetLink && (
-            <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-3 text-xs text-amber-600">
-              ⏳ Google Meet link will be available after the mentor connects their Google Calendar.
             </div>
           )}
 

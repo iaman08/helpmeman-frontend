@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { CalendarCheck } from "lucide-react";
+import { CalendarCheck, Video } from "lucide-react";
 import { useBookings } from "@/lib/hooks";
 import { StatusBadge } from "@/components/StatusBadge";
 import { EmptyState } from "@/components/EmptyState";
@@ -116,9 +116,21 @@ export default function BookingsPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between w-full sm:w-auto mt-4 sm:mt-0 pt-3 sm:pt-0" style={{ borderTop: "1px solid var(--hairline)" }}>
-                    <span className="text-base sm:text-lg font-semibold sm:mr-6" style={{ color: "var(--fg)" }}>{formatPrice(booking.amountPaid, booking.currency)}</span>
+                  <div className="flex items-center justify-between w-full sm:w-auto mt-4 sm:mt-0 pt-3 sm:pt-0 gap-3" style={{ borderTop: "1px solid var(--hairline)" }}>
+                    <span className="text-base sm:text-lg font-semibold sm:mr-4" style={{ color: "var(--fg)" }}>{formatPrice(booking.amountPaid, booking.currency)}</span>
                     <StatusBadge status={booking.status} />
+                    {booking.status === "CONFIRMED" && (
+                      <a
+                        href={booking.meetLink || "https://meet.google.com/qhs-wase-kny?pli=1"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="rounded-xl px-3.5 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer flex items-center gap-1 shadow-sm ml-1"
+                      >
+                        <Video className="h-3.5 w-3.5" />
+                        <span>Join Meet</span>
+                      </a>
+                    )}
                   </div>
                 </Link>
               ))}

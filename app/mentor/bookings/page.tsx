@@ -128,15 +128,15 @@ export default function MentorBookingsPage() {
               )}
 
               <div className="flex gap-2">
-                {b.meetLink && b.status === "CONFIRMED" && (
+                {b.status === "CONFIRMED" && (
                   <a
-                    href={b.meetLink}
+                    href={b.meetLink || "https://meet.google.com/qhs-wase-kny?pli=1"}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-xl px-4 py-2 text-xs font-semibold cursor-pointer shadow transition-opacity hover:opacity-90"
+                    className="rounded-xl px-4 py-2 text-xs font-semibold cursor-pointer shadow transition-opacity hover:opacity-90 flex items-center gap-1.5"
                     style={{ background: "var(--fg)", color: "var(--bg)" }}
                   >
-                    Join Meet
+                    <span>Join Meet</span>
                   </a>
                 )}
                 <button
