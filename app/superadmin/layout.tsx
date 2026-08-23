@@ -18,6 +18,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useState } from "react";
 import TwoFactorModal from "@/components/TwoFactorModal";
 import { SidebarShell } from "@/components/SidebarShell";
+import { ChangePasswordModal } from "@/components/ChangePasswordModal";
 
 const NAV_ITEMS = [
   { href: "/superadmin", label: "Dashboard", icon: LayoutDashboard },
@@ -41,10 +42,10 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
   const is2FAMandatory = (isAdmin || isSuperAdmin) && !user?.twoFactorEnabled;
 
   useEffect(() => {
-    if (user && is2FAMandatory) {
+    if (user && is2FAMandatory && !user.mustChangePassword) {
       setTwoFactorSetupOpen(true);
     }
-  }, [user?.id, is2FAMandatory]);
+  }, [user?.id, is2FAMandatory, user?.mustChangePassword]);
 
   useEffect(() => {
     if (loading) return;
@@ -94,6 +95,15 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
           {children}
         </div>
       </div>
+
+      {/* Force-password-change modal — shown when account was provisioned with a temp password */}
+      {user.mustChangePassword && (
+        <ChangePasswordModal
+          onSuccess={() => {
+            // Modal updates React state when done
+          }}
+        />
+      )}
 
       {/* Mandatory Google Authenticator 2FA Setup Modal */}
       <TwoFactorModal

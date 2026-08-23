@@ -64,23 +64,28 @@ export function ChangePasswordModal({ onSuccess }: ChangePasswordModalProps) {
         if (data.refreshToken) {
           localStorage.setItem("helpmeman.refreshToken", data.refreshToken);
         }
-        // Update cookie read by Next.js middleware for routing
-        const isHttps = window.location.protocol === "https:";
+        // Update cookies read by Next.js middleware for routing
+        const isHttps = typeof window !== "undefined" && window.location.protocol === "https:";
         const secure = isHttps ? ";Secure" : "";
         document.cookie = `helpmeman.accessToken=${data.accessToken};path=/;max-age=31536000;SameSite=Lax${secure}`;
+        if (data.user?.role) {
+          document.cookie = `helpmeman.role=${data.user.role};path=/;max-age=31536000;SameSite=Lax${secure}`;
+        }
       }
 
-      // Update local user state in React context — clears mustChangePassword immediately
-      // so the modal condition in the layout becomes false and the modal unmounts.
-      if (data.user) {
-        updateUser(data.user);
-      } else {
-        updateUser({ mustChangePassword: false });
-      }
-
+      // First show the success checkmark animation inside the modal
       setDone(true);
-      // Small delay so the success animation plays, then call parent's onSuccess
-      setTimeout(() => onSuccess(), 1500);
+
+      // Allow 1.5s for the success animation to play before updating React context state,
+      // which unmounts this modal gracefully.
+      setTimeout(() => {
+        if (data.user) {
+          updateUser({ ...data.user, mustChangePassword: false });
+        } else {
+          updateUser({ mustChangePassword: false });
+        }
+        onSuccess();
+      }, 1500);
     } catch (err: any) {
       setError(
         err?.response?.data?.error ?? "Failed to update password. Please try again."
