@@ -11,6 +11,8 @@ import {
   Rocket,
   CheckCircle,
   Mail,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import api from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
@@ -23,7 +25,7 @@ type InstitutionType = "COLLEGE" | "COMPANY" | "STARTUP";
 const INST_OPTIONS: { value: InstitutionType; label: string; icon: typeof GraduationCap }[] = [
   { value: "COLLEGE", label: "College / University", icon: GraduationCap },
   { value: "COMPANY", label: "Company", icon: Building2 },
-  { value: "STARTUP", label: "Startup", icon: Rocket },
+  { value: "STARTUP", label: "Startup / Independent", icon: Rocket },
 ];
 
 export default function BecomeMentorPage() {
@@ -40,6 +42,7 @@ export default function BecomeMentorPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [phone, setPhone] = useState("");
 
   // Step 2: Institution
@@ -232,9 +235,25 @@ export default function BecomeMentorPage() {
                 {!user && (
                   <label className="flex flex-col gap-2 text-sm">
                     <span className="text-[var()] text-xs uppercase tracking-[0.18em]">Password</span>
-                    <input type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)}
-                      placeholder="At least 8 characters"
-                      className="bg-[var()]/5 rounded-lg px-4 py-3 outline-none focus:bg-[var()]/8 transition-colors" />
+                    <div className="relative w-full">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        required
+                        minLength={8}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="At least 8 characters"
+                        className="w-full bg-[var()]/5 rounded-lg pl-4 pr-11 py-3 outline-none focus:bg-[var()]/8 transition-colors"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[var()] transition-colors focus:outline-none cursor-pointer"
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
                   </label>
                 )}
                 <label className="flex flex-col gap-2 text-sm">

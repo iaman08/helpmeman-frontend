@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef, type FormEvent } from "react";
 import { useAuth, getLoginDest } from "@/lib/auth-context";
 import { AxiosError } from "axios";
+import { Eye, EyeOff } from "lucide-react";
 import OTPInput from "@/components/OTPInput";
 import api from "@/lib/api";
 
@@ -245,9 +246,14 @@ export default function SignInPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-[var(--fg)]"
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-[var(--fg)] transition-colors focus:outline-none cursor-pointer"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                   >
-                    {/* Eye Icon */}
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
                   </button>
                 </div>
               </div>

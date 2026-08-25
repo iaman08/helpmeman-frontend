@@ -23,6 +23,42 @@ export interface ChatAttachment {
 
 /* ─── Models ─── */
 
+export interface MentorOnboardingAnswer {
+  questionKey: string;
+  question: string;
+  answer: string;
+  skipped?: boolean;
+}
+
+export interface MentorOnboardingData {
+  id?: string;
+  userId?: string;
+  currentQuestion?: number;
+  messages?: Array<{ id: string; sender: string; text: string; createdAt?: string }>;
+  answers?: MentorOnboardingAnswer[];
+  completed?: boolean;
+}
+
+export interface MentorProfileData {
+  id?: string;
+  mentorId?: string;
+  name?: string;
+  preferredName?: string;
+  role?: string;
+  company?: string;
+  location?: string;
+  skills?: string[];
+  bio?: string;
+  summary?: string;
+  goals?: string;
+  expertiseTags?: string[];
+  experienceYears?: number | null;
+  mentoringStyle?: Record<string, any> | null;
+  personality?: Record<string, any> | null;
+  onboardingStatus?: string;
+  completedAt?: string;
+}
+
 export interface User {
   id: string;
   name: string;
@@ -36,6 +72,8 @@ export interface User {
   isEmailVerified: boolean;
   mustChangePassword?: boolean;
   currency?: string | null;
+  mentorProfile?: MentorProfileData | null;
+  mentorOnboarding?: MentorOnboardingData | null;
   createdAt: string;
 }
 
@@ -51,7 +89,7 @@ export interface Category {
 export interface Mentor {
   id: string;
   userId: string;
-  user?: Pick<User, "name" | "email">;
+  user?: User;
   displayName: string;
   bio: string;
   avatar?: string | null;
