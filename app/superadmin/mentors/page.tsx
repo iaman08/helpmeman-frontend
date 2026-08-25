@@ -4,17 +4,10 @@ import React, { useState, useEffect } from "react";
 import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { StatusBadge } from "@/components/StatusBadge";
-import { Search, ChevronLeft, ChevronRight, CheckCircle, XCircle } from "lucide-react";
-
-interface Mentor {
-  id: string;
-  user: { name: string; email: string };
-  institution: string;
-  approvalStatus: string;
-  sessionsCompleted: number;
-  averageRating: number;
-  createdAt: string;
-}
+import { InstitutionBadge } from "@/components/InstitutionBadge";
+import { MentorApplicationModal } from "@/components/MentorApplicationModal";
+import { Search, ChevronLeft, ChevronRight, CheckCircle, XCircle, Eye } from "lucide-react";
+import type { Mentor } from "@/lib/types";
 
 export default function SuperAdminMentorsPage() {
   const [mentors, setMentors] = useState<Mentor[]>([]);
@@ -25,6 +18,7 @@ export default function SuperAdminMentorsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [rejectReason, setRejectReason] = useState("");
   const [rejectId, setRejectId] = useState<string | null>(null);
+  const [selectedMentor, setSelectedMentor] = useState<Mentor | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -38,11 +32,11 @@ export default function SuperAdminMentorsPage() {
     try {
       const res = await api.get(`/admin/mentors`, {
         params: {
-          q: search,
+          q: search.trim() || undefined,
           status: status !== "All" ? status : undefined,
           page,
-          limit: 20
-        }
+          limit: 20,
+        },
       });
       setMentors(res.data.mentors || []);
       setTotalPages(res.data.totalPages || 1);
@@ -58,18 +52,22 @@ export default function SuperAdminMentorsPage() {
     try {
       await api.post(`/admin/mentors/${id}/approve`);
       fetchMentors();
+      if (selectedMentor?.id === id) setSelectedMentor(null);
     } catch (err) {
       alert("Failed to approve mentor");
     }
   };
 
-  const handleReject = async () => {
-    if (!rejectId || !rejectReason.trim()) return;
+  const handleReject = async (overrideId?: string, overrideReason?: string) => {
+    const targetId = overrideId || rejectId;
+    const finalReason = overrideReason || rejectReason;
+    if (!targetId || !finalReason.trim()) return;
     try {
-      await api.post(`/admin/mentors/${rejectId}/reject`, { reason: rejectReason });
+      await api.post(`/admin/mentors/${targetId}/reject`, { reason: finalReason.trim() });
       setRejectId(null);
       setRejectReason("");
       fetchMentors();
+      if (selectedMentor?.id === targetId) setSelectedMentor(null);
     } catch (err) {
       alert("Failed to reject mentor");
     }
@@ -87,7 +85,7 @@ export default function SuperAdminMentorsPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: "var(--muted)" }} />
           <input
             type="text"
-            placeholder="Search by name..."
+            placeholder="Search by name, email, company, or institution..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             className="w-full rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none"
@@ -124,7 +122,7 @@ export default function SuperAdminMentorsPage() {
                 <th className="px-6 py-4">Institution</th>
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4">Stats</th>
-                <th className="px-6 py-4">Actions</th>
+                <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -135,7 +133,7 @@ export default function SuperAdminMentorsPage() {
                     <td className="px-6 py-4"><Skeleton className="h-5 w-32" /></td>
                     <td className="px-6 py-4"><Skeleton className="h-5 w-20" /></td>
                     <td className="px-6 py-4"><Skeleton className="h-5 w-24" /></td>
-                    <td className="px-6 py-4"><Skeleton className="h-8 w-20" /></td>
+                    <td className="px-6 py-4"><Skeleton className="h-8 w-20 ml-auto" /></td>
                   </tr>
                 ))
               ) : mentors.length === 0 ? (
@@ -143,46 +141,64 @@ export default function SuperAdminMentorsPage() {
                   <td colSpan={5} className="px-6 py-10 text-center text-sm" style={{ color: "var(--muted)" }}>No mentors found.</td>
                 </tr>
               ) : (
-                mentors.map((mentor, idx) => (
-                  <tr key={mentor.id} className="transition-colors" style={{ borderBottom: idx < mentors.length - 1 ? "1px solid var(--hairline)" : "none" }}>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col">
-                        <span className="font-medium" style={{ color: "var(--fg)" }}>{mentor.user?.name}</span>
-                        <span className="text-xs" style={{ color: "var(--muted)" }}>{mentor.user?.email}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-xs font-medium" style={{ color: "var(--muted)" }}>{mentor.institution || '-'}</td>
-                    <td className="px-6 py-4">
-                      <StatusBadge status={mentor.approvalStatus} />
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col text-xs font-medium" style={{ color: "var(--muted)" }}>
-                        <span>Sessions: {mentor.sessionsCompleted}</span>
-                        <span>Rating: {mentor.averageRating ? mentor.averageRating.toFixed(1) : '0.0'}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      {mentor.approvalStatus === 'PENDING' && (
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleApprove(mentor.id)}
-                            className="p-1.5 bg-emerald-500/10 text-emerald-500 rounded hover:bg-emerald-500/20 transition-colors cursor-pointer"
-                            title="Approve"
-                          >
-                            <CheckCircle className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => setRejectId(mentor.id)}
-                            className="p-1.5 bg-red-500/10 text-red-500 rounded hover:bg-red-500/20 transition-colors cursor-pointer"
-                            title="Reject"
-                          >
-                            <XCircle className="h-4 w-4" />
-                          </button>
+                mentors.map((mentor, idx) => {
+                  const displayName = mentor.displayName || mentor.user?.name || "Mentor";
+                  return (
+                    <tr key={mentor.id} className="transition-colors" style={{ borderBottom: idx < mentors.length - 1 ? "1px solid var(--hairline)" : "none" }}>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                          <span className="font-semibold" style={{ color: "var(--fg)" }}>{displayName}</span>
+                          <span className="text-xs" style={{ color: "var(--muted)" }}>{mentor.user?.email || mentor.institutionEmail}</span>
                         </div>
-                      )}
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                      <td className="px-6 py-4 text-xs font-medium" style={{ color: "var(--muted)" }}>
+                        <InstitutionBadge institutionName={mentor.institutionName} institutionType={mentor.institutionType} />
+                      </td>
+                      <td className="px-6 py-4">
+                        <StatusBadge status={mentor.approvalStatus} />
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col text-xs font-medium" style={{ color: "var(--muted)" }}>
+                          <span>Sessions: {mentor.totalSessions ?? 0}</span>
+                          <span>Rating: {mentor.rating ? mentor.rating.toFixed(1) : "—"}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => setSelectedMentor(mentor)}
+                            className="p-1.5 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer"
+                            style={{
+                              background: "color-mix(in srgb, var(--fg) 6%, transparent)",
+                              color: "var(--fg)",
+                            }}
+                            title="View Application"
+                          >
+                            <Eye className="h-4 w-4 text-amber-500" />
+                          </button>
+                          {mentor.approvalStatus === "PENDING" && (
+                            <>
+                              <button
+                                onClick={() => handleApprove(mentor.id)}
+                                className="p-1.5 bg-emerald-500/10 text-emerald-500 rounded-lg hover:bg-emerald-500/20 transition-colors cursor-pointer"
+                                title="Approve"
+                              >
+                                <CheckCircle className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => setRejectId(mentor.id)}
+                                className="p-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20 transition-colors cursor-pointer"
+                                title="Reject"
+                              >
+                                <XCircle className="h-4 w-4" />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -238,7 +254,7 @@ export default function SuperAdminMentorsPage() {
                 Cancel
               </button>
               <button
-                onClick={handleReject}
+                onClick={() => handleReject()}
                 disabled={!rejectReason.trim()}
                 className="px-4 py-2 rounded-xl text-xs font-semibold bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 cursor-pointer shadow"
               >
@@ -248,6 +264,18 @@ export default function SuperAdminMentorsPage() {
           </div>
         </div>
       )}
+
+      {/* Full Application Modal */}
+      {selectedMentor && (
+        <MentorApplicationModal
+          mentor={selectedMentor}
+          isOpen={!!selectedMentor}
+          onClose={() => setSelectedMentor(null)}
+          onApprove={(id) => handleApprove(id)}
+          onReject={(id, reason) => handleReject(id, reason)}
+        />
+      )}
     </div>
   );
 }
+

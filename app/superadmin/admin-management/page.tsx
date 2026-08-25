@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { StatusBadge } from "@/components/StatusBadge";
-import { Search, Plus, Trash2, KeyRound, Ban, CheckCircle, Edit2 } from "lucide-react";
+import { Search, Plus, Trash2, KeyRound, Ban, CheckCircle, Edit2, Eye, EyeOff } from "lucide-react";
 
 interface AdminUser {
   id: string;
@@ -24,6 +24,7 @@ export default function SuperAdminManagementPage() {
   // Modals / Forms
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", password: "", role: "ADMIN" });
+  const [showPassword, setShowPassword] = useState(false);
   
   // Edit mode
   const [editId, setEditId] = useState<string | null>(null);
@@ -138,7 +139,24 @@ export default function SuperAdminManagementPage() {
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold" style={{ color: "var(--muted)" }}>Temporary Password</label>
-              <input required type="password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="rounded-xl px-4 py-2.5 text-sm outline-none" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 4%, transparent)", color: "var(--fg)" }} />
+              <div className="relative w-full">
+                <input
+                  required
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={e => setFormData({...formData, password: e.target.value})}
+                  className="w-full rounded-xl pl-4 pr-10 py-2.5 text-sm outline-none"
+                  style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 4%, transparent)", color: "var(--fg)" }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[var(--fg)] transition-colors focus:outline-none cursor-pointer"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold" style={{ color: "var(--muted)" }}>Role</label>

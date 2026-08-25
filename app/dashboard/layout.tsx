@@ -32,6 +32,7 @@ export default function DashboardLayout({
     { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
     { href: "/dashboard/bookings", label: "Bookings", icon: CalendarCheck },
     { href: "/dashboard/meetings", label: "Meetings", icon: Video },
+    { href: "/mentors", label: "Browse Mentors", icon: Search },
     { href: "/dashboard/chat", label: "Chat", icon: MessageCircle, badge: unreadChatCount },
     { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
     {
@@ -43,7 +44,6 @@ export default function DashboardLayout({
       label: "Ruth",
       icon: Sparkles,
     },
-    { href: "/mentors", label: "Browse Mentors", icon: Search },
     { href: "/dashboard/settings", label: "Settings", icon: Settings },
   ];
 
