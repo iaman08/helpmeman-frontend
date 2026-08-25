@@ -124,12 +124,20 @@ export default function AdminDashboardPage() {
         >
           <div className="flex items-center gap-3">
             <UserCheck className="h-5 w-5" style={{ color: "#d97706" }} />
-            <span className="text-sm font-medium" style={{ color: "#d97706" }}>
-              {data!.pendingApprovals} mentor
-              {data!.pendingApprovals !== 1 ? "s" : ""} waiting for approval
-            </span>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+              <span className="text-sm font-semibold" style={{ color: "#d97706" }}>
+                {data!.pendingApprovals} mentor
+                {data!.pendingApprovals !== 1 ? "s" : ""} waiting for review
+              </span>
+              <span className="text-xs text-amber-600/80 font-normal">
+                · 24-hour review SLA active
+              </span>
+            </div>
           </div>
-          <TrendingUp className="h-4 w-4" style={{ color: "#d97706" }} />
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-600">
+            <span>Review now</span>
+            <TrendingUp className="h-4 w-4" />
+          </div>
         </Link>
       )}
 

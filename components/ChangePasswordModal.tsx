@@ -87,9 +87,15 @@ export function ChangePasswordModal({ onSuccess }: ChangePasswordModalProps) {
         onSuccess();
       }, 1500);
     } catch (err: any) {
-      setError(
-        err?.response?.data?.error ?? "Failed to update password. Please try again."
-      );
+      const errorData = err?.response?.data?.error;
+      const errorMsg =
+        typeof errorData === "string"
+          ? errorData
+          : errorData?.message ||
+            err?.response?.data?.message ||
+            err?.message ||
+            "Failed to update password. Please try again.";
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

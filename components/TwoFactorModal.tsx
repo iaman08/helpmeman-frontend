@@ -55,10 +55,16 @@ export default function TwoFactorModal({
       const { data } = await api.get("/auth/2fa/setup", { headers: authHeader });
       setQrCodeUrl(data.qrCodeUrl);
       setSecret(data.secret);
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        setError(err.response?.data?.error ?? "Failed to load 2FA setup details");
-      }
+    } catch (err: any) {
+      const errorData = err?.response?.data?.error;
+      const errorMsg =
+        typeof errorData === "string"
+          ? errorData
+          : errorData?.message ||
+            err?.response?.data?.message ||
+            err?.message ||
+            "Failed to load 2FA setup details";
+      setError(errorMsg);
     } finally {
       setSetupLoading(false);
     }
@@ -89,12 +95,16 @@ export default function TwoFactorModal({
           if (onSuccess) onSuccess();
         }, 1200);
       }
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        setError(err.response?.data?.error ?? "Verification failed. Please check your code.");
-      } else {
-        setError("Something went wrong. Please try again.");
-      }
+    } catch (err: any) {
+      const errorData = err?.response?.data?.error;
+      const errorMsg =
+        typeof errorData === "string"
+          ? errorData
+          : errorData?.message ||
+            err?.response?.data?.message ||
+            err?.message ||
+            "Verification failed. Please check your code.";
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

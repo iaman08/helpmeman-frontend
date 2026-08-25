@@ -1,12 +1,95 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle, XCircle, ExternalLink, UserCheck, AlertTriangle, X } from "lucide-react";
+import { CheckCircle, XCircle, ExternalLink, UserCheck, X, Clock, Flame, AlertCircle } from "lucide-react";
 import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { InstitutionBadge } from "@/components/InstitutionBadge";
 import type { Mentor } from "@/lib/types";
+
+interface SLATimerProps {
+  createdAt: string;
+}
+
+function Application24hTimer({ createdAt }: SLATimerProps) {
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const createdTime = new Date(createdAt).getTime();
+  const deadline = createdTime + 24 * 60 * 60 * 1000;
+  const diffMs = deadline - now;
+  const total24hMs = 24 * 60 * 60 * 1000;
+  const elapsedMs = Math.max(0, now - createdTime);
+  const percentElapsed = Math.min(100, Math.round((elapsedMs / total24hMs) * 100));
+
+  if (diffMs <= 0) {
+    const overdueMs = Math.abs(diffMs);
+    const overdueHours = Math.floor(overdueMs / (1000 * 60 * 60));
+    const overdueMinutes = Math.floor((overdueMs % (1000 * 60 * 60)) / (1000 * 60));
+    const overdueSeconds = Math.floor((overdueMs % (1000 * 60)) / 1000);
+
+    return (
+      <div className="flex flex-col gap-1.5 min-w-[200px]">
+        <div className="flex items-center justify-between text-xs">
+          <span className="flex items-center gap-1.5 font-bold text-red-500">
+            <AlertCircle className="w-4 h-4 animate-bounce shrink-0" />
+            24h SLA Breached
+          </span>
+          <span className="font-mono text-[11px] text-red-500 font-semibold">
+            +{overdueHours}h {overdueMinutes}m {overdueSeconds}s
+          </span>
+        </div>
+        <div className="w-full h-1.5 rounded-full bg-red-500/20 overflow-hidden">
+          <div className="h-full bg-red-500 rounded-full w-full" />
+        </div>
+      </div>
+    );
+  }
+
+  const hoursLeft = Math.floor(diffMs / (1000 * 60 * 60));
+  const minsLeft = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  const secsLeft = Math.floor((diffMs % (1000 * 60)) / 1000);
+  const isUrgent = hoursLeft < 6;
+
+  return (
+    <div className="flex flex-col gap-1.5 min-w-[200px]">
+      <div className="flex items-center justify-between text-xs">
+        <span
+          className={`flex items-center gap-1.5 font-semibold ${
+            isUrgent ? "text-amber-500" : "text-emerald-500 dark:text-emerald-400"
+          }`}
+        >
+          {isUrgent ? (
+            <Flame className="w-3.5 h-3.5 animate-pulse text-amber-500 shrink-0" />
+          ) : (
+            <Clock className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+          )}
+          {isUrgent ? "Urgent Review" : "24h SLA Timer"}
+        </span>
+        <span
+          className={`font-mono text-[11px] font-semibold ${
+            isUrgent ? "text-amber-500" : "text-stone-600 dark:text-zinc-300"
+          }`}
+        >
+          {hoursLeft}h {minsLeft}m {secsLeft}s left
+        </span>
+      </div>
+      <div className="w-full h-1.5 rounded-full bg-stone-200 dark:bg-zinc-800 overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-all duration-1000 ${
+            isUrgent ? "bg-amber-500" : "bg-emerald-500"
+          }`}
+          style={{ width: `${percentElapsed}%` }}
+        />
+      </div>
+    </div>
+  );
+}
 
 export default function ApprovalsPage() {
   const [mentors, setMentors] = useState<Mentor[]>([]);
@@ -47,12 +130,50 @@ export default function ApprovalsPage() {
     finally { setActionId(null); }
   }
 
+  // SLA Summary Metrics
+  const nowMs = Date.now();
+  const overdueCount = mentors.filter(
+    (m) => nowMs > new Date(m.createdAt).getTime() + 24 * 60 * 60 * 1000
+  ).length;
+  const urgentCount = mentors.filter((m) => {
+    const diff = new Date(m.createdAt).getTime() + 24 * 60 * 60 * 1000 - nowMs;
+    return diff > 0 && diff < 6 * 60 * 60 * 1000;
+  }).length;
+  const onTrackCount = mentors.length - overdueCount - urgentCount;
+
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-1.5">
-        <p className="text-xs uppercase tracking-[0.22em]" style={{ color: "var(--muted)" }}>Approvals</p>
-        <h1 className="font-display text-4xl leading-tight" style={{ color: "var(--fg)" }}>Pending mentors.</h1>
-        <p className="text-sm" style={{ color: "var(--muted)" }}>Review applications, accept to activate profiles, or decline with feedback.</p>
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="flex flex-col gap-1.5">
+          <p className="text-xs uppercase tracking-[0.22em]" style={{ color: "var(--muted)" }}>Approvals</p>
+          <h1 className="font-display text-4xl leading-tight" style={{ color: "var(--fg)" }}>Pending mentors.</h1>
+          <p className="text-sm" style={{ color: "var(--muted)" }}>
+            Review applications within the 24-hour response window to maintain quick mentor onboarding.
+          </p>
+        </div>
+
+        {/* SLA Status Bar */}
+        {mentors.length > 0 && (
+          <div className="flex items-center gap-2 p-1.5 rounded-2xl border border-[var(--hairline)] bg-[var(--bg)] shadow-sm text-xs">
+            <div className="px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-600 font-semibold flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span>{onTrackCount} In SLA</span>
+            </div>
+            {urgentCount > 0 && (
+              <div className="px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-600 font-semibold flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                <span>{urgentCount} Urgent (&lt;6h)</span>
+              </div>
+            )}
+            {overdueCount > 0 && (
+              <div className="px-3 py-1.5 rounded-xl bg-red-500/10 text-red-600 font-bold flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
+                <span>{overdueCount} Overdue</span>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {loading ? (
@@ -62,9 +183,9 @@ export default function ApprovalsPage() {
       ) : mentors.length > 0 ? (
         <div className="flex flex-col gap-4">
           {mentors.map((m) => (
-            <div key={m.id} className="rounded-2xl p-6 flex flex-col gap-4 border transition-all"
+            <div key={m.id} className="rounded-2xl p-6 flex flex-col gap-5 border transition-all"
               style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
-              <div className="flex items-start justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full text-sm font-semibold shrink-0"
                     style={{ background: "color-mix(in srgb, var(--fg) 8%, transparent)", color: "var(--fg)" }}>
@@ -78,7 +199,15 @@ export default function ApprovalsPage() {
                     </div>
                   </div>
                 </div>
-                <span className="text-xs font-mono" style={{ color: "var(--muted)" }}>{m.user?.email || m.institutionEmail}</span>
+
+                <div className="flex flex-col items-start sm:items-end gap-1">
+                  <span className="text-xs font-mono" style={{ color: "var(--muted)" }}>{m.user?.email || m.institutionEmail}</span>
+                  {m.createdAt && (
+                    <div className="mt-1">
+                      <Application24hTimer createdAt={m.createdAt} />
+                    </div>
+                  )}
+                </div>
               </div>
 
               <p className="text-sm leading-relaxed line-clamp-3" style={{ color: "var(--muted)" }}>{m.bio}</p>
