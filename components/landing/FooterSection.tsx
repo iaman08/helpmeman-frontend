@@ -128,10 +128,13 @@ export function FooterSection() {
               Privacy Policy
             </Link>
             <Link href="/refund-policy" className="hover:text-white transition-colors">
-              Refund & Cancellation Policy
+              Refund Policy
             </Link>
             <Link href="/mentor-terms" className="hover:text-white transition-colors">
-              Mentor Terms & Code of Conduct
+              Mentor Terms
+            </Link>
+            <Link href="/code-of-conduct" className="hover:text-white transition-colors">
+              Mentor Code of Conduct
             </Link>
           </div>
         </div>
