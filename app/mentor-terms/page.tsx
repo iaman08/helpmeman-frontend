@@ -47,6 +47,16 @@ export default function MentorTermsPage() {
             HelpMeMan connects ambitious mentees with elite experts and leaders from top organizations (IITs, AIIMS, FAANG, YC startups, and more). If you apply to join or are approved as a Mentor on HelpMeMan, these Mentor Terms & Code of Conduct apply to you.
           </p>
 
+          <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs sm:text-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+              <p className="font-semibold text-[var(--fg)]">Looking for the full 13-point Mentor Code of Conduct?</p>
+              <p className="text-[var(--muted)] text-xs">Read our detailed standards on professionalism, student safety, and privacy.</p>
+            </div>
+            <Link href="/code-of-conduct" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shrink-0 transition-colors">
+              Read Code of Conduct →
+            </Link>
+          </div>
+
           <section className="space-y-3 pt-4">
             <h2 className="text-lg font-semibold text-zinc-900">1. Screening & Verification</h2>
             <p>
