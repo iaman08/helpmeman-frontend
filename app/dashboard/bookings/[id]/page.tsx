@@ -10,6 +10,7 @@ import {
   Video,
   Star,
   ExternalLink,
+  FileDown,
 } from "lucide-react";
 import api from "@/lib/api";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -155,6 +156,33 @@ export default function BookingDetailPage() {
     new Date(booking.scheduledAt) > new Date();
   const canReview = booking.status === "COMPLETED" && !booking.review;
 
+  async function handleDownloadPDF() {
+    if (!booking) return;
+    try {
+      const { generateConsultationPDF } = await import("@/lib/pdfGenerator");
+      const mentorObj = (booking as unknown as { mentor?: { displayName?: string; institutionName?: string } }).mentor;
+      generateConsultationPDF({
+        bookingId: booking.id,
+        menteeName: booking.user?.name || "Mentee",
+        menteeEmail: booking.user?.email,
+        mentorName: mentorObj?.displayName || "Mentor",
+        mentorCompany: mentorObj?.institutionName,
+        categoryName: "1-on-1 Mentorship Session",
+        scheduledAt: booking.scheduledAt,
+        durationMinutes: booking.durationMinutes,
+        status: booking.status,
+        userNotes: booking.userNotes || undefined,
+        mentorNotes: booking.mentorNotes || undefined,
+        aiBriefSummary: booking.aiBriefSummary || undefined,
+        amountPaid: booking.amountPaid,
+        currency: booking.currency,
+      });
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+      alert("Failed to generate PDF. Please try again.");
+    }
+  }
+
   return (
     <div className="flex flex-col gap-8">
       <Link
@@ -166,9 +194,19 @@ export default function BookingDetailPage() {
         All bookings
       </Link>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="font-display text-3xl font-bold" style={{ color: "var(--fg)" }}>Session Details</h1>
-        <StatusBadge status={booking.status} />
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleDownloadPDF}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800/80 hover:opacity-90 active:scale-95 transition-all cursor-pointer shadow-sm"
+          >
+            <FileDown className="h-4 w-4" />
+            Download Summary PDF
+          </button>
+          <StatusBadge status={booking.status} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

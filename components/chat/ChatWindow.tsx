@@ -2,7 +2,7 @@
 import { useEffect, useCallback, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import {
-  ArrowLeft, Lock, AlertTriangle, X, Upload, MessageCircle, Pencil, MoreVertical
+  ArrowLeft, Lock, AlertTriangle, X, Upload, MessageCircle, Pencil, MoreVertical, FileDown
 } from "lucide-react";
 import api from "@/lib/api";
 import { useToast } from "@/components/Toast";
@@ -290,6 +290,43 @@ export function ChatWindow({
     }
   }, [thread, userId, updateMessage, toast]);
 
+  const handleDownloadPDF = useCallback(async () => {
+    if (!thread) return;
+
+    try {
+      const menteeName = !isMentor ? "You" : (thread.user?.name || "Mentee");
+      const menteeEmail = thread.user?.email || "";
+      const mentorName = thread.mentor?.displayName || otherName || "Mentor";
+
+      const chatHighlights = messagesRef.current
+        .filter((m) => m.body && m.body.trim().length > 5)
+        .slice(-6)
+        .map((m) => {
+          const sender = m.senderRole === "MENTOR" ? mentorName : (m.senderId === userId ? menteeName : "User");
+          return `${sender}: ${m.body.trim()}`;
+        });
+
+      const { generateConsultationPDF } = await import("@/lib/pdfGenerator");
+
+      generateConsultationPDF({
+        bookingId: thread.bookingId || undefined,
+        threadId: thread.id,
+        menteeName,
+        menteeEmail,
+        mentorName,
+        mentorRole: isMentor ? undefined : thread.mentor?.displayName,
+        categoryName: "1-on-1 Consultation",
+        scheduledAt: thread.createdAt,
+        chatHighlights,
+      });
+
+      toast("Consultation PDF downloaded successfully!", "success");
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+      toast("Failed to generate PDF. Please try again.", "error");
+    }
+  }, [thread, isMentor, otherName, userId, toast]);
+
   const handleSend = useCallback(
     async (body: string, attachments?: ChatAttachment[], replyToId?: string) => {
       if (!thread) return;
@@ -465,7 +502,19 @@ export function ChatWindow({
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
+          {!isMentor && (
+            <button
+              type="button"
+              onClick={handleDownloadPDF}
+              title="Download Consultation PDF"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800/80 hover:opacity-90 active:scale-95 transition-all cursor-pointer shadow-sm"
+            >
+              <FileDown className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Download PDF</span>
+            </button>
+          )}
+
           {!isMentor && !isLocked && (thread?.mentorMsgCount ?? 0) === 0 && msgRemaining <= 2 && (
             <span
               className="text-[10px] font-bold px-2 py-0.5 rounded-full border select-none hidden sm:inline-flex"
@@ -498,7 +547,7 @@ export function ChatWindow({
               <div
                 className="absolute top-full right-0 mt-1.5 rounded-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 origin-top-right z-[60]"
                 style={{
-                  minWidth: 200,
+                  minWidth: 220,
                   background: "white",
                   border: "1px solid rgba(0,0,0,0.1)",
                   boxShadow: "0 20px 60px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.08)",
@@ -529,6 +578,18 @@ export function ChatWindow({
                       ))}
                     </div>
                   </div>
+                )}
+
+                {!isMentor && (
+                  <button
+                    type="button"
+                    onClick={() => { setShowHeaderMenu(false); handleDownloadPDF(); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm cursor-pointer text-left transition-colors border-b border-gray-100 dark:border-zinc-800 hover:bg-blue-50/50"
+                    style={{ color: "#2563eb" }}
+                  >
+                    <FileDown className="h-4 w-4 shrink-0" />
+                    <span className="font-semibold text-xs">Download Consultation PDF</span>
+                  </button>
                 )}
 
                 {!isMentor ? (
