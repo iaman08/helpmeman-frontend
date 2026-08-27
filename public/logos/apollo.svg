@@ -1,0 +1,18 @@
+<svg viewBox="0 0 180 180" width="180" height="180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M78 38C72 30 74 18 86 10C85 20 92 25 94 31C97 39 90 46 83 46C79 46 76 43 78 38Z" fill="#F59E0B" />
+  <path d="M84 38C81 33 83 24 91 18C90 25 95 28 96 32C98 37 94 42 89 42C86 42 84 40 84 38Z" fill="#F97316" />
+  <path d="M42 40H76V76L52 100H42V40Z" fill="#007DA5" />
+  <path d="M55 47H63V53H69V61H63V67H55V61H49V53H55V47Z" fill="white" />
+  <path d="M76 66L66 76L76 86V66Z" fill="#007DA5" />
+  <circle cx="70" cy="72" r="1.5" fill="white" />
+  <path d="M84 46H94L87 70H92L82 96H74L84 46Z" fill="#007DA5" />
+  <text x="90" y="128" textAnchor="middle" fill="#007DA5" fontSize="28" fontWeight="800" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="-0.5">
+    Apollo
+  </text>
+  <text x="90" y="145" textAnchor="middle" fill="#64748B" fontSize="9.5" fontWeight="700" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="2.5">
+    HOSPITALS
+  </text>
+  <text x="90" y="159" textAnchor="middle" fill="#94A3B8" fontSize="7.5" fontWeight="600" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="1.8">
+    TOUCHING LIVES
+  </text>
+</svg>

@@ -1,0 +1,14 @@
+<svg viewBox="0 0 160 160" width="160" height="160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="76.5" y="14" width="7" height="12" rx="3.5" fill="#E8005A" />
+  <line x1="56" y1="35" x2="68" y2="43" stroke="white" strokeWidth="6.5" strokeLinecap="round" />
+  <line x1="104" y1="35" x2="92" y2="43" stroke="white" strokeWidth="6.5" strokeLinecap="round" />
+  <circle cx="80" cy="39" r="8" stroke="white" strokeWidth="6.5" fill="none" />
+  <line x1="42" y1="57" x2="118" y2="57" stroke="white" strokeWidth="7" strokeLinecap="round" />
+  <line x1="47" y1="77" x2="58" y2="69" stroke="#00B4D8" strokeWidth="7" strokeLinecap="round" />
+  <line x1="113" y1="77" x2="102" y2="69" stroke="#FFB703" strokeWidth="7" strokeLinecap="round" />
+  <path d="M56 93L80 71L104 93" stroke="white" strokeWidth="7.5" strokeLinecap="round" strokeLinejoin="round" />
+  <line x1="80" y1="87" x2="80" y2="98" stroke="white" strokeWidth="6" strokeLinecap="round" />
+  <text x="80" y="134" textAnchor="middle" fill="white" fontSize="23" fontWeight="700" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="-0.5">
+    cult.fit
+  </text>
+</svg>

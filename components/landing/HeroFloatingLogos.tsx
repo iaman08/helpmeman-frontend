@@ -87,16 +87,11 @@ function LegalIcon() {
 }
 
 const HERO_LOGOS: LogoItem[] = [
-  { name: "Dumbbell Gym", customIcon: <DumbbellIcon />, size: 60, mobileSize: 42 },
-  { name: "Kettlebell Weights", customIcon: <KettlebellIcon />, size: 58, mobileSize: 40 },
-  { name: "Fitness Pulse", customIcon: <FitnessPulseIcon />, size: 58, mobileSize: 40 },
-  { name: "Flame Calories", customIcon: <FlameIcon />, size: 56, mobileSize: 38 },
-  { name: "Trophy PR", customIcon: <TrophyIcon />, size: 58, mobileSize: 40 },
-  { name: "Clinical Nutrition", customIcon: <NutritionIcon />, size: 58, mobileSize: 40 },
-  { name: "Medical Doctor", customIcon: <MedicalIcon />, size: 58, mobileSize: 40 },
-  { name: "Legal Counsel", customIcon: <LegalIcon />, size: 58, mobileSize: 40 },
-  { name: "Google", slug: "google", size: 60, mobileSize: 42 },
   { name: "Apple", slug: "apple", size: 58, mobileSize: 40 },
+  { name: "Google", slug: "google", size: 60, mobileSize: 42 },
+  { name: "Cultfit", slug: "cultfit", size: 58, mobileSize: 40 },
+  { name: "Apollo", slug: "apollo", size: 58, mobileSize: 40 },
+  { name: "Unilever", slug: "unilever", size: 58, mobileSize: 40 },
   { name: "Spotify", slug: "spotify", size: 58, mobileSize: 40 },
   { name: "Microsoft", slug: "microsoft", size: 56, mobileSize: 38 },
   { name: "ChatGPT", slug: "chatgpt", size: 60, mobileSize: 42 },
