@@ -10,9 +10,10 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 const navLinks = [
   { label: "Services", href: "/services" },
   { label: "Mentors", href: "/mentors" },
+  { label: "AI Resume Roast", href: "/resume-roast" },
   { label: "Reviews", href: "/#success", id: "success" },
   { label: "Pricing", href: "/#pricing", id: "pricing" },
-  { label: "AI", href: "/#about", id: "about" },
+  { label: "AI Copilot", href: "/#about", id: "about" },
 ];
 
 export function LandingNavbar() {
