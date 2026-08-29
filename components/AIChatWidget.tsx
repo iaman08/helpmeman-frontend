@@ -1541,8 +1541,6 @@ export function AIChatWidget() {
     }
   }, [sessionId, handleNewChat]);
 
-  if (!user) return null;
-
   // ─── Suggestion chips ──────────────────────────────────────────────────────
 
   const suggestions = [
@@ -1551,12 +1549,58 @@ export function AIChatWidget() {
     "I need help with PM interviews",
   ];
 
-  // ─── Render ────────────────────────────────────────────────────────────────
-
-  if (!isOpen) return null;
+  // ─── Render Floating Widget (Launcher on LEFT + Compact Popup Chatbot) ─────
 
   return (
-    <div data-ai-chat-open="true" className="fixed inset-y-0 right-0 left-0 md:left-64 z-[9999] flex flex-col overflow-hidden animate-in slide-in-from-bottom md:slide-in-from-right duration-300" style={{ background: "var(--bg)", borderLeft: "1px solid var(--hairline)", color: "var(--fg)" }}>
+    <>
+      {/* Floating Ruth AI Launcher Button (Bottom-Left) */}
+      <div className="fixed bottom-6 left-6 z-[9990] flex items-center gap-2.5 group select-none">
+        <button
+          type="button"
+          onClick={() => {
+            if (!user) {
+              if (typeof window !== "undefined") {
+                window.dispatchEvent(new Event("open-auth"));
+              }
+              return;
+            }
+            setIsOpen((prev) => !prev);
+            if (typeof window !== "undefined") {
+              localStorage.setItem("helpmeman.aiChatOpen", String(!isOpen));
+            }
+          }}
+          aria-label="Chat with Ruth AI Assistant"
+          className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white shadow-[0_10px_35px_rgba(37,99,235,0.45)] hover:shadow-[0_15px_45px_rgba(99,102,241,0.65)] hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer border border-white/25"
+        >
+          {/* Pulsing online status indicator */}
+          <span className="absolute top-0.5 right-0.5 flex h-3.5 w-3.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white dark:border-zinc-900" />
+          </span>
+
+          {isOpen ? (
+            <X className="w-6 h-6 text-white transition-transform duration-200" />
+          ) : (
+            <Bot className="w-7 h-7 text-white drop-shadow-md group-hover:rotate-6 transition-transform duration-300" />
+          )}
+        </button>
+
+        {/* Hover Tooltip Badge on Left */}
+        {!isOpen && (
+          <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-black/85 dark:bg-zinc-900/90 text-white backdrop-blur-xl border border-white/10 shadow-2xl transition-all group-hover:scale-105 pointer-events-none">
+            <Sparkles className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
+            <span className="text-xs font-semibold tracking-tight">Ask Ruth AI</span>
+          </div>
+        )}
+      </div>
+
+      {/* Floating Chatbot Popup Window (Bottom-Left) */}
+      {isOpen && (
+        <div
+          data-ai-chat-open="true"
+          className="fixed bottom-24 left-6 z-[9999] w-[calc(100vw-3rem)] sm:w-[410px] h-[590px] max-h-[82vh] rounded-3xl shadow-[0_25px_70px_rgba(0,0,0,0.45)] flex flex-col overflow-hidden border border-[var(--hairline)] bg-[var(--bg)] text-[var(--fg)] animate-in zoom-in-95 slide-in-from-bottom-6 duration-200"
+          style={{ background: "var(--bg)", color: "var(--fg)" }}
+        >
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div className="shrink-0 backdrop-blur-md sticky top-0 z-10 pt-safe-top md:pt-0" style={{ background: "color-mix(in srgb, var(--bg) 95%, transparent)", borderBottom: "1px solid var(--hairline)" }}>
@@ -1857,7 +1901,7 @@ export function AIChatWidget() {
                     <Sparkles className="h-6 w-6 text-[var()]" />
                   </div>
                   <div className="space-y-1">
-                    <p className="text-base font-semibold">Hi {user.name.split(" ")[0]}! 👋</p>
+                    <p className="text-base font-semibold">Hi {user?.name ? user.name.split(" ")[0] : "there"}! 👋</p>
                     <p className="text-xs text-[var()] leading-relaxed">
                       I can help you find premium mentors, prepare for tech interviews, review your notes, or draft high-impact study plans.
                     </p>
@@ -2327,5 +2371,7 @@ export function AIChatWidget() {
         </div>
       )}
     </div>
+    )}
+  </>
   );
 }
