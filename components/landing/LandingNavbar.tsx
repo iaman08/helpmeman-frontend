@@ -10,7 +10,6 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 const navLinks = [
   { label: "Services", href: "/services" },
   { label: "Mentors", href: "/mentors" },
-  { label: "AI Resume Roast", href: "/resume-roast" },
   { label: "Typing Test", href: "/typing-test" },
   { label: "Reviews", href: "/#success", id: "success" },
   { label: "Pricing", href: "/#pricing", id: "pricing" },
