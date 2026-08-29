@@ -14,6 +14,7 @@ import { PublicThemeManager } from "@/components/PublicThemeManager";
 
 import { SocketProvider } from "@/lib/socket-context";
 import { PlatformReviewTrigger } from "@/components/PlatformReviewTrigger";
+import { TawkToScript } from "@/components/TawkToScript";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -101,6 +102,7 @@ export default function RootLayout({
                     <AIChatWidget />
                     <PushPermissionPrompt />
                     <PlatformReviewTrigger />
+                    <TawkToScript />
                   </SocketProvider>
                 </ToastProvider>
               </CurrencyProvider>
