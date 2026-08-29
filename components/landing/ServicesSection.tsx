@@ -12,7 +12,6 @@ import {
   GraduationCap,
   Rocket,
   BarChart,
-  Landmark,
   Palette,
   HeartPulse,
   Video,
@@ -288,23 +287,6 @@ const SERVICES: ServiceItem[] = [
     ],
     ctaText: "Find MBA Mentors",
     ctaLink: "/mentors?category=mba",
-  },
-  {
-    id: "upsc-civil",
-    title: "UPSC Civil Services Strategy",
-    category: "domain",
-    badge: "IAS / IPS Guides",
-    icon: Landmark,
-    iconColor: "#1E40AF",
-    description:
-      "Prelims elimination tactics, Mains answer writing practice, optional subject selection, and interview guidance for UPSC IAS/IPS aspirants.",
-    highlights: [
-      "Mains answer structure & diagram tips",
-      "Current affairs consolidation methods",
-      "Optional subject strategy & notes framework",
-    ],
-    ctaText: "Find UPSC Mentors",
-    ctaLink: "/mentors?category=upsc",
   },
   {
     id: "design-uiux",

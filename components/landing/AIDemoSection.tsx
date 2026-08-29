@@ -33,12 +33,12 @@ const conversations: { prompt: string; messages: ChatMessage[] }[] = [
     ],
   },
   {
-    prompt: "How do I crack UPSC after engineering?",
+    prompt: "How do I improve my JEE Advanced rank?",
     messages: [
-      { role: "user", text: "How do I crack UPSC after engineering?" },
+      { role: "user", text: "How do I improve my JEE Advanced rank?" },
       {
         role: "ai",
-        text: "Many IIT/NIT graduates have made this transition successfully:\n\n1. **Optional Subject** — Choose one aligned with your engineering background\n2. **Foundation** — 6 months of NCERT + standard textbooks\n3. **Answer Writing** — Start daily practice from month 3\n\nThese mentors have made the same transition:",
+        text: "Here is a high-yield strategy from IIT toppers:\n\n1. **Concept Depth** — Focus on multi-concept Advanced numericals over speed\n2. **Error Analysis** — Log every weak topic from full-length mock tests\n3. **Revision** — 3-tier revision framework for Physics & Math formulas\n\nConnect with these AIR rankers from IIT Bombay & Delhi:",
       },
     ],
   },
