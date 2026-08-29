@@ -28,13 +28,50 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://helpmeman.com"),
   title: "HelpMeMan — Real Mentorship",
   description:
     "Access the world's Elite 1%. Connect with verified mentors from Google, Meta, YC, and IIT (AIR 1) who have actually walked your path.",
+  keywords: [
+    "Mentorship",
+    "HelpMeMan",
+    "JEE Mentors",
+    "NEET Mentors",
+    "FAANG Interview Prep",
+    "Ruth AI",
+    "1-on-1 Mentorship",
+  ],
   icons: {
-    icon: "/logo.svg",
-    shortcut: "/logo.svg",
-    apple: "/logo.svg",
+    icon: [
+      { url: "/logo.svg", type: "image/svg+xml" },
+      { url: "/logo.png", type: "image/png" },
+    ],
+    shortcut: "/logo.png",
+    apple: "/apple-icon.png",
+  },
+  openGraph: {
+    title: "HelpMeMan — Real Mentorship",
+    description:
+      "Access the world's Elite 1%. Connect with verified mentors from Google, Meta, YC, and IIT (AIR 1) who have actually walked your path.",
+    url: "https://helpmeman.com",
+    siteName: "HelpMeMan",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "HelpMeMan Real Mentorship",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "HelpMeMan — Real Mentorship",
+    description:
+      "Access the world's Elite 1%. Connect with verified mentors from Google, Meta, YC, and IIT (AIR 1) who have actually walked your path.",
+    images: ["/og-image.png"],
   },
 };
 
