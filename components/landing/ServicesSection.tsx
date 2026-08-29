@@ -30,7 +30,7 @@ import {
 export interface ServiceItem {
   id: string;
   title: string;
-  category: "domain" | "platform";
+  category: "domain" | "platform" | "typing";
   badge: string;
   icon: React.ElementType;
   iconColor: string;
@@ -63,7 +63,7 @@ const SERVICES: ServiceItem[] = [
   },
   {
     id: "ai-copilot",
-    title: "24/7 AI Career Copilot & Assistant",
+    title: "24/7 Ruth AI Assistant",
     category: "platform",
     badge: "AI Powered",
     icon: Bot,
@@ -75,7 +75,7 @@ const SERVICES: ServiceItem[] = [
       "Smart mentor recommendations based on goals",
       "Automatic session notes & action item extraction",
     ],
-    ctaText: "Try AI Copilot",
+    ctaText: "Try Ruth AI",
     ctaLink: "/#about",
     popular: true,
   },
@@ -151,7 +151,7 @@ const SERVICES: ServiceItem[] = [
   {
     id: "typing-test",
     title: "Typing Speed Test & AI Certification",
-    category: "platform",
+    category: "typing",
     badge: "Monkeytype Engine",
     icon: Keyboard,
     iconColor: "#2563EB",
@@ -330,7 +330,7 @@ export function ServicesSection() {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
-  const [activeTab, setActiveTab] = useState<"all" | "domain" | "platform">("all");
+  const [activeTab, setActiveTab] = useState<"all" | "domain" | "platform" | "typing">("all");
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredServices = useMemo(() => {
@@ -380,7 +380,7 @@ export function ServicesSection() {
             Every Service You Need to Succeed
           </h2>
           <p className="mt-4 text-[16px] md:text-[18px] text-[var(--muted)] leading-relaxed max-w-2xl mx-auto">
-            From 1:1 strategy calls with verified toppers and engineers to 24/7 AI copilot guidance, explore our complete range of specialized offerings.
+            From 1:1 strategy calls with verified toppers and engineers to 24/7 Ruth AI guidance, explore our complete range of specialized offerings.
           </p>
         </motion.div>
 
@@ -392,10 +392,10 @@ export function ServicesSection() {
           className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-10 pb-4 border-b border-[var(--hairline)]"
         >
           {/* Tabs */}
-          <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-[#18181B] border border-slate-200 dark:border-[#27272A] w-full sm:w-auto">
+          <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-[#18181B] border border-slate-200 dark:border-[#27272A] w-full sm:w-auto overflow-x-auto no-scrollbar gap-1">
             <button
               onClick={() => setActiveTab("all")}
-              className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-sm font-semibold rounded-lg transition-all cursor-pointer ${
+              className={`px-3 sm:px-4 py-2 text-xs md:text-sm font-semibold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === "all"
                   ? "bg-white dark:bg-[#27272A] text-[var(--fg)] shadow-xs"
                   : "text-[var(--muted)] hover:text-[var(--fg)]"
@@ -405,7 +405,7 @@ export function ServicesSection() {
             </button>
             <button
               onClick={() => setActiveTab("domain")}
-              className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-sm font-semibold rounded-lg transition-all cursor-pointer ${
+              className={`px-3 sm:px-4 py-2 text-xs md:text-sm font-semibold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === "domain"
                   ? "bg-white dark:bg-[#27272A] text-[var(--fg)] shadow-xs"
                   : "text-[var(--muted)] hover:text-[var(--fg)]"
@@ -415,13 +415,23 @@ export function ServicesSection() {
             </button>
             <button
               onClick={() => setActiveTab("platform")}
-              className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-sm font-semibold rounded-lg transition-all cursor-pointer ${
+              className={`px-3 sm:px-4 py-2 text-xs md:text-sm font-semibold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === "platform"
                   ? "bg-white dark:bg-[#27272A] text-[var(--fg)] shadow-xs"
                   : "text-[var(--muted)] hover:text-[var(--fg)]"
               }`}
             >
               Core Capabilities ({SERVICES.filter((s) => s.category === "platform").length})
+            </button>
+            <button
+              onClick={() => setActiveTab("typing")}
+              className={`px-3 sm:px-4 py-2 text-xs md:text-sm font-semibold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+                activeTab === "typing"
+                  ? "bg-white dark:bg-[#27272A] text-[var(--fg)] shadow-xs"
+                  : "text-[var(--muted)] hover:text-[var(--fg)]"
+              }`}
+            >
+              Typing Test ({SERVICES.filter((s) => s.category === "typing").length})
             </button>
           </div>
 
@@ -445,6 +455,42 @@ export function ServicesSection() {
             )}
           </div>
         </motion.div>
+
+        {/* Typing Tab Highlight Banner */}
+        {activeTab === "typing" && (
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="mb-8 p-6 md:p-8 rounded-2xl bg-gradient-to-r from-blue-600/10 via-indigo-600/10 to-purple-600/10 border border-blue-500/20 flex flex-col md:flex-row items-center justify-between gap-6"
+          >
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center text-white shrink-0 shadow-lg shadow-blue-500/20">
+                <Keyboard className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-lg md:text-xl font-bold text-[var(--fg)]">
+                    Official HelpMeMan Typing Certification
+                  </h3>
+                  <span className="px-2 py-0.5 text-[10px] font-extrabold uppercase bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-full">
+                    Free
+                  </span>
+                </div>
+                <p className="text-sm text-[var(--muted)] max-w-xl">
+                  Benchmark your typing speed with real-time WPM calculation, accuracy tracking, error heatmaps, and download a verifiable AI Skill Certificate for your resume.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/typing-test"
+              className="px-6 py-3 text-sm font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20 transition-all whitespace-nowrap no-underline shrink-0 flex items-center gap-2"
+            >
+              <span>Take Test Now</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </motion.div>
+        )}
 
         {/* Services Grid */}
         {filteredServices.length === 0 ? (
