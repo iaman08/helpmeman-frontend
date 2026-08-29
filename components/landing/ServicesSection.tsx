@@ -20,6 +20,7 @@ import {
   UserCheck,
   Calendar,
   Compass,
+  Keyboard,
   ArrowRight,
   Search,
   CheckCircle2,
@@ -146,6 +147,24 @@ const SERVICES: ServiceItem[] = [
     ],
     ctaText: "Get Your Roadmap",
     ctaLink: "/mentors",
+  },
+  {
+    id: "typing-test",
+    title: "Typing Speed Test & AI Certification",
+    category: "platform",
+    badge: "Monkeytype Engine",
+    icon: Keyboard,
+    iconColor: "#2563EB",
+    description:
+      "Test your typing speed with smooth Monkeytype-style mechanics, real-time WPM accuracy metrics, and download an official AI Skill Certificate PDF.",
+    highlights: [
+      "15s, 30s, and 60s speed burst tests",
+      "Standard, Tech Code, Medical & Legal word sets",
+      "Download certified PDF report for resume & LinkedIn",
+    ],
+    ctaText: "Take Typing Test",
+    ctaLink: "/typing-test",
+    popular: true,
   },
 
   // ── Domain Guidance Categories ──
