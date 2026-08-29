@@ -21,6 +21,7 @@ import {
   Calendar,
   Compass,
   Keyboard,
+  Brain,
   ArrowRight,
   Search,
   CheckCircle2,
@@ -164,6 +165,24 @@ const SERVICES: ServiceItem[] = [
     ],
     ctaText: "Take Typing Test",
     ctaLink: "/typing-test",
+    popular: true,
+  },
+  {
+    id: "aptitude-test",
+    title: "Aptitude Practice & Mock Test Series",
+    category: "platform",
+    badge: "Pro Assessment",
+    icon: Brain,
+    iconColor: "#4F46E5",
+    description:
+      "Master Quantitative Aptitude, Logical Reasoning, and Verbal Ability with timed mock exams. Receive instant AI scorecards, PDF certificate reports, and email performance breakdowns.",
+    highlights: [
+      "Timed 20-minute mock exam with section tabs",
+      "Instant AI score evaluation & percentile rank",
+      "Certified downloadable PDF report & email breakdown",
+    ],
+    ctaText: "Unlock Mock Tests",
+    ctaLink: "/aptitude-test",
     popular: true,
   },
 

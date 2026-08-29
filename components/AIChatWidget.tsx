@@ -487,13 +487,6 @@ function formatReadReceiptTime(dateStr: string) {
   }
 }
 
-// ─── Razorpay global type ─────────────────────────────────────────────────────
-declare global {
-  interface Window {
-    Razorpay?: new (options: Record<string, unknown>) => { open: () => void };
-  }
-}
-
 // ─── Mentor Card In Chat ──────────────────────────────────────────────────────
 
 function MentorCardInChat({ mentor, onBook }: { mentor: MentorData; onBook: (mentor: MentorData) => void }) {
