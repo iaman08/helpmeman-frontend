@@ -1548,6 +1548,8 @@ export function AIChatWidget() {
     }
   }, [sessionId, handleNewChat]);
 
+  if (!user) return null;
+
   // ─── Suggestion chips ──────────────────────────────────────────────────────
 
   const suggestions = [
@@ -1556,46 +1558,9 @@ export function AIChatWidget() {
     "I need help with PM interviews",
   ];
 
-  // ─── Render Floating Widget Button when closed ──────────────────────────────
+  // ─── Render ────────────────────────────────────────────────────────────────
 
-  if (!isOpen) {
-    return (
-      <div className="fixed bottom-6 right-6 z-[9990] flex items-center gap-2 group select-none">
-        {/* Hover Tooltip / Prompt Bubble */}
-        <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-black/85 dark:bg-zinc-900/90 text-white backdrop-blur-xl border border-white/10 shadow-2xl transition-all group-hover:scale-105">
-          <Sparkles className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
-          <span className="text-xs font-semibold tracking-tight">Ruth AI Assistant</span>
-        </div>
-
-        {/* Floating Ruth AI Launcher Button */}
-        <button
-          type="button"
-          onClick={() => {
-            if (!user) {
-              if (typeof window !== "undefined") {
-                window.dispatchEvent(new Event("open-auth"));
-              }
-              return;
-            }
-            setIsOpen(true);
-            if (typeof window !== "undefined") {
-              localStorage.setItem("helpmeman.aiChatOpen", "true");
-            }
-          }}
-          aria-label="Open Ruth AI Assistant"
-          className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white shadow-[0_10px_30px_rgba(37,99,235,0.4)] hover:shadow-[0_15px_40px_rgba(99,102,241,0.6)] hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer border border-white/20"
-        >
-          {/* Pulsing online status indicator */}
-          <span className="absolute top-0.5 right-0.5 flex h-3.5 w-3.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white dark:border-zinc-900" />
-          </span>
-
-          <Bot className="w-7 h-7 text-white drop-shadow-md group-hover:rotate-12 transition-transform duration-300" />
-        </button>
-      </div>
-    );
-  }
+  if (!isOpen) return null;
 
   return (
     <div data-ai-chat-open="true" className="fixed inset-y-0 right-0 left-0 md:left-64 z-[9999] flex flex-col overflow-hidden animate-in slide-in-from-bottom md:slide-in-from-right duration-300" style={{ background: "var(--bg)", borderLeft: "1px solid var(--hairline)", color: "var(--fg)" }}>
@@ -1899,7 +1864,7 @@ export function AIChatWidget() {
                     <Sparkles className="h-6 w-6 text-[var()]" />
                   </div>
                   <div className="space-y-1">
-                    <p className="text-base font-semibold">Hi {user?.name ? user.name.split(" ")[0] : "there"}! 👋</p>
+                    <p className="text-base font-semibold">Hi {user.name.split(" ")[0]}! 👋</p>
                     <p className="text-xs text-[var()] leading-relaxed">
                       I can help you find premium mentors, prepare for tech interviews, review your notes, or draft high-impact study plans.
                     </p>
