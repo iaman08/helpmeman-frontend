@@ -2,6 +2,34 @@
 
 import Script from "next/script";
 
+/**
+ * Programmatically open and maximize the Tawk.to live chat widget.
+ */
+export function openTawkChat() {
+  if (typeof window === "undefined") return;
+
+  const tawk = (window as any).Tawk_API;
+  if (tawk && typeof tawk.maximize === "function") {
+    try {
+      tawk.showWidget?.();
+      tawk.maximize();
+    } catch (e) {
+      console.warn("[Tawk.to] Failed to maximize chat widget:", e);
+    }
+  } else {
+    // If the widget script is still loading in background, queue the maximize action
+    (window as any).Tawk_API = (window as any).Tawk_API || {};
+    const existingOnLoad = (window as any).Tawk_API.onLoad;
+    (window as any).Tawk_API.onLoad = function () {
+      if (typeof existingOnLoad === "function") existingOnLoad();
+      try {
+        (window as any).Tawk_API.showWidget?.();
+        (window as any).Tawk_API.maximize?.();
+      } catch (e) {}
+    };
+  }
+}
+
 export function TawkToScript() {
   return (
     <Script

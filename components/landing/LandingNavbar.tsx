@@ -6,11 +6,19 @@ import { usePathname, useRouter } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { openTawkChat } from "@/components/TawkToScript";
 
-const navLinks = [
+type NavLinkItem = {
+  label: string;
+  href?: string;
+  id?: string;
+  isSupport?: boolean;
+};
+
+const navLinks: NavLinkItem[] = [
   { label: "Services", href: "/services" },
   { label: "Mentors", href: "/mentors" },
-  { label: "Reviews", href: "/#success", id: "success" },
+  { label: "Support", isSupport: true },
   { label: "Pricing", href: "/#pricing", id: "pricing" },
   { label: "Ruth AI", href: "/#about", id: "about" },
 ];
@@ -42,11 +50,15 @@ export function LandingNavbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleNavClick = (link: (typeof navLinks)[number]) => {
+  const handleNavClick = (link: NavLinkItem) => {
     setMobileOpen(false);
+    if (link.isSupport) {
+      openTawkChat();
+      return;
+    }
     if (link.id && pathname === "/") {
       document.getElementById(link.id)?.scrollIntoView({ behavior: "smooth" });
-    } else {
+    } else if (link.href) {
       router.push(link.href);
     }
   };

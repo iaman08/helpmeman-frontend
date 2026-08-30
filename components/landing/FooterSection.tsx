@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 
+import { openTawkChat } from "@/components/TawkToScript";
+
 export function FooterSection() {
   const currentYear = new Date().getFullYear();
 
@@ -98,6 +100,13 @@ export function FooterSection() {
               Support & Community
             </h4>
             <div className="flex flex-col gap-2.5 text-[14px] text-[#8E8E93]">
+              <button
+                type="button"
+                onClick={() => openTawkChat()}
+                className="text-left bg-transparent border-none p-0 cursor-pointer text-[#8E8E93] hover:text-white transition-colors text-[14px]"
+              >
+                Live Chat Support
+              </button>
               <Link href="/help" className="hover:text-white transition-colors">
                 Help and Guidelines
               </Link>
