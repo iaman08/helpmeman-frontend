@@ -59,7 +59,7 @@ export default function MentorLayout({
 
     if (user) {
       hasRedirectedRef.current = false;
-      const isTeam = user.email?.toLowerCase().endsWith("@helpmeman.com") || user.role === "ADMIN" || user.role === "SUPER_ADMIN";
+      const isTeam = user.role === "ADMIN" || user.role === "SUPER_ADMIN";
       const activeRole = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("hmm.activeRole") : null;
 
       if (!user.onboardingRole && !isTeam) {
@@ -142,7 +142,7 @@ export default function MentorLayout({
 
 
   if (loading) return null;
-  const isTeam = user?.email?.toLowerCase().endsWith("@helpmeman.com") || user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
+  const isTeam = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
   if (!user || (!isMentor && !isTeam)) return null;
 
   return (

@@ -23,7 +23,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, mentor, loading, logout, isMentor, isAdmin } = useAuth();
+  const { user, mentor, loading, logout, isMentor, isAdmin, isSuperAdmin } = useAuth();
   const router = useRouter();
   const { data: unreadData } = useUnreadChatCount();
   const unreadChatCount = unreadData?.unreadCount ?? 0;
@@ -55,11 +55,11 @@ export default function DashboardLayout({
     if (user) {
       hasRedirectedRef.current = false;
 
-      const isTeam = user.email?.toLowerCase().endsWith("@helpmeman.com") || isAdmin;
+      const isTeam = isAdmin || isSuperAdmin;
       const activeRole = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("hmm.activeRole") : null;
 
       if (activeRole === "mentee" || isTeam) {
-        // Mentee / student view explicitly chosen by user or team member
+        // Mentee / student view explicitly chosen by user or admin
         return;
       }
 

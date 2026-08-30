@@ -57,11 +57,8 @@ export function SidebarShell({
   const isPrivilegedUser =
     user?.role === "ADMIN" ||
     user?.role === "SUPER_ADMIN" ||
-    userEmail?.toLowerCase().endsWith("@helpmeman.com") ||
     rootPath === "/admin" ||
-    rootPath === "/superadmin" ||
-    userBadge?.toLowerCase().includes("admin") ||
-    userBadge?.toLowerCase().includes("super");
+    rootPath === "/superadmin";
 
   useEffect(() => {
     const handleOpen = () => setAiOpen(true);

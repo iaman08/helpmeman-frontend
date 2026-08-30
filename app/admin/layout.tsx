@@ -44,18 +44,6 @@ const BASE_NAV = [
   },
 ];
 
-/** Emails that belong to the HelpMeMan internal team */
-const TEAM_EMAILS = new Set([
-  "dilkhush@helpmeman.com",
-  "aman@helpmeman.com",
-  "akash@helpmeman.com",
-  "sriman@helpmeman.com",
-  "omi@helpmeman.com",
-  "roshan@helpmeman.com",
-  "rishav@helpmeman.com",
-  "egamberdi@helpmeman.com",
-]);
-
 const SESSION_KEY = "hmm.roleSelected";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -117,12 +105,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     if (!user) return;
     if (user.mustChangePassword) return;              // Still on forced-change flow
-    if (!TEAM_EMAILS.has(user.email?.toLowerCase())) return;  // Not a team account
+    if (!isAdmin && !isSuperAdmin) return;            // Only show for admin/superadmin roles
     if (typeof sessionStorage === "undefined") return;
     if (sessionStorage.getItem(SESSION_KEY)) return;  // Already chose this session
 
     setShowRoleModal(true);
-  }, [user?.id, user?.mustChangePassword, user?.email]);
+  }, [user?.id, user?.mustChangePassword, isAdmin, isSuperAdmin]);
 
   // Construct dynamic navItems menu
   const navItems = useMemo(() => {
