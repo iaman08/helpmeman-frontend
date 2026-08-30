@@ -118,7 +118,7 @@ export default function AdminUsersPage() {
           <table className="w-full min-w-[700px] border-collapse">
             <thead>
               <tr style={{ borderBottom: "1px solid var(--hairline)" }}>
-                {["Name & Email", "Role", "Account Status", "Email Verified", "Joined", "Actions"].map((h) => (
+                {["Name & Email", "Role", "Account Status", "Last Device & IP", "Email Verified", "Joined", "Actions"].map((h) => (
                   <th key={h} className="text-left py-3 pr-6 text-[10px] uppercase tracking-[0.22em] font-medium" style={{ color: "var(--muted)" }}>
                     {h}
                   </th>
@@ -131,6 +131,9 @@ export default function AdminUsersPage() {
                 const isActive = userStatus === "ACTIVE";
                 const isOnHold = userStatus === "ON_HOLD";
                 const isDisabled = userStatus === "DISABLED";
+                const lastDevice = (u as any).lastBrowser || (u as any).lastOs ? `${(u as any).lastBrowser || 'Browser'} on ${(u as any).lastOs || 'OS'}` : "Web Browser";
+                const lastIp = (u as any).lastIp || "127.0.0.1";
+
                 return (
                   <tr
                     key={u.id}
@@ -164,6 +167,16 @@ export default function AdminUsersPage() {
                         {userStatus === "ON_HOLD" ? <PauseCircle className="w-3.5 h-3.5" /> : userStatus === "DISABLED" ? <ShieldOff className="w-3.5 h-3.5" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
                         {userStatus}
                       </span>
+                    </td>
+                    <td className="py-4 pr-6 text-xs">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-medium truncate max-w-[170px]" style={{ color: "var(--fg)" }}>
+                          {lastDevice}
+                        </span>
+                        <span className="font-mono text-[10px] opacity-70" style={{ color: "var(--muted)" }}>
+                          IP: {lastIp}
+                        </span>
+                      </div>
                     </td>
                     <td className="py-4 pr-6 text-sm" style={{ color: u.isEmailVerified ? "rgb(34, 197, 94)" : "var(--muted)" }}>
                       {u.isEmailVerified ? "Verified ✓" : "Unverified"}
