@@ -22,6 +22,7 @@ import {
   Compass,
   Keyboard,
   Brain,
+  Code2,
   ArrowRight,
   Search,
   CheckCircle2,
@@ -183,6 +184,24 @@ const SERVICES: ServiceItem[] = [
     ],
     ctaText: "Unlock Mock Tests",
     ctaLink: "/aptitude-test",
+    popular: true,
+  },
+  {
+    id: "cp-mode",
+    title: "Competitive Programming & CP Mode",
+    category: "platform",
+    badge: "CP Analytics",
+    icon: Code2,
+    iconColor: "#10B981",
+    description:
+      "Connect your Codeforces, LeetCode, and CodeChef handles to visualize rating growth, analyze topic strengths, solve curated problem ladders, and boost contest ratings with Ruth AI CP Coach.",
+    highlights: [
+      "Live sync for Codeforces & LeetCode ratings & rankings",
+      "Interactive growth charts & contest rating timelines",
+      "Curated topic ladders (Graphs, DP, Trees) & 1:1 CP mentor mock rounds",
+    ],
+    ctaText: "Launch CP Mode",
+    ctaLink: "/competitive-programming",
     popular: true,
   },
 
