@@ -1174,19 +1174,24 @@ export function AIChatWidget() {
         localStorage.setItem("helpmeman.aiChatOpen", "false");
       }
     };
+    const handleToggle = () => {
+      setIsOpen((prev) => {
+        const next = !prev;
+        if (typeof window !== "undefined") {
+          localStorage.setItem("helpmeman.aiChatOpen", String(next));
+        }
+        return next;
+      });
+    };
     window.addEventListener("open-ai", handleOpen);
     window.addEventListener("close-ai", handleClose);
+    window.addEventListener("toggle-ai", handleToggle);
     return () => {
       window.removeEventListener("open-ai", handleOpen);
       window.removeEventListener("close-ai", handleClose);
+      window.removeEventListener("toggle-ai", handleToggle);
     };
   }, []);
-
-  // Body scroll lock
-  useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [isOpen]);
 
   // ─── Auto scroll ───────────────────────────────────────────────────────────
   const autoScroll = useCallback(() => {
@@ -1555,16 +1560,13 @@ export function AIChatWidget() {
         <button
           type="button"
           onClick={() => {
-            if (!user) {
+            setIsOpen((prev) => {
+              const next = !prev;
               if (typeof window !== "undefined") {
-                window.dispatchEvent(new Event("open-auth"));
+                localStorage.setItem("helpmeman.aiChatOpen", String(next));
               }
-              return;
-            }
-            setIsOpen((prev) => !prev);
-            if (typeof window !== "undefined") {
-              localStorage.setItem("helpmeman.aiChatOpen", String(!isOpen));
-            }
+              return next;
+            });
           }}
           aria-label="Chat with Ruth AI Assistant"
           className={`relative flex items-center justify-center w-14 h-14 rounded-full text-white shadow-[0_10px_35px_rgba(37,99,235,0.45)] hover:shadow-[0_15px_45px_rgba(99,102,241,0.65)] hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer border border-white/25 ${

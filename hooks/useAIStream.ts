@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from "react";
+import { getApiBaseUrl } from "@/lib/api";
 
 export type StreamState = "idle" | "sending" | "waiting_first_token" | "streaming" | "completed" | "error";
 
@@ -71,11 +72,23 @@ export function useAIStream({
     rafIdRef.current = requestAnimationFrame(flushTextToUI);
 
     try {
-      const response = await fetch(endpoint, {
+      const activeBase = getApiBaseUrl();
+      let resolvedEndpoint = endpoint;
+      if (resolvedEndpoint.startsWith("http")) {
+        if (typeof window !== "undefined" && resolvedEndpoint.includes("localhost:8080") && (window.location.hostname.includes("vercel.app") || window.location.hostname.includes("helpmeman.com"))) {
+          resolvedEndpoint = resolvedEndpoint.replace("http://localhost:8080/api", activeBase);
+        }
+      } else {
+        resolvedEndpoint = `${activeBase}${resolvedEndpoint.startsWith("/") ? "" : "/"}${resolvedEndpoint}`;
+      }
+
+      const activeToken = token || (typeof window !== "undefined" ? localStorage.getItem("helpmeman.accessToken") : null);
+
+      const response = await fetch(resolvedEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(activeToken ? { Authorization: `Bearer ${activeToken}` } : {}),
         },
         body: JSON.stringify({ message, ...bodyParams }),
         signal: controller.signal,
