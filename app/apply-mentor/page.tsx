@@ -44,7 +44,7 @@ export default function ApplyMentorPage() {
   // Redirect if already logged in (skip during OTP step)
   useEffect(() => {
     if (!loading && user && step === 1) {
-      let dest = "/onboarding";
+      let dest = "/onboarding?role=mentor";
       if (user.role === "ADMIN" || user.role === "SUPER_ADMIN") {
         dest = "/admin";
       } else if (user.role === "MENTOR" && mentor) {

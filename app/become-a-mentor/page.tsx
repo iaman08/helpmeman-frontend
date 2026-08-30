@@ -68,7 +68,7 @@ export default function BecomeMentorPage() {
 
   // Redirect to new Ruth AI mentor onboarding architecture
   useEffect(() => {
-    router.replace("/onboarding");
+    router.replace("/onboarding?role=mentor");
   }, [router]);
 
   // Pre-fill if logged in

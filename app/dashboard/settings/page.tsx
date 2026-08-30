@@ -223,7 +223,7 @@ export default function MenteeSettingsPage() {
         sessionStorage.setItem("hmm.activeRole", "mentor");
         router.push("/mentor");
       } else {
-        router.push("/onboarding");
+        router.push("/onboarding?role=mentor");
       }
     } finally {
       setSwitching(false);

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useCallback, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState, useCallback, Suspense, type FormEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowRight,
@@ -99,8 +99,9 @@ function initialState(): State {
   };
 }
 
-export default function OnboardingPage() {
+function OnboardingContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, mentor, loading, updateUser } = useAuth();
   const [state, setState] = useState<State | null>(null);
   const [stage, setStage] = useState<Stage>("role");
@@ -142,11 +143,11 @@ export default function OnboardingPage() {
     sessionStorage.removeItem("mentor-onboarding");
   }, []);
 
-  const fetchOnboardingState = useCallback(async (userId: string) => {
+  const fetchOnboardingState = useCallback(async (userId: string, targetRole?: string | null) => {
     setError("");
     const token = localStorage.getItem("helpmeman.accessToken");
     if (token?.startsWith("demo_")) {
-      if (user?.role === "MENTOR") {
+      if (user?.role === "MENTOR" || targetRole === "mentor") {
         const next = initialState();
         setState(next);
         setStage("name");
@@ -165,11 +166,26 @@ export default function OnboardingPage() {
     }
 
     try {
-      const { data } = await api.get<State>("/mentor/onboarding");
-      if (data.role === "MENTEE") {
-        router.replace("/dashboard");
+      if (targetRole === "mentor") {
+        const { data } = await api.patch<State>("/mentor/onboarding", { role: "MENTOR" });
+        updateUser({ role: "MENTOR", onboardingRole: "MENTOR" });
+        if (data.status === "COMPLETED") {
+          if (data.mentor) localStorage.setItem("helpmeman.mentor", JSON.stringify(data.mentor));
+          if (data.mentor?.approvalStatus === "APPROVED") {
+            router.replace("/mentor");
+          } else {
+            router.replace("/mentor/status");
+          }
+          return;
+        }
+        setState(data);
+        if (data.currentQuestion === 0 && data.answers.length === 0) setStage("name");
+        else setStage("chat");
+        if (data.question) setLatestRuthMessage(data.message || data.question.text);
         return;
       }
+
+      const { data } = await api.get<State>("/mentor/onboarding");
       if (data.role === "MENTOR" && data.status === "COMPLETED") {
         if (data.mentor) localStorage.setItem("helpmeman.mentor", JSON.stringify(data.mentor));
         if (data.mentor?.approvalStatus === "APPROVED") {
@@ -190,7 +206,7 @@ export default function OnboardingPage() {
         return;
       }
 
-      if (!data.role) setStage("role");
+      if (data.role !== "MENTOR") setStage("role");
       else if (data.currentQuestion === 0 && data.answers.length === 0) setStage("name");
       else setStage("chat");
 
@@ -199,7 +215,7 @@ export default function OnboardingPage() {
       console.error("[Onboarding] Error loading conversation:", err);
       setError("Ruth couldn't load your conversation. Please try again.");
     }
-  }, [user?.role, router]);
+  }, [user?.role, router, updateUser]);
 
   useEffect(() => {
     if (loading) return;
@@ -209,12 +225,8 @@ export default function OnboardingPage() {
       return;
     }
 
-    if (user.role === "ADMIN") {
-      router.replace("/admin");
-      return;
-    }
-    if (user.onboardingRole === "MENTEE" || user.role === "STUDENT") {
-      router.replace("/dashboard");
+    if (user.role === "ADMIN" || user.role === "SUPER_ADMIN") {
+      router.replace(user.role === "SUPER_ADMIN" ? "/superadmin" : "/admin");
       return;
     }
     if (user.role === "MENTOR" && mentor?.onboardingCompleted) {
@@ -222,11 +234,16 @@ export default function OnboardingPage() {
       return;
     }
 
+    const roleParam = searchParams.get("role") || (typeof window !== "undefined" ? localStorage.getItem("helpmeman.onboardingRoleIntent") : null);
+    if (roleParam === "mentor" && typeof window !== "undefined") {
+      localStorage.removeItem("helpmeman.onboardingRoleIntent");
+    }
+
     if (lastFetchedUserIdRef.current !== user.id || !state) {
       lastFetchedUserIdRef.current = user.id;
-      fetchOnboardingState(user.id);
+      fetchOnboardingState(user.id, roleParam);
     }
-  }, [user?.id, loading, mentor?.onboardingCompleted, mentor?.approvalStatus, user?.role, user?.onboardingRole, router, resetOnboarding, fetchOnboardingState, state]);
+  }, [user?.id, loading, mentor?.onboardingCompleted, mentor?.approvalStatus, user?.role, user?.onboardingRole, router, resetOnboarding, fetchOnboardingState, state, searchParams]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -277,7 +294,8 @@ export default function OnboardingPage() {
       });
       if (role === "MENTEE") return router.replace("/dashboard");
       setState(data);
-      setStage("name");
+      if (data.currentQuestion === 0 && data.answers.length === 0) setStage("name");
+      else setStage("chat");
     } catch {
       setError("Couldn't save that choice. Please try again.");
     } finally {
@@ -688,5 +706,22 @@ export default function OnboardingPage() {
         </div>
       </section>
     </main>
+  );
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-bg">
+          <div className="text-center">
+            <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted" />
+            <p className="mt-4 text-sm text-muted">Loading your onboarding...</p>
+          </div>
+        </div>
+      }
+    >
+      <OnboardingContent />
+    </Suspense>
   );
 }
