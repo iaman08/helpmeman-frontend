@@ -1008,6 +1008,72 @@ export function AIChatWidget() {
   const userHasScrolledUpRef = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  // ─── Draggable floating widget state ─────────────────────────────────────
+  const [widgetPos, setWidgetPos] = useState<{ x: number; y: number } | null>(null);
+  const dragRef = useRef<{
+    active: boolean;
+    startX: number;
+    startY: number;
+    originX: number;
+    originY: number;
+    moved: boolean;
+  }>({ active: false, startX: 0, startY: 0, originX: 0, originY: 0, moved: false });
+  const widgetRef = useRef<HTMLDivElement>(null);
+
+  const handleWidgetPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    // Only respond to primary pointer (left button / first touch)
+    if (e.button !== 0 && e.pointerType === "mouse") return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const rect = e.currentTarget.getBoundingClientRect();
+    dragRef.current = {
+      active: true,
+      startX: e.clientX,
+      startY: e.clientY,
+      originX: rect.left,
+      originY: rect.top,
+      moved: false,
+    };
+  }, []);
+
+  const handleWidgetPointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current.active) return;
+    const dx = e.clientX - dragRef.current.startX;
+    const dy = e.clientY - dragRef.current.startY;
+    // Only start actually moving after a 4px threshold to avoid accidental drags
+    if (!dragRef.current.moved && Math.hypot(dx, dy) < 4) return;
+    dragRef.current.moved = true;
+    e.preventDefault();
+    const el = widgetRef.current;
+    if (!el) return;
+    const w = el.offsetWidth;
+    const h = el.offsetHeight;
+    const newX = Math.max(0, Math.min(window.innerWidth - w, dragRef.current.originX + dx));
+    const newY = Math.max(0, Math.min(window.innerHeight - h, dragRef.current.originY + dy));
+    setWidgetPos({ x: newX, y: newY });
+  }, []);
+
+  const handleWidgetPointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current.active) return;
+    e.currentTarget.releasePointerCapture(e.pointerId);
+    const wasMoved = dragRef.current.moved;
+    dragRef.current.active = false;
+    dragRef.current.moved = false;
+    // If no real drag happened, treat as a click → open widget
+    if (!wasMoved) {
+      if (!user) {
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("open-auth"));
+        }
+        return;
+      }
+      setIsOpen((prev) => !prev);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("helpmeman.aiChatOpen", String(!isOpen));
+      }
+    }
+  }, [user, isOpen]);
+
   const emojiPickerRef = useRef<HTMLDivElement>(null);
 
   // Streaming state
@@ -1553,11 +1619,23 @@ export function AIChatWidget() {
 
   return (
     <>
-      {/* Floating Ruth AI Launcher Button (Bottom-Left) */}
-      <div className="fixed bottom-6 left-6 z-[9990] flex items-center gap-2.5 group select-none">
-        <button
-          type="button"
-          onClick={() => {
+      {/* Floating Ruth AI Launcher Button (Bottom-Left) — single draggable wrapper */}
+      <div
+        ref={widgetRef}
+        className="fixed z-[9990] flex items-center gap-2.5 group select-none touch-none"
+        style={
+          widgetPos
+            ? { left: widgetPos.x, top: widgetPos.y, bottom: "auto" }
+            : { bottom: "1.5rem", left: "1.5rem" }
+        }
+        onPointerDown={handleWidgetPointerDown}
+        onPointerMove={handleWidgetPointerMove}
+        onPointerUp={handleWidgetPointerUp}
+        aria-label="Chat with Ruth AI Assistant"
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
             if (!user) {
               if (typeof window !== "undefined") {
                 window.dispatchEvent(new Event("open-auth"));
@@ -1565,12 +1643,12 @@ export function AIChatWidget() {
               return;
             }
             setIsOpen((prev) => !prev);
-            if (typeof window !== "undefined") {
-              localStorage.setItem("helpmeman.aiChatOpen", String(!isOpen));
-            }
-          }}
-          aria-label="Chat with Ruth AI Assistant"
-          className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white shadow-[0_10px_35px_rgba(37,99,235,0.45)] hover:shadow-[0_15px_45px_rgba(99,102,241,0.65)] hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer border border-white/25"
+          }
+        }}
+      >
+        {/* Purple robot icon button (non-interactive on its own — drag handled by parent) */}
+        <div
+          className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white shadow-[0_10px_35px_rgba(37,99,235,0.45)] hover:shadow-[0_15px_45px_rgba(99,102,241,0.65)] hover:scale-105 active:scale-95 transition-all duration-300 cursor-grab active:cursor-grabbing border border-white/25"
         >
           {/* Pulsing online status indicator */}
           <span className="absolute top-0.5 right-0.5 flex h-3.5 w-3.5">
@@ -1583,11 +1661,11 @@ export function AIChatWidget() {
           ) : (
             <Bot className="w-7 h-7 text-white drop-shadow-md group-hover:rotate-6 transition-transform duration-300" />
           )}
-        </button>
+        </div>
 
-        {/* Hover Tooltip Badge on Left */}
+        {/* "Ask Ruth AI" pill — part of the same draggable wrapper */}
         {!isOpen && (
-          <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-black/85 dark:bg-zinc-900/90 text-white backdrop-blur-xl border border-white/10 shadow-2xl transition-all group-hover:scale-105 pointer-events-none">
+          <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-black/85 dark:bg-zinc-900/90 text-white backdrop-blur-xl border border-white/10 shadow-2xl transition-all group-hover:scale-105 cursor-grab active:cursor-grabbing">
             <Sparkles className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
             <span className="text-xs font-semibold tracking-tight">Ask Ruth AI</span>
           </div>
@@ -1604,12 +1682,12 @@ export function AIChatWidget() {
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div className="shrink-0 backdrop-blur-md sticky top-0 z-10 pt-safe-top md:pt-0" style={{ background: "color-mix(in srgb, var(--bg) 95%, transparent)", borderBottom: "1px solid var(--hairline)" }}>
-        <div className="max-w-4xl w-full mx-auto px-4 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between gap-3">
+        <div className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2">
 
-          {/* Left Segment: Brand and premium inline breadcrumb layout */}
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full shrink-0" style={{ background: "color-mix(in srgb, var(--fg) 8%, transparent)" }}>
-              <Bot className="h-4.5 w-4.5" style={{ color: "var(--fg)" }} />
+          {/* Left Segment: Brand and inline breadcrumb layout */}
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full shrink-0" style={{ background: "color-mix(in srgb, var(--fg) 8%, transparent)" }}>
+              <Bot className="h-4 w-4" style={{ color: "var(--fg)" }} />
             </div>
 
             <div className={`shrink-0 ${sessionTitle && activeTab === "chat" ? "hidden sm:block" : ""}`}>
@@ -1624,7 +1702,7 @@ export function AIChatWidget() {
 
             {sessionTitle && activeTab === "chat" && (
               isRenamingActive && sessionId ? (
-                <div className="flex items-center gap-1 rounded-full pl-2.5 pr-0.5 py-0.5 max-w-[120px] sm:max-w-[200px] w-full" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 4%, transparent)" }} onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center gap-1 rounded-full pl-2.5 pr-0.5 py-0.5 max-w-[120px] sm:max-w-[160px] w-full" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 4%, transparent)" }} onClick={(e) => e.stopPropagation()}>
                   <input
                     type="text"
                     value={editingTitle}
@@ -1659,7 +1737,7 @@ export function AIChatWidget() {
                   </button>
                 </div>
               ) : (
-                <div className="inline-flex items-center gap-1.5 rounded-full pl-2.5 pr-2 py-0.5 text-[9px] sm:text-[10px] font-bold shadow-sm min-w-0 max-w-[110px] sm:max-w-[240px]" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 5%, transparent)", color: "var(--fg)" }}>
+                <div className="inline-flex items-center gap-1.5 rounded-full pl-2 pr-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold shadow-sm min-w-0 max-w-[90px] sm:max-w-[140px]" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 5%, transparent)", color: "var(--fg)" }}>
                   <Sparkles className="h-2.5 w-2.5 shrink-0" style={{ color: "var(--fg)" }} />
                   <span className="truncate tracking-wide uppercase font-semibold">
                     {sessionTitle}
@@ -1684,10 +1762,10 @@ export function AIChatWidget() {
           </div>
 
           {/* Right Segment: Action controls */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-1 shrink-0">
             {/* Theme Toggle option showing 4 color options inline */}
             {activeTab === "chat" && (
-              <div className="flex items-center gap-1 px-1.5 py-1 rounded-full select-none shrink-0 shadow-sm" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 4%, transparent)" }}>
+              <div className="flex items-center gap-0.5 px-1.5 py-1 rounded-full select-none shrink-0 shadow-sm" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 4%, transparent)" }}>
                 {[
                   { id: "imessage", color: "#007aff", title: "iMessage (Blue)" },
                   { id: "sms", color: "#34c759", title: "SMS (Green)" },
@@ -1705,7 +1783,7 @@ export function AIChatWidget() {
                     style={{
                       backgroundColor: t.color,
                       border: t.border ? "1px solid rgba(128, 128, 128, 0.4)" : "none",
-                      boxShadow: chatTheme === t.id ? `0 0 0 2px var(--bg), 0 0 0 3.5px ${t.color}` : "none"
+                      boxShadow: chatTheme === t.id ? `0 0 0 1.5px var(--bg), 0 0 0 3px ${t.color}` : "none"
                     }}
                     title={t.title}
                   />
@@ -1715,78 +1793,40 @@ export function AIChatWidget() {
 
             {/* AI Mode selector — chat tab only */}
             {activeTab === "chat" && (
-              <>
-                {/* Mobile: compact icon toggle (<640px) */}
-                <button
-                  type="button"
-                  id="ai-mode-toggle-mobile"
-                  onClick={() => handleModeToggle(!ruthlessMode)}
-                  aria-pressed={ruthlessMode}
-                  title={ruthlessMode ? "Ruthless Mode — tap to switch to Normal" : "Normal Mode — tap to enable Ruthless Mode"}
-                  className="sm:hidden flex items-center justify-center h-[30px] w-[30px] rounded-full shrink-0 transition-all duration-200 cursor-pointer"
-                  style={{
-                    border: "1px solid var(--hairline)",
-                    background: ruthlessMode ? "var(--fg)" : "transparent",
-                    color: ruthlessMode ? "var(--bg)" : "var(--fg)",
-                  }}
-                >
-                  <Zap className="h-3 w-3 shrink-0" />
-                </button>
-
-                {/* Desktop: full segmented pill (≥640px) */}
-                <div
-                  id="ai-mode-selector"
-                  role="group"
-                  aria-label="AI response mode"
-                  className="hidden sm:flex items-center h-[30px] rounded-full p-[3px] shrink-0 select-none gap-px"
-                  style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 3%, transparent)" }}
-                >
-                  <button
-                    type="button"
-                    onClick={() => handleModeToggle(false)}
-                    aria-pressed={!ruthlessMode}
-                    className="flex items-center h-full px-2.5 rounded-full text-[11px] font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap"
-                    style={{
-                      background: !ruthlessMode ? "var(--fg)" : "transparent",
-                      color: !ruthlessMode ? "var(--bg)" : "var(--muted)",
-                    }}
-                  >
-                    Normal
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleModeToggle(true)}
-                    aria-pressed={ruthlessMode}
-                    className="flex items-center gap-1 h-full px-2.5 rounded-full text-[11px] font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap"
-                    style={{
-                      background: ruthlessMode ? "var(--fg)" : "transparent",
-                      color: ruthlessMode ? "var(--bg)" : "var(--muted)",
-                    }}
-                  >
-                    <Zap className="h-2.5 w-2.5 shrink-0" />
-                    Ruthless
-                  </button>
-                </div>
-              </>
+              <button
+                type="button"
+                id="ai-mode-toggle"
+                onClick={() => handleModeToggle(!ruthlessMode)}
+                aria-pressed={ruthlessMode}
+                title={ruthlessMode ? "Ruthless Mode — tap to switch to Normal" : "Normal Mode — tap to enable Ruthless Mode"}
+                className="flex items-center justify-center h-7 w-7 rounded-full shrink-0 transition-all duration-200 cursor-pointer"
+                style={{
+                  border: "1px solid var(--hairline)",
+                  background: ruthlessMode ? "var(--fg)" : "transparent",
+                  color: ruthlessMode ? "var(--bg)" : "var(--fg)",
+                }}
+              >
+                <Zap className="h-3 w-3 shrink-0" />
+              </button>
             )}
 
             <button
               type="button"
               onClick={handleNewChat}
-              className="p-2 rounded-xl cursor-pointer transition-all duration-200"
+              className="p-1.5 rounded-lg cursor-pointer transition-all duration-200 hover:opacity-75"
               style={{ color: "var(--fg)" }}
               title="New chat"
             >
-              <Plus className="h-4.5 w-4.5" />
+              <Plus className="h-4 w-4" />
             </button>
             <button
               type="button"
               onClick={handleClose}
-              className="p-2 rounded-xl cursor-pointer transition-all duration-200"
+              className="p-1.5 rounded-lg cursor-pointer transition-all duration-200 hover:opacity-75"
               style={{ color: "var(--fg)" }}
               title="Close"
             >
-              <X className="h-4.5 w-4.5" />
+              <X className="h-4 w-4" />
             </button>
           </div>
         </div>

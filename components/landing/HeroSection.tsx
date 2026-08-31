@@ -63,16 +63,19 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="text-[clamp(38px,7vw,76px)] font-semibold leading-[1.06] tracking-[-0.035em] text-[var(--fg)] max-w-[880px] mx-auto"
+          className="text-[clamp(32px,6.5vw,76px)] font-semibold leading-[1.06] tracking-[-0.035em] text-[var(--fg)] max-w-4xl mx-auto"
         >
-          Find{" "}
-          <span className="inline-block relative">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 font-bold">
-              {currentText || "\u00A0"}
-            </span>
-            <span className="inline-block w-[3px] h-[0.8em] ml-0.5 bg-blue-600 dark:bg-blue-400 animate-pulse align-middle rounded-full" />
+          <span className="whitespace-nowrap">
+            Find{" "}
+            <span className="inline-block relative">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 font-bold">
+                {currentText || "\u00A0"}
+              </span>
+              <span className="inline-block w-[3px] h-[0.8em] ml-0.5 bg-blue-600 dark:bg-blue-400 animate-pulse align-middle rounded-full" />
+            </span>{" "}
+            mentors
           </span>{" "}
-          mentors <br className="hidden sm:block" />
+          <br className="hidden sm:block" />
           in seconds.
         </motion.h1>
 
