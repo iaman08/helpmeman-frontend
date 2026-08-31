@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Bot, X, Trash2, Sparkles, Clock, ChevronRight, ChevronDown, ChevronLeft, MessageSquare, RotateCcw, Plus, History, Calendar, Video, Edit2, Check, Smile, Mic, ArrowUp, Send, Star, BadgeCheck, Zap } from "lucide-react";
+import { Bot, X, Trash2, Sparkles, Clock, ChevronRight, MessageSquare, RotateCcw, Plus, History, Calendar, Video, Edit2, Check, Smile, Mic, ArrowUp, Star, BadgeCheck, Zap } from "lucide-react";
 import api, { API_BASE } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import Link from "next/link";
@@ -1008,6 +1008,72 @@ export function AIChatWidget() {
   const userHasScrolledUpRef = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  // ─── Draggable floating widget state ─────────────────────────────────────
+  const [widgetPos, setWidgetPos] = useState<{ x: number; y: number } | null>(null);
+  const dragRef = useRef<{
+    active: boolean;
+    startX: number;
+    startY: number;
+    originX: number;
+    originY: number;
+    moved: boolean;
+  }>({ active: false, startX: 0, startY: 0, originX: 0, originY: 0, moved: false });
+  const widgetRef = useRef<HTMLDivElement>(null);
+
+  const handleWidgetPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    // Only respond to primary pointer (left button / first touch)
+    if (e.button !== 0 && e.pointerType === "mouse") return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const rect = e.currentTarget.getBoundingClientRect();
+    dragRef.current = {
+      active: true,
+      startX: e.clientX,
+      startY: e.clientY,
+      originX: rect.left,
+      originY: rect.top,
+      moved: false,
+    };
+  }, []);
+
+  const handleWidgetPointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current.active) return;
+    const dx = e.clientX - dragRef.current.startX;
+    const dy = e.clientY - dragRef.current.startY;
+    // Only start actually moving after a 4px threshold to avoid accidental drags
+    if (!dragRef.current.moved && Math.hypot(dx, dy) < 4) return;
+    dragRef.current.moved = true;
+    e.preventDefault();
+    const el = widgetRef.current;
+    if (!el) return;
+    const w = el.offsetWidth;
+    const h = el.offsetHeight;
+    const newX = Math.max(0, Math.min(window.innerWidth - w, dragRef.current.originX + dx));
+    const newY = Math.max(0, Math.min(window.innerHeight - h, dragRef.current.originY + dy));
+    setWidgetPos({ x: newX, y: newY });
+  }, []);
+
+  const handleWidgetPointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current.active) return;
+    e.currentTarget.releasePointerCapture(e.pointerId);
+    const wasMoved = dragRef.current.moved;
+    dragRef.current.active = false;
+    dragRef.current.moved = false;
+    // If no real drag happened, treat as a click → open widget
+    if (!wasMoved) {
+      if (!user) {
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("open-auth"));
+        }
+        return;
+      }
+      setIsOpen((prev) => !prev);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("helpmeman.aiChatOpen", String(!isOpen));
+      }
+    }
+  }, [user, isOpen]);
+
   const emojiPickerRef = useRef<HTMLDivElement>(null);
 
   // Streaming state
@@ -1174,24 +1240,19 @@ export function AIChatWidget() {
         localStorage.setItem("helpmeman.aiChatOpen", "false");
       }
     };
-    const handleToggle = () => {
-      setIsOpen((prev) => {
-        const next = !prev;
-        if (typeof window !== "undefined") {
-          localStorage.setItem("helpmeman.aiChatOpen", String(next));
-        }
-        return next;
-      });
-    };
     window.addEventListener("open-ai", handleOpen);
     window.addEventListener("close-ai", handleClose);
-    window.addEventListener("toggle-ai", handleToggle);
     return () => {
       window.removeEventListener("open-ai", handleOpen);
       window.removeEventListener("close-ai", handleClose);
-      window.removeEventListener("toggle-ai", handleToggle);
     };
   }, []);
+
+  // Body scroll lock
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [isOpen]);
 
   // ─── Auto scroll ───────────────────────────────────────────────────────────
   const autoScroll = useCallback(() => {
@@ -1497,6 +1558,10 @@ export function AIChatWidget() {
     }
   }, [messages, handleSend]);
 
+
+
+
+
   // ─── Save manual rename ───────────────────────────────────────────────────
 
   const handleSaveRename = useCallback(async (sid: string, e: React.MouseEvent) => {
@@ -1546,60 +1611,63 @@ export function AIChatWidget() {
 
   const suggestions = [
     "Find me a DSA mentor under ₹500",
-    "Review my resume ATS score",
-    "How does 1-on-1 mentorship work?",
+    "How do I book a session?",
     "I need help with PM interviews",
   ];
 
-  // ─── Render Floating Widget (Launcher on LEFT + Popup Chatbot) ─────────────
+  // ─── Render Floating Widget (Launcher on LEFT + Compact Popup Chatbot) ─────
 
   return (
     <>
-      {/* Floating Ruth AI Launcher Bar (Bottom-Left) */}
-      <div className="fixed bottom-6 left-6 z-[9990] flex items-center gap-3 select-none">
-        <button
-          type="button"
-          onClick={() => {
-            setIsOpen((prev) => {
-              const next = !prev;
+      {/* Floating Ruth AI Launcher Button (Bottom-Left) — single draggable wrapper */}
+      <div
+        ref={widgetRef}
+        className="fixed z-[9990] flex items-center gap-2.5 group select-none touch-none"
+        style={
+          widgetPos
+            ? { left: widgetPos.x, top: widgetPos.y, bottom: "auto" }
+            : { bottom: "1.5rem", left: "1.5rem" }
+        }
+        onPointerDown={handleWidgetPointerDown}
+        onPointerMove={handleWidgetPointerMove}
+        onPointerUp={handleWidgetPointerUp}
+        aria-label="Chat with Ruth AI Assistant"
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            if (!user) {
               if (typeof window !== "undefined") {
-                localStorage.setItem("helpmeman.aiChatOpen", String(next));
+                window.dispatchEvent(new Event("open-auth"));
               }
-              return next;
-            });
-          }}
-          aria-label="Chat with Ruth AI Assistant"
-          className={`relative flex items-center justify-center w-14 h-14 rounded-full text-white shadow-[0_10px_35px_rgba(37,99,235,0.45)] hover:shadow-[0_15px_45px_rgba(99,102,241,0.65)] hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer border border-white/25 ${
-            isOpen
-              ? "bg-gradient-to-tr from-emerald-600 to-teal-600"
-              : "bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600"
-          }`}
+              return;
+            }
+            setIsOpen((prev) => !prev);
+          }
+        }}
+      >
+        {/* Purple robot icon button (non-interactive on its own — drag handled by parent) */}
+        <div
+          className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white shadow-[0_10px_35px_rgba(37,99,235,0.45)] hover:shadow-[0_15px_45px_rgba(99,102,241,0.65)] hover:scale-105 active:scale-95 transition-all duration-300 cursor-grab active:cursor-grabbing border border-white/25"
         >
           {/* Pulsing online status indicator */}
-          {!isOpen && (
-            <span className="absolute top-0.5 right-0.5 flex h-3.5 w-3.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white dark:border-zinc-900" />
-            </span>
-          )}
+          <span className="absolute top-0.5 right-0.5 flex h-3.5 w-3.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white dark:border-zinc-900" />
+          </span>
 
           {isOpen ? (
-            <ChevronDown className="w-7 h-7 text-white animate-in zoom-in duration-200" />
+            <X className="w-6 h-6 text-white transition-transform duration-200" />
           ) : (
             <Bot className="w-7 h-7 text-white drop-shadow-md group-hover:rotate-6 transition-transform duration-300" />
           )}
-        </button>
+        </div>
 
-        {/* Status Chip beside launcher */}
-        {!isOpen ? (
-          <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-black/85 dark:bg-zinc-900/90 text-white backdrop-blur-xl border border-white/10 shadow-2xl transition-all group-hover:scale-105 pointer-events-none">
+        {/* "Ask Ruth AI" pill — part of the same draggable wrapper */}
+        {!isOpen && (
+          <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-black/85 dark:bg-zinc-900/90 text-white backdrop-blur-xl border border-white/10 shadow-2xl transition-all group-hover:scale-105 cursor-grab active:cursor-grabbing">
             <Sparkles className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
             <span className="text-xs font-semibold tracking-tight">Ask Ruth AI</span>
-          </div>
-        ) : (
-          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/70 dark:bg-zinc-900/80 text-[11px] font-medium text-slate-300 backdrop-blur-md border border-white/10 shadow-md pointer-events-none">
-            <Zap className="w-3 h-3 text-blue-400" />
-            <span>Powered by Ruth AI</span>
           </div>
         )}
       </div>
@@ -1608,108 +1676,205 @@ export function AIChatWidget() {
       {isOpen && (
         <div
           data-ai-chat-open="true"
-          className="fixed bottom-24 left-6 z-[9999] w-[calc(100vw-3rem)] sm:w-[390px] h-[570px] max-h-[82vh] rounded-3xl shadow-[0_25px_70px_rgba(0,0,0,0.45)] flex flex-col overflow-hidden border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#121215] text-[var(--fg)] animate-in zoom-in-95 slide-in-from-bottom-6 duration-200"
+          className="fixed bottom-24 left-6 z-[9999] w-[calc(100vw-3rem)] sm:w-[410px] h-[590px] max-h-[82vh] rounded-3xl shadow-[0_25px_70px_rgba(0,0,0,0.45)] flex flex-col overflow-hidden border border-[var(--hairline)] bg-[var(--bg)] text-[var(--fg)] animate-in zoom-in-95 slide-in-from-bottom-6 duration-200"
+          style={{ background: "var(--bg)", color: "var(--fg)" }}
         >
-          {/* ── Branded Header ── */}
-          <div className="shrink-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white p-3.5 sm:p-4 flex items-center justify-between shadow-md select-none">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-white/15 backdrop-blur-sm shrink-0 border border-white/20">
-                <Bot className="h-4.5 w-4.5 text-white" />
-                <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-400 border border-blue-600" />
-              </div>
-              <div className="min-w-0">
-                <h3 className="text-sm font-bold tracking-tight text-white leading-tight">
-                  Ruth AI Assistant
-                </h3>
-                <p className="text-[10px] text-blue-100/90 font-medium leading-none mt-0.5">
-                  ● Online • 24/7 Career Copilot
-                </p>
-              </div>
+
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
+      <div className="shrink-0 backdrop-blur-md sticky top-0 z-10 pt-safe-top md:pt-0" style={{ background: "color-mix(in srgb, var(--bg) 95%, transparent)", borderBottom: "1px solid var(--hairline)" }}>
+        <div className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2">
+
+          {/* Left Segment: Brand and inline breadcrumb layout */}
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full shrink-0" style={{ background: "color-mix(in srgb, var(--fg) 8%, transparent)" }}>
+              <Bot className="h-4 w-4" style={{ color: "var(--fg)" }} />
             </div>
 
-            {/* Actions: Mode toggle + Close */}
-            <div className="flex items-center gap-1.5 shrink-0">
-              {/* Ruthless / Normal Mode toggle */}
+            <div className={`shrink-0 ${sessionTitle && activeTab === "chat" ? "hidden sm:block" : ""}`}>
+              <h3 className="text-xs sm:text-sm font-bold tracking-tight" style={{ color: "var(--fg)" }}>
+                Ruth
+              </h3>
+            </div>
+
+            {sessionTitle && activeTab === "chat" && (
+              <span className="text-xs shrink-0 font-medium select-none hidden sm:inline" style={{ color: "var(--muted)" }}>/</span>
+            )}
+
+            {sessionTitle && activeTab === "chat" && (
+              isRenamingActive && sessionId ? (
+                <div className="flex items-center gap-1 rounded-full pl-2.5 pr-0.5 py-0.5 max-w-[120px] sm:max-w-[160px] w-full" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 4%, transparent)" }} onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="text"
+                    value={editingTitle}
+                    onChange={(e) => setEditingTitle(e.target.value)}
+                    className="text-[10px] sm:text-xs font-semibold bg-transparent outline-none w-full"
+                    style={{ color: "var(--fg)" }}
+                    maxLength={60}
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        const btn = document.getElementById("header-save-btn");
+                        btn?.click();
+                      } else if (e.key === "Escape") {
+                        setIsRenamingActive(false);
+                      }
+                    }}
+                  />
+                  <button
+                    id="header-save-btn"
+                    type="button"
+                    onClick={(e) => handleSaveRename(sessionId, e)}
+                    className="p-0.5 text-green-600 hover:bg-green-500/10 rounded-full cursor-pointer shrink-0"
+                  >
+                    <Check className="h-3 w-3" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsRenamingActive(false)}
+                    className="p-0.5 text-red-500 hover:bg-red-500/10 rounded-full cursor-pointer shrink-0"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-1.5 rounded-full pl-2 pr-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold shadow-sm min-w-0 max-w-[90px] sm:max-w-[140px]" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 5%, transparent)", color: "var(--fg)" }}>
+                  <Sparkles className="h-2.5 w-2.5 shrink-0" style={{ color: "var(--fg)" }} />
+                  <span className="truncate tracking-wide uppercase font-semibold">
+                    {sessionTitle}
+                  </span>
+                  {sessionId && !resumeBanner?.startsWith("Scoped Meeting") && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsRenamingActive(true);
+                        setEditingTitle(sessionTitle || "");
+                      }}
+                      className="transition-colors p-0.5 rounded cursor-pointer shrink-0"
+                      style={{ color: "var(--muted)" }}
+                      title="Rename chat"
+                    >
+                      <Edit2 className="h-2.5 w-2.5" />
+                    </button>
+                  )}
+                </div>
+              )
+            )}
+          </div>
+
+          {/* Right Segment: Action controls */}
+          <div className="flex items-center gap-1 shrink-0">
+            {/* Theme Toggle option showing 4 color options inline */}
+            {activeTab === "chat" && (
+              <div className="flex items-center gap-0.5 px-1.5 py-1 rounded-full select-none shrink-0 shadow-sm" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 4%, transparent)" }}>
+                {[
+                  { id: "imessage", color: "#007aff", title: "iMessage (Blue)" },
+                  { id: "sms", color: "#34c759", title: "SMS (Green)" },
+                  { id: "pink", color: "#ff2d55", title: "Pink Theme" },
+                  { id: "white", color: "#ffffff", title: "White Theme", border: true }
+                ].map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setChatTheme(t.id as any)}
+                    className={`h-2.5 w-2.5 rounded-full transition-all duration-200 cursor-pointer mx-0.5 hover:scale-125 ${chatTheme === t.id
+                      ? "scale-110"
+                      : "opacity-60 hover:opacity-100"
+                      }`}
+                    style={{
+                      backgroundColor: t.color,
+                      border: t.border ? "1px solid rgba(128, 128, 128, 0.4)" : "none",
+                      boxShadow: chatTheme === t.id ? `0 0 0 1.5px var(--bg), 0 0 0 3px ${t.color}` : "none"
+                    }}
+                    title={t.title}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* AI Mode selector — chat tab only */}
+            {activeTab === "chat" && (
               <button
                 type="button"
+                id="ai-mode-toggle"
                 onClick={() => handleModeToggle(!ruthlessMode)}
                 aria-pressed={ruthlessMode}
-                title={ruthlessMode ? "Ruthless Mode Enabled" : "Normal Mode Enabled"}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all cursor-pointer border ${
-                  ruthlessMode
-                    ? "bg-amber-400 text-zinc-900 border-amber-300 shadow-xs"
-                    : "bg-white/15 text-white border-white/20 hover:bg-white/25"
-                }`}
+                title={ruthlessMode ? "Ruthless Mode — tap to switch to Normal" : "Normal Mode — tap to enable Ruthless Mode"}
+                className="flex items-center justify-center h-7 w-7 rounded-full shrink-0 transition-all duration-200 cursor-pointer"
+                style={{
+                  border: "1px solid var(--hairline)",
+                  background: ruthlessMode ? "var(--fg)" : "transparent",
+                  color: ruthlessMode ? "var(--bg)" : "var(--fg)",
+                }}
               >
-                <Zap className="h-2.5 w-2.5" />
-                <span>{ruthlessMode ? "Ruthless" : "Normal"}</span>
+                <Zap className="h-3 w-3 shrink-0" />
               </button>
+            )}
 
-              {/* New chat */}
-              <button
-                type="button"
-                onClick={handleNewChat}
-                className="p-1.5 rounded-full hover:bg-white/15 text-white transition-colors cursor-pointer"
-                title="New Chat"
-              >
-                <RotateCcw className="h-3.5 w-3.5" />
-              </button>
-
-              {/* Close/Minimize */}
-              <button
-                type="button"
-                onClick={handleClose}
-                className="p-1.5 rounded-full hover:bg-white/15 text-white transition-colors cursor-pointer"
-                title="Minimize"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* ── Compact Tab Bar ── */}
-          <div className="px-3 flex gap-1 border-b border-slate-200 dark:border-zinc-800/80 bg-slate-50/80 dark:bg-zinc-900/60 backdrop-blur-sm select-none">
             <button
               type="button"
-              onClick={() => setActiveTab("chat")}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-colors cursor-pointer border-b-2 ${
-                activeTab === "chat"
-                  ? "border-blue-600 text-blue-600 dark:text-blue-400"
-                  : "border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white"
-              }`}
+              onClick={handleNewChat}
+              className="p-1.5 rounded-lg cursor-pointer transition-all duration-200 hover:opacity-75"
+              style={{ color: "var(--fg)" }}
+              title="New chat"
             >
-              <MessageSquare className="h-3 w-3" />
-              <span>Chat</span>
+              <Plus className="h-4 w-4" />
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab("meetings")}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-colors cursor-pointer border-b-2 ${
-                activeTab === "meetings"
-                  ? "border-blue-600 text-blue-600 dark:text-blue-400"
-                  : "border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white"
-              }`}
+              onClick={handleClose}
+              className="p-1.5 rounded-lg cursor-pointer transition-all duration-200 hover:opacity-75"
+              style={{ color: "var(--fg)" }}
+              title="Close"
             >
-              <Calendar className="h-3 w-3" />
-              <span>Meetings</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("history")}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-colors cursor-pointer border-b-2 ${
-                activeTab === "history"
-                  ? "border-blue-600 text-blue-600 dark:text-blue-400"
-                  : "border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white"
-              }`}
-            >
-              <History className="h-3 w-3" />
-              <span>History</span>
+              <X className="h-4 w-4" />
             </button>
           </div>
+        </div>
 
-          {/* ── Chat Tab ─────────────────────────────────────────────────────── */}
-          {activeTab === "chat" && (
-            <div className="relative flex-1 flex flex-col overflow-hidden bg-white dark:bg-[#121215]">
+        {/* Tab bar */}
+        <div className="max-w-4xl w-full mx-auto px-4 sm:px-6 flex gap-1 scrollbar-none overflow-x-auto" style={{ borderTop: "1px solid var(--hairline)" }}>
+          <button
+            type="button"
+            onClick={() => setActiveTab("chat")}
+            className="flex items-center gap-1.5 px-4 py-3 text-xs sm:text-sm font-semibold transition-colors cursor-pointer shrink-0"
+            style={{
+              borderBottom: activeTab === "chat" ? "2px solid var(--fg)" : "2px solid transparent",
+              color: activeTab === "chat" ? "var(--fg)" : "var(--muted)",
+            }}
+          >
+            <MessageSquare className="h-3.5 w-3.5" />
+            New Chat
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("meetings")}
+            className="flex items-center gap-1.5 px-4 py-3 text-xs sm:text-sm font-semibold transition-colors cursor-pointer shrink-0"
+            style={{
+              borderBottom: activeTab === "meetings" ? "2px solid var(--fg)" : "2px solid transparent",
+              color: activeTab === "meetings" ? "var(--fg)" : "var(--muted)",
+            }}
+          >
+            <Calendar className="h-3.5 w-3.5" />
+            Meeting Chat
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("history")}
+            className="flex items-center gap-1.5 px-4 py-3 text-xs sm:text-sm font-semibold transition-colors cursor-pointer shrink-0"
+            style={{
+              borderBottom: activeTab === "history" ? "2px solid var(--fg)" : "2px solid transparent",
+              color: activeTab === "history" ? "var(--fg)" : "var(--muted)",
+            }}
+          >
+            <History className="h-3.5 w-3.5" />
+            History
+          </button>
+        </div>
+      </div>
+
+      {/* ── Chat Tab ───────────────────────────────────────────────────────── */}
+      {activeTab === "chat" && (
+        <div className="relative flex-1 flex flex-col overflow-hidden">
           {/* Resume banner */}
           {resumeBanner && (
             <div className="shrink-0 bg-[var()]/10 border-b border-[var()]/20 px-4 sm:px-6 py-2.5">
@@ -1756,45 +1921,44 @@ export function AIChatWidget() {
           <div
             ref={scrollContainerRef}
             onScroll={handleScroll}
-            className="flex-1 overflow-y-auto px-3.5 py-3.5 w-full"
+            className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 w-full"
           >
-            <div className="w-full flex flex-col gap-3.5 min-h-full">
+
+            <div className="max-w-4xl w-full mx-auto flex flex-col gap-4 sm:gap-5 min-h-full">
 
               {/* Loading skeleton */}
               {sessionLoading && (
                 <div className="flex-1 flex flex-col items-center justify-center gap-3 py-12">
-                  <div className="h-8 w-8 rounded-full border-2 border-blue-600/20 border-t-blue-600 animate-spin" />
-                  <p className="text-xs font-semibold text-slate-400 tracking-wide">LOADING CONVERSATION…</p>
+                  <div className="h-9 w-9 rounded-full border-2 border-[var()]/10 border-t-[var()] animate-spin" />
+                  <p className="text-xs font-semibold text-[var()] tracking-wide">LOADING CONVERSATION…</p>
                 </div>
               )}
 
-              {/* Interactive Welcome Chat Bubble & Pills (Tawk.to Style) */}
+              {/* Empty state */}
               {!sessionLoading && messages.length === 0 && (
-                <div className="flex flex-col gap-3 py-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                  {/* Assistant message bubble with avatar */}
-                  <div className="flex items-start gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                      <Bot className="w-4 h-4" />
-                    </div>
-                    <div className="flex flex-col gap-1 max-w-[85%]">
-                      <span className="text-[10px] font-bold text-slate-400 pl-1">Ruth AI</span>
-                      <div className="p-3.5 rounded-2xl rounded-tl-sm bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs sm:text-[13px] leading-relaxed shadow-sm font-medium">
-                        👋 Hi {user?.name ? user.name.split(" ")[0] : "there"}! I&apos;m Ruth, your 24/7 AI Career &amp; Mentorship Copilot. How can I help you today?
-                      </div>
-                    </div>
+                <div className="flex-1 flex flex-col items-center justify-center gap-5 text-center py-12 max-w-md mx-auto">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var()]/10 shadow-sm animate-pulse">
+                    <Sparkles className="h-6 w-6 text-[var()]" />
                   </div>
-
-                  {/* Suggestion action pills */}
-                  <div className="flex flex-col items-end gap-2 pl-10 pr-1 mt-1">
-                    {suggestions.map((s, idx) => (
+                  <div className="space-y-1">
+                    <p className="text-base font-semibold">Hi {user?.name ? user.name.split(" ")[0] : "there"}! 👋</p>
+                    <p className="text-xs text-[var()] leading-relaxed">
+                      I can help you find premium mentors, prepare for tech interviews, review your notes, or draft high-impact study plans.
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-2 w-full pt-2">
+                    {suggestions.map(s => (
                       <button
                         key={s}
                         type="button"
-                        onClick={() => handleSend(s)}
-                        className="px-3.5 py-2 rounded-xl text-xs font-semibold border border-blue-500/30 text-blue-600 dark:text-blue-400 bg-blue-500/5 hover:bg-blue-500/15 hover:border-blue-500/50 transition-all active:scale-95 cursor-pointer shadow-xs text-right animate-in fade-in slide-in-from-bottom-1 duration-200"
-                        style={{ animationDelay: `${idx * 60}ms` }}
+                        onClick={() => {
+                          setInput(s);
+                          inputRef.current?.focus();
+                        }}
+                        className="text-xs text-left rounded-xl px-4 py-3 transition-all duration-200 cursor-pointer font-medium"
+                        style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)", color: "var(--fg)" }}
                       >
-                        {s}
+                        &ldquo;{s}&rdquo;
                       </button>
                     ))}
                   </div>
@@ -1906,24 +2070,25 @@ export function AIChatWidget() {
           )}
 
           {/* Input bar */}
-          <div className="shrink-0 px-3 py-2.5 bg-slate-50 dark:bg-[#18181B] border-t border-slate-200 dark:border-zinc-800">
+          <div className="shrink-0 px-4 sm:px-6 py-3 sm:py-4 pb-safe-bottom" style={{ borderTop: "1px solid var(--hairline)", background: "var(--bg)" }}>
             <form
               onSubmit={(e) => { e.preventDefault(); handleSend(); }}
-              className="w-full flex items-center gap-2 relative"
+              className="max-w-4xl w-full mx-auto flex items-center gap-1.5 sm:gap-3 relative"
             >
               {/* Input Wrapper */}
               <div
-                className="flex-1 flex items-center rounded-2xl px-3 py-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700/70 focus-within:border-blue-500 transition-colors shadow-2xs"
+                className="flex-1 flex items-center rounded-full px-3.5 py-2 sm:py-2.5 transition-all"
+                style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 3%, transparent)" }}
               >
                 <input
                   ref={inputRef}
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Write a message..."
+                  placeholder="Message..."
                   maxLength={2000}
                   disabled={loading || sessionLoading}
-                  className="flex-1 bg-transparent text-xs sm:text-sm outline-none placeholder-slate-400 text-slate-900 dark:text-white disabled:opacity-50"
+                  className="flex-1 bg-transparent text-sm outline-none placeholder-[var()]/60 disabled:opacity-50 text-[var()]"
                   style={{
                     caretColor:
                       chatTheme === "imessage" ? "#007aff" :
@@ -1936,34 +2101,41 @@ export function AIChatWidget() {
                   <button
                     type="button"
                     onClick={handleStop}
-                    className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 hover:bg-red-600 text-white shrink-0 transition-all ml-1.5 active:scale-95 cursor-pointer shadow-xs"
+                    className="flex h-7 w-7 items-center justify-center rounded-full bg-red-500 hover:bg-red-600 text-white shrink-0 transition-all duration-200 ml-2 active:scale-95 cursor-pointer shadow-sm animate-in fade-in zoom-in-50 duration-200"
                     title="Stop generating"
                   >
-                    <div className="h-2 w-2 bg-white rounded-xs" />
+                    <div className="h-2.5 w-2.5 bg-white rounded-xs" />
                   </button>
                 ) : !input.trim() ? (
-                  <Mic className="h-4 w-4 text-slate-400 hover:text-blue-500 cursor-pointer transition-colors ml-1.5" />
+                  <Mic className="h-4.5 w-4.5 text-[var()]/85 hover:text-[var()] cursor-pointer transition-colors ml-2" />
                 ) : (
                   /* Send Button inside input pill if input is not empty */
                   <button
                     type="submit"
                     disabled={loading || sessionLoading}
-                    className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 hover:bg-blue-700 text-white cursor-pointer disabled:opacity-30 shrink-0 transition-all ml-1.5 shadow-xs"
+                    className={`flex h-7 w-7 items-center justify-center rounded-full hover:opacity-90 cursor-pointer disabled:opacity-30 shrink-0 transition-all duration-200 ml-2 ${chatTheme === "white" ? "text-zinc-900 border border-zinc-200" : "text-white"
+                      }`}
+                    style={{
+                      backgroundColor:
+                        chatTheme === "imessage" ? "#007aff" :
+                          chatTheme === "sms" ? "#34c759" :
+                            chatTheme === "pink" ? "#ff2d55" : "#ffffff"
+                    }}
                   >
-                    <Send className="h-3 w-3" />
+                    <ArrowUp className="h-4 w-4" />
                   </button>
                 )}
               </div>
 
-              {/* Emoji/Smile Button */}
+              {/* Emoji/Smile Button on the far right */}
               <div className="relative">
                 <button
                   type="button"
                   onClick={() => setShowEmojiPicker(prev => !prev)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-zinc-800 shrink-0 transition-all active:scale-95 cursor-pointer"
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-[var()] hover:text-[var()] hover:bg-[var()]/5 shrink-0 transition-all active:scale-95 cursor-pointer"
                   title="Emojis"
                 >
-                  <Smile className="h-4.5 w-4.5" />
+                  <Smile className="h-5.5 w-5.5" />
                 </button>
 
                 {showEmojiPicker && (
