@@ -113,7 +113,7 @@ function LandingPageContent() {
   return (
     <div className="landing-page" style={{ background: '#0B0B0C' }}>
       <LandingNavbar />
-      <div className="relative z-10 rounded-b-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.10)] border-b border-[var(--hairline)] overflow-hidden" style={{ background: 'var(--bg)' }}>
+      <div className="relative z-10 rounded-b-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.10)] border-b border-[var(--hairline)]" style={{ background: 'var(--bg)' }}>
         <HeroSection />
         <FloatingStatsSection />
         <AIDemoSection />
