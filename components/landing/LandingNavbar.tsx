@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, X } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "@/lib/auth-context";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { openTawkChat } from "@/components/TawkToScript";
@@ -99,19 +100,31 @@ export function LandingNavbar() {
           <ThemeToggle variant="pill" />
 
           {!isLoggedIn && (
-            <div className="hidden lg:flex items-center gap-2.5">
+            <div className="hidden lg:flex items-center gap-2">
               <Link
                 href="/?auth=signin"
-                className="text-[13px] font-medium text-[var(--muted)] hover:text-[var(--fg)] transition-colors no-underline px-2 py-1 whitespace-nowrap"
+                className="text-[13px] font-medium text-[var(--muted)] hover:text-[var(--fg)] transition-colors no-underline px-2.5 py-1 whitespace-nowrap"
               >
                 Log in
               </Link>
-              <Link
-                href="/?auth=signup"
-                className="text-[12px] font-semibold text-[var(--bg)] bg-[var(--fg)] px-4 py-2 rounded-full hover:opacity-90 active:scale-[0.98] transition-all no-underline whitespace-nowrap"
-              >
-                Join for free
-              </Link>
+              <AnimatePresence>
+                {scrolled && (
+                  <motion.div
+                    initial={{ opacity: 0, x: 20, scale: 0.9, width: 0 }}
+                    animate={{ opacity: 1, x: 0, scale: 1, width: "auto" }}
+                    exit={{ opacity: 0, x: 20, scale: 0.9, width: 0 }}
+                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                    className="overflow-hidden flex items-center"
+                  >
+                    <Link
+                      href="/?auth=signup"
+                      className="text-[13px] font-semibold text-white dark:text-black bg-black dark:bg-white px-4 py-1.5 rounded-full hover:opacity-90 active:scale-[0.98] transition-all no-underline whitespace-nowrap shadow-sm inline-block"
+                    >
+                      Join for free
+                    </Link>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           )}
 

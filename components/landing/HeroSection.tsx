@@ -58,17 +58,17 @@ export function HeroSection() {
         {/* Mobbin-style Stacked Logo Cards — directly above hero headline */}
         <LogoStack />
 
-        {/* Headline with Typing Effect */}
+        {/* Headline with Typing Effect matching Mobbin bold typography */}
         <motion.h1
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="text-[clamp(32px,6.5vw,76px)] font-semibold leading-[1.06] tracking-[-0.035em] text-[var(--fg)] max-w-4xl mx-auto"
+          className="text-[clamp(36px,7.2vw,84px)] font-bold leading-[1.05] tracking-[-0.04em] text-[var(--fg)] max-w-4xl mx-auto"
         >
           <span className="whitespace-nowrap">
             Find{" "}
             <span className="inline-block relative">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 font-bold">
+              <span className="text-[var(--fg)] font-bold">
                 {currentText || "\u00A0"}
               </span>
               <span className="inline-block w-[3px] h-[0.8em] ml-0.5 bg-blue-600 dark:bg-blue-400 animate-pulse align-middle rounded-full" />
@@ -84,11 +84,11 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.12, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="mt-6 md:mt-8 text-[16px] md:text-[19px] leading-[1.65] text-[var(--muted)] max-w-[600px] mx-auto"
+          className="mt-5 md:mt-7 text-[16px] md:text-[19px] leading-[1.6] text-[#71717A] dark:text-[#A1A1AA] max-w-[580px] mx-auto font-normal"
         >
-          Connect with handpicked IITians, Doctors, Lawyers, Founders, and
-          Industry Professionals who have already achieved what you&apos;re
-          trying to achieve.
+          Featuring over 1,000 verified IITians, Doctors, Lawyers &amp; FAANG Engineers —
+          <br className="hidden sm:block" />
+          New mentors weekly.
         </motion.p>
 
         {/* CTAs */}
@@ -96,22 +96,21 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.24, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="mt-8 md:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3"
+          className="mt-7 md:mt-9 flex flex-col sm:flex-row items-center justify-center gap-3"
         >
           <Link
             href="/?auth=signup"
-            className="inline-flex items-center gap-2.5 px-7 py-3.5 bg-[#2563EB] text-white text-[15px] font-semibold rounded-xl hover:bg-[#1d4ed8] active:scale-[0.98] transition-all no-underline"
+            className="inline-flex items-center justify-center px-7 py-3.5 bg-[#09090B] dark:bg-white text-white dark:text-[#09090B] text-[15px] font-semibold rounded-full hover:bg-neutral-800 dark:hover:bg-neutral-100 active:scale-[0.98] transition-all no-underline shadow-sm cursor-pointer"
           >
-            Find My Mentor
-            <ArrowRight size={16} strokeWidth={2.5} />
+            Join for free
           </Link>
-          <button
-            onClick={scrollToAI}
-            className="inline-flex items-center gap-2 px-7 py-3.5 text-[var(--fg)] text-[15px] font-semibold rounded-xl border border-[var(--hairline)] hover:bg-[#F9FAFB] dark:hover:bg-[#18181B] active:scale-[0.98] transition-all cursor-pointer bg-transparent"
+          <Link
+            href="/mentors"
+            className="inline-flex items-center justify-center gap-1.5 px-6 py-3.5 bg-white dark:bg-[#18181B] text-[var(--fg)] text-[15px] font-semibold rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/80 active:scale-[0.98] transition-all no-underline shadow-sm cursor-pointer"
           >
-            <Sparkles size={15} />
-            Ask AI
-          </button>
+            <span>See our plans</span>
+            <ArrowRight size={15} strokeWidth={2.2} />
+          </Link>
         </motion.div>
 
         {/* Trust line */}
@@ -119,9 +118,9 @@ export function HeroSection() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.5 }}
-          className="mt-16 md:mt-24 text-[13px] font-medium text-[var(--muted)] tracking-wide opacity-75"
+          className="mt-14 md:mt-20 text-[13px] font-medium text-[#71717A] dark:text-[#A1A1AA] tracking-normal"
         >
-          Trusted by students from IIT, NIT, BITS, AIIMS and top universities.
+          Trusted by design teams &amp; ambitious minds at
         </motion.p>
 
         {/* Company Logos Grid */}
