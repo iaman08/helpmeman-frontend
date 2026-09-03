@@ -80,9 +80,8 @@ export function LandingNavbar() {
 
         {/* Desktop Navigation Links */}
         <div
-          className={`hidden lg:flex items-center justify-center flex-1 mx-3 min-w-0 transition-all duration-300 ${
-            scrolled ? "gap-3.5" : "gap-5"
-          }`}
+          className={`hidden lg:flex items-center justify-center flex-1 mx-3 min-w-0 transition-all duration-300 ${scrolled ? "gap-3.5" : "gap-5"
+            }`}
         >
           {navLinks.map((link) => (
             <button

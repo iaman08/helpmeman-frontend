@@ -65,44 +65,120 @@ body {
 }
 
 /* ── Global Fallbacks for Tailwind v4 [var()] Utility Classes ── */
-[class*="text-[var()]"] { color: var(--fg); }
-[class*="text-[var()]/40"] { color: color-mix(in srgb, var(--fg) 40%, transparent); }
-[class*="text-[var()]/45"] { color: color-mix(in srgb, var(--fg) 45%, transparent); }
-[class*="text-[var()]/60"] { color: color-mix(in srgb, var(--fg) 60%, transparent); }
-[class*="text-[var()]/70"] { color: color-mix(in srgb, var(--fg) 70%, transparent); }
-[class*="text-[var()]/80"] { color: color-mix(in srgb, var(--fg) 80%, transparent); }
-[class*="text-[var()]/90"] { color: color-mix(in srgb, var(--fg) 90%, transparent); }
+[class*="text-[var()]"] {
+  color: var(--fg);
+}
 
-[class*="border-[var()]"] { border-color: var(--hairline); }
+[class*="text-[var()]/40"] {
+  color: color-mix(in srgb, var(--fg) 40%, transparent);
+}
+
+[class*="text-[var()]/45"] {
+  color: color-mix(in srgb, var(--fg) 45%, transparent);
+}
+
+[class*="text-[var()]/60"] {
+  color: color-mix(in srgb, var(--fg) 60%, transparent);
+}
+
+[class*="text-[var()]/70"] {
+  color: color-mix(in srgb, var(--fg) 70%, transparent);
+}
+
+[class*="text-[var()]/80"] {
+  color: color-mix(in srgb, var(--fg) 80%, transparent);
+}
+
+[class*="text-[var()]/90"] {
+  color: color-mix(in srgb, var(--fg) 90%, transparent);
+}
+
+[class*="border-[var()]"] {
+  border-color: var(--hairline);
+}
+
 [class*="border-[var()]/10"],
 [class*="border-[var()]/15"],
 [class*="border-[var()]/20"],
 [class*="border-[var()]/25"],
 [class*="border-[var()]/30"],
 [class*="border-[var()]/40"],
-[class*="border-[var()]/50"] { border-color: var(--hairline); }
+[class*="border-[var()]/50"] {
+  border-color: var(--hairline);
+}
 
-[class*="border-t-[var()]"] { border-top-color: var(--hairline); }
-[class*="border-b-[var()]"] { border-bottom-color: var(--hairline); }
-[class*="border-l-[var()]"] { border-left-color: var(--hairline); }
-[class*="border-r-[var()]"] { border-right-color: var(--hairline); }
+[class*="border-t-[var()]"] {
+  border-top-color: var(--hairline);
+}
 
-[class*="bg-[var()]"] { background-color: var(--bg); }
-[class*="bg-[var()]/[0.01]"] { background-color: color-mix(in srgb, var(--fg) 1%, transparent); }
-[class*="bg-[var()]/[0.02]"] { background-color: color-mix(in srgb, var(--fg) 2%, transparent); }
-[class*="bg-[var()]/[0.03]"] { background-color: color-mix(in srgb, var(--fg) 3%, transparent); }
-[class*="bg-[var()]/[0.04]"] { background-color: color-mix(in srgb, var(--fg) 4%, transparent); }
+[class*="border-b-[var()]"] {
+  border-bottom-color: var(--hairline);
+}
+
+[class*="border-l-[var()]"] {
+  border-left-color: var(--hairline);
+}
+
+[class*="border-r-[var()]"] {
+  border-right-color: var(--hairline);
+}
+
+[class*="bg-[var()]"] {
+  background-color: var(--bg);
+}
+
+[class*="bg-[var()]/[0.01]"] {
+  background-color: color-mix(in srgb, var(--fg) 1%, transparent);
+}
+
+[class*="bg-[var()]/[0.02]"] {
+  background-color: color-mix(in srgb, var(--fg) 2%, transparent);
+}
+
+[class*="bg-[var()]/[0.03]"] {
+  background-color: color-mix(in srgb, var(--fg) 3%, transparent);
+}
+
+[class*="bg-[var()]/[0.04]"] {
+  background-color: color-mix(in srgb, var(--fg) 4%, transparent);
+}
+
 [class*="bg-[var()]/4"],
-[class*="bg-[var()]/5"] { background-color: color-mix(in srgb, var(--fg) 5%, transparent); }
-[class*="bg-[var()]/6"] { background-color: color-mix(in srgb, var(--fg) 6%, transparent); }
-[class*="bg-[var()]/8"] { background-color: color-mix(in srgb, var(--fg) 8%, transparent); }
-[class*="bg-[var()]/10"] { background-color: color-mix(in srgb, var(--fg) 10%, transparent); }
-[class*="bg-[var()]/15"] { background-color: color-mix(in srgb, var(--fg) 15%, transparent); }
-[class*="bg-[var()]/20"] { background-color: color-mix(in srgb, var(--fg) 20%, transparent); }
-[class*="bg-[var()]/60"] { background-color: color-mix(in srgb, var(--fg) 60%, transparent); }
-[class*="bg-[var()]/80"] { background-color: color-mix(in srgb, var(--fg) 80%, transparent); }
+[class*="bg-[var()]/5"] {
+  background-color: color-mix(in srgb, var(--fg) 5%, transparent);
+}
 
-[class*="placeholder-[var()]"]::placeholder { color: var(--muted); }
+[class*="bg-[var()]/6"] {
+  background-color: color-mix(in srgb, var(--fg) 6%, transparent);
+}
+
+[class*="bg-[var()]/8"] {
+  background-color: color-mix(in srgb, var(--fg) 8%, transparent);
+}
+
+[class*="bg-[var()]/10"] {
+  background-color: color-mix(in srgb, var(--fg) 10%, transparent);
+}
+
+[class*="bg-[var()]/15"] {
+  background-color: color-mix(in srgb, var(--fg) 15%, transparent);
+}
+
+[class*="bg-[var()]/20"] {
+  background-color: color-mix(in srgb, var(--fg) 20%, transparent);
+}
+
+[class*="bg-[var()]/60"] {
+  background-color: color-mix(in srgb, var(--fg) 60%, transparent);
+}
+
+[class*="bg-[var()]/80"] {
+  background-color: color-mix(in srgb, var(--fg) 80%, transparent);
+}
+
+[class*="placeholder-[var()]"]::placeholder {
+  color: var(--muted);
+}
 
 html {
   scroll-behavior: smooth;
@@ -329,25 +405,46 @@ html[data-theme="dark"] .review-card-pink .fill-current {
 
 /* Card throw animation */
 @keyframes cardThrowRight {
-  to { transform: translateX(120vw) rotate(25deg); opacity: 0; }
+  to {
+    transform: translateX(120vw) rotate(25deg);
+    opacity: 0;
+  }
 }
+
 @keyframes cardThrowLeft {
-  to { transform: translateX(-120vw) rotate(-25deg); opacity: 0; }
+  to {
+    transform: translateX(-120vw) rotate(-25deg);
+    opacity: 0;
+  }
 }
+
 @keyframes cardThrowUp {
-  to { transform: translateY(-120vh) scale(0.8); opacity: 0; }
+  to {
+    transform: translateY(-120vh) scale(0.8);
+    opacity: 0;
+  }
 }
 
 /* Confetti pieces */
 @keyframes confettiFall {
-  0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-  80%  { opacity: 1; }
-  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  0% {
+    transform: translateY(-20px) rotate(0deg);
+    opacity: 1;
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(110vh) rotate(720deg);
+    opacity: 0;
+  }
 }
 
 /* Glowing ring around Priority Match button */
 .priority-glow {
-  box-shadow: 0 0 20px rgba(245,158,11,0.5), 0 0 40px rgba(245,158,11,0.2);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.5), 0 0 40px rgba(245, 158, 11, 0.2);
 }
 
 /* Card stack depth effect */
@@ -371,34 +468,34 @@ html[data-theme="dark"] .review-card-pink .fill-current {
 .swipe-stamp-interested {
   border-color: #22c55e;
   color: #22c55e;
-  background: rgba(34,197,94,0.1);
+  background: rgba(34, 197, 94, 0.1);
   transform: rotate(-12deg);
 }
 
 .swipe-stamp-skip {
   border-color: #ef4444;
   color: #ef4444;
-  background: rgba(239,68,68,0.1);
+  background: rgba(239, 68, 68, 0.1);
   transform: rotate(12deg);
 }
 
 .swipe-stamp-priority {
   border-color: #f59e0b;
   color: #f59e0b;
-  background: rgba(245,158,11,0.1);
+  background: rgba(245, 158, 11, 0.1);
 }
 
 /* Action button pulse on hover */
 .action-btn-interested:hover {
-  box-shadow: 0 0 30px rgba(34,197,94,0.4), 0 0 60px rgba(34,197,94,0.15);
+  box-shadow: 0 0 30px rgba(34, 197, 94, 0.4), 0 0 60px rgba(34, 197, 94, 0.15);
 }
 
 .action-btn-skip:hover {
-  box-shadow: 0 0 30px rgba(239,68,68,0.4), 0 0 60px rgba(239,68,68,0.15);
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.4), 0 0 60px rgba(239, 68, 68, 0.15);
 }
 
 .action-btn-priority:hover {
-  box-shadow: 0 0 30px rgba(245,158,11,0.5), 0 0 60px rgba(245,158,11,0.2);
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.5), 0 0 60px rgba(245, 158, 11, 0.2);
 }
 
 /* Custom Line Clamp Utilities */

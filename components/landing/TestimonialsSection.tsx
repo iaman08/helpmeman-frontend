@@ -145,7 +145,7 @@ export function TestimonialsSection() {
 
         // Deduplicate & merge with curated list
         const uniqueMap = new Map<string, PublicReview>();
-        
+
         // Add fetched reviews first
         fetchedReviews.forEach((r) => {
           if (r.feedback && r.feedback.trim().length > 15) {
