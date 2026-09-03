@@ -352,40 +352,37 @@ export function FloatingStatsSection() {
 
           {/* Line 1: No of Sessions */}
           <div
-            className={`transition-all duration-500 ease-out transform ${
-              isStage1Active
+            className={`transition-all duration-500 ease-out transform ${isStage1Active
                 ? "text-[#111111] dark:text-white opacity-100 scale-100"
                 : "text-neutral-300 dark:text-neutral-700 opacity-60 scale-98"
-            }`}
+              }`}
           >
             <h2 className="text-[clamp(36px,7.5vw,90px)] font-extrabold leading-[1.04] tracking-[-0.04em]">
-              1,428+ sessions
+              15+ sessions
             </h2>
           </div>
 
           {/* Line 2: Total Minutes */}
           <div
-            className={`transition-all duration-500 ease-out transform ${
-              isStage2Active
+            className={`transition-all duration-500 ease-out transform ${isStage2Active
                 ? "opacity-100 translate-y-0 scale-100 max-h-[140px] mt-1 sm:mt-2.5"
                 : "opacity-0 translate-y-10 scale-95 max-h-0 overflow-hidden pointer-events-none"
-            }`}
+              }`}
           >
             <h2 className="text-[clamp(36px,7.5vw,90px)] font-extrabold leading-[1.04] tracking-[-0.04em] text-[#111111] dark:text-white">
-              621,500+ minutes
+              1000+ minutes
             </h2>
           </div>
 
           {/* Line 3: No of Mentees */}
           <div
-            className={`transition-all duration-500 ease-out transform ${
-              isStage3Active
+            className={`transition-all duration-500 ease-out transform ${isStage3Active
                 ? "opacity-100 translate-y-0 scale-100 max-h-[140px] mt-1 sm:mt-2.5"
                 : "opacity-0 translate-y-10 scale-95 max-h-0 overflow-hidden pointer-events-none"
-            }`}
+              }`}
           >
             <h2 className="text-[clamp(36px,7.5vw,90px)] font-extrabold leading-[1.04] tracking-[-0.04em] text-[#111111] dark:text-white">
-              323,900+ mentees
+              100+ mentors
             </h2>
           </div>
         </div>

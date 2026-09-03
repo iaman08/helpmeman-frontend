@@ -19,7 +19,7 @@ const stats = [
   },
   {
     icon: Rocket,
-    number: "0",
+    number: "1",
     label: "Startups Launched",
     description: "Founders who launched after mentorship sessions",
   },

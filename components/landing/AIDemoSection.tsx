@@ -214,7 +214,7 @@ export function AIDemoSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12 md:mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[var(--hairline)] text-[12px] font-medium text-[var(--muted)] mb-6 select-none">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#E67579]/30 dark:border-yellow-500/30 bg-[#E67579]/10 dark:bg-yellow-500/10 text-[#E67579] dark:text-yellow-400 text-[12px] font-medium mb-6 select-none">
             <Sparkles size={13} />
             Powered by AI
           </div>

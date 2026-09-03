@@ -68,10 +68,10 @@ export function HeroSection() {
           <span className="whitespace-nowrap">
             Find{" "}
             <span className="inline-block relative">
-              <span className="text-[var(--fg)] font-bold">
+              <span className="bg-gradient-to-r from-[#833AB4] via-[#E1306C] to-[#FD1D1D] to-[#F77737] bg-clip-text text-transparent font-bold">
                 {currentText || "\u00A0"}
               </span>
-              <span className="inline-block w-[3px] h-[0.8em] ml-0.5 bg-blue-600 dark:bg-blue-400 animate-pulse align-middle rounded-full" />
+              <span className="inline-block w-[3px] h-[0.8em] ml-0.5 bg-[#E1306C] animate-pulse align-middle rounded-full" />
             </span>{" "}
             mentors
           </span>{" "}
