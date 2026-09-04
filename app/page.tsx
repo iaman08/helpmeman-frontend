@@ -53,6 +53,14 @@ function LandingPageContent() {
     router.replace("/", { scroll: false });
   };
 
+  useEffect(() => {
+    const handleOpenAuth = () => {
+      setAuthModal({ isOpen: true, mode: "signin" });
+    };
+    window.addEventListener("open-auth", handleOpenAuth);
+    return () => window.removeEventListener("open-auth", handleOpenAuth);
+  }, []);
+
   // On Mobile & Tablet (< 1024px), authenticated users bypass the landing page
   // and are redirected directly to their dashboard. On Desktop (>= 1024px), they view the landing page.
   useEffect(() => {

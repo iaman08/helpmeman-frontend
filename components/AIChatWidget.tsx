@@ -990,6 +990,15 @@ export function AIChatWidget() {
   // Mentor booking state
   const mentorContextRef = useRef<MentorData[]>([]);
   const [bookingMentor, setBookingMentor] = useState<MentorData | null>(null);
+  const handleBookMentor = useCallback((m: MentorData | null) => {
+    if (m && !user) {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("open-auth"));
+      }
+      return;
+    }
+    setBookingMentor(m);
+  }, [user]);
 
   // History state
   const [historyGroups, setHistoryGroups] = useState<DateGroup[]>([]);
@@ -1061,18 +1070,12 @@ export function AIChatWidget() {
     dragRef.current.moved = false;
     // If no real drag happened, treat as a click → open widget
     if (!wasMoved) {
-      if (!user) {
-        if (typeof window !== "undefined") {
-          window.dispatchEvent(new Event("open-auth"));
-        }
-        return;
-      }
       setIsOpen((prev) => !prev);
       if (typeof window !== "undefined") {
         localStorage.setItem("helpmeman.aiChatOpen", String(!isOpen));
       }
     }
-  }, [user, isOpen]);
+  }, [isOpen]);
 
   const emojiPickerRef = useRef<HTMLDivElement>(null);
 
@@ -1295,6 +1298,11 @@ export function AIChatWidget() {
   // ─── Load history ──────────────────────────────────────────────────────────
 
   const loadHistory = useCallback(async () => {
+    if (!user) {
+      setHistoryGroups([]);
+      setHistoryLoading(false);
+      return;
+    }
     setHistoryLoading(true);
     try {
       const { data } = await api.get("/ai/sessions");
@@ -1304,7 +1312,7 @@ export function AIChatWidget() {
     } finally {
       setHistoryLoading(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (isOpen && activeTab === "history") {
@@ -1315,6 +1323,11 @@ export function AIChatWidget() {
   // ─── Load meetings ─────────────────────────────────────────────────────────
 
   const loadMeetings = useCallback(async () => {
+    if (!user) {
+      setMeetings([]);
+      setMeetingsLoading(false);
+      return;
+    }
     setMeetingsLoading(true);
     try {
       const { data } = await api.get("/ai/meetings");
@@ -1324,7 +1337,7 @@ export function AIChatWidget() {
     } finally {
       setMeetingsLoading(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (isOpen && activeTab === "meetings") {
@@ -1483,6 +1496,12 @@ export function AIChatWidget() {
 
     const isBookingIntent = /(book|schedule|reserve|meet|session with|i want this|continue booking|i'll take|go with|pick|choose|select)/i.test(lower);
     if (isBookingIntent && resolvedMentor) {
+      if (!user) {
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("open-auth"));
+        }
+        return;
+      }
       setBookingMentor(resolvedMentor);
       if (customMsg === undefined) setInput("");
       return;
@@ -1533,7 +1552,7 @@ export function AIChatWidget() {
 
     chatSoundService.playSendSound();
     startStream(msg, { sessionId: sessionId || undefined, ruthlessMode });
-  }, [input, loading, sessionId, startStream, ruthlessMode]);
+  }, [input, loading, sessionId, startStream, ruthlessMode, user]);
 
 
   const handleRetry = useCallback(() => {
@@ -1636,12 +1655,6 @@ export function AIChatWidget() {
         tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
-            if (!user) {
-              if (typeof window !== "undefined") {
-                window.dispatchEvent(new Event("open-auth"));
-              }
-              return;
-            }
             setIsOpen((prev) => !prev);
           }
         }}
@@ -2002,7 +2015,7 @@ export function AIChatWidget() {
                           isLastUserMsg={isLastUserMsg}
                           mentorContext={mentorContextRef.current}
                           streamingMessageId={streamingMessageId}
-                          setBookingMentor={setBookingMentor}
+                          setBookingMentor={handleBookMentor}
                           showHeader={showHeader}
                           msgDateStr={msgDateStr}
                         />
@@ -2178,7 +2191,28 @@ export function AIChatWidget() {
                   </div>
                 )}
 
-                {!meetingsLoading && meetings.length === 0 && (
+                {!meetingsLoading && !user && (
+                  <div className="flex flex-col items-center justify-center gap-4 py-16 text-center max-w-sm mx-auto">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var()]/5">
+                      <Calendar className="h-6 w-6 text-[var()]" />
+                    </div>
+                    <p className="text-sm font-semibold">Sign in to view your meetings</p>
+                    <p className="text-xs text-[var()] leading-relaxed">Book a 1-on-1 session with any verified mentor to unlock meeting prep and notes here.</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (typeof window !== "undefined") {
+                          window.dispatchEvent(new Event("open-auth"));
+                        }
+                      }}
+                      className="inline-flex items-center gap-2 text-xs font-semibold rounded-full bg-[var()] text-[var()] px-5 py-2.5 hover:opacity-90 transition-opacity cursor-pointer mt-2"
+                    >
+                      Sign In / Sign Up
+                    </button>
+                  </div>
+                )}
+
+                {!meetingsLoading && user && meetings.length === 0 && (
                   <div className="flex flex-col items-center justify-center gap-4 py-16 text-center max-w-sm mx-auto">
                     <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var()]/5">
                       <Calendar className="h-6 w-6 text-[var()]" />
@@ -2264,7 +2298,28 @@ export function AIChatWidget() {
                   </div>
                 )}
 
-                {!historyLoading && historyGroups.length === 0 && (
+                {!historyLoading && !user && (
+                  <div className="flex flex-col items-center justify-center gap-4 py-16 text-center max-w-sm mx-auto">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var()]/5">
+                      <Clock className="h-6 w-6 text-[var()]" />
+                    </div>
+                    <p className="text-sm font-semibold">Sign in to save chat history</p>
+                    <p className="text-xs text-[var()] leading-relaxed">Sign in to keep your conversation sessions saved and synced across all your devices.</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (typeof window !== "undefined") {
+                          window.dispatchEvent(new Event("open-auth"));
+                        }
+                      }}
+                      className="inline-flex items-center gap-2 text-xs font-semibold rounded-full bg-[var()] text-[var()] px-5 py-2.5 hover:opacity-90 transition-opacity cursor-pointer mt-2"
+                    >
+                      Sign In / Sign Up
+                    </button>
+                  </div>
+                )}
+
+                {!historyLoading && user && historyGroups.length === 0 && (
                   <div className="flex flex-col items-center justify-center gap-4 py-16 text-center max-w-sm mx-auto">
                     <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var()]/5">
                       <Clock className="h-6 w-6 text-[var()]" />
