@@ -17,11 +17,11 @@ type NavLinkItem = {
 };
 
 const navLinks: NavLinkItem[] = [
-  { label: "Services", href: "/services" },
-  { label: "Mentors", href: "/mentors" },
-  { label: "Support", isSupport: true },
   { label: "Pricing", href: "/#pricing", id: "pricing" },
+  { label: "Mentors", href: "/mentors" },
+  { label: "Services", href: "/services" },
   { label: "Ruth AI", href: "/#about", id: "about" },
+  { label: "Support", isSupport: true },
 ];
 
 export function LandingNavbar() {
@@ -68,69 +68,72 @@ export function LandingNavbar() {
 
   return (
     <nav className={`landing-nav-capsule ${scrolled ? "nav-scrolled" : ""}`}>
-      <div className="px-4 sm:px-5 py-2.5 flex items-center justify-between relative">
+      <div className="px-5 sm:px-6 py-2.5 flex items-center justify-between relative">
         {/* Left Side: Logo */}
         <Link
           href="/"
-          className="flex items-center gap-2 font-semibold text-[15px] tracking-tight text-[var(--fg)] select-none shrink-0 no-underline"
+          className="flex items-center gap-2.5 select-none shrink-0 no-underline"
         >
-          <img src="/logo.svg" alt="HelpMeMan Logo" className="w-7 h-7 object-contain" />
-          <span className="font-bold tracking-tight">HelpMeMan</span>
+          <img src="/logo.svg" alt="HelpMeMan Logo" className="w-6.5 h-6.5 object-contain" />
+          <span className="font-bold tracking-tight text-[15px] text-[#141414] dark:text-[#f4f4f5]">HelpMeMan</span>
         </Link>
 
-        {/* Desktop Navigation Links */}
-        <div
-          className={`hidden lg:flex items-center justify-center flex-1 mx-3 min-w-0 transition-all duration-300 ${scrolled ? "gap-3.5" : "gap-5"
-            }`}
-        >
+        {/* Right Side: Desktop Navigation Links & Actions (matching reference) */}
+        <div className="hidden lg:flex items-center gap-6 xl:gap-7">
           {navLinks.map((link) => (
             <button
               key={link.label}
               onClick={() => handleNavClick(link)}
-              className="nav-link-pill text-[13px] font-medium text-[var(--muted)] hover:text-[var(--fg)] transition-colors bg-transparent border-none cursor-pointer py-1 whitespace-nowrap"
+              className="nav-link-pill text-[14px] font-semibold text-[#141414] dark:text-[#f4f4f5] hover:opacity-75 transition-opacity bg-transparent border-none cursor-pointer p-0 whitespace-nowrap tracking-[-0.01em]"
             >
               {link.label}
             </button>
           ))}
-        </div>
 
-        {/* Right side: CTA buttons & Theme Toggle */}
-        <div className="flex items-center gap-2.5 shrink-0">
-          <ThemeToggle variant="pill" />
-
-          {!isLoggedIn && (
-            <div className="hidden lg:flex items-center gap-2">
-              <Link
-                href="/?auth=signin"
-                className="text-[13px] font-medium text-[var(--muted)] hover:text-[var(--fg)] transition-colors no-underline px-2.5 py-1 whitespace-nowrap"
-              >
-                Log in
-              </Link>
-              <AnimatePresence>
-                {scrolled && (
-                  <motion.div
-                    initial={{ opacity: 0, x: 20, scale: 0.9, width: 0 }}
-                    animate={{ opacity: 1, x: 0, scale: 1, width: "auto" }}
-                    exit={{ opacity: 0, x: 20, scale: 0.9, width: 0 }}
-                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                    className="overflow-hidden flex items-center"
-                  >
-                    <Link
-                      href="/?auth=signup"
-                      className="text-[13px] font-semibold text-white dark:text-black bg-black dark:bg-white px-4 py-1.5 rounded-full hover:opacity-90 active:scale-[0.98] transition-all no-underline whitespace-nowrap shadow-sm inline-block"
-                    >
-                      Join for free
-                    </Link>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+          {!isLoggedIn ? (
+            <Link
+              href="/?auth=signin"
+              className="text-[14px] font-semibold text-[#141414] dark:text-[#f4f4f5] hover:opacity-75 transition-opacity no-underline p-0 whitespace-nowrap tracking-[-0.01em]"
+            >
+              Log in
+            </Link>
+          ) : (
+            <Link
+              href={dashboardPath}
+              className="text-[14px] font-semibold text-[#141414] dark:text-[#f4f4f5] hover:opacity-75 transition-opacity no-underline p-0 whitespace-nowrap tracking-[-0.01em]"
+            >
+              Dashboard
+            </Link>
           )}
 
-          {/* Mobile Hamburger */}
+          <AnimatePresence>
+            {!isLoggedIn && scrolled && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, width: 0 }}
+                animate={{ opacity: 1, scale: 1, width: "auto" }}
+                exit={{ opacity: 0, scale: 0.9, width: 0 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                className="overflow-hidden flex items-center"
+              >
+                <Link
+                  href="/?auth=signup"
+                  className="text-[13px] font-semibold text-white dark:text-black bg-[#141414] dark:bg-[#f4f4f5] px-4 py-1.5 rounded-full hover:opacity-90 active:scale-[0.98] transition-all no-underline whitespace-nowrap shadow-sm inline-block"
+                >
+                  Join for free
+                </Link>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <ThemeToggle variant="pill" />
+        </div>
+
+        {/* Mobile Controls */}
+        <div className="flex items-center gap-2 lg:hidden">
+          <ThemeToggle variant="pill" />
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="lg:hidden bg-transparent border-none cursor-pointer text-[var(--fg)] p-1 flex items-center justify-center"
+            className="bg-transparent border-none cursor-pointer text-[#141414] dark:text-[#f4f4f5] p-1 flex items-center justify-center"
             aria-label="Toggle menu"
           >
             {mobileOpen ? <X size={18} /> : <Menu size={18} />}
@@ -145,7 +148,7 @@ export function LandingNavbar() {
                 <button
                   key={link.label}
                   onClick={() => handleNavClick(link)}
-                  className="text-left py-2.5 text-[14px] font-medium text-[var(--fg)] bg-transparent border-none cursor-pointer"
+                  className="text-left py-2.5 text-[14px] font-semibold text-[#141414] dark:text-[#f4f4f5] bg-transparent border-none cursor-pointer"
                 >
                   {link.label}
                 </button>
@@ -155,13 +158,13 @@ export function LandingNavbar() {
               <div className="border-t border-[var(--hairline)] mt-2 pt-3 flex gap-2">
                 <Link
                   href="/?auth=signin"
-                  className="flex-1 text-center py-2.5 text-[13px] font-medium text-[var(--fg)] border border-[var(--hairline)] rounded-lg no-underline"
+                  className="flex-1 text-center py-2.5 text-[14px] font-semibold text-[#141414] dark:text-[#f4f4f5] border border-[var(--hairline)] rounded-xl no-underline"
                 >
                   Log in
                 </Link>
                 <Link
                   href="/?auth=signup"
-                  className="flex-1 text-center py-2.5 text-[13px] font-semibold text-[var(--bg)] bg-[var(--fg)] rounded-lg no-underline"
+                  className="flex-1 text-center py-2.5 text-[14px] font-semibold text-white dark:text-black bg-[#141414] dark:bg-[#f4f4f5] rounded-xl no-underline"
                 >
                   Join for free
                 </Link>

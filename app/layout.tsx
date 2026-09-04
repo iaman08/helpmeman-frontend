@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/lib/auth-context";
@@ -17,10 +17,40 @@ import { PlatformReviewTrigger } from "@/components/PlatformReviewTrigger";
 import { FloatingEagleButton } from "@/components/FloatingEagleButton";
 import { TawkToScript } from "@/components/TawkToScript";
 
-const plusJakarta = Plus_Jakarta_Sans({
+const mSaans = localFont({
+  src: [
+    {
+      path: "./fonts/MSaans-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/MSaans-SemiBold.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "./fonts/MSaans-SemiBold.woff2",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "./fonts/MSaans-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "./fonts/MSaans-Bold.woff2",
+      weight: "800",
+      style: "normal",
+    },
+    {
+      path: "./fonts/MSaans-Variable.woff2",
+      weight: "300 900",
+      style: "normal",
+    },
+  ],
   variable: "--font-sans",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
@@ -80,7 +110,7 @@ export default function RootLayout({
       lang="en"
       data-scroll-behavior="smooth"
       suppressHydrationWarning
-      className={`${plusJakarta.variable} antialiased selection:bg-white selection:text-black`}
+      className={`${mSaans.variable} antialiased selection:bg-white selection:text-black`}
     >
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />

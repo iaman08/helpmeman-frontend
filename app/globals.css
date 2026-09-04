@@ -2,30 +2,55 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@font-face {
+  font-family: 'M Saans';
+  src: url('/fonts/MSaans-Variable.woff2') format('woff2-variations'),
+       url('/fonts/MSaans-Variable.woff2') format('woff2');
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'M Saans';
+  src: url('/fonts/MSaans-SemiBold.woff2') format('woff2');
+  font-weight: 500 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'M Saans';
+  src: url('/fonts/MSaans-Bold.woff2') format('woff2');
+  font-weight: 700 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --bg: #ffffff;
-  --fg: #0a0a0a;
+  --fg: #141414;
   --muted: #5b5b5b;
-  --hairline: rgba(10, 10, 10, 0.15);
-  --accent: #0a0a0a;
+  --hairline: rgba(20, 20, 20, 0.12);
+  --accent: #141414;
   --accent-fg: #ffffff;
 }
 
 html[data-theme="light"] {
   --bg: #ffffff;
-  --fg: #0a0a0a;
+  --fg: #141414;
   --muted: #5b5b5b;
-  --hairline: rgba(10, 10, 10, 0.15);
-  --accent: #0a0a0a;
+  --hairline: rgba(20, 20, 20, 0.12);
+  --accent: #141414;
   --accent-fg: #ffffff;
 }
 
 html[data-theme="yellow"] {
   --bg: #f5c518;
-  --fg: #0a0a0a;
+  --fg: #141414;
   --muted: #3a2f00;
-  --hairline: rgba(10, 10, 10, 0.14);
-  --accent: #0a0a0a;
+  --hairline: rgba(20, 20, 20, 0.14);
+  --accent: #141414;
   --accent-fg: #f5c518;
 }
 
@@ -48,19 +73,19 @@ html.dark,
   --color-hairline: var(--hairline);
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
-  --font-sans: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: var(--font-sans), 'M Saans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 html,
 body {
   background: var(--bg);
   color: var(--fg);
-  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-sans), 'M Saans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-  letter-spacing: -0.015em;
+  font-feature-settings: "blwf" on, "cv03" on, "cv04" on, "cv09" on, "cv11" on, "ss07" on;
+  letter-spacing: -0.012em;
   transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease;
 }
 
