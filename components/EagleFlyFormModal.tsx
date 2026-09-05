@@ -15,6 +15,7 @@ import {
   Sparkles,
   ExternalLink,
 } from "lucide-react";
+import api from "@/lib/api";
 
 type Phase = "idle" | "flying" | "form" | "submitting" | "submitted";
 
@@ -139,17 +140,12 @@ export function EagleFlyFormModal({
         if (description) formData.append("description", description.trim());
         if (mediaFile) formData.append("media", mediaFile);
 
-        const rawUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
-        const endpoint = rawUrl.endsWith("/api") ? `${rawUrl}/bugs/report` : `${rawUrl}/api/bugs/report`;
-        const res = await fetch(endpoint, {
-          method: "POST",
-          body: formData,
+        const res = await api.post("/bugs/report", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
         });
 
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || "Failed to submit bug report");
+        if (res.status >= 400 || (res.data && res.data.success === false)) {
+          throw new Error(res.data?.error || "Failed to submit bug report");
         }
 
         setPhase("submitted");
@@ -160,7 +156,12 @@ export function EagleFlyFormModal({
         }, 4000);
       } catch (err: any) {
         console.error("Bug submission failed:", err);
-        setErrorMessage(err.message || "Something went wrong. Please try again.");
+        const serverError =
+          err.response?.data?.error ||
+          err.response?.data?.message ||
+          err.message ||
+          "Something went wrong. Please try again.";
+        setErrorMessage(serverError);
         setPhase("form");
       }
     },

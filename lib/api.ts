@@ -1,17 +1,23 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 
 export const getApiBaseUrl = () => {
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, '');
-  }
+  let url = process.env.NEXT_PUBLIC_API_URL?.trim();
   if (
+    !url &&
     typeof window !== "undefined" &&
     (window.location.hostname.includes("vercel.app") ||
       window.location.hostname.includes("helpmeman.com"))
   ) {
-    return "https://helpmeman-backend-7r53z.ondigitalocean.app/api";
+    url = "https://helpmeman-backend-7r53z.ondigitalocean.app/api";
   }
-  return "http://localhost:8080/api";
+  if (!url) {
+    url = "http://localhost:8080/api";
+  }
+  url = url.replace(/\/+$/, "");
+  if (!url.endsWith("/api")) {
+    url = `${url}/api`;
+  }
+  return url;
 };
 
 export const API_BASE = getApiBaseUrl();
