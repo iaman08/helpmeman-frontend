@@ -26,7 +26,7 @@ export function FooterSection() {
             {/* Social icons */}
             <div className="flex items-center gap-3 mt-2">
               <a
-                href="https://x.com/helpmeman"
+                href="https://x.com/helpmemanHQ"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="HelpMeMan on X (formerly Twitter)"
@@ -38,7 +38,7 @@ export function FooterSection() {
                 </svg>
               </a>
               <a
-                href="https://instagram.com/helpmeman"
+                href="https://www.instagram.com/helpmemanhq?igsi=bTk5bmFtZjJlNnhp"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="HelpMeMan on Instagram"
