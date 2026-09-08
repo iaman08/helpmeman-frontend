@@ -308,7 +308,7 @@ export function FloatingStatsSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full h-[220vh] bg-white dark:bg-[#0A0A0A] border-t border-[var(--hairline)]"
+      className="relative w-full h-[220vh] bg-white dark:bg-[#0A0A0A]"
     >
       {/* Sticky Full-Viewport Stage */}
       <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col items-center justify-center px-4 select-none">
