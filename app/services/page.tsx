@@ -44,7 +44,7 @@ function ServicesPageContent() {
       <LandingNavbar />
 
       <div
-        className="relative z-10 rounded-b-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.10)] border-b border-[var(--hairline)] overflow-hidden"
+        className="relative z-10 rounded-b-[40px] md:rounded-b-[48px] shadow-[0_20px_60px_rgba(0,0,0,0.10)] border-b border-[var(--hairline)] overflow-hidden"
         style={{ background: "var(--bg)" }}
       >
         <ServicesSection />

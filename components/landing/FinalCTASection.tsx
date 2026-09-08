@@ -10,7 +10,7 @@ export function FinalCTASection() {
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section ref={ref} className="py-24 md:py-36 lg:py-44 bg-white dark:bg-[#0A0A0A] border-t border-[#F3F4F6] dark:border-[#1F1F23] transition-colors duration-300">
+    <section ref={ref} className="py-24 md:py-36 lg:py-44 bg-white dark:bg-[#0A0A0A] border-t border-[#F3F4F6] dark:border-[#1F1F23] rounded-b-[40px] md:rounded-b-[48px] overflow-hidden transition-colors duration-300">
       <div className="max-w-[1200px] mx-auto px-6 text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
