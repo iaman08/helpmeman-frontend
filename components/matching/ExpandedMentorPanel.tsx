@@ -430,7 +430,7 @@ export function ExpandedMentorPanel({
                   onAction?.("session_booked");
                   onClose();
                 }}
-                className="flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-bold text-sm bg-[var()] text-[var()] hover:opacity-90 active:scale-98 transition-all shadow-md"
+                className="flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-bold text-sm bg-[var(--fg)] text-[var(--bg)] hover:opacity-90 active:scale-98 transition-all shadow-md"
               >
                 <BookOpen className="h-4 w-4" />
                 <span>Book 1-on-1 Session</span>

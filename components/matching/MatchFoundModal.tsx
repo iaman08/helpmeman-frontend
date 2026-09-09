@@ -173,7 +173,7 @@ export function MatchFoundModal({ mentor, onClose }: MatchFoundModalProps) {
                   <Link
                     href={`/book/${mentor.id}`}
                     onClick={onClose}
-                    className="flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm bg-[var()] text-[var()] transition-all hover:opacity-90 active:scale-97"
+                    className="flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm bg-[var(--fg)] text-[var(--bg)] transition-all hover:opacity-90 active:scale-97 shadow-sm"
                   >
                     <BookOpen className="h-4 w-4" />
                     Book a Session

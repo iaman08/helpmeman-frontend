@@ -140,7 +140,7 @@ export default function MentorProfilePage() {
           action={
             <Link
               href="/"
-              className="rounded-full bg-[var()] text-[var()] px-6 py-2.5 text-sm hover:opacity-90 transition-opacity"
+              className="rounded-full bg-[var(--fg)] text-[var(--bg)] px-6 py-2.5 text-sm hover:opacity-90 transition-opacity"
             >
               Back to Home
             </Link>
@@ -401,27 +401,27 @@ export default function MentorProfilePage() {
 
               <div
                 aria-hidden
-                className="h-px w-full bg-[var()]"
+                className="h-px w-full bg-[var(--hairline)]"
               />
 
               <ul className="flex flex-col gap-3 text-sm text-[var()]/85 font-medium">
                 <li className="flex items-center gap-3">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var()]" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--fg)]" />
                   1-on-1 video call
                 </li>
                 <li className="flex items-center gap-3">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var()]" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--fg)]" />
                   Google Meet link
                 </li>
                 <li className="flex items-center gap-3">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var()]" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--fg)]" />
                   Notes & follow-up
                 </li>
               </ul>
 
               <Link
                 href={`/book/${mentor.id}`}
-                className="text-center rounded-xl bg-[var()] text-[var()] px-7 py-3.5 text-sm font-bold hover:opacity-90 active:scale-97 transition-all cursor-pointer"
+                className="text-center rounded-xl bg-[var(--fg)] text-[var(--bg)] px-7 py-3.5 text-sm font-bold hover:opacity-90 active:scale-97 transition-all cursor-pointer shadow-sm"
               >
                 Book a session
               </Link>
