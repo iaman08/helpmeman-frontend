@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Bell, CheckCheck } from "lucide-react";
 import { mutate } from "swr";
 import api from "@/lib/api";
@@ -30,6 +31,46 @@ function formatTime(value: string) {
   return date.toLocaleDateString();
 }
 
+function getNotificationHref(notification: Notification, notificationsPath: string): string {
+  const meta = notification.metadata as Record<string, any> | null | undefined;
+
+  // 1. Direct explicit link if present in metadata
+  if (typeof meta?.actionUrl === "string") return meta.actionUrl;
+  if (typeof meta?.link === "string") return meta.link;
+  if (typeof meta?.url === "string") return meta.url;
+  if (typeof meta?.href === "string") return meta.href;
+
+  // 2. Direct booking ID link if present for mentees
+  if (meta?.bookingId && !notificationsPath.startsWith("/mentor")) {
+    return `/dashboard/bookings/${meta.bookingId}`;
+  }
+
+  // 3. Canonical mapping established in notification service / email routes
+  const isMentor = notificationsPath.startsWith("/mentor");
+  switch (notification.type) {
+    case "CHAT_MESSAGE":
+      return isMentor ? "/mentor/bookings" : "/dashboard/chat";
+    case "CHAT_REPLY":
+      return "/dashboard/chat";
+    case "NEW_BOOKING":
+      return isMentor ? "/mentor/bookings" : "/dashboard/bookings";
+    case "BOOKING_CONFIRMED":
+    case "SESSION_REMINDER":
+      return isMentor ? "/mentor/bookings" : "/dashboard/bookings";
+    case "MENTOR_APPROVED":
+      return "/mentor";
+    case "MENTOR_REJECTED":
+      return "/mentor/status";
+    case "SECURITY_ALERT":
+    case "ACCOUNT_UPDATE":
+      return isMentor ? "/mentor/settings" : "/dashboard/settings";
+    case "PLATFORM_ANNOUNCEMENT":
+      return "/dashboard";
+    default:
+      return notificationsPath;
+  }
+}
+
 interface NotificationBellProps {
   notificationsPath?: string;
 }
@@ -37,6 +78,7 @@ interface NotificationBellProps {
 export function NotificationBell({ notificationsPath = "/dashboard/notifications" }: NotificationBellProps) {
   const { data, isLoading } = useNotifications();
   const [open, setOpen] = useState(false);
+  const router = useRouter();
   const ref = useRef<HTMLDivElement>(null);
   const unreadCount = data?.unreadCount || 0;
   const preview = data?.notifications?.slice(0, 5) || [];
@@ -63,6 +105,15 @@ export function NotificationBell({ notificationsPath = "/dashboard/notifications
   async function markAllRead() {
     await api.put("/users/me/notifications/read-all");
     mutate("/users/me/notifications");
+  }
+
+  async function handleNotificationClick(notification: Notification) {
+    if (!notification.isRead) {
+      markRead(notification.id).catch(() => {});
+    }
+    setOpen(false);
+    const href = getNotificationHref(notification, notificationsPath);
+    router.push(href);
   }
 
   return (
@@ -137,7 +188,7 @@ export function NotificationBell({ notificationsPath = "/dashboard/notifications
               <NotificationPreviewRow
                 key={notification.id}
                 notification={notification}
-                onRead={() => markRead(notification.id)}
+                onClick={() => handleNotificationClick(notification)}
               />
             ))}
           </div>
@@ -164,15 +215,15 @@ export function NotificationBell({ notificationsPath = "/dashboard/notifications
 
 function NotificationPreviewRow({
   notification,
-  onRead,
+  onClick,
 }: {
   notification: Notification;
-  onRead: () => void;
+  onClick: () => void;
 }) {
   return (
     <button
       type="button"
-      onClick={onRead}
+      onClick={onClick}
       className="flex w-full items-start gap-3 px-4 py-3 text-left transition-colors cursor-pointer"
       style={{
         borderBottom: "1px solid var(--hairline)",
