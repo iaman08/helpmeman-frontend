@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Bot, X, Trash2, Sparkles, Clock, ChevronRight, MessageSquare, RotateCcw, Plus, History, Calendar, Video, Edit2, Check, Smile, Mic, ArrowUp, Star, BadgeCheck, Zap } from "lucide-react";
+import { Bot, X, Trash2, Sparkles, Clock, ChevronRight, MessageSquare, RotateCcw, Plus, History, Calendar, Video, Edit2, Check, Smile, Mic, ArrowUp, Star, BadgeCheck, Zap, Flame, Compass } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import api, { API_BASE } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import Link from "next/link";
@@ -103,7 +104,7 @@ function parseMarkdownLinks(text: string, mentors?: MentorData[]) {
     const match = part.match(/\[(.*?)\]\((.*?)\)/);
     if (match) {
       return (
-        <Link key={i} href={match[2]} className="text-[var()] hover:underline font-medium">
+        <Link key={i} href={match[2]} className="text-[var(--fg)] hover:underline font-medium">
           {match[1]}
         </Link>
       );
@@ -145,13 +146,13 @@ function formatAIContent(content: string, mentors?: MentorData[], isStreaming?: 
     if (codeBlockEnd === -1) {
       const code = content.slice(codeStart);
       result.push(
-        <div key={`code-open-${codeBlockStart}`} className="my-2 rounded-xl overflow-hidden border border-[var()]">
+        <div key={`code-open-${codeBlockStart}`} className="my-2 rounded-xl overflow-hidden border border-[var(--hairline)]">
           {lang && (
-            <div className="px-3 py-1 text-[10px] font-mono font-semibold text-[var()] bg-[var()]/[0.04] border-b border-[var()]">
+            <div className="px-3 py-1 text-[10px] font-mono font-semibold text-[var(--fg)] bg-[var(--fg)]/[0.04] border-b border-[var(--hairline)]">
               {lang} (streaming...)
             </div>
           )}
-          <pre className="p-3 text-xs font-mono leading-relaxed overflow-x-auto bg-[var()]/[0.02] whitespace-pre-wrap">
+          <pre className="p-3 text-xs font-mono leading-relaxed overflow-x-auto bg-[var(--fg)]/[0.02] whitespace-pre-wrap">
             <code>{code}</code>
           </pre>
         </div>
@@ -161,13 +162,13 @@ function formatAIContent(content: string, mentors?: MentorData[], isStreaming?: 
 
     const code = content.slice(codeStart, codeBlockEnd);
     result.push(
-      <div key={`code-closed-${codeBlockStart}`} className="my-2 rounded-xl overflow-hidden border border-[var()]">
+      <div key={`code-closed-${codeBlockStart}`} className="my-2 rounded-xl overflow-hidden border border-[var(--hairline)]">
         {lang && (
-          <div className="px-3 py-1 text-[10px] font-mono font-semibold text-[var()] bg-[var()]/[0.04] border-b border-[var()]">
+          <div className="px-3 py-1 text-[10px] font-mono font-semibold text-[var(--fg)] bg-[var(--fg)]/[0.04] border-b border-[var(--hairline)]">
             {lang}
           </div>
         )}
-        <pre className="p-3 text-xs font-mono leading-relaxed overflow-x-auto bg-[var()]/[0.02] whitespace-pre-wrap">
+        <pre className="p-3 text-xs font-mono leading-relaxed overflow-x-auto bg-[var(--fg)]/[0.02] whitespace-pre-wrap">
           <code>{code}</code>
         </pre>
       </div>
@@ -177,7 +178,7 @@ function formatAIContent(content: string, mentors?: MentorData[], isStreaming?: 
   }
 
   if (isStreaming) {
-    result.push(<span key="cursor" className="inline-block w-0.5 h-4 bg-[var()]/60 ml-0.5 align-middle animate-pulse" />);
+    result.push(<span key="cursor" className="inline-block w-0.5 h-4 bg-[var(--fg)]/60 ml-0.5 align-middle animate-pulse" />);
   }
 
   return result;
@@ -205,12 +206,12 @@ function parseNormalText(text: string, mentors?: MentorData[]): React.ReactNode[
       }
 
       result.push(
-        <div key={`table-${i}`} className="my-3 overflow-x-auto border border-[var()] rounded-xl">
+        <div key={`table-${i}`} className="my-3 overflow-x-auto border border-[var(--hairline)] rounded-xl">
           <table className="w-full text-xs text-left border-collapse">
             <thead>
-              <tr className="bg-[var()]/[0.02] border-b border-[var()]">
+              <tr className="bg-[var(--fg)]/[0.02] border-b border-[var(--hairline)]">
                 {headers.map((h, hIdx) => (
-                  <th key={hIdx} className="px-4 py-2.5 font-semibold text-[var()]">
+                  <th key={hIdx} className="px-4 py-2.5 font-semibold text-[var(--fg)]">
                     {parseMarkdownInline(h, mentors)}
                   </th>
                 ))}
@@ -218,9 +219,9 @@ function parseNormalText(text: string, mentors?: MentorData[]): React.ReactNode[
             </thead>
             <tbody>
               {rows.map((row, rIdx) => (
-                <tr key={rIdx} className="border-b border-[var()]/60 last:border-0 hover:bg-[var()]/[0.01]">
+                <tr key={rIdx} className="border-b border-[var(--hairline)]/60 last:border-0 hover:bg-[var(--fg)]/[0.01]">
                   {row.map((cell, cIdx) => (
-                    <td key={cIdx} className="px-4 py-2 text-[var()]/90">
+                    <td key={cIdx} className="px-4 py-2 text-[var(--fg)]/90">
                       {parseMarkdownInline(cell, mentors)}
                     </td>
                   ))}
@@ -236,19 +237,19 @@ function parseNormalText(text: string, mentors?: MentorData[]): React.ReactNode[
     }
 
     if (trimmed.startsWith('## ')) {
-      result.push(<h3 key={`h-${i}`} className="font-bold text-sm mt-3 mb-1 text-[var()]">{trimmed.slice(3)}</h3>);
+      result.push(<h3 key={`h-${i}`} className="font-bold text-sm mt-3 mb-1 text-[var(--fg)]">{trimmed.slice(3)}</h3>);
       i++;
       continue;
     }
 
     if (trimmed.startsWith('### ')) {
-      result.push(<h4 key={`h3-${i}`} className="font-semibold text-sm mt-2 mb-0.5 text-[var()]">{trimmed.slice(4)}</h4>);
+      result.push(<h4 key={`h3-${i}`} className="font-semibold text-sm mt-2 mb-0.5 text-[var(--fg)]">{trimmed.slice(4)}</h4>);
       i++;
       continue;
     }
 
     if (trimmed === '---' || trimmed === '***') {
-      result.push(<hr key={`hr-${i}`} className="my-2 border-[var()]" />);
+      result.push(<hr key={`hr-${i}`} className="my-2 border-[var(--hairline)]" />);
       i++;
       continue;
     }
@@ -302,11 +303,11 @@ function parseMarkdownInline(text: string, mentors?: MentorData[]): React.ReactN
       return <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>;
     }
     if (part.startsWith('`') && part.endsWith('`')) {
-      return <code key={i} className="text-[11px] font-mono bg-[var()]/[0.08] rounded px-1 py-0.5">{part.slice(1, -1)}</code>;
+      return <code key={i} className="text-[11px] font-mono bg-[var(--fg)]/[0.08] rounded px-1 py-0.5">{part.slice(1, -1)}</code>;
     }
     const linkMatch = part.match(/\[([^\]]+)\]\(([^)]+)\)/);
     if (linkMatch) {
-      return <Link key={i} href={linkMatch[2]} className="text-[var()] hover:underline font-medium">{linkMatch[1]}</Link>;
+      return <Link key={i} href={linkMatch[2]} className="text-[var(--fg)] hover:underline font-medium">{linkMatch[1]}</Link>;
     }
     return <span key={i}>{part}</span>;
   });
@@ -341,7 +342,7 @@ const ChatMessageItem = React.memo(({
       {/* Centered Date Header */}
       {showHeader && (
         <div className="flex flex-col items-center my-5 select-none">
-          <span className="text-[11px] font-semibold text-[var()] tracking-tight">
+          <span className="text-[11px] font-semibold text-[var(--fg)] tracking-tight">
             {formatAppleMessageHeader(msgDateStr)}
           </span>
         </div>
@@ -361,7 +362,7 @@ const ChatMessageItem = React.memo(({
                   : chatTheme === "pink"
                     ? "bg-[#ff2d55] text-white rounded-br-[4px]"
                     : "bg-white dark:bg-zinc-100 text-zinc-900 border border-zinc-200/60 rounded-br-[4px]"
-              : "bg-[var()]/5 border border-[var()]/25 text-[var()] rounded-bl-[4px]"
+              : "bg-[var(--fg)]/5 border border-[var(--hairline)]/25 text-[var(--fg)] rounded-bl-[4px]"
               }`}
           >
             {msg.role === "assistant" ? (
@@ -375,7 +376,7 @@ const ChatMessageItem = React.memo(({
 
           {/* Read Receipt underneath outgoing bubble */}
           {msg.role === "user" && isLastUserMsg && (
-            <div className="text-[10px] font-bold text-[var()]/80 mt-1 text-right mr-1.5 select-none">
+            <div className="text-[10px] font-bold text-[var(--fg)]/80 mt-1 text-right mr-1.5 select-none">
               Read {formatReadReceiptTime(msgDateStr)}
             </div>
           )}
@@ -501,18 +502,18 @@ function MentorCardInChat({ mentor, onBook }: { mentor: MentorData; onBook: (men
         "bg-blue-500/12 text-blue-600";
 
   return (
-    <div className="rounded-2xl border border-[var()] bg-[var()] shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+    <div className="rounded-2xl border border-[var(--hairline)] bg-[var(--bg)] shadow-sm overflow-hidden hover:shadow-md transition-shadow">
       {/* Header */}
       <div className="flex items-start gap-3 p-4 pb-3">
         {!avatarError ? (
           <img
             src={avatarUrl}
             alt={mentor.displayName}
-            className="h-12 w-12 rounded-full object-cover shrink-0 border border-[var()]"
+            className="h-12 w-12 rounded-full object-cover shrink-0 border border-[var(--hairline)]"
             onError={() => setAvatarError(true)}
           />
         ) : (
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var()]/8 text-sm font-semibold shrink-0 border border-[var()]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--fg)]/8 text-sm font-semibold shrink-0 border border-[var(--hairline)]">
             {initials}
           </div>
         )}
@@ -522,26 +523,26 @@ function MentorCardInChat({ mentor, onBook }: { mentor: MentorData; onBook: (men
             <BadgeCheck className="h-3.5 w-3.5 text-blue-500 shrink-0" />
           </div>
           {mentor.currentRole && (
-            <p className="text-xs text-[var()] truncate">{mentor.currentRole}</p>
+            <p className="text-xs text-[var(--fg)] truncate">{mentor.currentRole}</p>
           )}
           <span className={`inline-block mt-1 rounded-full px-2.5 py-0.5 text-[10px] font-medium ${instColor}`}>
             {mentor.institutionName}
           </span>
         </div>
         <div className="text-right shrink-0">
-          <p className="text-base font-bold text-[var()]">₹{Math.round(mentor.pricePerSession / 100)}</p>
-          <p className="text-[10px] text-[var()]">{mentor.sessionDuration}min</p>
+          <p className="text-base font-bold text-[var(--fg)]">₹{Math.round(mentor.pricePerSession / 100)}</p>
+          <p className="text-[10px] text-[var(--fg)]">{mentor.sessionDuration}min</p>
         </div>
       </div>
 
       {/* Bio */}
-      <p className="px-4 text-xs text-[var()] leading-relaxed line-clamp-2">{mentor.bio}</p>
+      <p className="px-4 text-xs text-[var(--fg)] leading-relaxed line-clamp-2">{mentor.bio}</p>
 
       {/* Skills */}
       {mentor.expertise.length > 0 && (
         <div className="px-4 pt-2 flex flex-wrap gap-1">
           {mentor.expertise.slice(0, 4).map((skill) => (
-            <span key={skill} className="text-[10px] bg-[var()]/[0.05] border border-[var()] rounded-full px-2 py-0.5 text-[var()] font-medium">
+            <span key={skill} className="text-[10px] bg-[var(--fg)]/[0.05] border border-[var(--hairline)] rounded-full px-2 py-0.5 text-[var(--fg)] font-medium">
               {skill}
             </span>
           ))}
@@ -554,7 +555,7 @@ function MentorCardInChat({ mentor, onBook }: { mentor: MentorData; onBook: (men
           <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
           <span className="text-xs font-bold">{mentor.rating > 0 ? mentor.rating.toFixed(1) : "New"}</span>
         </div>
-        <span className="text-xs text-[var()]">{mentor.totalSessions} sessions</span>
+        <span className="text-xs text-[var(--fg)]">{mentor.totalSessions} sessions</span>
         <span className="ml-auto text-[10px] text-green-600 font-semibold">● Available</span>
       </div>
 
@@ -567,14 +568,14 @@ function MentorCardInChat({ mentor, onBook }: { mentor: MentorData; onBook: (men
               window.dispatchEvent(new Event("close-ai"));
             }
           }}
-          className="flex-1 text-center text-xs font-semibold py-2 rounded-xl border border-[var()] text-[var()] hover:text-[var()] hover:border-[var()]/20 transition-colors"
+          className="flex-1 text-center text-xs font-semibold py-2 rounded-xl border border-[var(--hairline)] text-[var(--fg)] hover:text-[var(--fg)] hover:border-[var(--hairline)]/20 transition-colors"
         >
           View Profile
         </Link>
         <button
           type="button"
           onClick={() => onBook(mentor)}
-          className="flex-1 text-xs font-semibold py-2 rounded-xl bg-[var()] text-[var()] hover:opacity-90 transition-opacity cursor-pointer"
+          className="flex-1 text-xs font-semibold py-2 rounded-xl bg-[var(--bg)] text-[var(--fg)] hover:opacity-90 transition-opacity cursor-pointer"
         >
           Book Session
         </button>
@@ -704,14 +705,14 @@ function BookingModalInChat({
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   return (
-    <div className="rounded-2xl border border-[var()] bg-[var()] shadow-xl overflow-hidden">
+    <div className="rounded-2xl border border-[var(--hairline)] bg-[var(--bg)] shadow-xl overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[var()] bg-[var()]/[0.02]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--hairline)] bg-[var(--fg)]/[0.02]">
         <div>
           <p className="text-sm font-semibold">Book a Session</p>
-          <p className="text-xs text-[var()]">{mentor.displayName} · ₹{Math.round(mentor.pricePerSession / 100)} · {mentor.sessionDuration}min</p>
+          <p className="text-xs text-[var(--fg)]">{mentor.displayName} · ₹{Math.round(mentor.pricePerSession / 100)} · {mentor.sessionDuration}min</p>
         </div>
-        <button type="button" onClick={onClose} className="p-1.5 text-[var()] hover:text-[var()] rounded-lg hover:bg-[var()]/5 cursor-pointer">
+        <button type="button" onClick={onClose} className="p-1.5 text-[var(--fg)] hover:text-[var(--fg)] rounded-lg hover:bg-[var(--fg)]/5 cursor-pointer">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -719,7 +720,7 @@ function BookingModalInChat({
       <div className="p-4 flex flex-col gap-4">
         {/* Date picker */}
         <div>
-          <p className="text-xs font-semibold text-[var()] uppercase tracking-wide mb-2">Select Date</p>
+          <p className="text-xs font-semibold text-[var(--fg)] uppercase tracking-wide mb-2">Select Date</p>
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
             {days.map((d) => {
               const active = selectedDate?.toDateString() === d.toDateString();
@@ -729,8 +730,8 @@ function BookingModalInChat({
                   type="button"
                   onClick={() => setSelectedDate(d)}
                   className={`flex flex-col items-center justify-center shrink-0 w-12 h-14 rounded-xl text-xs font-medium transition-all cursor-pointer border ${active
-                    ? "bg-[var()] text-[var()] border-[var()]"
-                    : "border-[var()] text-[var()] hover:border-[var()]/20 hover:text-[var()]"
+                    ? "bg-[var(--bg)] text-[var(--fg)] border-[var(--hairline)]"
+                    : "border-[var(--hairline)] text-[var(--fg)] hover:border-[var(--hairline)]/20 hover:text-[var(--fg)]"
                     }`}
                 >
                   <span className="text-[10px] font-semibold">{dayNames[d.getDay()]}</span>
@@ -744,7 +745,7 @@ function BookingModalInChat({
 
         {/* Time picker */}
         <div>
-          <p className="text-xs font-semibold text-[var()] uppercase tracking-wide mb-2">Select Time</p>
+          <p className="text-xs font-semibold text-[var(--fg)] uppercase tracking-wide mb-2">Select Time</p>
           <div className="grid grid-cols-4 gap-1.5 max-h-32 overflow-y-auto pr-1">
             {timeSlots.map((slot) => {
               const active = selectedTime === slot;
@@ -754,8 +755,8 @@ function BookingModalInChat({
                   type="button"
                   onClick={() => setSelectedTime(slot)}
                   className={`text-xs py-1.5 rounded-lg font-medium transition-all cursor-pointer border ${active
-                    ? "bg-[var()] text-[var()] border-[var()]"
-                    : "border-[var()] text-[var()] hover:border-[var()]/20 hover:text-[var()]"
+                    ? "bg-[var(--bg)] text-[var(--fg)] border-[var(--hairline)]"
+                    : "border-[var(--hairline)] text-[var(--fg)] hover:border-[var(--hairline)]/20 hover:text-[var(--fg)]"
                     }`}
                 >
                   {slot}
@@ -773,7 +774,7 @@ function BookingModalInChat({
           type="button"
           onClick={handleConfirm}
           disabled={!selectedDate || !selectedTime || booking}
-          className="w-full py-2.5 rounded-xl bg-[var()] text-[var()] text-sm font-semibold disabled:opacity-40 hover:opacity-90 transition-opacity cursor-pointer disabled:cursor-not-allowed"
+          className="w-full py-2.5 rounded-xl bg-[var(--bg)] text-[var(--fg)] text-sm font-semibold disabled:opacity-40 hover:opacity-90 transition-opacity cursor-pointer disabled:cursor-not-allowed"
         >
           {booking ? "Processing..." : `Confirm & Pay ₹${Math.round(mentor.pricePerSession / 100)}`}
         </button>
@@ -790,17 +791,17 @@ function MentorProfileInChat({ mentor, onBook }: { mentor: MentorData; onBook: (
   const initials = mentor.displayName.slice(0, 2).toUpperCase();
 
   return (
-    <div className="rounded-2xl border border-[var()] bg-[var()] shadow-md overflow-hidden p-4 flex flex-col gap-3">
+    <div className="rounded-2xl border border-[var(--hairline)] bg-[var(--bg)] shadow-md overflow-hidden p-4 flex flex-col gap-3">
       <div className="flex items-center gap-3">
         {!avatarError ? (
           <img
             src={avatarUrl}
             alt={mentor.displayName}
-            className="h-14 w-14 rounded-full object-cover border border-[var()]"
+            className="h-14 w-14 rounded-full object-cover border border-[var(--hairline)]"
             onError={() => setAvatarError(true)}
           />
         ) : (
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var()]/8 text-base font-semibold border border-[var()]">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--fg)]/8 text-base font-semibold border border-[var(--hairline)]">
             {initials}
           </div>
         )}
@@ -810,7 +811,7 @@ function MentorProfileInChat({ mentor, onBook }: { mentor: MentorData; onBook: (
             <BadgeCheck className="h-3.5 w-3.5 text-blue-500 shrink-0" />
           </div>
           {mentor.currentRole && (
-            <p className="text-xs text-[var()] truncate">{mentor.currentRole} at {mentor.company || mentor.institutionName}</p>
+            <p className="text-xs text-[var(--fg)] truncate">{mentor.currentRole} at {mentor.company || mentor.institutionName}</p>
           )}
           <span className="inline-block mt-1 rounded-full bg-blue-500/12 text-blue-600 px-2 py-0.5 text-[10px] font-medium">
             {mentor.institutionName}
@@ -819,43 +820,43 @@ function MentorProfileInChat({ mentor, onBook }: { mentor: MentorData; onBook: (
       </div>
 
       <div className="space-y-1">
-        <p className="text-xs font-semibold text-[var()] uppercase tracking-wide">About</p>
-        <p className="text-xs leading-relaxed text-[var()] line-clamp-3">{mentor.bio}</p>
+        <p className="text-xs font-semibold text-[var(--fg)] uppercase tracking-wide">About</p>
+        <p className="text-xs leading-relaxed text-[var(--fg)] line-clamp-3">{mentor.bio}</p>
       </div>
 
       <div className="space-y-1">
-        <p className="text-xs font-semibold text-[var()] uppercase tracking-wide">Expertise</p>
+        <p className="text-xs font-semibold text-[var(--fg)] uppercase tracking-wide">Expertise</p>
         <div className="flex flex-wrap gap-1">
           {mentor.expertise.map((skill) => (
-            <span key={skill} className="text-[10px] bg-[var()]/5 border border-[var()] rounded-full px-2 py-0.5 text-[var()] font-medium">
+            <span key={skill} className="text-[10px] bg-[var(--fg)]/5 border border-[var(--hairline)] rounded-full px-2 py-0.5 text-[var(--fg)] font-medium">
               {skill}
             </span>
           ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 border-t border-[var()] pt-2 text-center">
+      <div className="grid grid-cols-3 gap-2 border-t border-[var(--hairline)] pt-2 text-center">
         <div>
-          <p className="text-[9px] text-[var()] uppercase font-semibold">Rating</p>
+          <p className="text-[9px] text-[var(--fg)] uppercase font-semibold">Rating</p>
           <div className="flex items-center justify-center gap-0.5 mt-0.5">
             <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
             <span className="text-xs font-bold">{mentor.rating > 0 ? mentor.rating.toFixed(1) : "New"}</span>
           </div>
         </div>
         <div>
-          <p className="text-[9px] text-[var()] uppercase font-semibold">Sessions</p>
+          <p className="text-[9px] text-[var(--fg)] uppercase font-semibold">Sessions</p>
           <p className="text-xs font-bold mt-0.5">{mentor.totalSessions}</p>
         </div>
         <div>
-          <p className="text-[9px] text-[var()] uppercase font-semibold">Price</p>
-          <p className="text-xs font-bold mt-0.5 text-[var()]">₹{Math.round(mentor.pricePerSession / 100)}</p>
+          <p className="text-[9px] text-[var(--fg)] uppercase font-semibold">Price</p>
+          <p className="text-xs font-bold mt-0.5 text-[var(--fg)]">₹{Math.round(mentor.pricePerSession / 100)}</p>
         </div>
       </div>
 
       <button
         type="button"
         onClick={() => onBook(mentor)}
-        className="w-full text-xs font-semibold py-2 rounded-xl bg-[var()] text-[var()] hover:opacity-90 transition-opacity cursor-pointer mt-1"
+        className="w-full text-xs font-semibold py-2 rounded-xl bg-[var(--bg)] text-[var(--fg)] hover:opacity-90 transition-opacity cursor-pointer mt-1"
       >
         Book 1-on-1 Session
       </button>
@@ -876,28 +877,28 @@ function BookingSuccessInChat({ info }: { info: BookingSuccess }) {
         <span className="text-lg">✅</span>
         <div>
           <p className="text-sm font-bold text-green-700 dark:text-green-400">Booking Confirmed!</p>
-          <p className="text-xs text-[var()]">Your session is scheduled</p>
+          <p className="text-xs text-[var(--fg)]">Your session is scheduled</p>
         </div>
       </div>
       <div className="px-4 py-3 flex flex-col gap-1.5">
         <div className="flex items-center gap-2 text-xs">
-          <span className="text-[var()] w-16 shrink-0">Mentor</span>
+          <span className="text-[var(--fg)] w-16 shrink-0">Mentor</span>
           <span className="font-semibold">{info.mentorName}</span>
         </div>
         <div className="flex items-center gap-2 text-xs">
-          <span className="text-[var()] w-16 shrink-0">Date</span>
+          <span className="text-[var(--fg)] w-16 shrink-0">Date</span>
           <span className="font-semibold">{dateStr}</span>
         </div>
         <div className="flex items-center gap-2 text-xs">
-          <span className="text-[var()] w-16 shrink-0">Time</span>
+          <span className="text-[var(--fg)] w-16 shrink-0">Time</span>
           <span className="font-semibold">{timeStr}</span>
         </div>
         <div className="flex items-center gap-2 text-xs">
-          <span className="text-[var()] w-16 shrink-0">Duration</span>
+          <span className="text-[var(--fg)] w-16 shrink-0">Duration</span>
           <span className="font-semibold">{info.durationMinutes} minutes</span>
         </div>
         <div className="flex items-center gap-2 text-xs">
-          <span className="text-[var()] w-16 shrink-0">Type</span>
+          <span className="text-[var(--fg)] w-16 shrink-0">Type</span>
           <span className="font-semibold">{info.meetingType}</span>
         </div>
       </div>
@@ -909,7 +910,7 @@ function BookingSuccessInChat({ info }: { info: BookingSuccess }) {
               window.dispatchEvent(new Event("close-ai"));
             }
           }}
-          className="flex-1 text-center text-xs font-semibold py-2 rounded-xl bg-[var()] text-[var()] hover:opacity-90 transition-opacity"
+          className="flex-1 text-center text-xs font-semibold py-2 rounded-xl bg-[var(--bg)] text-[var(--fg)] hover:opacity-90 transition-opacity"
         >
           View Booking
         </Link>
@@ -920,7 +921,7 @@ function BookingSuccessInChat({ info }: { info: BookingSuccess }) {
               window.dispatchEvent(new Event("close-ai"));
             }
           }}
-          className="flex-1 text-center text-xs font-semibold py-2 rounded-xl border border-[var()] text-[var()] hover:text-[var()] transition-colors"
+          className="flex-1 text-center text-xs font-semibold py-2 rounded-xl border border-[var(--hairline)] text-[var(--fg)] hover:text-[var(--fg)] transition-colors"
         >
           Open Chat
         </Link>
@@ -967,6 +968,7 @@ export function AIChatWidget() {
   // Automatically close Ruth AI drawer on route change
   useEffect(() => {
     setIsOpen(false);
+    setIsDismissed(false);
     if (typeof window !== "undefined") {
       localStorage.setItem("helpmeman.aiChatOpen", "false");
     }
@@ -1018,8 +1020,22 @@ export function AIChatWidget() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
-  // ─── Draggable floating widget state ─────────────────────────────────────
-  const [widgetPos, setWidgetPos] = useState<{ x: number; y: number } | null>(null);
+  // ─── Draggable floating widget state (Facebook Messenger Style) ───────────
+  const [widgetPos, setWidgetPos] = useState<{ x: number; y: number } | null>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("helpmeman.ruthWidgetPos");
+        if (saved) return JSON.parse(saved);
+      } catch {}
+    }
+    return null;
+  });
+
+  const [isDragging, setIsDragging] = useState(false);
+  const [isOverDismiss, setIsOverDismiss] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
+  const [isPoofing, setIsPoofing] = useState(false);
+
   const dragRef = useRef<{
     active: boolean;
     startX: number;
@@ -1031,7 +1047,6 @@ export function AIChatWidget() {
   const widgetRef = useRef<HTMLDivElement>(null);
 
   const handleWidgetPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    // Only respond to primary pointer (left button / first touch)
     if (e.button !== 0 && e.pointerType === "mouse") return;
     e.currentTarget.setPointerCapture(e.pointerId);
     const rect = e.currentTarget.getBoundingClientRect();
@@ -1049,17 +1064,25 @@ export function AIChatWidget() {
     if (!dragRef.current.active) return;
     const dx = e.clientX - dragRef.current.startX;
     const dy = e.clientY - dragRef.current.startY;
-    // Only start actually moving after a 4px threshold to avoid accidental drags
     if (!dragRef.current.moved && Math.hypot(dx, dy) < 4) return;
     dragRef.current.moved = true;
+    setIsDragging(true);
     e.preventDefault();
+
     const el = widgetRef.current;
-    if (!el) return;
-    const w = el.offsetWidth;
-    const h = el.offsetHeight;
-    const newX = Math.max(0, Math.min(window.innerWidth - w, dragRef.current.originX + dx));
-    const newY = Math.max(0, Math.min(window.innerHeight - h, dragRef.current.originY + dy));
+    const w = el?.offsetWidth || 60;
+    const h = el?.offsetHeight || 60;
+    const newX = Math.max(8, Math.min(window.innerWidth - w - 8, dragRef.current.originX + dx));
+    const newY = Math.max(8, Math.min(window.innerHeight - h - 8, dragRef.current.originY + dy));
     setWidgetPos({ x: newX, y: newY });
+
+    // Messenger style: distance to bottom-center dismiss target
+    const targetCenterX = window.innerWidth / 2;
+    const targetCenterY = window.innerHeight - 60;
+    const bubbleCenterX = newX + w / 2;
+    const bubbleCenterY = newY + h / 2;
+    const dist = Math.hypot(bubbleCenterX - targetCenterX, bubbleCenterY - targetCenterY);
+    setIsOverDismiss(dist < 90);
   }, []);
 
   const handleWidgetPointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
@@ -1068,14 +1091,46 @@ export function AIChatWidget() {
     const wasMoved = dragRef.current.moved;
     dragRef.current.active = false;
     dragRef.current.moved = false;
-    // If no real drag happened, treat as a click → open widget
+    setIsDragging(false);
+
+    if (isOverDismiss) {
+      // User dropped onto the "✕" close target (Messenger dismiss)
+      setIsOverDismiss(false);
+      setIsPoofing(true);
+      setTimeout(() => {
+        setIsPoofing(false);
+        setIsDismissed(true);
+        setIsOpen(false);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("helpmeman.aiChatOpen", "false");
+        }
+      }, 250);
+      return;
+    }
+
     if (!wasMoved) {
+      // Tap/click → toggle widget open/close
       setIsOpen((prev) => !prev);
       if (typeof window !== "undefined") {
         localStorage.setItem("helpmeman.aiChatOpen", String(!isOpen));
       }
+    } else {
+      // Snappy Messenger magnetic edge snap!
+      const el = widgetRef.current;
+      const w = el?.offsetWidth || 60;
+      setWidgetPos((prev) => {
+        if (!prev) return null;
+        const screenMid = window.innerWidth / 2;
+        const snapX = prev.x < screenMid ? 24 : window.innerWidth - w - 24;
+        const clampedY = Math.max(64, Math.min(window.innerHeight - 90, prev.y));
+        const finalPos = { x: snapX, y: clampedY };
+        try {
+          localStorage.setItem("helpmeman.ruthWidgetPos", JSON.stringify(finalPos));
+        } catch {}
+        return finalPos;
+      });
     }
-  }, [isOpen]);
+  }, [isOpen, isOverDismiss]);
 
   const emojiPickerRef = useRef<HTMLDivElement>(null);
 
@@ -1232,6 +1287,7 @@ export function AIChatWidget() {
 
   useEffect(() => {
     const handleOpen = () => {
+      setIsDismissed(false);
       setIsOpen(true);
       if (typeof window !== "undefined") {
         localStorage.setItem("helpmeman.aiChatOpen", "true");
@@ -1626,71 +1682,239 @@ export function AIChatWidget() {
     }
   }, [sessionId, handleNewChat]);
 
-  // ─── Suggestion chips ──────────────────────────────────────────────────────
+  // ─── Futuristic Capability Cards ──────────────────────────────────────────
 
-  const suggestions = [
-    "Find me a DSA mentor under ₹500",
-    "How do I book a session?",
-    "I need help with PM interviews",
+  const starterCards = [
+    {
+      icon: Zap,
+      title: "Crack DSA & Ratings",
+      prompt: "I want to improve my DSA rating for technical interviews. Give me a 4-week structured roadmap.",
+      color: "from-amber-500/10 to-orange-500/10",
+      accent: "text-amber-400",
+      border: "hover:border-amber-500/40",
+      badge: "Interview Prep",
+    },
+    {
+      icon: Compass,
+      title: "Match Top Mentors",
+      prompt: "Find me top-rated mentors specializing in Fullstack and System Design under ₹500.",
+      color: "from-sky-500/10 to-blue-500/10",
+      accent: "text-sky-400",
+      border: "hover:border-sky-500/40",
+      badge: "Instant Match",
+    },
+    {
+      icon: Flame,
+      title: ruthlessMode ? "Ruthless Roast: Roadmap" : "Roast My Tech Stack",
+      prompt: ruthlessMode
+        ? "Ruth, give me a brutally honest roast of modern web dev tutorials and tell me how to actually stand out."
+        : "Give me critical, honest feedback on my tech stack and what I should upgrade.",
+      color: "from-rose-500/10 to-orange-500/10",
+      accent: "text-rose-400",
+      border: "hover:border-rose-500/40",
+      badge: ruthlessMode ? "Ruthless Mode 🔥" : "No BS Audit",
+    },
+    {
+      icon: Sparkles,
+      title: "System Design Blueprint",
+      prompt: "How do I prepare for System Design interviews at top product companies?",
+      color: "from-purple-500/10 to-indigo-500/10",
+      accent: "text-purple-400",
+      border: "hover:border-purple-500/40",
+      badge: "Architecture",
+    },
   ];
 
   // ─── Render Floating Widget (Launcher on LEFT + Compact Popup Chatbot) ─────
 
   return (
     <>
-      {/* Floating Ruth AI Launcher Button (Bottom-Left) — single draggable wrapper */}
-      <div
-        ref={widgetRef}
-        className="fixed z-[9990] flex items-center gap-2.5 group select-none touch-none"
-        style={
-          widgetPos
-            ? { left: widgetPos.x, top: widgetPos.y, bottom: "auto" }
-            : { bottom: "1.5rem", left: "1.5rem" }
-        }
-        onPointerDown={handleWidgetPointerDown}
-        onPointerMove={handleWidgetPointerMove}
-        onPointerUp={handleWidgetPointerUp}
-        aria-label="Chat with Ruth AI Assistant"
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            setIsOpen((prev) => !prev);
-          }
-        }}
-      >
-        {/* Purple robot icon button (non-interactive on its own — drag handled by parent) */}
-        <div
-          className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white shadow-[0_10px_35px_rgba(37,99,235,0.45)] hover:shadow-[0_15px_45px_rgba(99,102,241,0.65)] hover:scale-105 active:scale-95 transition-all duration-300 cursor-grab active:cursor-grabbing border border-white/25"
-        >
-          {/* Pulsing online status indicator */}
-          <span className="absolute top-0.5 right-0.5 flex h-3.5 w-3.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white dark:border-zinc-900" />
-          </span>
+      {/* ─── Facebook Messenger-Style Bottom Dismiss Target ("✕" Close Zone) ─── */}
+      <AnimatePresence>
+        {isDragging && (
+          <motion.div
+            initial={{ y: 90, opacity: 0, scale: 0.8 }}
+            animate={{
+              y: 0,
+              opacity: 1,
+              scale: isOverDismiss ? 1.25 : 1,
+            }}
+            exit={{ y: 90, opacity: 0, scale: 0.8 }}
+            transition={{ type: "spring", stiffness: 450, damping: 28 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9998] pointer-events-none flex flex-col items-center gap-1.5 select-none"
+          >
+            <div
+              className={`flex items-center justify-center rounded-full transition-all duration-200 ${
+                isOverDismiss
+                  ? "w-16 h-16 bg-gradient-to-tr from-red-600 via-rose-600 to-pink-600 text-white shadow-[0_0_50px_rgba(239,68,68,0.95)] border-2 border-white ring-4 ring-red-400/40"
+                  : "w-13 h-13 bg-black/80 dark:bg-zinc-900/90 text-white/80 backdrop-blur-xl border border-white/25 shadow-2xl"
+              }`}
+            >
+              <X
+                className={`transition-transform duration-200 ${
+                  isOverDismiss ? "w-8 h-8 rotate-90 scale-110" : "w-5 h-5"
+                }`}
+              />
+            </div>
+            <span
+              className={`text-[10px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full transition-all ${
+                isOverDismiss
+                  ? "text-white bg-red-600 shadow-lg scale-105"
+                  : "text-white/75 bg-black/60 backdrop-blur-md border border-white/10"
+              }`}
+            >
+              {isOverDismiss ? "Release to close" : "Drag here to close"}
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-          {isOpen ? (
-            <X className="w-6 h-6 text-white transition-transform duration-200" />
-          ) : (
-            <Bot className="w-7 h-7 text-white drop-shadow-md group-hover:rotate-6 transition-transform duration-300" />
+      {/* ─── Restore Pill (Shown When Ruth AI Is Dismissed) ─── */}
+      {isDismissed && (
+        <button
+          type="button"
+          onClick={() => {
+            setIsDismissed(false);
+            setIsOpen(true);
+          }}
+          className="fixed bottom-6 left-6 z-[9990] flex items-center gap-2 px-3.5 py-2 rounded-full bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white shadow-[0_10px_30px_rgba(99,102,241,0.5)] backdrop-blur-xl border border-white/30 hover:scale-105 active:scale-95 transition-all cursor-pointer select-none animate-in fade-in zoom-in-90 duration-300"
+          title="Restore Ruth AI"
+        >
+          <Sparkles className="w-4 h-4 text-cyan-200 animate-pulse" />
+          <span className="text-xs font-bold tracking-tight">Ruth AI</span>
+          <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-semibold">Restore</span>
+        </button>
+      )}
+
+      {/* ─── Floating Ruth AI Messenger-Style Launcher ─── */}
+      {!isDismissed && (
+        <div
+          ref={widgetRef}
+          className={`fixed z-[9990] flex items-center gap-3 select-none touch-none transition-transform duration-75 ${
+            isPoofing ? "scale-0 opacity-0 transition-all duration-300 pointer-events-none" : ""
+          }`}
+          style={
+            widgetPos
+              ? { left: widgetPos.x, top: widgetPos.y, bottom: "auto" }
+              : { bottom: "1.75rem", left: "1.75rem" }
+          }
+          onPointerDown={handleWidgetPointerDown}
+          onPointerMove={handleWidgetPointerMove}
+          onPointerUp={handleWidgetPointerUp}
+          aria-label="Chat with Ruth AI Assistant"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              setIsOpen((prev) => !prev);
+            }
+          }}
+        >
+          {/* Main Bubble Container with Glow */}
+          <div className="relative group">
+            {/* Multi-color ambient animated aura ring */}
+            <div
+              className={`absolute -inset-1.5 rounded-full blur-md transition-all duration-300 pointer-events-none ${
+                ruthlessMode
+                  ? "bg-gradient-to-r from-red-600 via-orange-500 to-amber-500 opacity-75 animate-pulse"
+                  : "bg-gradient-to-r from-cyan-400 via-indigo-600 to-fuchsia-500 opacity-60 group-hover:opacity-100 group-hover:blur-lg"
+              }`}
+            />
+
+            {/* Quick ✕ close button right on the chat bubble (Facebook Messenger style) */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsPoofing(true);
+                setTimeout(() => {
+                  setIsPoofing(false);
+                  setIsDismissed(true);
+                  setIsOpen(false);
+                }, 200);
+              }}
+              title="Dismiss Ruth AI"
+              className="absolute -top-1.5 -right-1.5 z-30 w-5 h-5 rounded-full bg-black/85 text-white/80 hover:text-white hover:bg-red-600 border border-white/30 flex items-center justify-center shadow-lg transition-all duration-200 cursor-pointer opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95"
+            >
+              <X className="w-3 h-3 stroke-[2.5]" />
+            </button>
+
+            {/* Futuristic Holographic Sphere */}
+            <div
+              className={`relative flex items-center justify-center w-14 h-14 rounded-full text-white shadow-2xl transition-all duration-300 cursor-grab active:cursor-grabbing border border-white/35 overflow-hidden ${
+                isDragging ? "scale-105 cursor-grabbing" : "group-hover:scale-105 active:scale-95"
+              } ${
+                ruthlessMode
+                  ? "bg-gradient-to-tr from-rose-700 via-red-600 to-amber-500"
+                  : "bg-gradient-to-tr from-cyan-500 via-indigo-600 to-fuchsia-600"
+              }`}
+              style={{
+                boxShadow: ruthlessMode
+                  ? "0 10px 35px rgba(239, 68, 68, 0.55), inset 0 2px 5px rgba(255, 255, 255, 0.4)"
+                  : "0 10px 35px rgba(99, 102, 241, 0.55), inset 0 2px 5px rgba(255, 255, 255, 0.4)",
+              }}
+            >
+              {/* Glass surface highlight curve */}
+              <div className="absolute -top-3 -left-3 w-10 h-7 rounded-full bg-white/30 blur-[1.5px] rotate-[-30deg] pointer-events-none" />
+
+              {/* Pulsing live neural heartbeat indicator */}
+              <span className="absolute top-1 right-1 flex h-3 w-3 pointer-events-none">
+                <span
+                  className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                    ruthlessMode ? "bg-amber-400" : "bg-emerald-400"
+                  }`}
+                />
+                <span
+                  className={`relative inline-flex rounded-full h-3 w-3 border-2 border-white ${
+                    ruthlessMode ? "bg-red-500" : "bg-emerald-500"
+                  }`}
+                />
+              </span>
+
+              {isOpen ? (
+                <X className="w-6 h-6 text-white transition-transform duration-200" />
+              ) : ruthlessMode ? (
+                <Flame className="w-7 h-7 text-amber-100 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)] animate-bounce" />
+              ) : (
+                <div className="relative flex items-center justify-center">
+                  <Bot className="w-7 h-7 text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.4)] transition-transform duration-300 group-hover:rotate-6" />
+                  <Sparkles className="w-3.5 h-3.5 text-cyan-300 absolute -top-1 -right-1 animate-pulse" />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* "Ask Ruth AI" pill beside the bubble */}
+          {!isOpen && (
+            <div className="hidden sm:flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-black/85 dark:bg-zinc-900/90 text-white backdrop-blur-xl border border-white/15 shadow-2xl transition-all group-hover:scale-105 cursor-grab active:cursor-grabbing">
+              {ruthlessMode ? (
+                <Flame className="w-4 h-4 text-amber-400 animate-pulse shrink-0" />
+              ) : (
+                <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse shrink-0" />
+              )}
+              <div className="flex flex-col leading-tight">
+                <span className="text-xs font-bold tracking-tight">
+                  {ruthlessMode ? "Ruthless Ruth" : "Ruth AI Copilot"}
+                </span>
+                <span className="text-[10px] text-white/60 font-medium">
+                  {ruthlessMode ? "Candid Roast Active" : "Ask about DSA & Mentors"}
+                </span>
+              </div>
+            </div>
           )}
         </div>
+      )}
 
-        {/* "Ask Ruth AI" pill — part of the same draggable wrapper */}
-        {!isOpen && (
-          <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-black/85 dark:bg-zinc-900/90 text-white backdrop-blur-xl border border-white/10 shadow-2xl transition-all group-hover:scale-105 cursor-grab active:cursor-grabbing">
-            <Sparkles className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
-            <span className="text-xs font-semibold tracking-tight">Ask Ruth AI</span>
-          </div>
-        )}
-      </div>
-
-      {/* Floating Chatbot Popup Window (Bottom-Left) */}
+      {/* Floating Chatbot Popup Window */}
       {isOpen && (
         <div
           data-ai-chat-open="true"
-          className="fixed bottom-24 left-6 z-[9999] w-[calc(100vw-3rem)] sm:w-[410px] h-[590px] max-h-[82vh] rounded-3xl shadow-[0_25px_70px_rgba(0,0,0,0.45)] flex flex-col overflow-hidden border border-[var(--hairline)] bg-[var(--bg)] text-[var(--fg)] animate-in zoom-in-95 slide-in-from-bottom-6 duration-200"
-          style={{ background: "var(--bg)", color: "var(--fg)" }}
+          className="fixed bottom-24 z-[9999] w-[calc(100vw-2.5rem)] sm:w-[425px] h-[610px] max-h-[84vh] rounded-3xl shadow-[0_25px_80px_rgba(0,0,0,0.5),0_0_35px_rgba(99,102,241,0.2)] flex flex-col overflow-hidden border border-white/20 dark:border-white/10 backdrop-blur-2xl bg-white/95 dark:bg-[#0c0d12]/95 text-[var(--fg)] animate-in zoom-in-95 slide-in-from-bottom-6 duration-200"
+          style={{
+            left: widgetPos
+              ? Math.max(16, Math.min(window.innerWidth - 440, widgetPos.x > window.innerWidth / 2 ? widgetPos.x - 365 : widgetPos.x))
+              : 24,
+          }}
         >
 
           {/* ── Header ─────────────────────────────────────────────────────────── */}
@@ -1788,7 +2012,7 @@ export function AIChatWidget() {
                       <button
                         key={t.id}
                         type="button"
-                        onClick={() => setChatTheme(t.id as any)}
+                        onClick={() => setChatTheme(t.id as "imessage" | "sms" | "pink" | "white")}
                         className={`h-2.5 w-2.5 rounded-full transition-all duration-200 cursor-pointer mx-0.5 hover:scale-125 ${chatTheme === t.id
                           ? "scale-110"
                           : "opacity-60 hover:opacity-100"
@@ -1890,16 +2114,16 @@ export function AIChatWidget() {
             <div className="relative flex-1 flex flex-col overflow-hidden">
               {/* Resume banner */}
               {resumeBanner && (
-                <div className="shrink-0 bg-[var()]/10 border-b border-[var()]/20 px-4 sm:px-6 py-2.5">
+                <div className="shrink-0 bg-[var(--fg)]/10 border-b border-[var(--hairline)]/20 px-4 sm:px-6 py-2.5">
                   <div className="max-w-4xl w-full mx-auto flex items-center justify-between">
-                    <span className="text-xs text-[var()] flex items-center gap-1.5 font-semibold truncate pr-2">
+                    <span className="text-xs text-[var(--fg)] flex items-center gap-1.5 font-semibold truncate pr-2">
                       <RotateCcw className="h-3.5 w-3.5 shrink-0" />
                       {resumeBanner}
                     </span>
                     <button
                       type="button"
                       onClick={() => setResumeBanner(null)}
-                      className="text-[var()] hover:text-[var()] cursor-pointer p-1 rounded-md hover:bg-[var()]/5 transition-colors"
+                      className="text-[var(--fg)] hover:text-[var(--fg)] cursor-pointer p-1 rounded-md hover:bg-[var(--fg)]/5 transition-colors"
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>
@@ -1911,16 +2135,16 @@ export function AIChatWidget() {
               {modeToast && (
                 <div
                   key={modeToast}
-                  className="shrink-0 border-b border-[var()] px-4 sm:px-6 py-2 animate-in fade-in slide-in-from-top-1 duration-200"
+                  className="shrink-0 border-b border-[var(--hairline)] px-4 sm:px-6 py-2 animate-in fade-in slide-in-from-top-1 duration-200"
                   style={{ background: "var(--bg)" }}
                 >
                   <div className="max-w-4xl w-full mx-auto flex items-center gap-2.5">
-                    <Zap className="h-3 w-3 shrink-0 text-[var()]" />
+                    <Zap className="h-3 w-3 shrink-0 text-[var(--fg)]" />
                     <div>
-                      <p className="text-xs font-semibold text-[var()] leading-none">
+                      <p className="text-xs font-semibold text-[var(--fg)] leading-none">
                         {modeToast === "ruthless" ? "Ruthless Mode Enabled" : "Normal Mode Enabled"}
                       </p>
-                      <p className="text-[10px] text-[var()] mt-0.5 leading-snug">
+                      <p className="text-[10px] text-[var(--fg)] mt-0.5 leading-snug">
                         {modeToast === "ruthless"
                           ? "Ruth will now respond with unpredictable, hilarious, and candid feedback."
                           : "Ruth is back to her professional, balanced default."}
@@ -1942,38 +2166,127 @@ export function AIChatWidget() {
                   {/* Loading skeleton */}
                   {sessionLoading && (
                     <div className="flex-1 flex flex-col items-center justify-center gap-3 py-12">
-                      <div className="h-9 w-9 rounded-full border-2 border-[var()]/10 border-t-[var()] animate-spin" />
-                      <p className="text-xs font-semibold text-[var()] tracking-wide">LOADING CONVERSATION…</p>
+                      <div className="h-9 w-9 rounded-full border-2 border-[var(--hairline)]/10 border-t-[var(--fg)] animate-spin" />
+                      <p className="text-xs font-semibold text-[var(--fg)] tracking-wide">LOADING CONVERSATION…</p>
                     </div>
                   )}
 
-                  {/* Empty state */}
+                  {/* Empty state - Futuristic Holographic Neural Core */}
                   {!sessionLoading && messages.length === 0 && (
-                    <div className="flex-1 flex flex-col items-center justify-center gap-5 text-center py-12 max-w-md mx-auto">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var()]/10 shadow-sm animate-pulse">
-                        <Sparkles className="h-6 w-6 text-[var()]" />
+                    <div className="flex-1 flex flex-col items-center justify-center gap-5 text-center py-6 sm:py-8 max-w-lg mx-auto w-full">
+                      {/* Holographic Neural Core Hero */}
+                      <div className="relative flex items-center justify-center mb-1">
+                        {/* Outer rotating pulse aura */}
+                        <div
+                          className={`absolute -inset-4 rounded-full blur-xl opacity-60 animate-pulse transition-all duration-700 ${
+                            ruthlessMode
+                              ? "bg-gradient-to-r from-orange-600/40 via-red-600/40 to-amber-600/40"
+                              : "bg-gradient-to-r from-sky-500/30 via-indigo-500/30 to-purple-500/30"
+                          }`}
+                        />
+                        {/* Spinning geometric dashed ring */}
+                        <div
+                          className={`absolute -inset-2 rounded-full border border-dashed animate-spin transition-all duration-700 ${
+                            ruthlessMode
+                              ? "border-orange-500/40 [animation-duration:14s]"
+                              : "border-sky-400/40 [animation-duration:12s]"
+                          }`}
+                        />
+                        {/* Inner glowing core */}
+                        <div
+                          className={`relative flex h-16 w-16 items-center justify-center rounded-2xl shadow-xl backdrop-blur-md transition-all duration-500 ${
+                            ruthlessMode
+                              ? "bg-gradient-to-br from-neutral-900 via-orange-950 to-neutral-950 border border-orange-500/50 shadow-orange-500/20"
+                              : "bg-gradient-to-br from-neutral-900 via-slate-900 to-indigo-950 border border-sky-400/40 shadow-sky-500/20"
+                          }`}
+                        >
+                          {ruthlessMode ? (
+                            <Flame className="h-8 w-8 text-orange-400 animate-pulse" />
+                          ) : (
+                            <Bot className="h-8 w-8 text-sky-400" />
+                          )}
+                          <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+                            <span
+                              className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                                ruthlessMode ? "bg-orange-400" : "bg-sky-400"
+                              }`}
+                            />
+                            <span
+                              className={`relative inline-flex rounded-full h-3.5 w-3.5 ${
+                                ruthlessMode ? "bg-orange-500" : "bg-sky-500"
+                              }`}
+                            />
+                          </span>
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        <p className="text-base font-semibold">Hi {user?.name ? user.name.split(" ")[0] : "there"}! 👋</p>
-                        <p className="text-xs text-[var()] leading-relaxed">
-                          I can help you find premium mentors, prepare for tech interviews, review your notes, or draft high-impact study plans.
+
+                      {/* Header copy */}
+                      <div className="space-y-1.5 px-2">
+                        <div
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold tracking-wider uppercase backdrop-blur-md border border-[var(--hairline)]"
+                          style={{
+                            background: ruthlessMode
+                              ? "linear-gradient(90deg, rgba(234,88,12,0.15), rgba(220,38,38,0.15))"
+                              : "linear-gradient(90deg, rgba(14,165,233,0.15), rgba(99,102,241,0.15))",
+                            color: ruthlessMode ? "#fb923c" : "#38bdf8",
+                          }}
+                        >
+                          {ruthlessMode ? <Flame className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
+                          {ruthlessMode ? "Ruthless Mode Active" : "Autonomous Career Intelligence"}
+                        </div>
+                        <h3 className="text-lg font-bold tracking-tight text-[var(--fg)]">
+                          Hi {user?.name ? user.name.split(" ")[0] : "there"}! Meet Ruth.
+                        </h3>
+                        <p className="text-xs text-[var(--muted)] leading-relaxed max-w-sm mx-auto">
+                          {ruthlessMode
+                            ? "Brutally candid, unfiltered advice. No sugarcoating, just real-world clarity."
+                            : "Your AI mentor for interview prep, 1-on-1 mentor matching, and tech career acceleration."}
                         </p>
                       </div>
-                      <div className="flex flex-col gap-2 w-full pt-2">
-                        {suggestions.map(s => (
-                          <button
-                            key={s}
-                            type="button"
-                            onClick={() => {
-                              setInput(s);
-                              inputRef.current?.focus();
-                            }}
-                            className="text-xs text-left rounded-xl px-4 py-3 transition-all duration-200 cursor-pointer font-medium"
-                            style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)", color: "var(--fg)" }}
-                          >
-                            &ldquo;{s}&rdquo;
-                          </button>
-                        ))}
+
+                      {/* Interactive starter capability cards */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full pt-1">
+                        {starterCards.map((card) => {
+                          const CardIcon = card.icon;
+                          return (
+                            <button
+                              key={card.title}
+                              type="button"
+                              onClick={() => {
+                                setInput(card.prompt);
+                                inputRef.current?.focus();
+                              }}
+                              className={`group relative text-left p-3 rounded-xl border border-[var(--hairline)] transition-all duration-200 cursor-pointer overflow-hidden backdrop-blur-sm ${card.border}`}
+                              style={{
+                                background: "color-mix(in srgb, var(--fg) 2%, transparent)",
+                              }}
+                            >
+                              <div
+                                className={`absolute inset-0 bg-gradient-to-br ${card.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`}
+                              />
+                              <div className="relative z-10 flex items-start gap-2.5">
+                                <div
+                                  className={`p-1.5 rounded-lg bg-[var(--fg)]/5 group-hover:scale-110 transition-transform duration-200 ${card.accent}`}
+                                >
+                                  <CardIcon className="h-4 w-4" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between gap-1">
+                                    <span className="text-xs font-semibold text-[var(--fg)] group-hover:text-[var(--fg)] truncate">
+                                      {card.title}
+                                    </span>
+                                    <span className="text-[9px] px-1.5 py-0.5 rounded-md font-medium text-[var(--muted)] bg-[var(--fg)]/5">
+                                      {card.badge}
+                                    </span>
+                                  </div>
+                                  <p className="text-[11px] text-[var(--muted)] line-clamp-2 mt-0.5 leading-snug">
+                                    {card.prompt}
+                                  </p>
+                                </div>
+                              </div>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -2028,11 +2341,11 @@ export function AIChatWidget() {
                   {/* Typing indicator */}
                   {streamState === "waiting_first_token" && (
                     <div className="flex justify-start mb-2 animate-pulse">
-                      <div className="bg-[var()]/5 border border-[var()]/25 rounded-[18px] rounded-bl-[4px] px-4 py-3 shadow-sm">
+                      <div className="bg-[var(--fg)]/5 border border-[var(--hairline)]/25 rounded-[18px] rounded-bl-[4px] px-4 py-3 shadow-sm">
                         <div className="flex items-center gap-1.5">
-                          <span className="h-2 w-2 rounded-full bg-[var()]/85 animate-bounce" style={{ animationDelay: "0ms" }} />
-                          <span className="h-2 w-2 rounded-full bg-[var()]/85 animate-bounce" style={{ animationDelay: "150ms" }} />
-                          <span className="h-2 w-2 rounded-full bg-[var()]/85 animate-bounce" style={{ animationDelay: "300ms" }} />
+                          <span className="h-2 w-2 rounded-full bg-[var(--fg)]/85 animate-bounce" style={{ animationDelay: "0ms" }} />
+                          <span className="h-2 w-2 rounded-full bg-[var(--fg)]/85 animate-bounce" style={{ animationDelay: "150ms" }} />
+                          <span className="h-2 w-2 rounded-full bg-[var(--fg)]/85 animate-bounce" style={{ animationDelay: "300ms" }} />
                         </div>
                       </div>
                     </div>
@@ -2101,7 +2414,7 @@ export function AIChatWidget() {
                       placeholder="Message..."
                       maxLength={2000}
                       disabled={loading || sessionLoading}
-                      className="flex-1 bg-transparent text-sm outline-none placeholder-[var()]/60 disabled:opacity-50 text-[var()]"
+                      className="flex-1 bg-transparent text-sm outline-none placeholder-[var(--muted)] disabled:opacity-50 text-[var(--fg)]"
                       style={{
                         caretColor:
                           chatTheme === "imessage" ? "#007aff" :
@@ -2120,7 +2433,7 @@ export function AIChatWidget() {
                         <div className="h-2.5 w-2.5 bg-white rounded-xs" />
                       </button>
                     ) : !input.trim() ? (
-                      <Mic className="h-4.5 w-4.5 text-[var()]/85 hover:text-[var()] cursor-pointer transition-colors ml-2" />
+                      <Mic className="h-4.5 w-4.5 text-[var(--fg)]/85 hover:text-[var(--fg)] cursor-pointer transition-colors ml-2" />
                     ) : (
                       /* Send Button inside input pill if input is not empty */
                       <button
@@ -2145,7 +2458,7 @@ export function AIChatWidget() {
                     <button
                       type="button"
                       onClick={() => setShowEmojiPicker(prev => !prev)}
-                      className="flex h-9 w-9 items-center justify-center rounded-full text-[var()] hover:text-[var()] hover:bg-[var()]/5 shrink-0 transition-all active:scale-95 cursor-pointer"
+                      className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--fg)] hover:text-[var(--fg)] hover:bg-[var(--fg)]/5 shrink-0 transition-all active:scale-95 cursor-pointer"
                       title="Emojis"
                     >
                       <Smile className="h-5.5 w-5.5" />
@@ -2165,7 +2478,7 @@ export function AIChatWidget() {
                               setInput(prev => prev + emoji);
                               inputRef.current?.focus();
                             }}
-                            className="h-8 w-8 flex items-center justify-center text-lg hover:bg-[var()]/5 rounded-lg active:scale-90 transition-transform cursor-pointer"
+                            className="h-8 w-8 flex items-center justify-center text-lg hover:bg-[var(--fg)]/5 rounded-lg active:scale-90 transition-transform cursor-pointer"
                           >
                             {emoji}
                           </button>
@@ -2186,18 +2499,18 @@ export function AIChatWidget() {
                 {meetingsLoading && (
                   <div className="flex flex-col gap-3">
                     {[1, 2, 3].map(i => (
-                      <div key={i} className="h-24 rounded-xl bg-[var()]/[0.03] animate-pulse" />
+                      <div key={i} className="h-24 rounded-xl bg-[var(--fg)]/[0.03] animate-pulse" />
                     ))}
                   </div>
                 )}
 
                 {!meetingsLoading && !user && (
                   <div className="flex flex-col items-center justify-center gap-4 py-16 text-center max-w-sm mx-auto">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var()]/5">
-                      <Calendar className="h-6 w-6 text-[var()]" />
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--fg)]/5">
+                      <Calendar className="h-6 w-6 text-[var(--fg)]" />
                     </div>
                     <p className="text-sm font-semibold">Sign in to view your meetings</p>
-                    <p className="text-xs text-[var()] leading-relaxed">Book a 1-on-1 session with any verified mentor to unlock meeting prep and notes here.</p>
+                    <p className="text-xs text-[var(--fg)] leading-relaxed">Book a 1-on-1 session with any verified mentor to unlock meeting prep and notes here.</p>
                     <button
                       type="button"
                       onClick={() => {
@@ -2205,7 +2518,7 @@ export function AIChatWidget() {
                           window.dispatchEvent(new Event("open-auth"));
                         }
                       }}
-                      className="inline-flex items-center gap-2 text-xs font-semibold rounded-full bg-[var()] text-[var()] px-5 py-2.5 hover:opacity-90 transition-opacity cursor-pointer mt-2"
+                      className="inline-flex items-center gap-2 text-xs font-semibold rounded-full bg-[var(--bg)] text-[var(--fg)] px-5 py-2.5 hover:opacity-90 transition-opacity cursor-pointer mt-2"
                     >
                       Sign In / Sign Up
                     </button>
@@ -2214,26 +2527,26 @@ export function AIChatWidget() {
 
                 {!meetingsLoading && user && meetings.length === 0 && (
                   <div className="flex flex-col items-center justify-center gap-4 py-16 text-center max-w-sm mx-auto">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var()]/5">
-                      <Calendar className="h-6 w-6 text-[var()]" />
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--fg)]/5">
+                      <Calendar className="h-6 w-6 text-[var(--fg)]" />
                     </div>
                     <p className="text-sm font-semibold">No mentorship meetings booked yet</p>
-                    <p className="text-xs text-[var()] leading-relaxed">Once you book or attend a session, it will show up here to chat about notes and feedback.</p>
+                    <p className="text-xs text-[var(--fg)] leading-relaxed">Once you book or attend a session, it will show up here to chat about notes and feedback.</p>
                   </div>
                 )}
 
                 {!meetingsLoading && meetings.map(meeting => (
                   <div
                     key={meeting.id}
-                    className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 rounded-xl bg-[var()]/[0.02] hover:bg-[var()]/5 border border-[var()] hover:border-[var()]/10 p-4 mb-3.5 transition-all text-left shadow-sm"
+                    className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 rounded-xl bg-[var(--fg)]/[0.02] hover:bg-[var(--fg)]/5 border border-[var(--hairline)] hover:border-[var(--hairline)]/10 p-4 mb-3.5 transition-all text-left shadow-sm"
                   >
                     <div className="flex items-start gap-3.5 min-w-0">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var()]/10 shrink-0">
-                        <Video className="h-4.5 w-4.5 text-[var()]" />
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--fg)]/10 shrink-0">
+                        <Video className="h-4.5 w-4.5 text-[var(--fg)]" />
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <h4 className="text-sm font-semibold truncate text-[var()]">
+                          <h4 className="text-sm font-semibold truncate text-[var(--fg)]">
                             Session with {meeting.mentor.displayName}
                           </h4>
                           <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold tracking-wider uppercase shrink-0 ${meeting.status === "COMPLETED" ? "bg-green-500/10 text-green-500 border border-green-500/20" :
@@ -2244,24 +2557,24 @@ export function AIChatWidget() {
                             {meeting.status}
                           </span>
                         </div>
-                        <p className="text-xs text-[var()] font-medium mt-0.5">
+                        <p className="text-xs text-[var(--fg)] font-medium mt-0.5">
                           {meeting.mentor.currentRole} {meeting.mentor.company ? `@ ${meeting.mentor.company}` : ""}
                         </p>
-                        <p className="text-[11px] text-[var()] flex items-center gap-1.5 mt-1.5 font-semibold">
+                        <p className="text-[11px] text-[var(--fg)] flex items-center gap-1.5 mt-1.5 font-semibold">
                           <Clock className="h-3 w-3" />
                           {formatRelativeDate(meeting.scheduledAt)} at {formatTime(meeting.scheduledAt)} ({meeting.durationMinutes} mins)
                         </p>
 
                         {(meeting.userNotes || meeting.mentorNotes) && (
-                          <div className="mt-2.5 flex flex-col gap-1.5 bg-[var()]/[0.02] border border-[var()]/40 rounded-lg p-2.5 max-w-lg">
+                          <div className="mt-2.5 flex flex-col gap-1.5 bg-[var(--fg)]/[0.02] border border-[var(--hairline)]/40 rounded-lg p-2.5 max-w-lg">
                             {meeting.userNotes && (
-                              <p className="text-[11px] text-[var()] leading-relaxed line-clamp-1">
-                                <span className="font-semibold text-[var()]/80">My Notes:</span> {meeting.userNotes}
+                              <p className="text-[11px] text-[var(--fg)] leading-relaxed line-clamp-1">
+                                <span className="font-semibold text-[var(--fg)]/80">My Notes:</span> {meeting.userNotes}
                               </p>
                             )}
                             {meeting.mentorNotes && (
-                              <p className="text-[11px] text-[var()] leading-relaxed line-clamp-1">
-                                <span className="font-semibold text-[var()]/80">Mentor Notes:</span> {meeting.mentorNotes}
+                              <p className="text-[11px] text-[var(--fg)] leading-relaxed line-clamp-1">
+                                <span className="font-semibold text-[var(--fg)]/80">Mentor Notes:</span> {meeting.mentorNotes}
                               </p>
                             )}
                           </div>
@@ -2273,7 +2586,7 @@ export function AIChatWidget() {
                       <button
                         type="button"
                         onClick={() => startMeetingChat(meeting.id, meeting.mentor.displayName, meeting.scheduledAt)}
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var()] bg-[var()] hover:opacity-90 rounded-full px-4 py-2 transition-all cursor-pointer shadow-sm active:scale-95"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--fg)] bg-[var(--bg)] hover:opacity-90 rounded-full px-4 py-2 transition-all cursor-pointer shadow-sm active:scale-95"
                       >
                         <MessageSquare className="h-3.5 w-3.5" />
                         Discuss Notes
@@ -2293,18 +2606,18 @@ export function AIChatWidget() {
                 {historyLoading && (
                   <div className="flex flex-col gap-3">
                     {[1, 2, 3].map(i => (
-                      <div key={i} className="h-20 rounded-xl bg-[var()]/[0.03] animate-pulse" />
+                      <div key={i} className="h-20 rounded-xl bg-[var(--fg)]/[0.03] animate-pulse" />
                     ))}
                   </div>
                 )}
 
                 {!historyLoading && !user && (
                   <div className="flex flex-col items-center justify-center gap-4 py-16 text-center max-w-sm mx-auto">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var()]/5">
-                      <Clock className="h-6 w-6 text-[var()]" />
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--fg)]/5">
+                      <Clock className="h-6 w-6 text-[var(--fg)]" />
                     </div>
                     <p className="text-sm font-semibold">Sign in to save chat history</p>
-                    <p className="text-xs text-[var()] leading-relaxed">Sign in to keep your conversation sessions saved and synced across all your devices.</p>
+                    <p className="text-xs text-[var(--fg)] leading-relaxed">Sign in to keep your conversation sessions saved and synced across all your devices.</p>
                     <button
                       type="button"
                       onClick={() => {
@@ -2312,7 +2625,7 @@ export function AIChatWidget() {
                           window.dispatchEvent(new Event("open-auth"));
                         }
                       }}
-                      className="inline-flex items-center gap-2 text-xs font-semibold rounded-full bg-[var()] text-[var()] px-5 py-2.5 hover:opacity-90 transition-opacity cursor-pointer mt-2"
+                      className="inline-flex items-center gap-2 text-xs font-semibold rounded-full bg-[var(--bg)] text-[var(--fg)] px-5 py-2.5 hover:opacity-90 transition-opacity cursor-pointer mt-2"
                     >
                       Sign In / Sign Up
                     </button>
@@ -2321,15 +2634,15 @@ export function AIChatWidget() {
 
                 {!historyLoading && user && historyGroups.length === 0 && (
                   <div className="flex flex-col items-center justify-center gap-4 py-16 text-center max-w-sm mx-auto">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var()]/5">
-                      <Clock className="h-6 w-6 text-[var()]" />
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--fg)]/5">
+                      <Clock className="h-6 w-6 text-[var(--fg)]" />
                     </div>
                     <p className="text-sm font-semibold">No chat history yet</p>
-                    <p className="text-xs text-[var()] leading-relaxed">Start a conversation to see your smart, AI-summarized history items here.</p>
+                    <p className="text-xs text-[var(--fg)] leading-relaxed">Start a conversation to see your smart, AI-summarized history items here.</p>
                     <button
                       type="button"
                       onClick={() => setActiveTab("chat")}
-                      className="inline-flex items-center gap-2 text-xs font-semibold rounded-full bg-[var()] text-[var()] px-5 py-2.5 hover:opacity-90 transition-opacity cursor-pointer mt-2"
+                      className="inline-flex items-center gap-2 text-xs font-semibold rounded-full bg-[var(--bg)] text-[var(--fg)] px-5 py-2.5 hover:opacity-90 transition-opacity cursor-pointer mt-2"
                     >
                       <Plus className="h-4 w-4" /> Start Chatting
                     </button>
@@ -2340,11 +2653,11 @@ export function AIChatWidget() {
                   <div key={group.date} className="mb-6 sm:mb-8">
                     {/* Date header */}
                     <div className="flex items-center gap-3 mb-3.5">
-                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var()]">
+                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--fg)]">
                         {formatRelativeDate(group.date)}
                       </span>
-                      <div className="flex-1 h-px bg-[var()]" />
-                      <span className="text-[10px] font-bold text-[var()]/85 uppercase tracking-[0.05em]">{group.sessions.length} {group.sessions.length === 1 ? "chat" : "chats"}</span>
+                      <div className="flex-1 h-px bg-[var(--bg)]" />
+                      <span className="text-[10px] font-bold text-[var(--fg)]/85 uppercase tracking-[0.05em]">{group.sessions.length} {group.sessions.length === 1 ? "chat" : "chats"}</span>
                     </div>
 
                     {/* Session cards */}
@@ -2357,7 +2670,7 @@ export function AIChatWidget() {
                               resumeSession(session.id, session.title);
                             }
                           }}
-                          className="group flex items-center justify-between gap-3 sm:gap-4 rounded-xl bg-[var()]/[0.02] hover:bg-[var()]/5 border border-[var()] hover:border-[var()]/10 p-3.5 sm:p-4 text-left transition-all cursor-pointer shadow-sm"
+                          className="group flex items-center justify-between gap-3 sm:gap-4 rounded-xl bg-[var(--fg)]/[0.02] hover:bg-[var(--fg)]/5 border border-[var(--hairline)] hover:border-[var(--hairline)]/10 p-3.5 sm:p-4 text-left transition-all cursor-pointer shadow-sm"
                           role="button"
                           tabIndex={0}
                           onKeyDown={(e) => {
@@ -2367,8 +2680,8 @@ export function AIChatWidget() {
                           }}
                         >
                           <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-                            <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-[var()]/10 shrink-0">
-                              <MessageSquare className="h-4.5 w-4.5 text-[var()]" />
+                            <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-[var(--fg)]/10 shrink-0">
+                              <MessageSquare className="h-4.5 w-4.5 text-[var(--fg)]" />
                             </div>
 
                             <div className="flex-1 min-w-0">
@@ -2378,7 +2691,7 @@ export function AIChatWidget() {
                                     type="text"
                                     value={editingTitle}
                                     onChange={(e) => setEditingTitle(e.target.value)}
-                                    className="text-sm font-semibold bg-[var()]/5 px-2 py-1 rounded border border-[var()] outline-none focus:border-[var()] w-full text-[var()]"
+                                    className="text-sm font-semibold bg-[var(--fg)]/5 px-2 py-1 rounded border border-[var(--hairline)] outline-none focus:border-[var(--hairline)] w-full text-[var(--fg)]"
                                     maxLength={60}
                                     autoFocus
                                     onKeyDown={(e) => {
@@ -2408,15 +2721,15 @@ export function AIChatWidget() {
                                 </div>
                               ) : (
                                 <>
-                                  <p className="text-sm font-semibold truncate text-[var()] tracking-tight">
+                                  <p className="text-sm font-semibold truncate text-[var(--fg)] tracking-tight">
                                     {session.title || "Untitled chat"}
                                   </p>
                                   {session.summaryPreview && (
-                                    <p className="text-xs text-[var()] leading-relaxed line-clamp-1 mt-0.5 font-medium">
+                                    <p className="text-xs text-[var(--fg)] leading-relaxed line-clamp-1 mt-0.5 font-medium">
                                       {session.summaryPreview}
                                     </p>
                                   )}
-                                  <div className="flex items-center gap-2 mt-1 font-semibold text-[10px] text-[var()]">
+                                  <div className="flex items-center gap-2 mt-1 font-semibold text-[10px] text-[var(--fg)]">
                                     <span className="flex items-center gap-1">
                                       <Clock className="h-3 w-3" />
                                       {formatTime(session.createdAt)}
@@ -2441,7 +2754,7 @@ export function AIChatWidget() {
                                   setEditingSessionId(session.id);
                                   setEditingTitle(session.title || "Untitled chat");
                                 }}
-                                className="p-2 text-[var()] hover:text-[var()] hover:bg-[var()]/5 rounded-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all cursor-pointer"
+                                className="p-2 text-[var(--fg)] hover:text-[var(--fg)] hover:bg-[var(--fg)]/5 rounded-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all cursor-pointer"
                                 title="Rename chat"
                               >
                                 <Edit2 className="h-3.5 w-3.5" />
@@ -2449,12 +2762,12 @@ export function AIChatWidget() {
                               <button
                                 type="button"
                                 onClick={(e) => handleDeleteSession(session.id, e)}
-                                className="p-2 text-[var()] hover:text-red-500 hover:bg-red-500/5 rounded-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all cursor-pointer"
+                                className="p-2 text-[var(--fg)] hover:text-red-500 hover:bg-red-500/5 rounded-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all cursor-pointer"
                                 title="Delete session"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
                               </button>
-                              <ChevronRight className="h-4.5 w-4.5 text-[var()]/60" />
+                              <ChevronRight className="h-4.5 w-4.5 text-[var(--fg)]/60" />
                             </div>
                           )}
                         </div>
