@@ -136,11 +136,17 @@ export default function TwoFactorModal({
       console.error("[WEBAUTHN LOGIN ERROR]", err);
       if (err?.name === "NotAllowedError" || err?.message?.includes("cancelled")) {
         setError("Security key verification was cancelled. Click below to retry or switch to Authenticator code.");
+      } else if (err?.response?.status === 404) {
+        setError("Passkey verification is not deployed on this server yet. Please use your 6-digit Authenticator code.");
       } else {
+        const errorData = err?.response?.data?.error;
         const msg =
-          err?.response?.data?.error ||
-          err?.message ||
-          "Passkey verification failed. Please try again or use your 6-digit Authenticator code.";
+          typeof errorData === "string"
+            ? errorData
+            : errorData?.message ||
+              err?.response?.data?.message ||
+              err?.message ||
+              "Passkey verification failed. Please try again or use your 6-digit Authenticator code.";
         setError(msg);
       }
     } finally {
@@ -183,11 +189,19 @@ export default function TwoFactorModal({
       console.error("[WEBAUTHN REG ERROR]", err);
       if (err?.name === "NotAllowedError" || err?.message?.includes("cancelled")) {
         setError("Security key registration was cancelled. Click Register to try again.");
+      } else if (err?.response?.status === 404) {
+        setError(
+          "Passkeys & Hardware Security Keys are not deployed on this server yet. Please switch to the Authenticator App tab to enable 2FA using Google Authenticator."
+        );
       } else {
+        const errorData = err?.response?.data?.error;
         const msg =
-          err?.response?.data?.error ||
-          err?.message ||
-          "Failed to register security key. Please try again or configure Google Authenticator.";
+          typeof errorData === "string"
+            ? errorData
+            : errorData?.message ||
+              err?.response?.data?.message ||
+              err?.message ||
+              "Failed to register security key. Please try again or configure Google Authenticator.";
         setError(msg);
       }
     } finally {
@@ -332,8 +346,20 @@ export default function TwoFactorModal({
           )}
 
           {error && (
-            <div className="rounded-lg bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 px-4 py-2.5 text-xs text-center mb-4">
-              {error}
+            <div className="rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 p-3 text-xs flex flex-col items-center gap-2 mb-4 text-center">
+              <span>{error}</span>
+              {method === "passkey" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMethod("totp");
+                    setError("");
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-700 dark:text-red-300 font-semibold transition-colors cursor-pointer text-[11px]"
+                >
+                  Switch to Authenticator App
+                </button>
+              )}
             </div>
           )}
 

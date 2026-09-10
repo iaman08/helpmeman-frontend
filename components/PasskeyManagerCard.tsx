@@ -91,8 +91,18 @@ export default function PasskeyManagerCard() {
       console.error("[PASSKEY REG ERROR]", err);
       if (err?.name === "NotAllowedError" || err?.message?.includes("cancelled")) {
         setError("Registration cancelled on your device.");
+      } else if (err?.response?.status === 404) {
+        setError("Passkey / Hardware Security Key service is not deployed on this server yet. Please update the backend server.");
       } else {
-        setError(err?.response?.data?.error || err?.message || "Failed to register security key.");
+        const errorData = err?.response?.data?.error;
+        const msg =
+          typeof errorData === "string"
+            ? errorData
+            : errorData?.message ||
+              err?.response?.data?.message ||
+              err?.message ||
+              "Failed to register security key.";
+        setError(msg);
       }
     } finally {
       setRegistering(false);
@@ -111,7 +121,11 @@ export default function PasskeyManagerCard() {
       setSuccess(`Security key "${name}" removed.`);
       await loadCredentials();
     } catch (err: any) {
-      setError(err?.response?.data?.error || "Failed to delete security key.");
+      if (err?.response?.status === 404) {
+        setError("Passkey service is not deployed on this server yet.");
+      } else {
+        setError(err?.response?.data?.error || "Failed to delete security key.");
+      }
     } finally {
       setDeletingId(null);
     }
