@@ -57,10 +57,17 @@ export function UnifiedChat() {
   const activeThreadRef = useRef(activeThread);
   useEffect(() => { activeThreadRef.current = activeThread; }, [activeThread]);
 
+  const threadsRef = useRef(threads);
+  useEffect(() => { threadsRef.current = threads; }, [threads]);
+
   const onMessage = useCallback((msg: ChatMessage) => {
     const isCurrent = activeThreadRef.current?.id === msg.threadId;
 
-    if (msg.senderId !== user?.id) {
+    const isMentorRole = user?.role === "MENTOR";
+    const targetThread = threadsRef.current.find(t => t.id === msg.threadId) || (activeThreadRef.current?.id === msg.threadId ? activeThreadRef.current : null);
+    const isMuted = isMentorRole ? targetThread?.isMutedByMentor : targetThread?.isMutedByMentee;
+
+    if (msg.senderId !== user?.id && !isMuted) {
       chatSoundService.playReceiveSound(msg.id);
     }
     
@@ -146,6 +153,10 @@ export function UnifiedChat() {
 
 
   const onNewMessageNotification = useCallback((data: { threadId: string; message: ChatMessage }) => {
+    const isMentorRole = user?.role === "MENTOR";
+    const targetThread = threadsRef.current.find(t => t.id === data.threadId) || (activeThreadRef.current?.id === data.threadId ? activeThreadRef.current : null);
+    const isMuted = isMentorRole ? targetThread?.isMutedByMentor : targetThread?.isMutedByMentee;
+
     if (data.message.senderId !== user?.id) {
       if (activeThreadRef.current?.id !== data.threadId) {
         setThreads(prev => prev.map(t =>
@@ -153,7 +164,9 @@ export function UnifiedChat() {
             ? { ...t, messages: [data.message], updatedAt: data.message.createdAt, unreadCount: (t.unreadCount ?? 0) + 1 }
             : t
         ));
-        toast(`New message from ${data.message.senderRole === "MENTOR" ? "your mentor" : "a student"}`, "info");
+        if (!isMuted) {
+          toast(`New message from ${data.message.senderRole === "MENTOR" ? "your mentor" : "a student"}`, "info");
+        }
       }
     } else {
       setThreads(prev => prev.map(t =>
@@ -166,6 +179,15 @@ export function UnifiedChat() {
       mutate(["/chat/unread-count", user.id]);
     }
   }, [user, toast]);
+
+  const onThreadUpdated = useCallback((data: { threadId: string; thread: any }) => {
+    setActiveThread(prev =>
+      prev?.id === data.threadId ? { ...prev, ...data.thread } : prev
+    );
+    setThreads(prev =>
+      prev.map(t => t.id === data.threadId ? { ...t, ...data.thread } : t)
+    );
+  }, []);
 
   const socketCallbacks: ChatSocketCallbacks = {
     onMessage,
@@ -181,6 +203,7 @@ export function UnifiedChat() {
     onNewMessageNotification,
     onReactionAdded: (data) => setLatestReactionAdd(data),
     onReactionRemoved: (data) => setLatestReactionRemove(data),
+    onThreadUpdated,
   };
 
   const { joinThread, leaveThread, emitTyping, emitStopTyping, emitDelivered, markSeenId } =
@@ -253,6 +276,11 @@ export function UnifiedChat() {
     );
   }, []);
 
+  const handleThreadUpdated = useCallback((updated: ChatThread) => {
+    setActiveThread(prev => prev?.id === updated.id ? { ...prev, ...updated } : prev);
+    setThreads(prev => prev.map(t => t.id === updated.id ? { ...t, ...updated } : t));
+  }, []);
+
   const totalUnread = threads.reduce((sum, t) => sum + (t.unreadCount ?? 0), 0);
 
   return (
@@ -263,10 +291,10 @@ export function UnifiedChat() {
           <div className="flex items-center justify-between px-4 py-4 shrink-0" style={{ borderBottom: "1px solid var(--hairline)" }}>
             <div>
               <p className="text-[10px] uppercase tracking-[0.22em] font-bold" style={{ color: "var(--muted, #888)" }}>Chat</p>
-              <div className="flex items-center gap-2">
-                <h1 className="font-display text-2xl leading-tight">Messages.</h1>
+              <div className="flex items-center gap-2 mt-0.5">
+                <h1 className="font-display text-xl leading-tight">Messages.</h1>
                 {totalUnread > 0 && (
-                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full text-[10px] font-bold px-1" style={{ background: "var(--accent, #111)", color: "var(--accent-fg, #fff)" }}>
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full text-[10px] font-bold px-1.5" style={{ background: "var(--accent, #111)", color: "var(--accent-fg, #fff)" }}>
                     {totalUnread > 99 ? "99+" : totalUnread}
                   </span>
                 )}
@@ -299,6 +327,7 @@ export function UnifiedChat() {
             onGoBack={handleGoBack}
             onMarkRead={handleMarkRead}
             onThreadLockChange={handleThreadLockChange}
+            onThreadUpdated={handleThreadUpdated}
             socketActions={socketActions}
             externalMessage={latestMessage}
             editedMessage={latestEdit}
@@ -349,6 +378,7 @@ export function UnifiedChat() {
               onGoBack={handleGoBack}
               onMarkRead={handleMarkRead}
               onThreadLockChange={handleThreadLockChange}
+              onThreadUpdated={handleThreadUpdated}
               socketActions={socketActions}
               externalMessage={latestMessage}
               editedMessage={latestEdit}

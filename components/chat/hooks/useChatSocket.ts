@@ -16,6 +16,7 @@ export interface ChatSocketCallbacks {
   onNewMessageNotification: (data: { threadId: string; message: ChatMessage }) => void;
   onReactionAdded?: (data: { threadId: string; messageId: string; reaction: any }) => void;
   onReactionRemoved?: (data: { threadId: string; messageId: string; userId: string; emoji: string }) => void;
+  onThreadUpdated?: (data: { threadId: string; thread: any }) => void;
 }
 
 export function useChatSocket(callbacks: ChatSocketCallbacks) {
@@ -46,6 +47,7 @@ export function useChatSocket(callbacks: ChatSocketCallbacks) {
     const onPresence = (data: any) => callbacksRef.current.onPresenceUpdate(data);
     const onReactionAddedEvent = (data: any) => callbacksRef.current.onReactionAdded?.(data);
     const onReactionRemovedEvent = (data: any) => callbacksRef.current.onReactionRemoved?.(data);
+    const onThreadUpdatedEvent = (data: any) => callbacksRef.current.onThreadUpdated?.(data);
 
     socket.on("new_message", onNewMsg);
     socket.on("message_edited", onMsgEdited);
@@ -59,6 +61,7 @@ export function useChatSocket(callbacks: ChatSocketCallbacks) {
     socket.on("presence_update", onPresence);
     socket.on("reaction_added", onReactionAddedEvent);
     socket.on("reaction_removed", onReactionRemovedEvent);
+    socket.on("thread_updated", onThreadUpdatedEvent);
 
     activityTimerRef.current = setInterval(() => {
       if (socket.connected) socket.emit("user_activity");
@@ -83,6 +86,7 @@ export function useChatSocket(callbacks: ChatSocketCallbacks) {
       socket.off("presence_update", onPresence);
       socket.off("reaction_added", onReactionAddedEvent);
       socket.off("reaction_removed", onReactionRemovedEvent);
+      socket.off("thread_updated", onThreadUpdatedEvent);
 
       if (activityTimerRef.current) clearInterval(activityTimerRef.current);
       window.removeEventListener("mousemove", onActivity);

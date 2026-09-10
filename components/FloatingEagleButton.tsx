@@ -2,9 +2,11 @@
 
 import { motion } from "motion/react";
 import { useState, useRef, useCallback } from "react";
+import { usePathname } from "next/navigation";
 import { EagleFlyFormModal } from "./EagleFlyFormModal";
 
 export function FloatingEagleButton() {
+  const pathname = usePathname();
   const [hovered, setHovered] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [originPos, setOriginPos] = useState({ x: 0, y: 0 });
@@ -20,6 +22,11 @@ export function FloatingEagleButton() {
     }
     setModalOpen(true);
   }, []);
+
+  // Only show the eagle icon on the landing page
+  if (pathname !== "/") {
+    return null;
+  }
 
   return (
     <>

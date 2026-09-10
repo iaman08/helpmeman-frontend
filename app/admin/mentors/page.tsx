@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle, XCircle, PauseCircle, PlayCircle, ToggleLeft, ToggleRight, AlertTriangle, X, Search, Eye } from "lucide-react";
+import { CheckCircle, XCircle, PauseCircle, PlayCircle, ToggleLeft, ToggleRight, AlertTriangle, X, Search, Eye, Trash2 } from "lucide-react";
 import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { InstitutionBadge } from "@/components/InstitutionBadge";
@@ -25,6 +25,12 @@ export default function AdminMentorsPage() {
   // Reject modal state
   const [rejectId, setRejectId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+
+  // Delete modal state
+  const [deleteMentorModal, setDeleteMentorModal] = useState<{ id: string; name: string } | null>(null);
+  const [deleteAllModal, setDeleteAllModal] = useState(false);
+  const [deleteAllConfirmText, setDeleteAllConfirmText] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -92,6 +98,38 @@ export default function AdminMentorsPage() {
     }
   }
 
+  async function confirmDeleteSingleMentor() {
+    if (!deleteMentorModal) return;
+    setDeleting(true);
+    try {
+      await api.delete(`/admin/mentors/${deleteMentorModal.id}`);
+      setMentors((prev) => prev.filter((m) => m.id !== deleteMentorModal.id));
+      if (selectedMentor?.id === deleteMentorModal.id) setSelectedMentor(null);
+      setDeleteMentorModal(null);
+    } catch (err: any) {
+      alert(err.response?.data?.error || "Failed to delete mentor");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  async function confirmDeleteAllMentors() {
+    if (deleteAllConfirmText !== "DELETE ALL") return;
+    setDeleting(true);
+    try {
+      const res = await api.post("/admin/mentors/delete-all");
+      alert(`Successfully deleted ${res.data?.count ?? 0} mentors.`);
+      setMentors([]);
+      setSelectedMentor(null);
+      setDeleteAllModal(false);
+      setDeleteAllConfirmText("");
+    } catch (err: any) {
+      alert(err.response?.data?.error || "Failed to delete all mentors");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   async function handleUpdateAccountStatus() {
     if (!statusModalUser) return;
     setUpdating(true);
@@ -124,6 +162,19 @@ export default function AdminMentorsPage() {
           <h1 className="font-display text-4xl leading-tight" style={{ color: "var(--fg)" }}>All mentors.</h1>
           <p className="text-sm" style={{ color: "var(--muted)" }}>{mentors.length} mentor{mentors.length !== 1 ? "s" : ""} found — manage approvals, verification & account status</p>
         </div>
+        {mentors.length > 0 && (
+          <button
+            type="button"
+            onClick={() => {
+              setDeleteAllConfirmText("");
+              setDeleteAllModal(true);
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-all cursor-pointer shrink-0"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span>Delete All Mentors</span>
+          </button>
+        )}
       </div>
 
       {/* Filter and Search Bar */}
@@ -283,6 +334,15 @@ export default function AdminMentorsPage() {
                             </button>
                           </>
                         )}
+                        <button
+                          type="button"
+                          onClick={() => setDeleteMentorModal({ id: m.id, name: displayName })}
+                          className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer text-red-500 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20"
+                          title="Delete Mentor"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          <span>Delete</span>
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -382,6 +442,84 @@ export default function AdminMentorsPage() {
             fetchMentors();
           }}
         />
+      )}
+
+      {/* Delete Single Mentor Modal */}
+      {deleteMentorModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-2xl p-6 shadow-2xl flex flex-col gap-4 border" style={{ background: "var(--bg)", borderColor: "var(--hairline)" }}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-red-500">
+                <Trash2 className="w-5 h-5" />
+                <h3 className="text-base font-bold text-[var(--fg)]">Delete Mentor Profile</h3>
+              </div>
+              <button type="button" onClick={() => setDeleteMentorModal(null)} className="text-[var(--muted)] hover:text-[var(--fg)] p-1 bg-transparent border-none cursor-pointer">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-sm text-[var(--muted)]">
+              Are you sure you want to delete mentor <strong className="text-[var(--fg)]">{deleteMentorModal.name}</strong>?
+            </p>
+            <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-500 leading-relaxed">
+              This will permanently delete the mentor profile, availability slots, verification documents, and reset the user&apos;s role back to <strong>STUDENT</strong>.
+            </div>
+            <div className="flex items-center justify-end gap-3 mt-2">
+              <button type="button" onClick={() => setDeleteMentorModal(null)} disabled={deleting} className="px-4 py-2 text-xs font-semibold rounded-xl text-[var(--fg)] border border-[var(--hairline)] bg-transparent cursor-pointer">
+                Cancel
+              </button>
+              <button type="button" onClick={confirmDeleteSingleMentor} disabled={deleting} className="px-5 py-2 text-xs font-semibold rounded-xl bg-red-600 hover:bg-red-500 text-white cursor-pointer disabled:opacity-50 flex items-center gap-1.5">
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>{deleting ? "Deleting..." : "Confirm Delete"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete All Mentors Modal */}
+      {deleteAllModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-2xl p-6 shadow-2xl flex flex-col gap-4 border" style={{ background: "var(--bg)", borderColor: "var(--hairline)" }}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-red-500">
+                <AlertTriangle className="w-5 h-5 text-red-500" />
+                <h3 className="text-base font-bold text-[var(--fg)]">Delete ALL Mentors</h3>
+              </div>
+              <button type="button" onClick={() => setDeleteAllModal(false)} className="text-[var(--muted)] hover:text-[var(--fg)] p-1 bg-transparent border-none cursor-pointer">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-sm text-[var(--muted)]">
+              This action is <strong className="text-red-500">irreversible</strong>. It will delete all mentor records, availability slots, and related mentor data across the entire platform.
+            </p>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs text-[var(--muted)]">
+                Type <strong className="text-red-500 select-all font-mono">DELETE ALL</strong> below to confirm:
+              </label>
+              <input
+                type="text"
+                value={deleteAllConfirmText}
+                onChange={(e) => setDeleteAllConfirmText(e.target.value)}
+                placeholder="DELETE ALL"
+                className="w-full rounded-xl p-3 text-sm font-mono outline-none border border-red-500/40 bg-red-500/5 text-[var(--fg)]"
+              />
+            </div>
+            <div className="flex items-center justify-end gap-3 mt-2">
+              <button type="button" onClick={() => setDeleteAllModal(false)} disabled={deleting} className="px-4 py-2 text-xs font-semibold rounded-xl text-[var(--fg)] border border-[var(--hairline)] bg-transparent cursor-pointer">
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteAllMentors}
+                disabled={deleting || deleteAllConfirmText !== "DELETE ALL"}
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-red-600 hover:bg-red-500 text-white cursor-pointer disabled:opacity-40 flex items-center gap-1.5"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>{deleting ? "Deleting..." : "Delete All Mentors"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

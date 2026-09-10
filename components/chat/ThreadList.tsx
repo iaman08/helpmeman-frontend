@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { MessageCircle, Search, X } from "lucide-react";
+import { MessageCircle, Search, X, BellOff } from "lucide-react";
 import type { ChatThread } from "@/lib/types";
 import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/Skeleton";
@@ -119,6 +119,8 @@ export function ThreadList({
 
               const otherUserId = isMentor ? thread.userId : (thread.mentor as any)?.userId;
               const presenceStatus = otherUserId ? presenceMap[otherUserId] : undefined;
+              const isMuted = isMentor ? thread.isMutedByMentor : thread.isMutedByMentee;
+              const isBlocked = thread.isBlockedByMentee || thread.isBlockedByMentor;
 
               return (
                 <button
@@ -140,10 +142,22 @@ export function ThreadList({
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-0.5">
-                      <span className={`text-sm font-semibold truncate ${unread > 0 ? "text-[var()]" : "text-[var()]/80"}`}>
-                        {displayName}
-                      </span>
-                      <span className="text-[10px] text-[var()] shrink-0 ml-2">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className={`text-sm font-semibold truncate ${unread > 0 ? "text-[var(--fg)]" : "text-[var(--fg)]/80"}`}>
+                          {displayName}
+                        </span>
+                        {isMuted && (
+                          <span title="Notifications muted" className="inline-flex items-center">
+                            <BellOff className="h-3 w-3 text-zinc-400 shrink-0" />
+                          </span>
+                        )}
+                        {isBlocked && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-red-500/10 text-red-500 border border-red-500/20 shrink-0">
+                            Blocked
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-[var(--muted)] shrink-0 ml-2">
                         {formatDate(thread.updatedAt)}
                       </span>
                     </div>
