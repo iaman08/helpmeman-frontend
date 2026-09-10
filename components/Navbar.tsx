@@ -78,9 +78,11 @@ export function Navbar() {
           <Link href="/mentors" className="text-sm font-medium text-[var()] hover:text-[var()] transition-colors no-underline">
             Mentors
           </Link>
-          <Link href="/apply-mentor" className="text-sm font-medium text-amber-500 hover:text-amber-400 transition-colors no-underline">
-            Apply as Mentor
-          </Link>
+          {user?.role !== "STUDENT" && (
+            <Link href="/apply-mentor" className="text-sm font-medium text-amber-500 hover:text-amber-400 transition-colors no-underline">
+              Apply as Mentor
+            </Link>
+          )}
         </div>
 
 
@@ -212,13 +214,15 @@ export function Navbar() {
           >
             Browse Mentors
           </Link>
-          <Link
-            href="/apply-mentor"
-            onClick={() => setMobileOpen(false)}
-            className="text-sm font-medium text-amber-500 hover:text-amber-400 py-1 no-underline"
-          >
-            Apply as Mentor
-          </Link>
+          {user?.role !== "STUDENT" && (
+            <Link
+              href="/apply-mentor"
+              onClick={() => setMobileOpen(false)}
+              className="text-sm font-medium text-amber-500 hover:text-amber-400 py-1 no-underline"
+            >
+              Apply as Mentor
+            </Link>
+          )}
 
           {/* NO "Go to Dashboard" in mobile menu — mobile users auto-redirect to dashboard after login */}
 

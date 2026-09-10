@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { User, Bell, CreditCard, Camera, Check, Sparkles, Briefcase, Star, HelpCircle, MessageSquare, Mail, ExternalLink, ChevronRight, CheckCircle2, Clock } from "lucide-react";
+import { User, Bell, CreditCard, Camera, Check, Sparkles, Star, HelpCircle, MessageSquare, Mail, ExternalLink, ChevronRight, CheckCircle2, Clock } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import api from "@/lib/api";
 import { ImageCropModal } from "@/components/ImageCropModal";
@@ -299,7 +299,6 @@ export default function MenteeSettingsPage() {
   const [currentAvatar, setCurrentAvatar] = useState<string | null>(user?.avatar ?? null);
   const [avatarSaving, setAvatarSaving] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const [switching, setSwitching] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -384,20 +383,6 @@ export default function MenteeSettingsPage() {
       alert(err.response?.data?.error || "Failed to update profile");
     } finally {
       setSaving(false);
-    }
-  };
-
-  const handleContinueAsMentor = async () => {
-    setSwitching(true);
-    try {
-      if (user?.role === "MENTOR" && mentor) {
-        sessionStorage.setItem("hmm.activeRole", "mentor");
-        router.push("/mentor");
-      } else {
-        router.push("/onboarding?role=mentor");
-      }
-    } finally {
-      setSwitching(false);
     }
   };
 
@@ -623,28 +608,6 @@ export default function MenteeSettingsPage() {
                     </div>
                   )}
                 </form>
-              </div>
-
-              {/* Continue as Mentor Section */}
-              <div className="rounded-3xl p-6 md:p-8 mt-6" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 rounded-xl" style={{ background: "color-mix(in srgb, var(--fg) 8%, transparent)" }}>
-                    <Briefcase className="w-4 h-4" style={{ color: "var(--fg)" }} />
-                  </div>
-                  <h3 className="text-lg font-bold" style={{ color: "var(--fg)" }}>Continue as Mentor</h3>
-                </div>
-                <p className="text-xs sm:text-sm mb-6 leading-relaxed" style={{ color: "var(--muted)" }}>
-                  Are you ready to share your expertise, guide other learners, and build your mentor profile? Switch to the mentor panel or start your mentor onboarding.
-                </p>
-                <button
-                  type="button"
-                  onClick={handleContinueAsMentor}
-                  disabled={switching}
-                  className="px-5 py-2.5 rounded-xl font-semibold text-xs cursor-pointer shadow transition-opacity disabled:opacity-50"
-                  style={{ background: "var(--fg)", color: "var(--bg)" }}
-                >
-                  {switching ? "Switching..." : (user?.role === "MENTOR" && mentor) ? "Switch to Mentor Panel" : "Become a Mentor"}
-                </button>
               </div>
 
               {/* Platform Review Section */}

@@ -49,6 +49,8 @@ export default function ApplyMentorPage() {
         dest = "/admin";
       } else if (user.role === "MENTOR" && mentor) {
         dest = mentor.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status";
+      } else if (user.role === "MENTEE" || user.role === "STUDENT") {
+        dest = "/dashboard";
       }
       window.location.replace(dest);
     }

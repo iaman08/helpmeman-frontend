@@ -167,6 +167,10 @@ function OnboardingContent() {
 
     try {
       if (targetRole === "mentor") {
+        if (user?.role === "MENTEE" || user?.role === "STUDENT") {
+          router.replace("/dashboard");
+          return;
+        }
         const { data } = await api.patch<State>("/mentor/onboarding", { role: "MENTOR" });
         updateUser({ role: "MENTOR", onboardingRole: "MENTOR" });
         if (data.status === "COMPLETED") {
