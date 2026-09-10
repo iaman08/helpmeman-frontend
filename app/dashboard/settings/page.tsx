@@ -168,14 +168,14 @@ export default function MenteeSettingsPage() {
     try {
       const formData = new FormData();
       formData.append("avatar", croppedBlob, "avatar.png");
-      const res = await api.post("/users/avatar", formData, {
+      const res = await api.put("/users/me", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      const newAvatarUrl = res.data?.avatarUrl || res.data?.avatar;
+      const newAvatarUrl = res.data?.user?.avatar || res.data?.avatarUrl || res.data?.avatar;
       if (newAvatarUrl) {
         setCurrentAvatar(newAvatarUrl);
         setImageError(false);
-        await updateUser({ avatar: newAvatarUrl });
+        await updateUser(res.data?.user || { avatar: newAvatarUrl });
       }
     } catch {
       alert("Failed to upload avatar. Please try again.");
