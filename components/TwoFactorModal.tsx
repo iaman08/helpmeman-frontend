@@ -1,12 +1,25 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, ShieldCheck, QrCode, Lock, CheckCircle2 } from "lucide-react";
+import {
+  X,
+  ShieldCheck,
+  QrCode,
+  Lock,
+  CheckCircle2,
+  Fingerprint,
+  Smartphone,
+  KeyRound,
+} from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import api from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
-import { AxiosError } from "axios";
 import OTPInput from "@/components/OTPInput";
+import {
+  startRegistration,
+  startAuthentication,
+  browserSupportsWebAuthn,
+} from "@simplewebauthn/browser";
 
 interface TwoFactorModalProps {
   isOpen: boolean;
@@ -25,22 +38,49 @@ export default function TwoFactorModal({
   isMandatory = false,
   onSuccess,
 }: TwoFactorModalProps) {
-  const { verify2FALogin, updateUser } = useAuth();
+  const { verify2FALogin, verifyPasskeyLogin, updateUser } = useAuth();
+
+  // Active authentication method: 'passkey' | 'totp'
+  const [method, setMethod] = useState<"passkey" | "totp">("passkey");
+  const [webAuthnSupported, setWebAuthnSupported] = useState(true);
+
+  // Passkey state
+  const [passkeyLoading, setPasskeyLoading] = useState(false);
+  const [passkeyNickname, setPasskeyNickname] = useState("");
+  const [passkeySuccess, setPasskeySuccess] = useState("");
+
+  // TOTP state
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
-  // Setup state
+  // TOTP Setup state
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [secret, setSecret] = useState("");
   const [setupLoading, setSetupLoading] = useState(false);
 
+  // Check browser WebAuthn support
+  useEffect(() => {
+    const supported = browserSupportsWebAuthn();
+    setWebAuthnSupported(supported);
+    if (!supported) {
+      setMethod("totp");
+    }
+  }, []);
+
+  // Reset state when modal opens
   useEffect(() => {
     if (isOpen) {
       setCode("");
       setError("");
       setSuccessMsg("");
+      setPasskeySuccess("");
+      setPasskeyNickname(
+        typeof navigator !== "undefined" && navigator.platform?.includes("Mac")
+          ? "MacBook Touch ID"
+          : "My Security Key"
+      );
       if (mode === "setup") {
         fetchSetupData();
       }
@@ -70,6 +110,92 @@ export default function TwoFactorModal({
     }
   }
 
+  /* ─── Passkey Authentication (Verify) ─── */
+  async function handlePasskeyVerify() {
+    if (!tempToken) {
+      setError("Login session expired. Please sign in again.");
+      return;
+    }
+
+    setPasskeyLoading(true);
+    setError("");
+
+    try {
+      // 1. Fetch authentication challenge from backend
+      const { data: options } = await api.post("/auth/webauthn/login-options", { tempToken });
+
+      // 2. Trigger browser's native FIDO2 dialog (Touch ID / Face ID / YubiKey)
+      const assertionResponse = await startAuthentication({ optionsJSON: options });
+
+      // 3. Verify assertion with backend and complete login
+      const dest = await verifyPasskeyLogin(tempToken, assertionResponse);
+      setPasskeySuccess("Security key verified!");
+      onClose();
+      if (dest) window.location.replace(dest);
+    } catch (err: any) {
+      console.error("[WEBAUTHN LOGIN ERROR]", err);
+      if (err?.name === "NotAllowedError" || err?.message?.includes("cancelled")) {
+        setError("Security key verification was cancelled. Click below to retry or switch to Authenticator code.");
+      } else {
+        const msg =
+          err?.response?.data?.error ||
+          err?.message ||
+          "Passkey verification failed. Please try again or use your 6-digit Authenticator code.";
+        setError(msg);
+      }
+    } finally {
+      setPasskeyLoading(false);
+    }
+  }
+
+  /* ─── Passkey Registration (Setup) ─── */
+  async function handlePasskeySetup(e: React.FormEvent) {
+    e.preventDefault();
+    setPasskeyLoading(true);
+    setError("");
+
+    try {
+      const authHeader = tempToken ? { Authorization: `Bearer ${tempToken}` } : undefined;
+
+      // 1. Get registration options from backend
+      const { data: options } = await api.get("/auth/webauthn/register-options", { headers: authHeader });
+
+      // 2. Prompt user via browser WebAuthn API
+      const registrationResponse = await startRegistration({ optionsJSON: options });
+
+      // 3. Verify and store on backend
+      const { data } = await api.post(
+        "/auth/webauthn/register-verify",
+        {
+          response: registrationResponse,
+          nickname: passkeyNickname.trim() || "Security Key",
+        },
+        { headers: authHeader }
+      );
+
+      updateUser({ twoFactorEnabled: true });
+      setPasskeySuccess(data.message || "Security key registered successfully!");
+      setTimeout(() => {
+        onClose();
+        if (onSuccess) onSuccess();
+      }, 1300);
+    } catch (err: any) {
+      console.error("[WEBAUTHN REG ERROR]", err);
+      if (err?.name === "NotAllowedError" || err?.message?.includes("cancelled")) {
+        setError("Security key registration was cancelled. Click Register to try again.");
+      } else {
+        const msg =
+          err?.response?.data?.error ||
+          err?.message ||
+          "Failed to register security key. Please try again or configure Google Authenticator.";
+        setError(msg);
+      }
+    } finally {
+      setPasskeyLoading(false);
+    }
+  }
+
+  /* ─── TOTP Verification (Verify / Setup) ─── */
   async function handleVerifySubmit(e: React.FormEvent) {
     e.preventDefault();
     if (code.length < 6) {
@@ -136,32 +262,74 @@ export default function TwoFactorModal({
           {!isMandatory && (
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-600 dark:hover:text-white rounded-full transition-colors"
+              className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-600 dark:hover:text-white rounded-full transition-colors cursor-pointer"
             >
               <X size={18} />
             </button>
           )}
 
           {/* Header */}
-          <div className="flex flex-col items-center text-center mb-6">
+          <div className="flex flex-col items-center text-center mb-5">
             <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-3">
-              {mode === "setup" ? <QrCode size={24} /> : <ShieldCheck size={24} />}
+              {mode === "setup" ? (
+                method === "passkey" ? <KeyRound size={24} /> : <QrCode size={24} />
+              ) : (
+                method === "passkey" ? <Fingerprint size={26} /> : <ShieldCheck size={24} />
+              )}
             </div>
             <h2 className="text-2xl font-bold text-stone-900 dark:text-white tracking-tight">
               {mode === "setup"
                 ? isMandatory
                   ? "Mandatory 2FA Setup"
-                  : "Setup Google Authenticator"
+                  : "Setup Two-Factor Protection"
                 : "Two-Step Verification"}
             </h2>
             <p className="text-xs text-stone-500 dark:text-zinc-400 mt-1 max-w-xs leading-relaxed">
               {mode === "setup"
                 ? isMandatory
-                  ? "Security Policy: Google Authenticator 2FA is required for all Administrator accounts before continuing."
-                  : "Scan the QR code with your authenticator app to enable 2FA protection."
-                : "Enter the 6-digit code from your Google Authenticator app."}
+                  ? "Security Policy: 2FA is required for all Administrator accounts before continuing."
+                  : "Protect your administrator account with hardware security keys, passkeys, or an authenticator app."
+                : method === "passkey"
+                  ? "Verify your identity using your security key, Touch ID, Face ID, or Windows Hello."
+                  : "Enter the 6-digit verification code from your Google Authenticator app."}
             </p>
           </div>
+
+          {/* Method Selector Tabs */}
+          {webAuthnSupported && (
+            <div className="flex rounded-xl p-1 bg-stone-100 dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 mb-5">
+              <button
+                type="button"
+                onClick={() => {
+                  setMethod("passkey");
+                  setError("");
+                }}
+                className={`flex-1 py-2 text-xs font-semibold rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  method === "passkey"
+                    ? "bg-white dark:bg-zinc-800 text-stone-900 dark:text-white shadow-sm"
+                    : "text-stone-500 dark:text-zinc-400 hover:text-stone-800 dark:hover:text-zinc-200"
+                }`}
+              >
+                <Fingerprint size={15} />
+                <span>Security Key / Passkey</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMethod("totp");
+                  setError("");
+                }}
+                className={`flex-1 py-2 text-xs font-semibold rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  method === "totp"
+                    ? "bg-white dark:bg-zinc-800 text-stone-900 dark:text-white shadow-sm"
+                    : "text-stone-500 dark:text-zinc-400 hover:text-stone-800 dark:hover:text-zinc-200"
+                }`}
+              >
+                <Smartphone size={15} />
+                <span>Authenticator App</span>
+              </button>
+            </div>
+          )}
 
           {error && (
             <div className="rounded-lg bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 px-4 py-2.5 text-xs text-center mb-4">
@@ -169,66 +337,143 @@ export default function TwoFactorModal({
             </div>
           )}
 
-          {successMsg && (
+          {(successMsg || passkeySuccess) && (
             <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-4 py-2.5 text-xs text-center flex items-center justify-center gap-2 mb-4">
               <CheckCircle2 size={16} />
-              <span>{successMsg}</span>
+              <span>{successMsg || passkeySuccess}</span>
             </div>
           )}
 
-          {/* Setup Mode Details */}
-          {mode === "setup" && (
-            <div className="flex flex-col items-center mb-6">
-              {setupLoading ? (
-                <div className="w-44 h-44 rounded-xl bg-stone-100 dark:bg-zinc-800 animate-pulse flex items-center justify-center text-xs text-stone-400">
-                  Generating QR Code...
+          {/* ══════════════ METHOD: PASSKEY / SECURITY KEY ══════════════ */}
+          {method === "passkey" && (
+            <>
+              {mode === "verify" ? (
+                <div className="flex flex-col items-center space-y-4 py-1">
+                  <button
+                    type="button"
+                    disabled={passkeyLoading}
+                    onClick={handlePasskeyVerify}
+                    className="w-full group relative flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-dashed border-indigo-500/40 hover:border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/20 hover:bg-indigo-50/80 dark:hover:bg-indigo-950/40 transition-all cursor-pointer select-none"
+                  >
+                    <div className="w-16 h-16 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform mb-3">
+                      <Fingerprint size={32} className={passkeyLoading ? "animate-pulse" : ""} />
+                    </div>
+                    <span className="font-semibold text-stone-900 dark:text-white text-sm">
+                      {passkeyLoading ? "Waiting for Biometric / Security Key…" : "Verify with Security Key or Passkey"}
+                    </span>
+                    <span className="text-[11px] text-stone-500 dark:text-zinc-400 mt-1 text-center max-w-xs leading-relaxed">
+                      Touch ID, Face ID, Windows Hello, or USB Security Key (YubiKey)
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMethod("totp");
+                      setError("");
+                    }}
+                    className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium cursor-pointer bg-transparent border-none pt-1"
+                  >
+                    Use 6-digit Authenticator code instead
+                  </button>
                 </div>
               ) : (
-                qrCodeUrl && (
-                  <div className="p-3 bg-white rounded-2xl border border-stone-200 dark:border-zinc-700 shadow-sm mb-3">
-                    <img src={qrCodeUrl} alt="Google Authenticator QR Code" className="w-40 h-40 object-contain" />
+                /* Passkey Setup */
+                <form onSubmit={handlePasskeySetup} className="flex flex-col space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 dark:text-zinc-300 mb-1.5">
+                      Key Nickname
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={passkeyNickname}
+                      onChange={(e) => setPasskeyNickname(e.target.value)}
+                      placeholder="e.g. MacBook Touch ID, Work YubiKey"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-zinc-700 bg-transparent text-sm text-stone-900 dark:text-white placeholder-stone-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                    />
                   </div>
-                )
-              )}
 
-              {secret && (
-                <div className="w-full text-center">
-                  <span className="text-[11px] uppercase tracking-wider font-semibold text-stone-400">
-                    Setup Key (Manual Entry):
-                  </span>
-                  <div className="font-mono text-xs bg-stone-100 dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 mt-1 select-all text-stone-800 dark:text-zinc-200 font-semibold tracking-wider">
-                    {secret}
-                  </div>
-                </div>
+                  <button
+                    type="submit"
+                    disabled={passkeyLoading || !passkeyNickname.trim()}
+                    className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    {passkeyLoading ? (
+                      <span>Waiting for Device Confirmation…</span>
+                    ) : (
+                      <>
+                        <Fingerprint size={16} />
+                        <span>Register Security Key / Passkey</span>
+                      </>
+                    )}
+                  </button>
+
+                  <p className="text-[11px] text-stone-500 dark:text-zinc-400 text-center leading-relaxed">
+                    Your browser will prompt you to complete biometric verification (Touch ID, Windows Hello) or insert and tap your hardware key.
+                  </p>
+                </form>
               )}
-            </div>
+            </>
           )}
 
-          {/* Verification Code Form */}
-          <form onSubmit={handleVerifySubmit} className="flex flex-col items-center space-y-5">
-            <div className="w-full flex justify-center">
-              <OTPInput
-                value={code}
-                onChange={setCode}
-                disabled={loading}
-              />
-            </div>
+          {/* ══════════════ METHOD: TOTP AUTHENTICATOR APP ══════════════ */}
+          {method === "totp" && (
+            <>
+              {mode === "setup" && (
+                <div className="flex flex-col items-center mb-6">
+                  {setupLoading ? (
+                    <div className="w-44 h-44 rounded-xl bg-stone-100 dark:bg-zinc-800 animate-pulse flex items-center justify-center text-xs text-stone-400">
+                      Generating QR Code…
+                    </div>
+                  ) : (
+                    qrCodeUrl && (
+                      <div className="p-3 bg-white rounded-2xl border border-stone-200 dark:border-zinc-700 shadow-sm mb-3">
+                        <img src={qrCodeUrl} alt="Google Authenticator QR Code" className="w-40 h-40 object-contain" />
+                      </div>
+                    )
+                  )}
 
-            <button
-              type="submit"
-              disabled={loading || code.length < 6}
-              className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
-            >
-              {loading ? (
-                <span>Verifying...</span>
-              ) : (
-                <>
-                  <Lock size={16} />
-                  <span>{mode === "setup" ? "Enable 2FA Protection" : "Verify & Continue"}</span>
-                </>
+                  {secret && (
+                    <div className="w-full text-center">
+                      <span className="text-[11px] uppercase tracking-wider font-semibold text-stone-400">
+                        Setup Key (Manual Entry):
+                      </span>
+                      <div className="font-mono text-xs bg-stone-100 dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 mt-1 select-all text-stone-800 dark:text-zinc-200 font-semibold tracking-wider">
+                        {secret}
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
-            </button>
-          </form>
+
+              {/* Code Verification Form */}
+              <form onSubmit={handleVerifySubmit} className="flex flex-col items-center space-y-5">
+                <div className="w-full flex justify-center">
+                  <OTPInput
+                    value={code}
+                    onChange={setCode}
+                    disabled={loading}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading || code.length < 6}
+                  className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  {loading ? (
+                    <span>Verifying…</span>
+                  ) : (
+                    <>
+                      <Lock size={16} />
+                      <span>{mode === "setup" ? "Enable 2FA Protection" : "Verify & Continue"}</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            </>
+          )}
         </motion.div>
       </div>
     </AnimatePresence>

@@ -9,6 +9,7 @@ import { Eye, EyeOff } from "lucide-react";
 import OTPInput from "@/components/OTPInput";
 import api from "@/lib/api";
 import TwoFactorModal from "@/components/TwoFactorModal";
+import CaptchaWidget from "@/components/CaptchaWidget";
 
 export default function SignInPage() {
   const { login, verifySignupOTP, loginWithGoogle, user, mentor, loading } = useAuth();
@@ -31,6 +32,10 @@ export default function SignInPage() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  // Captcha states
+  const [captchaPayload, setCaptchaPayload] = useState({ captchaId: "", captchaAnswer: "" });
+  const [captchaRefreshTrigger, setCaptchaRefreshTrigger] = useState(0);
 
   // Track when a form-handler has already initiated navigation so the redirect
   // useEffect below doesn't fire a competing router.replace() on top of
@@ -102,9 +107,14 @@ export default function SignInPage() {
       return;
     }
 
+    if (!captchaPayload.captchaAnswer || captchaPayload.captchaAnswer.length < 4) {
+      setError("Please enter the 4-character security verification code.");
+      return;
+    }
+
     setSubmitting(true);
     try {
-      const result = await login(email, password);
+      const result = await login(email, password, captchaPayload);
       if (typeof result === "object") {
         if (result?.requires2FA) {
           setTwoFactorTempToken(result.tempToken);
@@ -124,6 +134,7 @@ export default function SignInPage() {
       isNavigatingRef.current = true;
       if (typeof result === "string") router.push(result);
     } catch (err) {
+      setCaptchaRefreshTrigger((prev) => prev + 1);
       if (err instanceof AxiosError && err.response?.status === 403 && err.response?.data?.requiresVerification) {
         setUnverifiedEmail(err.response.data.email || email);
         setStep("otp");
@@ -275,6 +286,13 @@ export default function SignInPage() {
                   </button>
                 </div>
               </div>
+
+              <CaptchaWidget
+                onChange={setCaptchaPayload}
+                refreshTrigger={captchaRefreshTrigger}
+                disabled={submitting}
+                className="pt-1"
+              />
 
               <button
                 type="submit"

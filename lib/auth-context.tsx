@@ -29,8 +29,13 @@ interface AuthState {
   mentor: MentorMeta | null;
   loading: boolean;
   googleAuthenticating: boolean;
-  login: (email: string, password: string) => Promise<string | { requires2FA?: boolean; requires2FASetup?: boolean; tempToken: string }>;
+  login: (
+    email: string,
+    password: string,
+    captcha?: { captchaId: string; captchaAnswer: string }
+  ) => Promise<string | { requires2FA?: boolean; requires2FASetup?: boolean; tempToken: string }>;
   verify2FALogin: (tempToken: string, code: string) => Promise<string>;
+  verifyPasskeyLogin: (tempToken: string, response: any) => Promise<string>;
   loginWithGoogle: (onboardingRole?: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<OTPResponse>;
   verifySignupOTP: (formData: { name: string; email: string; password: string; phone?: string; otp: string; role?: string; onboardingRole?: string }) => Promise<string>;
@@ -295,10 +300,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /* ─── Login (email / password) ─── */
   const login = useCallback(
-    async (email: string, password: string): Promise<string | { requires2FA?: boolean; requires2FASetup?: boolean; tempToken: string }> => {
-      const { data } = await api.post<AuthResponse & { requires2FA?: boolean; requires2FASetup?: boolean; tempToken?: string }>("/auth/login", { email, password }, {
-        headers: { "x-show-loader": "true" }
-      });
+    async (
+      email: string,
+      password: string,
+      captcha?: { captchaId: string; captchaAnswer: string }
+    ): Promise<string | { requires2FA?: boolean; requires2FASetup?: boolean; tempToken: string }> => {
+      const { data } = await api.post<AuthResponse & { requires2FA?: boolean; requires2FASetup?: boolean; tempToken?: string }>(
+        "/auth/login",
+        {
+          email,
+          password,
+          captchaId: captcha?.captchaId,
+          captchaAnswer: captcha?.captchaAnswer,
+        },
+        {
+          headers: { "x-show-loader": "true" },
+        }
+      );
       if (data.requires2FA && data.tempToken) {
         return { requires2FA: true, tempToken: data.tempToken };
       }
@@ -315,6 +333,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const verify2FALogin = useCallback(
     async (tempToken: string, code: string): Promise<string> => {
       const { data } = await api.post<AuthResponse>("/auth/2fa/verify-login", { tempToken, code }, {
+        headers: { "x-show-loader": "true" }
+      });
+      return persist(data);
+    },
+    [persist],
+  );
+
+  /* ─── Verify Passkey / Security Key Login ─── */
+  const verifyPasskeyLogin = useCallback(
+    async (tempToken: string, response: any): Promise<string> => {
+      const { data } = await api.post<AuthResponse>("/auth/webauthn/login-verify", { tempToken, response }, {
         headers: { "x-show-loader": "true" }
       });
       return persist(data);
@@ -439,6 +468,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       googleAuthenticating,
       login,
       verify2FALogin,
+      verifyPasskeyLogin,
       loginWithGoogle,
       register,
       verifySignupOTP,
@@ -451,7 +481,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAdmin: user?.role === "ADMIN" || user?.role === "SUPER_ADMIN",
       isSuperAdmin: user?.role === "SUPER_ADMIN",
     }),
-    [user, mentor, loading, googleAuthenticating, login, loginWithGoogle, register, verifySignupOTP, logout, refreshUser, updateUser],
+    [user, mentor, loading, googleAuthenticating, login, verify2FALogin, verifyPasskeyLogin, loginWithGoogle, register, verifySignupOTP, logout, refreshUser, updateUser],
   );
 
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;

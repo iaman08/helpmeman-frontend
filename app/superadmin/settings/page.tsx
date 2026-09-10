@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { Settings2, ShieldAlert } from "lucide-react";
+import { Settings2 } from "lucide-react";
+import PasskeyManagerCard from "@/components/PasskeyManagerCard";
 
 export default function SuperAdminSettingsPage() {
   return (
@@ -11,16 +12,10 @@ export default function SuperAdminSettingsPage() {
         <h1 className="font-display text-4xl leading-tight" style={{ color: "var(--fg)" }}>Settings.</h1>
       </div>
 
-      <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-6 flex items-start gap-4">
-        <ShieldAlert className="h-6 w-6 text-amber-500 shrink-0" />
-        <div>
-          <h3 className="text-amber-500 font-semibold">Read-Only View</h3>
-          <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>
-            Settings management will be available in a future release. Currently displaying environment configuration.
-          </p>
-        </div>
-      </div>
+      {/* Security Keys & Passkeys Management Card */}
+      <PasskeyManagerCard />
 
+      {/* Platform Configuration */}
       <div className="rounded-2xl p-6 flex flex-col gap-6" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
         <div className="flex items-center gap-3 pb-4" style={{ borderBottom: "1px solid var(--hairline)" }}>
           <Settings2 className="h-5 w-5" style={{ color: "var(--fg)" }} />

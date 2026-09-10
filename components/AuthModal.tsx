@@ -10,6 +10,7 @@ import { X, Eye, EyeOff } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 import TwoFactorModal from "@/components/TwoFactorModal";
+import CaptchaWidget from "@/components/CaptchaWidget";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -42,6 +43,10 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
+  // Captcha states
+  const [captchaPayload, setCaptchaPayload] = useState({ captchaId: "", captchaAnswer: "" });
+  const [captchaRefreshTrigger, setCaptchaRefreshTrigger] = useState(0);
+
   // Resend OTP states
   const [cooldown, setCooldown] = useState(0);
   const [resending, setResending] = useState(false);
@@ -60,6 +65,8 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
       setPhone("");
       setOtp("");
       setAgreed(false);
+      setCaptchaPayload({ captchaId: "", captchaAnswer: "" });
+      setCaptchaRefreshTrigger((prev) => prev + 1);
     }
   }, [isOpen, initialMode]);
 
@@ -95,9 +102,14 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
       return;
     }
 
+    if (!captchaPayload.captchaAnswer || captchaPayload.captchaAnswer.length < 4) {
+      setError("Please enter the 4-character security verification code.");
+      return;
+    }
+
     setSubmitting(true);
     try {
-      const result = await login(email, password);
+      const result = await login(email, password, captchaPayload);
       if (typeof result === "object") {
         if (result?.requires2FA) {
           setTwoFactorTempToken(result.tempToken);
@@ -117,6 +129,7 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
         window.location.replace(result);
       }
     } catch (err) {
+      setCaptchaRefreshTrigger((prev) => prev + 1);
       if (err instanceof AxiosError && err.response?.status === 403 && err.response?.data?.requiresVerification) {
         setUnverifiedEmail(err.response.data.email || email);
         setStep("otp");
@@ -337,6 +350,13 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
                         </button>
                       </div>
                     </div>
+
+                    <CaptchaWidget
+                      onChange={setCaptchaPayload}
+                      refreshTrigger={captchaRefreshTrigger}
+                      disabled={submitting}
+                      className="pt-1"
+                    />
 
                     <button
                       type="submit"
