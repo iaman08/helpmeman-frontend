@@ -1,12 +1,162 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { User, Bell, CreditCard, Camera, Check, Sparkles, Briefcase, Star } from "lucide-react";
+import { User, Bell, CreditCard, Camera, Check, Sparkles, Briefcase, Star, HelpCircle, MessageSquare, Mail, ExternalLink, ChevronRight, CheckCircle2, Clock } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import api from "@/lib/api";
 import { ImageCropModal } from "@/components/ImageCropModal";
 import { useCurrency, CURRENCY_CONFIGS } from "@/lib/currency-context";
 import { useRouter } from "next/navigation";
+import { openTawkChat, setTawkVisibility } from "@/components/TawkToScript";
+
+function MenteeSupportPanel() {
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  const faqs = [
+    {
+      q: "How do I join my scheduled Google Meet session?",
+      a: "You can join directly from your HelpMeMan Dashboard under 'Meetings'. The meeting link is also sent to your registered email 10 minutes prior to your session.",
+    },
+    {
+      q: "Can I reschedule or cancel my booking?",
+      a: "Yes. You can reschedule or cancel a session up to 2 hours before the start time from your 'Bookings' panel for a full refund or instant reschedule.",
+    },
+    {
+      q: "What if my mentor doesn't show up to the call?",
+      a: "If your mentor has not joined within 5 minutes, please message them in Chat or click 'Start Live Chat' below so our support team can immediately assist or issue a full credit.",
+    },
+    {
+      q: "Where can I view my session payment invoices?",
+      a: "You can find your transaction history in the 'Payments' tab above.",
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Live Chat Card */}
+      <div
+        className="rounded-3xl p-6 md:p-8 relative overflow-hidden"
+        style={{
+          border: "1px solid rgba(16, 185, 129, 0.25)",
+          background: "linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, color-mix(in srgb, var(--fg) 2%, transparent) 100%)",
+        }}
+      >
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 mb-6">
+          <div className="flex items-center gap-4">
+            {/* Green Icon Bubble */}
+            <div className="relative shrink-0">
+              <div className="w-14 h-14 rounded-full bg-[#00A859] flex items-center justify-center shadow-[0_4px_20px_rgba(0,168,89,0.35)]">
+                <svg viewBox="0 0 24 24" className="w-7 h-7 fill-white" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 3C6.477 3 2 6.94 2 11.8c0 2.76 1.45 5.23 3.73 6.84-.16.96-.64 2.52-1.8 3.56-.2.18-.08.52.19.53 1.95.07 3.92-.71 5.08-1.58.91.24 1.86.37 2.8.37 5.523 0 10-3.94 10-8.8S17.523 3 12 3z" />
+                </svg>
+              </div>
+              <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-black" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-bold" style={{ color: "var(--fg)" }}>Live Support Chat</h3>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-600 border border-emerald-500/30">
+                  Online
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm mt-0.5" style={{ color: "var(--muted)" }}>
+                Instant real-time assistance with bookings, payments, and account queries.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => openTawkChat()}
+            className="w-full sm:w-auto px-6 py-3 rounded-2xl font-semibold text-xs cursor-pointer shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            style={{ background: "#00A859", color: "#FFFFFF" }}
+          >
+            <MessageSquare className="w-4 h-4" />
+            <span>Start Live Chat</span>
+          </button>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-4 text-xs pt-4" style={{ borderTop: "1px solid var(--hairline)", color: "var(--muted)" }}>
+          <div className="flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 text-emerald-500" />
+            <span>Usually replies in &lt; 5 minutes</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+            <span>Dedicated HelpMeMan Support Agents</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Frequently Asked Questions */}
+      <div className="rounded-3xl p-6 md:p-8" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 rounded-xl" style={{ background: "color-mix(in srgb, var(--fg) 8%, transparent)" }}>
+            <HelpCircle className="w-4 h-4" style={{ color: "var(--fg)" }} />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold" style={{ color: "var(--fg)" }}>Frequently Asked Questions</h3>
+            <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>Quick answers to common questions.</p>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          {faqs.map((faq, idx) => {
+            const isOpen = openFaq === idx;
+            return (
+              <div
+                key={idx}
+                className="rounded-2xl transition-colors"
+                style={{
+                  border: "1px solid var(--hairline)",
+                  background: isOpen ? "color-mix(in srgb, var(--fg) 4%, transparent)" : "transparent",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setOpenFaq(isOpen ? null : idx)}
+                  className="w-full text-left p-4 flex items-center justify-between gap-4 font-semibold text-xs sm:text-sm cursor-pointer"
+                  style={{ color: "var(--fg)" }}
+                >
+                  <span>{faq.q}</span>
+                  <ChevronRight className={`w-4 h-4 shrink-0 transition-transform ${isOpen ? "rotate-90" : ""}`} style={{ color: "var(--muted)" }} />
+                </button>
+                {isOpen && (
+                  <div className="px-4 pb-4 text-xs sm:text-sm leading-relaxed" style={{ color: "var(--muted)", borderTop: "1px solid var(--hairline)" }}>
+                    <p className="pt-3">{faq.a}</p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Email Support & Grievance */}
+      <div className="rounded-3xl p-6 md:p-8" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl" style={{ background: "color-mix(in srgb, var(--fg) 8%, transparent)" }}>
+              <Mail className="w-4 h-4" style={{ color: "var(--fg)" }} />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold" style={{ color: "var(--fg)" }}>Email Support</h4>
+              <p className="text-xs" style={{ color: "var(--muted)" }}>Prefer email? Write to our team at support@helpmeman.com</p>
+            </div>
+          </div>
+          <a
+            href="mailto:support@helpmeman.com"
+            className="px-5 py-2.5 rounded-xl font-semibold text-xs cursor-pointer shadow transition-opacity flex items-center gap-2 hover:opacity-90"
+            style={{ background: "var(--fg)", color: "var(--bg)" }}
+          >
+            <span>Write Email</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function NotificationSettingsPanel() {
   const [emailNotifs, setEmailNotifs] = useState(true);
@@ -115,7 +265,28 @@ export default function MenteeSettingsPage() {
   const { currency: activeCurrency, setCurrency } = useCurrency();
   const router = useRouter();
 
-  const [activeTab, setActiveTab] = useState<"profile" | "notifications" | "payments">("profile");
+  const [activeTab, setActiveTab] = useState<"profile" | "notifications" | "payments" | "support">("profile");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get("tab");
+      if (tab === "support" || tab === "notifications" || tab === "payments" || tab === "profile") {
+        setActiveTab(tab as any);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === "support") {
+      setTawkVisibility(true);
+    } else {
+      setTawkVisibility(false);
+    }
+    return () => {
+      setTawkVisibility(false);
+    };
+  }, [activeTab]);
 
   const [name, setName] = useState(user?.name ?? "");
   const [phone, setPhone] = useState(user?.phone ?? "");
@@ -234,6 +405,7 @@ export default function MenteeSettingsPage() {
     { id: "profile", label: "Profile", icon: User },
     { id: "notifications", label: "Notifications", icon: Bell },
     { id: "payments", label: "Payments", icon: CreditCard },
+    { id: "support", label: "Help & Support", icon: HelpCircle },
   ] as const;
 
   return (
@@ -503,6 +675,31 @@ export default function MenteeSettingsPage() {
                   <span>Leave or Edit Review</span>
                 </button>
               </div>
+
+              {/* Help & Support Card */}
+              <div className="rounded-3xl p-6 md:p-8 mt-6" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-emerald-500/10 text-emerald-500 rounded-xl border border-emerald-500/20">
+                    <HelpCircle className="w-4 h-4 text-emerald-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold" style={{ color: "var(--fg)" }}>Help & Support</h3>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>Need assistance with your account, sessions, or payments?</p>
+                  </div>
+                </div>
+                <p className="text-xs sm:text-sm mb-6 leading-relaxed" style={{ color: "var(--muted)" }}>
+                  Our dedicated support team is available in real-time. Chat live with us or check quick answers to common questions.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("support")}
+                  className="px-5 py-2.5 rounded-xl font-semibold text-xs cursor-pointer shadow flex items-center gap-2 transition-opacity hover:opacity-90"
+                  style={{ background: "var(--fg)", color: "var(--bg)" }}
+                >
+                  <HelpCircle className="w-3.5 h-3.5" />
+                  <span>Open Help & Support</span>
+                </button>
+              </div>
             </>
           )}
 
@@ -529,6 +726,8 @@ export default function MenteeSettingsPage() {
               </div>
             </div>
           )}
+
+          {activeTab === "support" && <MenteeSupportPanel />}
         </div>
       </div>
       {cropImageSrc && (

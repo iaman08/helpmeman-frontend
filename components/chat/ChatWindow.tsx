@@ -2,7 +2,8 @@
 import { useEffect, useCallback, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import {
-  ArrowLeft, Lock, AlertTriangle, X, Upload, MessageCircle, Pencil, MoreVertical, FileDown
+  ArrowLeft, Lock, AlertTriangle, X, Upload, MessageCircle, Pencil, MoreVertical, FileDown,
+  Bell, BellOff, Ban, ShieldCheck, ShieldAlert
 } from "lucide-react";
 import api from "@/lib/api";
 import { useToast } from "@/components/Toast";
@@ -28,6 +29,7 @@ interface ChatWindowProps {
   onGoBack: () => void;
   onMarkRead: (threadId: string) => void;
   onThreadLockChange: (threadId: string, status: string) => void;
+  onThreadUpdated?: (updated: ChatThread) => void;
   socketActions: {
     joinThread: (id: string) => void;
     leaveThread: (id: string) => void;
@@ -95,6 +97,7 @@ export function ChatWindow({
   onGoBack,
   onMarkRead,
   onThreadLockChange,
+  onThreadUpdated,
   socketActions,
   externalMessage,
   editedMessage,
@@ -129,6 +132,8 @@ export function ChatWindow({
   const [showHeaderMenu, setShowHeaderMenu] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [lightbox, setLightbox] = useState<{ url: string; name: string } | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [showBlockConfirm, setShowBlockConfirm] = useState(false);
   const headerMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -149,6 +154,11 @@ export function ChatWindow({
   const isLocked = thread?.status === "CLOSED" || (thread?.status === "LOCKED" && (thread?.mentorMsgCount ?? 0) === 0);
   const isInputBlocked = thread?.status === "CLOSED" || (!isMentor && thread?.status === "LOCKED" && (thread?.mentorMsgCount ?? 0) === 0);
 
+  const isBlockedByMe = isMentor ? !!thread?.isBlockedByMentor : !!thread?.isBlockedByMentee;
+  const isBlockedByOther = isMentor ? !!thread?.isBlockedByMentee : !!thread?.isBlockedByMentor;
+  const isBlocked = isBlockedByMe || isBlockedByOther;
+  const isMutedByMe = isMentor ? !!thread?.isMutedByMentor : !!thread?.isMutedByMentee;
+
   const otherName = isMentor
     ? thread?.user?.name ?? "User"
     : thread?.mentor?.displayName ?? "Mentor";
@@ -160,6 +170,59 @@ export function ChatWindow({
     ? thread?.mentorMsgCount ?? 0
     : thread?.userMsgCount ?? 0;
   const msgRemaining = Math.max(0, 3 - myMsgCount);
+
+  const handleToggleMute = useCallback(async () => {
+    if (!thread || actionLoading) return;
+    setActionLoading(true);
+    const endpoint = isMutedByMe ? "unmute" : "mute";
+    try {
+      const res = await api.post(`/chat/threads/${thread.id}/${endpoint}`);
+      if (res.data?.thread) {
+        onThreadUpdated?.(res.data.thread);
+      }
+      toast(isMutedByMe ? "Notifications unmuted" : "Notifications muted", "success");
+      setShowHeaderMenu(false);
+    } catch (e: any) {
+      toast(e.response?.data?.error || `Failed to ${endpoint} conversation`, "error");
+    } finally {
+      setActionLoading(false);
+    }
+  }, [thread, actionLoading, isMutedByMe, onThreadUpdated, toast]);
+
+  const handleBlock = useCallback(async () => {
+    if (!thread || actionLoading) return;
+    setActionLoading(true);
+    try {
+      const res = await api.post(`/chat/threads/${thread.id}/block`);
+      if (res.data?.thread) {
+        onThreadUpdated?.(res.data.thread);
+      }
+      toast(`Blocked ${otherName}`, "success");
+      setShowBlockConfirm(false);
+      setShowHeaderMenu(false);
+    } catch (e: any) {
+      toast(e.response?.data?.error || "Failed to block user", "error");
+    } finally {
+      setActionLoading(false);
+    }
+  }, [thread, actionLoading, otherName, onThreadUpdated, toast]);
+
+  const handleUnblock = useCallback(async () => {
+    if (!thread || actionLoading) return;
+    setActionLoading(true);
+    try {
+      const res = await api.post(`/chat/threads/${thread.id}/unblock`);
+      if (res.data?.thread) {
+        onThreadUpdated?.(res.data.thread);
+      }
+      toast(`Unblocked ${otherName}`, "success");
+      setShowHeaderMenu(false);
+    } catch (e: any) {
+      toast(e.response?.data?.error || "Failed to unblock user", "error");
+    } finally {
+      setActionLoading(false);
+    }
+  }, [thread, actionLoading, otherName, onThreadUpdated, toast]);
 
   useEffect(() => {
     if (!thread) {
@@ -489,11 +552,33 @@ export function ChatWindow({
             <Avatar name={otherName} url={otherAvatar} size="md" />
 
             <div className="flex flex-col min-w-0 flex-1">
-              <span className="text-sm font-semibold truncate" style={{ color: "var(--fg, #111)" }}>{otherName}</span>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-sm font-semibold truncate" style={{ color: "var(--fg, #111)" }}>{otherName}</span>
+                {isMutedByMe && (
+                  <span title="Notifications muted" className="inline-flex items-center">
+                    <BellOff className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+                  </span>
+                )}
+                {isBlockedByMe && (
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-500/10 text-red-500 border border-red-500/20 shrink-0">
+                    Blocked
+                  </span>
+                )}
+                {isBlockedByOther && !isBlockedByMe && (
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-500/10 text-red-500 border border-red-500/20 shrink-0">
+                    Blocked
+                  </span>
+                )}
+              </div>
               {isLocked ? (
                 <span className="text-[10px] text-amber-500 flex items-center gap-1 font-medium">
                   <Lock className="h-3 w-3" />
                   Thread locked
+                </span>
+              ) : isBlocked ? (
+                <span className="text-[10px] text-red-500 flex items-center gap-1 font-medium">
+                  <Ban className="h-3 w-3" />
+                  {isBlockedByMe ? "You blocked this conversation" : "Conversation blocked"}
                 </span>
               ) : (
                 <PresenceLabel status={otherPresenceStatus} />
@@ -515,7 +600,7 @@ export function ChatWindow({
             </button>
           )}
 
-          {!isMentor && !isLocked && (thread?.mentorMsgCount ?? 0) === 0 && msgRemaining <= 2 && (
+          {!isMentor && !isLocked && !isBlocked && (thread?.mentorMsgCount ?? 0) === 0 && msgRemaining <= 2 && (
             <span
               className="text-[10px] font-bold px-2 py-0.5 rounded-full border select-none hidden sm:inline-flex"
               style={{
@@ -580,6 +665,55 @@ export function ChatWindow({
                   </div>
                 )}
 
+                {/* Mute / Unmute Notifications (Both Mentor & Mentee) */}
+                <button
+                  type="button"
+                  onClick={handleToggleMute}
+                  disabled={actionLoading}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm cursor-pointer text-left transition-colors border-b border-gray-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/60"
+                  style={{ color: "var(--fg, #111)" }}
+                >
+                  {isMutedByMe ? (
+                    <>
+                      <Bell className="h-4 w-4 shrink-0 text-blue-500" />
+                      <span className="font-medium text-xs">Unmute notifications</span>
+                    </>
+                  ) : (
+                    <>
+                      <BellOff className="h-4 w-4 shrink-0 text-zinc-400" />
+                      <span className="font-medium text-xs">Mute notifications</span>
+                    </>
+                  )}
+                </button>
+
+                {/* Block / Unblock User (Both Mentor & Mentee) */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowHeaderMenu(false);
+                    if (isBlockedByMe) {
+                      handleUnblock();
+                    } else {
+                      setShowBlockConfirm(true);
+                    }
+                  }}
+                  disabled={actionLoading}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm cursor-pointer text-left transition-colors border-b border-gray-100 dark:border-zinc-800 hover:bg-red-50/60 dark:hover:bg-red-950/20"
+                  style={{ color: isBlockedByMe ? "#10b981" : "#ef4444" }}
+                >
+                  {isBlockedByMe ? (
+                    <>
+                      <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-500" />
+                      <span className="font-medium text-xs text-emerald-600 dark:text-emerald-400">Unblock {otherName}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Ban className="h-4 w-4 shrink-0 text-red-500" />
+                      <span className="font-medium text-xs text-red-500">Block {otherName}</span>
+                    </>
+                  )}
+                </button>
+
                 {!isMentor && (
                   <button
                     type="button"
@@ -592,7 +726,7 @@ export function ChatWindow({
                   </button>
                 )}
 
-                {!isMentor ? (
+                {!isMentor && (
                   <button
                     type="button"
                     onClick={() => { setShowComplaintModal(true); setShowHeaderMenu(false); }}
@@ -602,12 +736,8 @@ export function ChatWindow({
                     onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                   >
                     <AlertTriangle className="h-4 w-4 shrink-0" />
-                    <span className="font-medium">Report Mentor</span>
+                    <span className="font-medium text-xs">Report Mentor</span>
                   </button>
-                ) : (
-                  <div className="px-4 py-3 text-xs" style={{ color: "rgba(0,0,0,0.4)" }}>
-                    No actions available
-                  </div>
                 )}
               </div>
             )}
@@ -651,7 +781,33 @@ export function ChatWindow({
       )}
 
       {/* ── Input area ── */}
-      {isInputBlocked ? (
+      {isBlockedByMe ? (
+        <div className="px-5 py-5 border-t border-[var(--hairline)] text-center shrink-0 bg-red-500/[0.03]">
+          <div className="flex flex-col items-center justify-center gap-2 text-sm text-[var(--fg)]">
+            <div className="flex items-center gap-2 font-medium text-red-500">
+              <Ban className="h-4 w-4 shrink-0" />
+              <span>You have blocked this conversation.</span>
+            </div>
+            <p className="text-xs text-[var(--muted)]">Neither you nor {otherName} can send messages while blocked.</p>
+            <button
+              type="button"
+              onClick={handleUnblock}
+              disabled={actionLoading}
+              className="mt-1 inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/30 transition-all cursor-pointer"
+            >
+              <ShieldCheck className="h-3.5 w-3.5" />
+              Unblock {otherName}
+            </button>
+          </div>
+        </div>
+      ) : isBlockedByOther ? (
+        <div className="px-5 py-5 border-t border-[var(--hairline)] text-center shrink-0 bg-zinc-500/[0.03]">
+          <div className="flex items-center justify-center gap-2 text-sm text-[var(--muted)]">
+            <Ban className="h-4 w-4 text-red-400 shrink-0" />
+            <span>You cannot reply to this conversation because you have been blocked.</span>
+          </div>
+        </div>
+      ) : isInputBlocked ? (
         <div className="px-5 py-4 border-t border-[var()] text-center shrink-0 bg-[var()]/[0.002]">
           <div className="flex items-center justify-center gap-2 text-sm text-[var()] mb-3">
             <Lock className="h-4 w-4 text-amber-500 shrink-0" />
@@ -791,6 +947,41 @@ export function ChatWindow({
                 ) : (
                   "Submit Report"
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Block Confirmation Modal ── */}
+      {showBlockConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#121214] border border-[#27272a] rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="p-6 flex flex-col items-center text-center gap-3">
+              <div className="h-12 w-12 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500">
+                <Ban className="h-6 w-6" />
+              </div>
+              <h3 className="text-base font-bold text-white">Block {otherName}?</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                They will no longer be able to message you, and you will not be able to message them in this conversation. You can unblock them at any time.
+              </p>
+            </div>
+            <div className="flex items-center border-t border-[#27272a]">
+              <button
+                type="button"
+                onClick={() => setShowBlockConfirm(false)}
+                disabled={actionLoading}
+                className="flex-1 px-4 py-3 text-xs font-semibold text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-colors border-r border-[#27272a] cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleBlock}
+                disabled={actionLoading}
+                className="flex-1 px-4 py-3 text-xs font-semibold text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
+              >
+                {actionLoading ? "Blocking..." : `Block ${isMentor ? "User" : "Mentor"}`}
               </button>
             </div>
           </div>

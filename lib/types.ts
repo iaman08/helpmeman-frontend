@@ -271,6 +271,10 @@ export interface ChatThread {
   userMsgCount: number;
   mentorMsgCount: number;
   isLockedForBooking: boolean;
+  isBlockedByMentee?: boolean;
+  isBlockedByMentor?: boolean;
+  isMutedByMentee?: boolean;
+  isMutedByMentor?: boolean;
   bookingId?: string | null;
   messages?: ChatMessage[];
   unreadCount?: number;
