@@ -8,7 +8,7 @@ export const getApiBaseUrl = () => {
     (window.location.hostname.includes("vercel.app") ||
       window.location.hostname.includes("helpmeman.com"))
   ) {
-    url = "https://helpmeman-backend-7r53z.ondigitalocean.app/api";
+    url = "https://api.helpmeman.com/api";
   }
   if (!url) {
     url = "http://localhost:8080/api";

@@ -44,7 +44,7 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
   const [googleLoading, setGoogleLoading] = useState(false);
 
   // Captcha states
-  const [captchaPayload, setCaptchaPayload] = useState({ captchaId: "", captchaAnswer: "" });
+  const [captchaPayload, setCaptchaPayload] = useState<{ captchaId: string; captchaAnswer: string; notRequired?: boolean }>({ captchaId: "", captchaAnswer: "" });
   const [captchaRefreshTrigger, setCaptchaRefreshTrigger] = useState(0);
 
   // Resend OTP states
@@ -102,7 +102,7 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
       return;
     }
 
-    if (!captchaPayload.captchaAnswer || captchaPayload.captchaAnswer.length < 4) {
+    if (!captchaPayload.notRequired && (!captchaPayload.captchaAnswer || captchaPayload.captchaAnswer.length < 4)) {
       setError("Please enter the 4-character security verification code.");
       return;
     }

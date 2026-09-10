@@ -11,7 +11,7 @@ interface CaptchaData {
 }
 
 interface CaptchaWidgetProps {
-  onChange: (payload: { captchaId: string; captchaAnswer: string }) => void;
+  onChange: (payload: { captchaId: string; captchaAnswer: string; notRequired?: boolean }) => void;
   refreshTrigger?: number;
   className?: string;
   disabled?: boolean;
@@ -27,6 +27,7 @@ export default function CaptchaWidget({
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [notRequired, setNotRequired] = useState(false);
 
   const fetchCaptcha = useCallback(async () => {
     try {
@@ -35,10 +36,21 @@ export default function CaptchaWidget({
       setAnswer("");
       const res = await api.get<CaptchaData>("/auth/captcha");
       setCaptchaData(res.data);
-      onChange({ captchaId: res.data.captchaId, captchaAnswer: "" });
+      setNotRequired(false);
+      onChange({ captchaId: res.data.captchaId, captchaAnswer: "", notRequired: false });
     } catch (err: any) {
       console.error("[CAPTCHA] Failed to load challenge:", err);
-      setError("Failed to load verification code. Click refresh.");
+      if (err?.response?.status === 404) {
+        // Backend does not have /auth/captcha deployed yet or captcha is disabled
+        setNotRequired(true);
+        onChange({ captchaId: "", captchaAnswer: "", notRequired: true });
+        return;
+      }
+      const msg =
+        err?.response?.data?.error?.message ||
+        err?.response?.data?.error ||
+        "Failed to load verification code. Click refresh.";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -60,9 +72,13 @@ export default function CaptchaWidget({
     const clean = val.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4);
     setAnswer(clean);
     if (captchaData) {
-      onChange({ captchaId: captchaData.captchaId, captchaAnswer: clean });
+      onChange({ captchaId: captchaData.captchaId, captchaAnswer: clean, notRequired: false });
     }
   };
+
+  if (notRequired) {
+    return null;
+  }
 
   return (
     <div className={`flex flex-col gap-1.5 select-none ${className}`}>
@@ -103,9 +119,14 @@ export default function CaptchaWidget({
               dangerouslySetInnerHTML={{ __html: captchaData.svg }}
             />
           ) : (
-            <span className="text-[10px]" style={{ color: "var(--muted)" }}>
-              Error loading
-            </span>
+            <button
+              type="button"
+              onClick={fetchCaptcha}
+              className="text-[10px] text-amber-500 hover:underline flex items-center gap-1 cursor-pointer font-medium"
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>Retry</span>
+            </button>
           )}
         </div>
 
