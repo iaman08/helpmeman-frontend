@@ -167,7 +167,7 @@ function OnboardingContent() {
 
     try {
       if (targetRole === "mentor") {
-        if (user?.role === "MENTEE" || user?.role === "STUDENT") {
+        if (user?.role === "STUDENT" || user?.onboardingRole === "MENTEE") {
           router.replace("/dashboard");
           return;
         }

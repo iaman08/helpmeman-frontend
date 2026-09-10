@@ -508,7 +508,8 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
                         >
                           Privacy Policy
                         </button>
-                        .
+                        , and consent to the processing of my personal data under the{" "}
+                        <strong className="font-semibold text-[var(--fg)]">DPDP Act, 2023</strong>.
                       </label>
                     </div>
 

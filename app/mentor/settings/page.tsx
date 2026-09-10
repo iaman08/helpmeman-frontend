@@ -22,7 +22,9 @@ import {
   Mail,
   ExternalLink,
   ChevronRight,
+  ShieldCheck,
 } from "lucide-react";
+import { PrivacyDataPanel } from "@/components/PrivacyDataPanel";
 import { useAuth } from "@/lib/auth-context";
 import api from "@/lib/api";
 import { useToast } from "@/components/Toast";
@@ -250,16 +252,18 @@ export default function MentorSettingsPage() {
 
   const TABS = [
     { id: "profile", label: "Profile Settings", icon: User },
+    { id: "privacy", label: "Privacy & DPDP", icon: ShieldCheck },
     { id: "support", label: "Help & Support", icon: HelpCircle },
   ] as const;
 
-  const [activeTab, setActiveTab] = useState<"profile" | "support">("profile");
+  const [activeTab, setActiveTab] = useState<"profile" | "privacy" | "support">("profile");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      if (params.get("tab") === "support") {
-        setActiveTab("support");
+      const tab = params.get("tab");
+      if (tab === "support" || tab === "privacy") {
+        setActiveTab(tab as any);
       }
     }
   }, []);
@@ -911,6 +915,8 @@ export default function MentorSettingsPage() {
             </div>
           </>
         )}
+
+        {activeTab === "privacy" && <PrivacyDataPanel userRole="MENTOR" />}
 
         {activeTab === "support" && <MentorSupportPanel />}
       </div>

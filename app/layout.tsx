@@ -16,6 +16,7 @@ import { SocketProvider } from "@/lib/socket-context";
 import { PlatformReviewTrigger } from "@/components/PlatformReviewTrigger";
 import { FloatingEagleButton } from "@/components/FloatingEagleButton";
 import { TawkToScript } from "@/components/TawkToScript";
+import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 
 const mSaans = localFont({
   src: [
@@ -130,6 +131,7 @@ export default function RootLayout({
                     <PlatformReviewTrigger />
                     <FloatingEagleButton />
                     <TawkToScript />
+                    <CookieConsentBanner />
                   </SocketProvider>
                 </ToastProvider>
               </CurrencyProvider>

@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { User, Bell, CreditCard, Camera, Check, Sparkles, Star, HelpCircle, MessageSquare, Mail, ExternalLink, ChevronRight, CheckCircle2, Clock } from "lucide-react";
+import { User, Bell, CreditCard, Camera, Check, Sparkles, Star, HelpCircle, MessageSquare, Mail, ExternalLink, ChevronRight, CheckCircle2, Clock, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import api from "@/lib/api";
 import { ImageCropModal } from "@/components/ImageCropModal";
+import { PrivacyDataPanel } from "@/components/PrivacyDataPanel";
 import { useCurrency, CURRENCY_CONFIGS } from "@/lib/currency-context";
 import { useRouter } from "next/navigation";
 import { openTawkChat, setTawkVisibility } from "@/components/TawkToScript";
@@ -265,13 +266,13 @@ export default function MenteeSettingsPage() {
   const { currency: activeCurrency, setCurrency } = useCurrency();
   const router = useRouter();
 
-  const [activeTab, setActiveTab] = useState<"profile" | "notifications" | "payments" | "support">("profile");
+  const [activeTab, setActiveTab] = useState<"profile" | "notifications" | "payments" | "privacy" | "support">("profile");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const tab = params.get("tab");
-      if (tab === "support" || tab === "notifications" || tab === "payments" || tab === "profile") {
+      if (tab === "support" || tab === "notifications" || tab === "payments" || tab === "profile" || tab === "privacy") {
         setActiveTab(tab as any);
       }
     }
@@ -390,6 +391,7 @@ export default function MenteeSettingsPage() {
     { id: "profile", label: "Profile", icon: User },
     { id: "notifications", label: "Notifications", icon: Bell },
     { id: "payments", label: "Payments", icon: CreditCard },
+    { id: "privacy", label: "Privacy & DPDP", icon: ShieldCheck },
     { id: "support", label: "Help & Support", icon: HelpCircle },
   ] as const;
 
@@ -689,6 +691,8 @@ export default function MenteeSettingsPage() {
               </div>
             </div>
           )}
+
+          {activeTab === "privacy" && <PrivacyDataPanel userRole="STUDENT" />}
 
           {activeTab === "support" && <MenteeSupportPanel />}
         </div>
