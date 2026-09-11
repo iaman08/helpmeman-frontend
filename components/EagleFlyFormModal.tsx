@@ -77,18 +77,22 @@ export function EagleFlyFormModal({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ── Countdown state ─────────────────────────────────────────────────────
-  const [timeLeft, setTimeLeft] = useState(getTimeLeft);
-  const isLaunched = timeLeft === null;
+  const [isMounted, setIsMounted] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<ReturnType<typeof getTimeLeft>>(null);
+  const isLaunched = isMounted && timeLeft === null;
 
   useEffect(() => {
-    if (isLaunched) return;
+    setIsMounted(true);
+    const tl = getTimeLeft();
+    setTimeLeft(tl);
+    if (tl === null) return;
     const id = setInterval(() => {
-      const tl = getTimeLeft();
-      setTimeLeft(tl);
-      if (tl === null) clearInterval(id);
+      const next = getTimeLeft();
+      setTimeLeft(next);
+      if (next === null) clearInterval(id);
     }, 1000);
     return () => clearInterval(id);
-  }, [isLaunched]);
+  }, []);
 
   // Compute flight path based on viewport
   const getFlightPath = useCallback(() => {

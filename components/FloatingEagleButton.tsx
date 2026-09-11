@@ -24,18 +24,22 @@ export function FloatingEagleButton() {
   const [modalOpen, setModalOpen] = useState(false);
   const [originPos, setOriginPos] = useState({ x: 0, y: 0 });
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const [badgeTime, setBadgeTime] = useState(getBadgeTime);
-  const isLaunched = badgeTime === null;
+  const [isMounted, setIsMounted] = useState(false);
+  const [badgeTime, setBadgeTime] = useState<ReturnType<typeof getBadgeTime>>(null);
+  const isLaunched = isMounted && badgeTime === null;
 
   useEffect(() => {
-    if (isLaunched) return;
+    setIsMounted(true);
+    const bt = getBadgeTime();
+    setBadgeTime(bt);
+    if (bt === null) return;
     const id = setInterval(() => {
-      const bt = getBadgeTime();
-      setBadgeTime(bt);
-      if (bt === null) clearInterval(id);
+      const next = getBadgeTime();
+      setBadgeTime(next);
+      if (next === null) clearInterval(id);
     }, 60000); // update every minute for the badge
     return () => clearInterval(id);
-  }, [isLaunched]);
+  }, []);
 
   const handleClick = useCallback(() => {
     if (buttonRef.current) {
@@ -77,7 +81,7 @@ export function FloatingEagleButton() {
           )}
 
           {/* Pre-launch countdown badge above button */}
-          {!isLaunched && badgeTime && !modalOpen && (
+          {isMounted && !isLaunched && badgeTime && !modalOpen && (
             <motion.div
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
