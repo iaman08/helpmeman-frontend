@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { openTawkChat } from "@/components/TawkToScript";
+import { openDpdpNotice } from "@/components/CookieConsentBanner";
 
 export function FooterSection() {
   const currentYear = new Date().getFullYear();
@@ -110,6 +111,9 @@ export function FooterSection() {
               <Link href="/help" className="hover:text-white transition-colors">
                 Help and Guidelines
               </Link>
+              <Link href="/privacy#dpdp" className="hover:text-white transition-colors">
+                DPDP Act Compliance
+              </Link>
               <Link href="/apply-mentor" className="hover:text-white transition-colors">
                 Apply as Mentor
               </Link>
@@ -136,6 +140,13 @@ export function FooterSection() {
             <Link href="/privacy" className="hover:text-white transition-colors">
               Privacy Policy
             </Link>
+            <button
+              type="button"
+              onClick={() => openDpdpNotice()}
+              className="hover:text-white transition-colors cursor-pointer text-[12px] text-[#8E8E93] bg-transparent border-none p-0 inline-block"
+            >
+              DPDP Act
+            </button>
             <Link href="/refund-policy" className="hover:text-white transition-colors">
               Refund Policy
             </Link>
