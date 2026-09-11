@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react";
 import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { StatusBadge } from "@/components/StatusBadge";
-import { Search, ChevronLeft, ChevronRight, UserCog, PauseCircle, PlayCircle, AlertTriangle, X, ShieldOff, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
+import { Search, ChevronLeft, ChevronRight, UserCog, PauseCircle, PlayCircle, AlertTriangle, X, ShieldOff, CheckCircle2, Clock, UserX, Trash2 } from "lucide-react";
 
 interface User {
   id: string;
@@ -13,6 +14,12 @@ interface User {
   role: string;
   status: string;
   createdAt: string;
+  pendingDeletion?: {
+    id: string;
+    reason: string;
+    createdAt: string;
+    requestedBy?: { id: string; name: string; email: string };
+  } | null;
 }
 
 type TargetStatus = "ACTIVE" | "ON_HOLD" | "DISABLED";
@@ -237,14 +244,34 @@ export default function SuperAdminUsersPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4">
-                          <StatusBadge status={user.status} />
+                          <div className="flex flex-col gap-1 items-start">
+                            <StatusBadge status={user.status} />
+                            {user.pendingDeletion && user.status !== "DELETED" && (
+                              <span
+                                className="text-[10px] px-2 py-0.5 rounded-md font-semibold inline-flex items-center gap-1 bg-amber-500/15 text-amber-600 border border-amber-500/25"
+                                title={`Requested by ${user.pendingDeletion.requestedBy?.name || 'Admin'}: ${user.pendingDeletion.reason}`}
+                              >
+                                <Clock className="w-3 h-3 animate-pulse" />
+                                Deletion Pending
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="px-6 py-4 text-xs font-mono" style={{ color: "var(--muted)" }}>
                           {new Date(user.createdAt).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            {!isActive && (
+                            {user.pendingDeletion && user.status !== "DELETED" && (
+                              <Link
+                                href="/superadmin/deletion-requests"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-rose-500/15 text-rose-600 hover:bg-rose-500/25 transition-colors border border-rose-500/30"
+                                title={`Review deletion request: ${user.pendingDeletion.reason}`}
+                              >
+                                <UserX className="w-3 h-3" /> Review Request
+                              </Link>
+                            )}
+                            {!isActive && user.status !== "DELETED" && (
                               <button
                                 type="button"
                                 onClick={() => openStatusModal(user, "ACTIVE")}
@@ -253,7 +280,7 @@ export default function SuperAdminUsersPage() {
                                 <PlayCircle className="w-3 h-3" /> Reactivate
                               </button>
                             )}
-                            {!isOnHold && (
+                            {!isOnHold && user.status !== "DELETED" && (
                               <button
                                 type="button"
                                 onClick={() => openStatusModal(user, "ON_HOLD")}
@@ -262,7 +289,7 @@ export default function SuperAdminUsersPage() {
                                 <PauseCircle className="w-3 h-3" /> Hold
                               </button>
                             )}
-                            {!isDisabled && (
+                            {!isDisabled && user.status !== "DELETED" && (
                               <button
                                 type="button"
                                 onClick={() => openStatusModal(user, "DISABLED")}

@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import {
   LayoutDashboard,
   Users,
+  UserX,
   GraduationCap,
   CalendarCheck,
   DollarSign,
@@ -16,38 +17,58 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import api from "@/lib/api";
 import TwoFactorModal from "@/components/TwoFactorModal";
 import { SidebarShell } from "@/components/SidebarShell";
 import { ChangePasswordModal } from "@/components/ChangePasswordModal";
-
-const NAV_ITEMS = [
-  { href: "/superadmin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/superadmin/users", label: "Users", icon: Users },
-  { href: "/superadmin/mentors", label: "Mentors", icon: GraduationCap },
-  { href: "/superadmin/bookings", label: "Bookings", icon: CalendarCheck },
-  { href: "/superadmin/finance", label: "Finance", icon: DollarSign },
-  { href: "/superadmin/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/superadmin/admin-management", label: "Admin Management", icon: ShieldCheck },
-  { href: "/superadmin/audit-logs", label: "Audit Logs", icon: ScrollText },
-  { href: "/superadmin/settings", label: "Settings", icon: Settings },
-  { href: "/superadmin/system-health", label: "System Health", icon: Activity },
-  {
-    onClick: () => {
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(new Event("open-ai"));
-      }
-    },
-    label: "Ruth",
-    icon: Sparkles,
-  },
-];
 
 export default function SuperAdminLayout({ children }: { children: React.ReactNode }) {
   const { user, mentor, loading, logout, isMentor, isAdmin, isSuperAdmin } = useAuth();
   const router = useRouter();
   const hasRedirectedRef = useRef(false);
   const [twoFactorSetupOpen, setTwoFactorSetupOpen] = useState(false);
+  const [pendingDeletionCount, setPendingDeletionCount] = useState(0);
+
+  useEffect(() => {
+    if (!isSuperAdmin) return;
+    const fetchCount = () => {
+      api.get("/super-admin/deletion-requests/pending-count")
+        .then((res) => setPendingDeletionCount(res.data.count || 0))
+        .catch(() => {});
+    };
+    fetchCount();
+    const timer = setInterval(fetchCount, 30_000);
+    return () => clearInterval(timer);
+  }, [isSuperAdmin]);
+
+  const navItems = useMemo(() => [
+    { href: "/superadmin", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/superadmin/users", label: "Users", icon: Users },
+    {
+      href: "/superadmin/deletion-requests",
+      label: "Deletion Requests",
+      icon: UserX,
+      badge: pendingDeletionCount,
+    },
+    { href: "/superadmin/mentors", label: "Mentors", icon: GraduationCap },
+    { href: "/superadmin/bookings", label: "Bookings", icon: CalendarCheck },
+    { href: "/superadmin/finance", label: "Finance", icon: DollarSign },
+    { href: "/superadmin/analytics", label: "Analytics", icon: BarChart3 },
+    { href: "/superadmin/admin-management", label: "Admin Management", icon: ShieldCheck },
+    { href: "/superadmin/audit-logs", label: "Audit Logs", icon: ScrollText },
+    { href: "/superadmin/settings", label: "Settings", icon: Settings },
+    { href: "/superadmin/system-health", label: "System Health", icon: Activity },
+    {
+      onClick: () => {
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("open-ai"));
+        }
+      },
+      label: "Ruth",
+      icon: Sparkles,
+    },
+  ], [pendingDeletionCount]);
 
   const is2FAMandatory = (isAdmin || isSuperAdmin) && !user?.twoFactorEnabled;
 
@@ -87,7 +108,7 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
 
   return (
     <SidebarShell
-      navItems={NAV_ITEMS}
+      navItems={navItems}
       rootPath="/superadmin"
       brandLabel="Super Admin"
       brandColor="text-rose-500"

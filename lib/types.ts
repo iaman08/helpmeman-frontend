@@ -77,6 +77,12 @@ export interface User {
   mentorProfile?: MentorProfileData | null;
   mentorOnboarding?: MentorOnboardingData | null;
   createdAt: string;
+  pendingDeletion?: {
+    id: string;
+    reason: string;
+    createdAt: string;
+    requestedBy?: { id: string; name: string; email: string };
+  } | null;
 }
 
 export interface Category {
@@ -352,4 +358,20 @@ export interface OTPResponse {
 export interface ResetOTPResponse {
   resetToken: string;
   message: string;
+}
+
+export interface UserDeletionRequest {
+  id: string;
+  userId: string;
+  user?: Pick<User, "id" | "name" | "email" | "role" | "status" | "avatar">;
+  requestedById: string;
+  requestedBy?: Pick<User, "id" | "name" | "email" | "role">;
+  reason: string;
+  status: ApprovalStatus;
+  reviewedById?: string | null;
+  reviewedBy?: Pick<User, "id" | "name" | "email" | "role"> | null;
+  reviewNotes?: string | null;
+  reviewedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
