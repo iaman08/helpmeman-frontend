@@ -5,6 +5,8 @@ import { motion, useInView } from "motion/react";
 import { Send, Sparkles, User } from "lucide-react";
 import { API_BASE } from "@/lib/api";
 import { useAIStream } from "@/hooks/useAIStream";
+import { RuthMascotInline, BotStateProvider } from "@/components/AICompanion/AICompanion";
+import type { BotState } from "@/components/AICompanion/animationState";
 
 interface ChatMessage {
   role: "user" | "ai";
@@ -50,7 +52,7 @@ const suggestedMentors = [
   { name: "Vineet R.", role: "GSoC × IIT-R", img: "/mentor1.png" },
 ];
 
-export function AIDemoSection() {
+function AIDemoSectionInner() {
   const sectionRef = useRef(null);
   const chatBodyRef = useRef<HTMLDivElement>(null);
   const inView = useInView(sectionRef, { once: true, margin: "-100px" });
@@ -62,6 +64,7 @@ export function AIDemoSection() {
   const [autoplayActive, setAutoplayActive] = useState(true);
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const streamingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [demoBotState, setDemoBotState] = useState<BotState>("idle");
 
   const { streamState, startStream } = useAIStream({
     endpoint: `${API_BASE}/public/ai/demo-chat/stream`,
@@ -95,6 +98,21 @@ export function AIDemoSection() {
       streamingIntervalRef.current = null;
     }
   }, []);
+
+  // Sync bot state with AI activity
+  useEffect(() => {
+    if (isTyping || streamState === "waiting_first_token" || streamState === "sending") {
+      setDemoBotState("thinking");
+    } else if (streamState === "streaming") {
+      setDemoBotState("talking");
+    } else if (streamState === "completed") {
+      setDemoBotState("success");
+      const t = setTimeout(() => setDemoBotState("idle"), 2000);
+      return () => clearTimeout(t);
+    } else {
+      setDemoBotState("idle");
+    }
+  }, [isTyping, streamState]);
 
   // Auto-scroll chat to bottom
   useEffect(() => {
@@ -273,8 +291,8 @@ export function AIDemoSection() {
                   style={{ animation: "landing-fade-up 0.35s ease forwards" }}
                 >
                   {msg.role === "ai" && (
-                    <div className="w-7 h-7 rounded-lg bg-[#2563EB] flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Sparkles size={13} className="text-white" />
+                    <div className="flex-shrink-0 mt-0.5">
+                      <RuthMascotInline size={28} botState={demoBotState} />
                     </div>
                   )}
                   <div
@@ -309,9 +327,9 @@ export function AIDemoSection() {
 
               {/* Typing indicator */}
               {(isTyping || streamState === "waiting_first_token" || streamState === "sending") && (
-                <div className="flex gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-[#2563EB] flex items-center justify-center flex-shrink-0">
-                    <Sparkles size={13} className="text-white" />
+                <div className="flex gap-3 items-center">
+                  <div className="flex-shrink-0">
+                    <RuthMascotInline size={28} botState="thinking" />
                   </div>
                   <div className="ai-msg-bubble rounded-xl px-4 py-3.5 flex items-center gap-1.5">
                     <span className="ai-typing-dot" />
@@ -376,5 +394,13 @@ export function AIDemoSection() {
         </motion.div>
       </div>
     </section>
+  );
+}
+
+export function AIDemoSection() {
+  return (
+    <BotStateProvider>
+      <AIDemoSectionInner />
+    </BotStateProvider>
   );
 }

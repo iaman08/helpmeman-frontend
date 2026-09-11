@@ -10,6 +10,7 @@ import { usePathname } from "next/navigation";
 import { AxiosError } from "axios";
 import { useAIStream } from "@/hooks/useAIStream";
 import { chatSoundService } from "@/lib/chatSoundService";
+import { RuthMascot, RuthMascotInline, BotStateProvider, useBotState } from "@/components/AICompanion/AICompanion";
 
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -933,7 +934,7 @@ function BookingSuccessInChat({ info }: { info: BookingSuccess }) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export function AIChatWidget() {
+function AIChatWidgetInner() {
   const { user } = useAuth();
   const pathname = usePathname();
 
@@ -1228,6 +1229,22 @@ export function AIChatWidget() {
   });
 
 
+
+  // Bot state syncing — connects AI activity to the Ruth mascot
+  const { setBotState } = useBotState();
+  useEffect(() => {
+    if (loading || streamState === "waiting_first_token" || streamState === "sending") {
+      setBotState("thinking");
+    } else if (streamState === "streaming") {
+      setBotState("talking");
+    } else if (streamState === "completed") {
+      setBotState("success");
+    } else if (error) {
+      setBotState("error");
+    } else {
+      setBotState("idle");
+    }
+  }, [loading, streamState, error, setBotState]);
 
   // Theme state: imessage, sms, pink, white
   const [chatTheme, setChatTheme] = useState<"imessage" | "sms" | "pink" | "white">(() => {
@@ -1801,7 +1818,7 @@ export function AIChatWidget() {
         </button>
       )}
 
-      {/* ─── Floating Ruth AI Messenger-Style Launcher (Home Page Only) ─── */}
+      {/* ─── Floating Ruth AI Mascot Launcher (Home Page Only) ─── */}
       {isHomePage && !isDismissed && (
         <div
           ref={widgetRef}
@@ -1825,18 +1842,9 @@ export function AIChatWidget() {
             }
           }}
         >
-          {/* Main Bubble Container with Glow */}
+          {/* Animated Ruth mascot with quick-close hover button */}
           <div className="relative group">
-            {/* Multi-color ambient animated aura ring */}
-            <div
-              className={`absolute -inset-1.5 rounded-full blur-md transition-all duration-300 pointer-events-none ${
-                ruthlessMode
-                  ? "bg-gradient-to-r from-red-600 via-orange-500 to-amber-500 opacity-75 animate-pulse"
-                  : "bg-gradient-to-r from-cyan-400 via-indigo-600 to-fuchsia-500 opacity-60 group-hover:opacity-100 group-hover:blur-lg"
-              }`}
-            />
-
-            {/* Quick ✕ close button right on the chat bubble (Facebook Messenger style) */}
+            {/* Quick ✕ close button right on the mascot */}
             <button
               type="button"
               onClick={(e) => {
@@ -1854,52 +1862,14 @@ export function AIChatWidget() {
               <X className="w-3 h-3 stroke-[2.5]" />
             </button>
 
-            {/* Futuristic Holographic Sphere */}
-            <div
-              className={`relative flex items-center justify-center w-14 h-14 rounded-full text-white shadow-2xl transition-all duration-300 cursor-grab active:cursor-grabbing border border-white/35 overflow-hidden ${
-                isDragging ? "scale-105 cursor-grabbing" : "group-hover:scale-105 active:scale-95"
-              } ${
-                ruthlessMode
-                  ? "bg-gradient-to-tr from-rose-700 via-red-600 to-amber-500"
-                  : "bg-gradient-to-tr from-cyan-500 via-indigo-600 to-fuchsia-600"
-              }`}
-              style={{
-                boxShadow: ruthlessMode
-                  ? "0 10px 35px rgba(239, 68, 68, 0.55), inset 0 2px 5px rgba(255, 255, 255, 0.4)"
-                  : "0 10px 35px rgba(99, 102, 241, 0.55), inset 0 2px 5px rgba(255, 255, 255, 0.4)",
-              }}
-            >
-              {/* Glass surface highlight curve */}
-              <div className="absolute -top-3 -left-3 w-10 h-7 rounded-full bg-white/30 blur-[1.5px] rotate-[-30deg] pointer-events-none" />
-
-              {/* Pulsing live neural heartbeat indicator */}
-              <span className="absolute top-1 right-1 flex h-3 w-3 pointer-events-none">
-                <span
-                  className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                    ruthlessMode ? "bg-amber-400" : "bg-emerald-400"
-                  }`}
-                />
-                <span
-                  className={`relative inline-flex rounded-full h-3 w-3 border-2 border-white ${
-                    ruthlessMode ? "bg-red-500" : "bg-emerald-500"
-                  }`}
-                />
-              </span>
-
-              {isOpen ? (
-                <X className="w-6 h-6 text-white transition-transform duration-200" />
-              ) : ruthlessMode ? (
-                <Flame className="w-7 h-7 text-amber-100 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)] animate-bounce" />
-              ) : (
-                <div className="relative flex items-center justify-center">
-                  <Bot className="w-7 h-7 text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.4)] transition-transform duration-300 group-hover:rotate-6" />
-                  <Sparkles className="w-3.5 h-3.5 text-cyan-300 absolute -top-1 -right-1 animate-pulse" />
-                </div>
-              )}
-            </div>
+            <RuthMascot
+              isOpen={isOpen}
+              size={typeof window !== "undefined" && window.innerWidth < 640 ? 64 : 80}
+              onClick={() => setIsOpen((p) => !p)}
+            />
           </div>
 
-          {/* "Ask Ruth AI" pill beside the bubble */}
+          {/* "Ask Ruth AI" pill beside the mascot */}
           {!isOpen && (
             <div className="hidden sm:flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-black/85 dark:bg-zinc-900/90 text-white backdrop-blur-xl border border-white/15 shadow-2xl transition-all group-hover:scale-105 cursor-grab active:cursor-grabbing">
               {ruthlessMode ? (
@@ -1947,7 +1917,7 @@ export function AIChatWidget() {
               {/* Left Segment: Brand and inline breadcrumb layout */}
               <div className="flex items-center gap-2 min-w-0 flex-1">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full shrink-0" style={{ background: "color-mix(in srgb, var(--fg) 8%, transparent)" }}>
-                  <Bot className="h-4 w-4" style={{ color: "var(--fg)" }} />
+                  <RuthMascotInline size={20} />
                 </div>
 
                 <div className={`shrink-0 ${sessionTitle && activeTab === "chat" ? "hidden sm:block" : ""}`}>
@@ -2804,5 +2774,15 @@ export function AIChatWidget() {
         </div>
       )}
     </>
+  );
+}
+
+// ─── Public Export (wrapped with BotStateProvider) ────────────────────────────
+
+export function AIChatWidget() {
+  return (
+    <BotStateProvider>
+      <AIChatWidgetInner />
+    </BotStateProvider>
   );
 }

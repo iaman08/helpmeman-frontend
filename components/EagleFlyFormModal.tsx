@@ -14,8 +14,39 @@ import {
   AlertCircle,
   Sparkles,
   ExternalLink,
+  Clock,
+  Lock,
 } from "lucide-react";
 import api from "@/lib/api";
+
+// ── Launch date: Sep 13 2026, 12:00 AM IST (UTC+5:30) ──────────────────────
+const LAUNCH_DATE = new Date("2026-09-13T00:00:00+05:30");
+
+function getTimeLeft() {
+  const diff = LAUNCH_DATE.getTime() - Date.now();
+  if (diff <= 0) return null;
+  const totalSeconds = Math.floor(diff / 1000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return { days, hours, minutes, seconds };
+}
+
+function CountdownUnit({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white dark:bg-[#1E1F2A] border-2 border-blue-500/30 dark:border-blue-500/50 flex items-center justify-center shadow-md shadow-blue-500/10">
+        <span className="text-2xl sm:text-3xl font-black tabular-nums text-blue-600 dark:text-blue-400 tracking-tight">
+          {String(value).padStart(2, "0")}
+        </span>
+      </div>
+      <span className="text-[11px] uppercase tracking-[0.14em] text-slate-700 dark:text-zinc-300 font-bold">
+        {label}
+      </span>
+    </div>
+  );
+}
 
 type Phase = "idle" | "flying" | "form" | "submitting" | "submitted";
 
@@ -44,6 +75,20 @@ export function EagleFlyFormModal({
   const [isDragging, setIsDragging] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // ── Countdown state ─────────────────────────────────────────────────────
+  const [timeLeft, setTimeLeft] = useState(getTimeLeft);
+  const isLaunched = timeLeft === null;
+
+  useEffect(() => {
+    if (isLaunched) return;
+    const id = setInterval(() => {
+      const tl = getTimeLeft();
+      setTimeLeft(tl);
+      if (tl === null) clearInterval(id);
+    }, 1000);
+    return () => clearInterval(id);
+  }, [isLaunched]);
 
   // Compute flight path based on viewport
   const getFlightPath = useCallback(() => {
@@ -128,6 +173,7 @@ export function EagleFlyFormModal({
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
+      if (!isLaunched) return;
       setErrorMessage("");
       setPhase("submitting");
 
@@ -165,7 +211,7 @@ export function EagleFlyFormModal({
         setPhase("form");
       }
     },
-    [name, email, contactNo, bugName, description, mediaFile, handleClose]
+    [name, email, contactNo, bugName, description, mediaFile, handleClose, isLaunched]
   );
 
   if (!isOpen) return null;
@@ -433,6 +479,43 @@ export function EagleFlyFormModal({
                         </div>
                       )}
 
+                      {/* ── Pre-launch Countdown Banner ── */}
+                      {!isLaunched && timeLeft && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.4 }}
+                          className="rounded-2xl bg-gradient-to-b from-blue-500/10 via-indigo-500/5 to-transparent border-2 border-blue-500/30 dark:border-blue-500/40 shadow-sm p-5 flex flex-col items-center gap-4 select-none"
+                        >
+                          {/* Lock icon + title */}
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-full bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                              <Lock size={13} />
+                            </div>
+                            <span className="text-sm font-bold text-[#111111] dark:text-[#F5F5F5] tracking-wide">
+                              Bug Reporting Opens on Sep 13
+                            </span>
+                          </div>
+
+                          {/* Countdown digits */}
+                          <div className="flex items-center gap-2.5 sm:gap-3">
+                            <CountdownUnit value={timeLeft.days} label="Days" />
+                            <span className="text-blue-600 dark:text-blue-400 text-2xl font-black mb-5 leading-none">:</span>
+                            <CountdownUnit value={timeLeft.hours} label="Hours" />
+                            <span className="text-blue-600 dark:text-blue-400 text-2xl font-black mb-5 leading-none">:</span>
+                            <CountdownUnit value={timeLeft.minutes} label="Mins" />
+                            <span className="text-blue-600 dark:text-blue-400 text-2xl font-black mb-5 leading-none">:</span>
+                            <CountdownUnit value={timeLeft.seconds} label="Secs" />
+                          </div>
+
+                          {/* Sub-label */}
+                          <div className="flex items-center gap-1.5 text-xs text-[#4B5563] dark:text-[#A1A1AA] font-medium">
+                            <Clock size={13} className="text-blue-600 dark:text-blue-400" />
+                            <span>Event starts Sep 13, 2026 at 12:00 AM IST</span>
+                          </div>
+                        </motion.div>
+                      )}
+
                       {/* Row 1: Name & Email */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
@@ -606,13 +689,30 @@ export function EagleFlyFormModal({
                       {/* Submit Button */}
                       <button
                         type="submit"
-                        disabled={phase === "submitting" || !name || !email || !contactNo || !bugName}
-                        className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-blue-500/30"
+                        disabled={
+                          !isLaunched ||
+                          phase === "submitting" ||
+                          !name ||
+                          !email ||
+                          !contactNo ||
+                          !bugName
+                        }
+                        id="submit-bug-report-btn"
+                        className={`w-full py-3.5 rounded-xl text-sm font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-md ${
+                          !isLaunched
+                            ? "bg-slate-200 dark:bg-[#22232E] text-slate-600 dark:text-zinc-300 cursor-not-allowed border border-slate-300 dark:border-zinc-700 shadow-none"
+                            : "bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white shadow-blue-500/30 cursor-pointer"
+                        }`}
                       >
                         {phase === "submitting" ? (
                           <>
                             <Loader2 size={16} className="animate-spin" />
                             <span>Uploading to Google Drive...</span>
+                          </>
+                        ) : !isLaunched ? (
+                          <>
+                            <Lock size={15} className="text-slate-600 dark:text-zinc-300" />
+                            <span>Submit Disabled · Opens Sep 13 at 12:00 AM IST</span>
                           </>
                         ) : (
                           <>

@@ -1,9 +1,22 @@
 "use client";
 
 import { motion } from "motion/react";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { EagleFlyFormModal } from "./EagleFlyFormModal";
+
+// ── Launch date (same as EagleFlyFormModal) ─────────────────────────────────
+const LAUNCH_DATE = new Date("2026-09-13T00:00:00+05:30");
+
+function getBadgeTime() {
+  const diff = LAUNCH_DATE.getTime() - Date.now();
+  if (diff <= 0) return null;
+  const totalSeconds = Math.floor(diff / 1000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  return { days, hours, minutes };
+}
 
 export function FloatingEagleButton() {
   const pathname = usePathname();
@@ -11,6 +24,18 @@ export function FloatingEagleButton() {
   const [modalOpen, setModalOpen] = useState(false);
   const [originPos, setOriginPos] = useState({ x: 0, y: 0 });
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const [badgeTime, setBadgeTime] = useState(getBadgeTime);
+  const isLaunched = badgeTime === null;
+
+  useEffect(() => {
+    if (isLaunched) return;
+    const id = setInterval(() => {
+      const bt = getBadgeTime();
+      setBadgeTime(bt);
+      if (bt === null) clearInterval(id);
+    }, 60000); // update every minute for the badge
+    return () => clearInterval(id);
+  }, [isLaunched]);
 
   const handleClick = useCallback(() => {
     if (buttonRef.current) {
@@ -45,9 +70,24 @@ export function FloatingEagleButton() {
               initial={{ opacity: 0, x: 8 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 8 }}
-              className="absolute right-[calc(100%+14px)] top-1/2 -translate-y-1/2 hidden sm:flex items-center px-3.5 py-1.5 rounded-full bg-black/95 text-white text-xs font-semibold backdrop-blur-md border border-blue-500/30 shadow-2xl whitespace-nowrap pointer-events-none"
+              className="absolute right-[calc(100%+14px)] top-1/2 -translate-y-1/2 hidden sm:flex items-center px-3.5 py-1.5 rounded-full bg-slate-900/95 dark:bg-[#1E1F2A]/95 text-white text-xs font-semibold backdrop-blur-md border border-blue-500/40 shadow-xl whitespace-nowrap pointer-events-none"
             >
-              <span>Report Bug · Trenchers AI</span>
+              <span>{isLaunched ? "Report Bug · Trenchers AI" : "Bug Reporting Opens Sep 13"}</span>
+            </motion.div>
+          )}
+
+          {/* Pre-launch countdown badge above button */}
+          {!isLaunched && badgeTime && !modalOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute bottom-[calc(100%+10px)] left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-1 rounded-full bg-blue-600 text-[11px] font-extrabold text-white shadow-[0_4px_16px_rgba(37,99,235,0.55)] pointer-events-none tabular-nums border border-blue-300/40 tracking-wide flex items-center gap-1.5"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>
+                {badgeTime.days > 0 && `${badgeTime.days}d `}
+                {String(badgeTime.hours).padStart(2, "0")}h {String(badgeTime.minutes).padStart(2, "0")}m
+              </span>
             </motion.div>
           )}
 
