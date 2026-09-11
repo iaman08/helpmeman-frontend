@@ -13,6 +13,7 @@ import {
   ScrollText,
   Settings,
   Activity,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useState } from "react";
@@ -31,6 +32,15 @@ const NAV_ITEMS = [
   { href: "/superadmin/audit-logs", label: "Audit Logs", icon: ScrollText },
   { href: "/superadmin/settings", label: "Settings", icon: Settings },
   { href: "/superadmin/system-health", label: "System Health", icon: Activity },
+  {
+    onClick: () => {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("open-ai"));
+      }
+    },
+    label: "Ruth",
+    icon: Sparkles,
+  },
 ];
 
 export default function SuperAdminLayout({ children }: { children: React.ReactNode }) {

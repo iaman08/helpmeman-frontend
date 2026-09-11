@@ -937,13 +937,10 @@ export function AIChatWidget() {
   const { user } = useAuth();
   const pathname = usePathname();
 
-  // Drawer & tab state — persisted in localStorage
-  const [isOpen, setIsOpen] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("helpmeman.aiChatOpen") === "true";
-    }
-    return false;
-  });
+  const isHomePage = pathname === "/";
+
+  // Drawer & tab state — defaulted to false so it does not cover content on fresh page loads
+  const [isOpen, setIsOpen] = useState(false);
 
   const [activeTab, setActiveTab] = useState<"chat" | "history" | "meetings">(() => {
     if (typeof window !== "undefined") {
@@ -1299,18 +1296,36 @@ export function AIChatWidget() {
         localStorage.setItem("helpmeman.aiChatOpen", "false");
       }
     };
+    const handleToggle = () => {
+      setIsOpen((prev) => {
+        const next = !prev;
+        if (typeof window !== "undefined") {
+          localStorage.setItem("helpmeman.aiChatOpen", String(next));
+        }
+        window.dispatchEvent(new Event(next ? "open-ai" : "close-ai"));
+        return next;
+      });
+    };
     window.addEventListener("open-ai", handleOpen);
     window.addEventListener("close-ai", handleClose);
+    window.addEventListener("toggle-ai", handleToggle);
     return () => {
       window.removeEventListener("open-ai", handleOpen);
       window.removeEventListener("close-ai", handleClose);
+      window.removeEventListener("toggle-ai", handleToggle);
     };
   }, []);
 
-  // Body scroll lock
+  // Body scroll lock on mobile screens only
   useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    if (isOpen && typeof window !== "undefined" && window.innerWidth < 640) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   // ─── Auto scroll ───────────────────────────────────────────────────────────
@@ -1769,8 +1784,8 @@ export function AIChatWidget() {
         )}
       </AnimatePresence>
 
-      {/* ─── Restore Pill (Shown When Ruth AI Is Dismissed) ─── */}
-      {isDismissed && (
+      {/* ─── Restore Pill (Shown When Ruth AI Is Dismissed on Home Page) ─── */}
+      {isHomePage && isDismissed && (
         <button
           type="button"
           onClick={() => {
@@ -1786,8 +1801,8 @@ export function AIChatWidget() {
         </button>
       )}
 
-      {/* ─── Floating Ruth AI Messenger-Style Launcher ─── */}
-      {!isDismissed && (
+      {/* ─── Floating Ruth AI Messenger-Style Launcher (Home Page Only) ─── */}
+      {isHomePage && !isDismissed && (
         <div
           ref={widgetRef}
           className={`fixed z-[9990] flex items-center gap-3 select-none touch-none transition-transform duration-75 ${
@@ -1909,12 +1924,20 @@ export function AIChatWidget() {
       {isOpen && (
         <div
           data-ai-chat-open="true"
-          className="fixed bottom-24 z-[9999] w-[calc(100vw-2.5rem)] sm:w-[425px] h-[610px] max-h-[84vh] rounded-3xl shadow-[0_25px_80px_rgba(0,0,0,0.5),0_0_35px_rgba(99,102,241,0.2)] flex flex-col overflow-hidden border border-white/20 dark:border-white/10 backdrop-blur-2xl bg-white/95 dark:bg-[#0c0d12]/95 text-[var(--fg)] animate-in zoom-in-95 slide-in-from-bottom-6 duration-200"
-          style={{
-            left: widgetPos
-              ? Math.max(16, Math.min(window.innerWidth - 440, widgetPos.x > window.innerWidth / 2 ? widgetPos.x - 365 : widgetPos.x))
-              : 24,
-          }}
+          className={`fixed z-[9999] w-[calc(100vw-2.5rem)] sm:w-[425px] h-[610px] max-h-[84vh] rounded-3xl shadow-[0_25px_80px_rgba(0,0,0,0.5),0_0_35px_rgba(99,102,241,0.2)] flex flex-col overflow-hidden border border-white/20 dark:border-white/10 backdrop-blur-2xl bg-white/95 dark:bg-[#0c0d12]/95 text-[var(--fg)] animate-in zoom-in-95 slide-in-from-bottom-6 duration-200 ${
+            isHomePage
+              ? "bottom-24"
+              : "bottom-4 right-4 sm:bottom-6 sm:right-6"
+          }`}
+          style={
+            isHomePage
+              ? {
+                  left: widgetPos
+                    ? Math.max(16, Math.min(window.innerWidth - 440, widgetPos.x > window.innerWidth / 2 ? widgetPos.x - 365 : widgetPos.x))
+                    : 24,
+                }
+              : undefined
+          }
         >
 
           {/* ── Header ─────────────────────────────────────────────────────────── */}

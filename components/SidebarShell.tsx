@@ -202,7 +202,11 @@ export function SidebarShell({
                 key={item.label}
                 type="button"
                 onClick={() => {
-                  item.onClick?.();
+                  if (item.label === "Ruth" && aiOpen) {
+                    window.dispatchEvent(new Event("close-ai"));
+                  } else {
+                    item.onClick?.();
+                  }
                   if (mobileOpen) setMobileOpen(false);
                 }}
                 className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors cursor-pointer"
