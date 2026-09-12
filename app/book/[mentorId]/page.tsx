@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { ArrowLeft, Calendar, Clock, CreditCard, Star } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, CreditCard, Star, Tag, X, CheckCircle2, Sparkles } from "lucide-react";
 import { useMentor } from "@/lib/hooks";
 import { useAuth } from "@/lib/auth-context";
 import api from "@/lib/api";
@@ -13,6 +13,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { AxiosError } from "axios";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import { useCurrency } from "@/lib/currency-context";
+import { FooterSection } from "@/components/landing/FooterSection";
 
 declare global {
   interface Window {
@@ -20,17 +21,6 @@ declare global {
       open: () => void;
     };
   }
-}
-
-// formatPrice is replaced by PriceDisplay component
-
-function generateTimeSlots(): string[] {
-  const slots: string[] = [];
-  for (let h = 9; h <= 20; h++) {
-    slots.push(`${h.toString().padStart(2, "0")}:00`);
-    if (h < 20) slots.push(`${h.toString().padStart(2, "0")}:30`);
-  }
-  return slots;
 }
 
 function getNext7Days(): Date[] {
@@ -44,8 +34,12 @@ function getNext7Days(): Date[] {
   return days;
 }
 
-function formatDayShort(d: Date) {
-  return d.toLocaleDateString("en-IN", { weekday: "short" });
+function generateTimeSlots(): string[] {
+  return [
+    "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+    "14:00", "14:30", "15:00", "15:30", "16:00", "16:30",
+    "17:00", "17:30", "18:00", "18:30", "19:00", "19:30",
+  ];
 }
 
 function formatDateShort(d: Date) {
@@ -64,6 +58,20 @@ export default function BookMentorPage() {
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [booking, setBooking] = useState(false);
   const [error, setError] = useState("");
+
+  // Coupon states
+  const [couponInput, setCouponInput] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discountType: string;
+    discountValue: number;
+    description?: string;
+    discountAmount: number; // in paise
+    finalAmount: number;    // in paise
+    isFree: boolean;
+  } | null>(null);
 
   const days = getNext7Days();
   const timeSlots = generateTimeSlots();
@@ -85,6 +93,50 @@ export default function BookMentorPage() {
     document.body.appendChild(script);
   }, []);
 
+  async function handleApplyCoupon(codeToApply?: string) {
+    const code = (codeToApply ?? couponInput).trim().toUpperCase();
+    if (!code || !mentor) return;
+    setCouponError("");
+    setCouponLoading(true);
+
+    try {
+      const res = await api.post("/coupons/validate", {
+        code,
+        mentorId: mentor.id,
+        durationMinutes: mentor.sessionDuration,
+      });
+
+      if (res.data.valid) {
+        setAppliedCoupon({
+          code: res.data.coupon.code,
+          discountType: res.data.coupon.discountType,
+          discountValue: res.data.coupon.discountValue,
+          description: res.data.coupon.description,
+          discountAmount: res.data.discountAmount,
+          finalAmount: res.data.finalAmount,
+          isFree: res.data.isFree,
+        });
+        setCouponInput("");
+        setCouponError("");
+      }
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        setCouponError(err.response?.data?.error ?? "Invalid coupon code.");
+      } else {
+        setCouponError("Failed to apply coupon.");
+      }
+      setAppliedCoupon(null);
+    } finally {
+      setCouponLoading(false);
+    }
+  }
+
+  function handleRemoveCoupon() {
+    setAppliedCoupon(null);
+    setCouponError("");
+    setCouponInput("");
+  }
+
   async function handleBook() {
     if (!selectedDate || !selectedTime || !mentor || booking) return;
     setError("");
@@ -101,16 +153,18 @@ export default function BookMentorPage() {
         scheduledAt: scheduledAt.toISOString(),
         durationMinutes: mentor.sessionDuration,
         currency,
+        couponCode: appliedCoupon ? appliedCoupon.code : undefined,
       });
 
-      const { booking: bookingData, order, razorpayKeyId } = res.data;
+      const { booking: bookingData, order, razorpayKeyId, isFree } = res.data;
 
-      if (!order || !razorpayKeyId || !window.Razorpay) {
-        // If Razorpay isn't configured, simulate direct success
+      // ── Zero-Amount / Free Coupon Booking Success ──
+      if (isFree || !order || !razorpayKeyId || !window.Razorpay) {
         router.push(`/dashboard/bookings/${bookingData.id}`);
         return;
       }
 
+      // ── Paid Razorpay Checkout ──
       const rzp = new window.Razorpay({
         key: razorpayKeyId,
         amount: order.amount,
@@ -159,228 +213,358 @@ export default function BookMentorPage() {
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen">
-        <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[var()]/70">
-          <nav className="mx-auto flex max-w-[1000px] items-center justify-between px-6 sm:px-10 py-5">
-            <Link href="/" className="font-display text-2xl tracking-tight">
-              HelpMeMan<span className="text-[var()]">.</span>
-            </Link>
-          </nav>
-        </header>
-        <main className="mx-auto max-w-[1000px] px-6 sm:px-10 pt-28 pb-16">
-          <Skeleton className="h-8 w-48 mb-6" />
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-            <div className="lg:col-span-3">
-              <Skeleton className="h-80 w-full rounded-2xl" />
+      <div className="landing-page min-h-screen flex flex-col" style={{ background: "#0B0B0C" }}>
+        <div className="relative z-10 flex-1 rounded-b-[40px] md:rounded-b-[48px] shadow-[0_20px_60px_rgba(0,0,0,0.10)] border-b border-[var(--hairline)] overflow-hidden flex flex-col bg-[var(--bg)] text-[var(--fg)]">
+          <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[var(--bg)]/80 border-b border-[var(--hairline)]">
+            <nav className="mx-auto flex max-w-[1000px] items-center justify-between px-6 sm:px-10 py-5">
+              <Link href="/" className="font-bold text-xl tracking-tight text-[var(--fg)] flex items-center gap-2 select-none">
+                <img src="/logo.svg" alt="HelpMeMan Logo" className="w-6 h-6 object-contain" />
+                <span>HelpMeMan</span>
+              </Link>
+            </nav>
+          </header>
+          <main className="mx-auto max-w-[1000px] px-6 sm:px-10 pt-28 pb-16 w-full">
+            <Skeleton className="h-8 w-48 mb-6" />
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+              <div className="lg:col-span-3">
+                <Skeleton className="h-80 w-full rounded-2xl" />
+              </div>
+              <div className="lg:col-span-2">
+                <Skeleton className="h-48 w-full rounded-2xl" />
+              </div>
             </div>
-            <div className="lg:col-span-2">
-              <Skeleton className="h-48 w-full rounded-2xl" />
-            </div>
-          </div>
-        </main>
+          </main>
+        </div>
+        <div className="sticky bottom-0 z-0">
+          <FooterSection />
+        </div>
       </div>
     );
   }
 
   if (!mentor) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <EmptyState
-          title="Mentor not found"
-          description="This mentor may no longer be available."
-          action={
-            <Link
-              href="/mentors"
-              className="rounded-full bg-[var()] text-[var()] px-6 py-3 text-sm"
-            >
-              Browse mentors
-            </Link>
-          }
-        />
+      <div className="landing-page min-h-screen flex flex-col" style={{ background: "#0B0B0C" }}>
+        <div className="relative z-10 flex-1 rounded-b-[40px] md:rounded-b-[48px] shadow-[0_20px_60px_rgba(0,0,0,0.10)] border-b border-[var(--hairline)] overflow-hidden flex flex-col bg-[var(--bg)] text-[var(--fg)] items-center justify-center p-6">
+          <EmptyState
+            title="Mentor not found"
+            description="This mentor may no longer be available."
+            action={
+              <Link
+                href="/mentors"
+                className="rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-6 py-3 text-sm font-semibold"
+              >
+                Browse mentors
+              </Link>
+            }
+          />
+        </div>
+        <div className="sticky bottom-0 z-0">
+          <FooterSection />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[var()]/70">
-        <nav className="mx-auto flex max-w-[1000px] items-center justify-between px-6 sm:px-10 py-5">
-          <Link href="/" className="font-display text-2xl tracking-tight">
-            HelpMeMan<span className="text-[var()]">.</span>
-          </Link>
-          <Link
-            href={`/mentors/${mentorId}`}
-            className="text-sm text-[var()]/80 hover:text-[var()] transition-colors"
-          >
-            ← Back to profile
-          </Link>
-        </nav>
-      </header>
+    <div className="landing-page min-h-screen flex flex-col" style={{ background: "#0B0B0C" }}>
+      <div className="relative z-10 flex-1 rounded-b-[40px] md:rounded-b-[48px] shadow-[0_20px_60px_rgba(0,0,0,0.10)] border-b border-[var(--hairline)] overflow-hidden flex flex-col bg-[var(--bg)] text-[var(--fg)]">
+        {/* Header */}
+        <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[var(--bg)]/80 border-b border-[var(--hairline)]">
+          <nav className="mx-auto flex max-w-[1000px] items-center justify-between px-6 sm:px-10 py-5">
+            <Link href="/" className="font-bold text-xl tracking-tight text-[var(--fg)] flex items-center gap-2 select-none">
+              <img src="/logo.svg" alt="HelpMeMan Logo" className="w-6 h-6 object-contain" />
+              <span>HelpMeMan</span>
+            </Link>
+            <Link
+              href={`/mentors/${mentorId}`}
+              className="text-sm text-[var(--muted)] hover:text-[var(--fg)] transition-colors"
+            >
+              ← Back to profile
+            </Link>
+          </nav>
+        </header>
 
-      <main className="mx-auto max-w-[1000px] px-6 sm:px-10 pt-28 pb-16">
-        <div className="flex flex-col gap-2 mb-8">
-          <p className="text-sm uppercase tracking-[0.22em] text-[var()]">
-            Book a session
-          </p>
-          <h1 className="font-display text-[clamp(1.8rem,4vw,2.8rem)] leading-tight">
-            {mentor.displayName}
-          </h1>
-          <div className="flex items-center gap-3 mt-1">
-            <InstitutionBadge
-              institutionName={mentor.institutionName}
-              institutionType={mentor.institutionType}
-            />
-            <span className="text-sm text-[var()]">
-              <PriceDisplay amountInPaise={mentor.pricePerSession} /> / {mentor.sessionDuration}{" "}
-              min
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          {/* ─── Left: Date & Time Picker ─── */}
-          <div className="lg:col-span-3 flex flex-col gap-6">
-            {/* Date picker */}
-            <div>
-              <h2 className="text-xs uppercase tracking-[0.22em] text-[var()] mb-4">
-                <Calendar className="h-3.5 w-3.5 inline mr-2" />
-                Select a date
-              </h2>
-              <div className="grid grid-cols-7 gap-2">
-                {days.map((day) => {
-                  const isSelected =
-                    selectedDate?.toDateString() === day.toDateString();
-                  return (
-                    <button
-                      key={day.toISOString()}
-                      type="button"
-                      onClick={() => {
-                        setSelectedDate(day);
-                        setSelectedTime(null);
-                      }}
-                      className={`flex flex-col items-center gap-1 rounded-xl py-3 text-sm transition-colors cursor-pointer ${
-                        isSelected
-                          ? "bg-[var()] text-[var()]"
-                          : "bg-[var()]/[0.02] hover:bg-[var()]/5"
-                      }`}
-                    >
-                      <span className="text-[10px] uppercase tracking-wider opacity-70">
-                        {formatDayShort(day)}
-                      </span>
-                      <span className="font-medium">
-                        {formatDateShort(day)}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+        {/* Main Content */}
+        <main className="mx-auto max-w-[1000px] px-6 sm:px-10 pt-28 pb-16 w-full">
+          <div className="flex flex-col gap-2 mb-8">
+            <p className="text-xs uppercase tracking-[0.22em] text-[var(--muted)] font-semibold">
+              Book a session
+            </p>
+            <h1 className="font-bold text-3xl sm:text-4xl text-[var(--fg)] tracking-tight">
+              {mentor.displayName}
+            </h1>
+            <div className="flex items-center gap-3 mt-1">
+              <InstitutionBadge
+                institutionName={mentor.institutionName}
+                institutionType={mentor.institutionType}
+              />
+              <span className="text-sm text-[var(--muted)]">
+                <PriceDisplay amountInPaise={mentor.pricePerSession} /> / {mentor.sessionDuration}{" "}
+                min
+              </span>
             </div>
+          </div>
 
-            {/* Time picker */}
-            {selectedDate && (
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+            {/* ─── Left: Date & Time Picker ─── */}
+            <div className="lg:col-span-3 flex flex-col gap-6">
+              {/* Date picker */}
               <div>
-                <h2 className="text-xs uppercase tracking-[0.22em] text-[var()] mb-4">
-                  <Clock className="h-3.5 w-3.5 inline mr-2" />
-                  Select a time
+                <h2 className="text-xs uppercase tracking-[0.22em] text-[var(--muted)] font-semibold mb-4 flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-blue-500" />
+                  Select a date
                 </h2>
-                <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-                  {timeSlots.map((slot) => {
-                    const isSelected = selectedTime === slot;
+                <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
+                  {days.map((day) => {
+                    const isSelected =
+                      selectedDate?.toDateString() === day.toDateString();
                     return (
                       <button
-                        key={slot}
+                        key={day.toISOString()}
                         type="button"
-                        onClick={() => setSelectedTime(slot)}
-                        className={`rounded-lg py-2.5 text-sm transition-colors cursor-pointer ${
+                        onClick={() => setSelectedDate(day)}
+                        className={`flex flex-col items-center rounded-2xl py-3 px-2 text-xs transition-all cursor-pointer border ${
                           isSelected
-                            ? "bg-[var()] text-[var()]"
-                            : "bg-[var()]/[0.02] hover:bg-[var()]/5"
+                            ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border-zinc-900 dark:border-white shadow-md font-semibold scale-[1.02]"
+                            : "bg-[var(--bg)] border-[var(--hairline)] hover:border-zinc-400 text-[var(--fg)]"
                         }`}
                       >
-                        {slot}
+                        <span className="text-[11px] opacity-70">
+                          {day.toLocaleDateString("en-US", { weekday: "short" })}
+                        </span>
+                        <span className="text-base font-bold mt-0.5">
+                          {day.getDate()}
+                        </span>
+                        <span className="text-[10px] opacity-60">
+                          {day.toLocaleDateString("en-US", { month: "short" })}
+                        </span>
                       </button>
                     );
                   })}
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* ─── Right: Summary ─── */}
-          <div className="lg:col-span-2">
-            <div className="sticky top-28 rounded-2xl bg-[var()]/[0.02] p-6 flex flex-col gap-5">
-              <h2 className="text-xs uppercase tracking-[0.22em] text-[var()]">
-                <CreditCard className="h-3.5 w-3.5 inline mr-2" />
-                Summary
-              </h2>
-
-              <div className="flex flex-col gap-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-[var()]">Mentor</span>
-                  <span className="font-medium">{mentor.displayName}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var()]">Duration</span>
-                  <span>{mentor.sessionDuration} min</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var()]">Date</span>
-                  <span>
-                    {selectedDate
-                      ? formatDateShort(selectedDate)
-                      : "Not selected"}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var()]">Time</span>
-                  <span>{selectedTime ?? "Not selected"}</span>
-                </div>
-              </div>
-
-              <div
-                aria-hidden
-                className="h-px w-full"
-                style={{ background: "var(--hairline)" }}
-              />
-
-              <div className="flex items-baseline justify-between">
-                <span className="text-sm text-[var()]">Total</span>
-                <span className="font-display text-2xl">
-                  <PriceDisplay amountInPaise={mentor.pricePerSession} />
-                </span>
-              </div>
-
-              {error && (
-                <div className="rounded-lg bg-red-500/10 text-red-600 px-4 py-3 text-sm">
-                  {error}
+              {/* Time picker */}
+              {selectedDate && (
+                <div>
+                  <h2 className="text-xs uppercase tracking-[0.22em] text-[var(--muted)] font-semibold mb-4 flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-blue-500" />
+                    Select a time slot
+                  </h2>
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                    {timeSlots.map((slot) => {
+                      const isSelected = selectedTime === slot;
+                      return (
+                        <button
+                          key={slot}
+                          type="button"
+                          onClick={() => setSelectedTime(slot)}
+                          className={`rounded-xl py-2.5 text-xs font-semibold transition-all cursor-pointer border ${
+                            isSelected
+                              ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border-zinc-900 dark:border-white shadow-sm"
+                              : "bg-[var(--bg)] border-[var(--hairline)] hover:border-zinc-400 text-[var(--fg)]"
+                          }`}
+                        >
+                          {slot}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
+            </div>
 
-              <button
-                type="button"
-                onClick={handleBook}
-                disabled={!selectedDate || !selectedTime || booking}
-                className="w-full rounded-full bg-[var()] text-[var()] py-3.5 text-sm hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {booking ? "Processing…" : "Pay & Book"}
-              </button>
+            {/* ─── Right: Summary & Coupon Checkout ─── */}
+            <div className="lg:col-span-2">
+              <div className="sticky top-28 rounded-3xl bg-zinc-50 dark:bg-zinc-900/50 border border-[var(--hairline)] p-6 flex flex-col gap-5 shadow-sm">
+                <h2 className="text-xs uppercase tracking-[0.22em] text-[var(--muted)] font-semibold flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 text-blue-500" />
+                  Order Summary
+                </h2>
 
-              <p className="text-[11px] text-[var()] text-center leading-relaxed">
-                Secure payment via Razorpay. You&rsquo;ll receive a Google Meet
-                link upon confirmation.
-              </p>
+                <div className="flex flex-col gap-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-[var(--muted)] text-xs">Mentor</span>
+                    <span className="font-semibold text-xs text-[var(--fg)]">{mentor.displayName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[var(--muted)] text-xs">Duration</span>
+                    <span className="text-xs text-[var(--fg)]">{mentor.sessionDuration} minutes</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[var(--muted)] text-xs">Date</span>
+                    <span className="text-xs text-[var(--fg)]">
+                      {selectedDate ? formatDateShort(selectedDate) : "Not selected"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[var(--muted)] text-xs">Time</span>
+                    <span className="text-xs text-[var(--fg)]">{selectedTime ?? "Not selected"}</span>
+                  </div>
+                </div>
 
-              <p className="text-[11px] text-[var()] text-center leading-relaxed">
-                By proceeding with the payment, the user agrees to the{" "}
-                <Link href="/refund-policy" className="text-[#2563EB] hover:underline font-medium">
-                  Refund & Cancellation Policy
-                </Link>
-                .
-              </p>
+                {/* ─── Coupon Code Section ─── */}
+                <div className="flex flex-col gap-2 pt-3 border-t border-[var(--hairline)]">
+                  <label className="text-xs font-semibold text-[var(--muted)] flex items-center justify-between">
+                    <span>Have a coupon code?</span>
+                    {appliedCoupon && (
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" />
+                        Applied
+                      </span>
+                    )}
+                  </label>
+
+                  {!appliedCoupon ? (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={couponInput}
+                        onChange={(e) => {
+                          setCouponInput(e.target.value.toUpperCase());
+                          setCouponError("");
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleApplyCoupon();
+                          }
+                        }}
+                        placeholder="e.g. TESTFREE"
+                        className="flex-1 px-3.5 py-2 text-xs rounded-xl bg-white dark:bg-zinc-950 border border-[var(--hairline)] focus:border-zinc-500 focus:outline-none uppercase font-mono tracking-wider text-[var(--fg)]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleApplyCoupon()}
+                        disabled={couponLoading || !couponInput.trim()}
+                        className="px-4 py-2 text-xs font-semibold rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:opacity-90 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                      >
+                        {couponLoading ? "Applying…" : "Apply"}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                      <div className="flex items-center gap-2 text-xs">
+                        <Tag className="w-3.5 h-3.5 shrink-0" />
+                        <span className="font-mono font-bold">{appliedCoupon.code}</span>
+                        <span className="text-[11px] opacity-80">
+                          ({appliedCoupon.discountType === "PERCENTAGE" ? `${appliedCoupon.discountValue}% OFF` : `FLAT OFF`})
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleRemoveCoupon}
+                        className="text-zinc-400 hover:text-red-500 p-1 transition-colors cursor-pointer"
+                        title="Remove coupon"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
+
+                  {couponError && (
+                    <p className="text-[11px] text-red-500 font-medium mt-0.5">{couponError}</p>
+                  )}
+
+                  {!appliedCoupon && (
+                    <div className="flex items-center gap-1.5 text-[11px] text-[var(--muted)] mt-0.5">
+                      <Sparkles className="w-3 h-3 text-amber-500 shrink-0" />
+                      <span>
+                        Testing? Use code{" "}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCouponInput("TESTFREE");
+                            handleApplyCoupon("TESTFREE");
+                          }}
+                          className="font-mono font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+                        >
+                          TESTFREE
+                        </button>{" "}
+                        for 100% off.
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* ─── Price Breakdown ─── */}
+                <div className="flex flex-col gap-2 pt-3 border-t border-[var(--hairline)]">
+                  <div className="flex justify-between text-xs text-[var(--muted)]">
+                    <span>Session Fee</span>
+                    <span><PriceDisplay amountInPaise={mentor.pricePerSession} /></span>
+                  </div>
+
+                  {appliedCoupon && (
+                    <div className="flex justify-between text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                      <span>Discount ({appliedCoupon.code})</span>
+                      <span>-<PriceDisplay amountInPaise={appliedCoupon.discountAmount} /></span>
+                    </div>
+                  )}
+
+                  <div className="flex items-baseline justify-between pt-2 border-t border-[var(--hairline)]">
+                    <span className="text-sm font-bold text-[var(--fg)]">Total Payable</span>
+                    <span className="font-display text-2xl font-bold">
+                      {appliedCoupon?.isFree ? (
+                        <span className="text-emerald-600 dark:text-emerald-400 font-extrabold flex items-center gap-2">
+                          <span>FREE</span>
+                          <span className="text-xs font-normal text-[var(--muted)] line-through">
+                            (<PriceDisplay amountInPaise={mentor.pricePerSession} />)
+                          </span>
+                        </span>
+                      ) : (
+                        <PriceDisplay amountInPaise={appliedCoupon ? appliedCoupon.finalAmount : mentor.pricePerSession} />
+                      )}
+                    </span>
+                  </div>
+                </div>
+
+                {error && (
+                  <div className="rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 p-3 text-xs font-medium">
+                    {error}
+                  </div>
+                )}
+
+                {/* ─── Action Button ─── */}
+                <button
+                  type="button"
+                  onClick={handleBook}
+                  disabled={!selectedDate || !selectedTime || booking}
+                  className={`w-full rounded-2xl py-3.5 text-sm font-bold transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-md ${
+                    appliedCoupon?.isFree
+                      ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20"
+                      : "bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-100 dark:text-zinc-900"
+                  }`}
+                >
+                  {booking
+                    ? "Confirming Session…"
+                    : appliedCoupon?.isFree
+                    ? "🎉 Confirm Free Booking (₹0)"
+                    : "Pay & Book"}
+                </button>
+
+                <p className="text-[11px] text-[var(--muted)] text-center leading-relaxed">
+                  {appliedCoupon?.isFree
+                    ? "100% coupon applied. No credit card or gateway charge required."
+                    : "Secure payment via Razorpay. You'll receive a Google Meet link upon confirmation."}
+                </p>
+
+                <p className="text-[11px] text-[var(--muted)] text-center leading-relaxed">
+                  By proceeding, you agree to the{" "}
+                  <Link href="/refund-policy" className="text-[#2563EB] hover:underline font-medium">
+                    Refund &amp; Cancellation Policy
+                  </Link>
+                  .
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
+
+      <div className="sticky bottom-0 z-0">
+        <FooterSection />
+      </div>
     </div>
   );
 }
