@@ -15,6 +15,7 @@ import {
   Settings,
   Activity,
   Sparkles,
+  KeyRound,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useState, useMemo } from "react";
@@ -57,6 +58,11 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
     { href: "/superadmin/analytics", label: "Analytics", icon: BarChart3 },
     { href: "/superadmin/admin-management", label: "Admin Management", icon: ShieldCheck },
     { href: "/superadmin/audit-logs", label: "Audit Logs", icon: ScrollText },
+    {
+      onClick: () => setTwoFactorSetupOpen(true),
+      label: "2FA Protection",
+      icon: KeyRound,
+    },
     { href: "/superadmin/settings", label: "Settings", icon: Settings },
     { href: "/superadmin/system-health", label: "System Health", icon: Activity },
     {
