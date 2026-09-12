@@ -23,6 +23,7 @@ import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { useToast } from "@/components/Toast";
+import { useConfirm } from "@/components/ConfirmModal";
 
 interface BugReportItem {
   id: string;
@@ -68,6 +69,7 @@ export default function AdminBugsPage() {
   });
 
   const { toast } = useToast();
+  const confirm = useConfirm();
 
   const fetchReports = useCallback(
     (targetPage = 1) => {
@@ -121,8 +123,18 @@ export default function AdminBugsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this bug report?")) return;
+  const handleDelete = async (id: string, bugTitle?: string) => {
+    const isConfirmed = await confirm({
+      title: "Delete Bug Report?",
+      message: bugTitle
+        ? `Are you sure you want to delete "${bugTitle}"? This action cannot be undone.`
+        : "Are you sure you want to delete this bug report? This action cannot be undone.",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      variant: "danger",
+    });
+    if (!isConfirmed) return;
+
     setActionLoadingId(id);
     try {
       await api.delete(`/bugs/admin/${id}`);
@@ -380,7 +392,7 @@ export default function AdminBugsPage() {
                     </select>
 
                     <button
-                      onClick={() => handleDelete(report.id)}
+                      onClick={() => handleDelete(report.id, report.bugName)}
                       disabled={actionLoadingId === report.id}
                       className="p-1.5 rounded-lg text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
                       title="Delete report"

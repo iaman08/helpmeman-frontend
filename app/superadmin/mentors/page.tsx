@@ -7,9 +7,11 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { InstitutionBadge } from "@/components/InstitutionBadge";
 import { MentorApplicationModal } from "@/components/MentorApplicationModal";
 import { Search, ChevronLeft, ChevronRight, CheckCircle, XCircle, Eye } from "lucide-react";
+import { useConfirm } from "@/components/ConfirmModal";
 import type { Mentor } from "@/lib/types";
 
 export default function SuperAdminMentorsPage() {
+  const confirm = useConfirm();
   const [mentors, setMentors] = useState<Mentor[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -48,7 +50,14 @@ export default function SuperAdminMentorsPage() {
   };
 
   const handleApprove = async (id: string) => {
-    if (!window.confirm("Approve this mentor?")) return;
+    const isConfirmed = await confirm({
+      title: "Approve Mentor?",
+      message: "Are you sure you want to approve this mentor application?",
+      confirmText: "Approve",
+      cancelText: "Cancel",
+      variant: "info",
+    });
+    if (!isConfirmed) return;
     try {
       await api.post(`/admin/mentors/${id}/approve`);
       fetchMentors();

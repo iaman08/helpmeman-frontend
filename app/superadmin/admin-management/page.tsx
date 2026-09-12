@@ -5,6 +5,7 @@ import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Search, Plus, Trash2, KeyRound, Ban, CheckCircle, Edit2, Eye, EyeOff } from "lucide-react";
+import { useConfirm } from "@/components/ConfirmModal";
 
 interface AdminUser {
   id: string;
@@ -17,6 +18,7 @@ interface AdminUser {
 }
 
 export default function SuperAdminManagementPage() {
+  const confirm = useConfirm();
   const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -75,7 +77,14 @@ export default function SuperAdminManagementPage() {
   const handleStatusToggle = async (id: string, currentStatus: string) => {
     try {
       const action = currentStatus === 'ACTIVE' ? 'disable' : 'enable';
-      if (!window.confirm(`Are you sure you want to ${action} this administrator?`)) return;
+      const isConfirmed = await confirm({
+        title: `${action === 'disable' ? 'Disable' : 'Enable'} Administrator?`,
+        message: `Are you sure you want to ${action} this administrator account?`,
+        confirmText: action === 'disable' ? 'Disable' : 'Enable',
+        cancelText: 'Cancel',
+        variant: action === 'disable' ? 'warning' : 'info',
+      });
+      if (!isConfirmed) return;
       
       await api.post(`/super-admin/admin-management/admins/${id}/${action}`);
       fetchAdmins();
@@ -85,7 +94,14 @@ export default function SuperAdminManagementPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm("CRITICAL WARNING: Are you sure you want to permanently delete this administrator? This action cannot be undone.")) return;
+    const isConfirmed = await confirm({
+      title: "Delete Administrator?",
+      message: "CRITICAL WARNING: Are you sure you want to permanently delete this administrator? This action cannot be undone.",
+      confirmText: "Delete Admin",
+      cancelText: "Cancel",
+      variant: "danger",
+    });
+    if (!isConfirmed) return;
     try {
       await api.delete(`/super-admin/admin-management/admins/${id}`);
       fetchAdmins();
@@ -95,7 +111,14 @@ export default function SuperAdminManagementPage() {
   };
 
   const handleResetPassword = async (id: string, name: string) => {
-    if (!window.confirm(`Reset password for ${name}?`)) return;
+    const isConfirmed = await confirm({
+      title: "Reset Password?",
+      message: `Are you sure you want to reset the password for ${name}?`,
+      confirmText: "Reset Password",
+      cancelText: "Cancel",
+      variant: "warning",
+    });
+    if (!isConfirmed) return;
     try {
       const res = await api.post(`/super-admin/admin-management/admins/${id}/reset-password`);
       setTempPassword({ name, password: res.data.temporaryPassword });

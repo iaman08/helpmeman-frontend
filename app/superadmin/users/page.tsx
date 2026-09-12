@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/Skeleton";
 import { StatusBadge } from "@/components/StatusBadge";
 import Link from "next/link";
 import { Search, ChevronLeft, ChevronRight, UserCog, PauseCircle, PlayCircle, AlertTriangle, X, ShieldOff, CheckCircle2, Clock, UserX, Trash2 } from "lucide-react";
+import { useConfirm } from "@/components/ConfirmModal";
 
 interface User {
   id: string;
@@ -50,6 +51,7 @@ function confirmBtnLabel(status: TargetStatus, updating: boolean) {
 }
 
 export default function SuperAdminUsersPage() {
+  const confirm = useConfirm();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -99,7 +101,14 @@ export default function SuperAdminUsersPage() {
   };
 
   const handleRoleChange = async (userId: string, newRole: string) => {
-    if (!window.confirm(`Are you sure you want to change this user's role to ${newRole}?`)) return;
+    const isConfirmed = await confirm({
+      title: "Change User Role?",
+      message: `Are you sure you want to change this user's role to ${newRole}?`,
+      confirmText: "Change Role",
+      cancelText: "Cancel",
+      variant: "warning",
+    });
+    if (!isConfirmed) return;
     
     try {
       await api.post(`/super-admin/users/${userId}/role`, { role: newRole });

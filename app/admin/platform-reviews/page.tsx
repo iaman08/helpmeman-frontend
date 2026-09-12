@@ -6,6 +6,7 @@ import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { useToast } from "@/components/Toast";
+import { useConfirm } from "@/components/ConfirmModal";
 
 interface PlatformReviewItem {
   id: string;
@@ -51,6 +52,7 @@ export default function AdminPlatformReviewsPage() {
   });
 
   const { toast } = useToast();
+  const confirm = useConfirm();
 
   const fetchReviews = useCallback((targetPage = 1) => {
     setLoading(true);
@@ -135,7 +137,14 @@ export default function AdminPlatformReviewsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to permanently delete this platform review?")) {
+    const isConfirmed = await confirm({
+      title: "Delete Platform Review?",
+      message: "Are you sure you want to permanently delete this platform review? This action cannot be undone.",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      variant: "danger",
+    });
+    if (!isConfirmed) {
       return;
     }
     setDeletingId(id);

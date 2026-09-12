@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import api from "@/lib/api";
 import { startRegistration, browserSupportsWebAuthn } from "@simplewebauthn/browser";
+import { useConfirm } from "@/components/ConfirmModal";
 
 interface PasskeyItem {
   id: string;
@@ -34,6 +35,7 @@ interface CredentialsResponse {
 }
 
 export default function PasskeyManagerCard() {
+  const confirm = useConfirm();
   const [passkeys, setPasskeys] = useState<PasskeyItem[]>([]);
   const [hasAuthenticatorApp, setHasAuthenticatorApp] = useState(false);
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
@@ -110,7 +112,14 @@ export default function PasskeyManagerCard() {
   };
 
   const handleDeletePasskey = async (id: string, name: string) => {
-    if (!window.confirm(`Are you sure you want to remove "${name}"? You will not be able to use it to sign in.`)) {
+    const isConfirmed = await confirm({
+      title: "Remove Passkey?",
+      message: `Are you sure you want to remove "${name}"? You will not be able to use it to sign in.`,
+      confirmText: "Remove",
+      cancelText: "Cancel",
+      variant: "danger",
+    });
+    if (!isConfirmed) {
       return;
     }
 

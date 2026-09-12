@@ -6,6 +6,7 @@ import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { useToast } from "@/components/Toast";
+import { useConfirm } from "@/components/ConfirmModal";
 
 interface AdminReviewItem {
   id: string;
@@ -37,6 +38,7 @@ export default function AdminReviewsPage() {
   const [ratingFilter, setRatingFilter] = useState<number | "ALL">("ALL");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const { toast } = useToast();
+  const confirm = useConfirm();
 
   const fetchReviews = () => {
     setLoading(true);
@@ -72,7 +74,14 @@ export default function AdminReviewsPage() {
   }, [reviews, search, ratingFilter]);
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this review? This action cannot be undone.")) {
+    const isConfirmed = await confirm({
+      title: "Delete Review?",
+      message: "Are you sure you want to delete this review? This action cannot be undone.",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      variant: "danger",
+    });
+    if (!isConfirmed) {
       return;
     }
     setDeletingId(id);

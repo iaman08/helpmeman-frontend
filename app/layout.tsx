@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/lib/auth-context";
 import { ToastProvider } from "@/components/Toast";
+import { ConfirmProvider } from "@/components/ConfirmModal";
 import { AIChatWidget } from "@/components/AIChatWidget";
 import { PushPermissionPrompt } from "@/components/PushPermissionPrompt";
 import GoogleAuthOverlay from "@/components/GoogleAuthOverlay";
@@ -124,15 +125,17 @@ export default function RootLayout({
               <CurrencyProvider>
                 <GoogleAuthOverlay />
                 <ToastProvider>
-                  <SocketProvider>
-                    {children}
-                    <AIChatWidget />
-                    <PushPermissionPrompt />
-                    <PlatformReviewTrigger />
-                    <FloatingEagleButton />
-                    <TawkToScript />
-                    <CookieConsentBanner />
-                  </SocketProvider>
+                  <ConfirmProvider>
+                    <SocketProvider>
+                      {children}
+                      <AIChatWidget />
+                      <PushPermissionPrompt />
+                      <PlatformReviewTrigger />
+                      <FloatingEagleButton />
+                      <TawkToScript />
+                      <CookieConsentBanner />
+                    </SocketProvider>
+                  </ConfirmProvider>
                 </ToastProvider>
               </CurrencyProvider>
             </AuthProvider>

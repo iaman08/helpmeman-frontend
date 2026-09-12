@@ -25,6 +25,7 @@ import {
 import { InstitutionBadge } from "@/components/InstitutionBadge";
 import { StatusBadge } from "@/components/StatusBadge";
 import api from "@/lib/api";
+import { useConfirm } from "@/components/ConfirmModal";
 import type { Mentor } from "@/lib/types";
 
 interface Props {
@@ -42,6 +43,7 @@ export function MentorApplicationModal({
   onApprove,
   onReject,
 }: Props) {
+  const confirm = useConfirm();
   const [activeTab, setActiveTab] = useState<"answers" | "profile" | "ai" | "docs">("answers");
   const [rejecting, setRejecting] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
@@ -64,7 +66,14 @@ export function MentorApplicationModal({
   const expertise = Array.isArray(mentor.expertise) ? mentor.expertise : [];
 
   const handleApprove = async () => {
-    if (!window.confirm(`Are you sure you want to approve ${displayName}?`)) return;
+    const isConfirmed = await confirm({
+      title: "Approve Mentor?",
+      message: `Are you sure you want to approve ${displayName}?`,
+      confirmText: "Approve",
+      cancelText: "Cancel",
+      variant: "info",
+    });
+    if (!isConfirmed) return;
     setActionLoading(true);
     try {
       if (onApprove) {

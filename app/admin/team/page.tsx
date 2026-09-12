@@ -28,6 +28,7 @@ import {
 import api from "@/lib/api";
 import getCroppedImg from "@/lib/cropImage";
 import { compressImage } from "@/lib/compressImage";
+import { useConfirm } from "@/components/ConfirmModal";
 
 const fetcher = (url: string) => api.get(url).then((res) => res.data);
 
@@ -89,6 +90,7 @@ const INITIAL_FORM = {
 };
 
 export default function AdminTeamPage() {
+  const confirm = useConfirm();
   const { data, error, isLoading } = useSWR("/team?active=all", fetcher);
   const members = useMemo(() => data?.members ?? [], [data]);
 
@@ -307,8 +309,17 @@ export default function AdminTeamPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to permanently delete this team member?")) return;
+  const handleDelete = async (id: string, memberName?: string) => {
+    const isConfirmed = await confirm({
+      title: "Delete Team Member?",
+      message: memberName
+        ? `Are you sure you want to permanently delete "${memberName}"? This action cannot be undone.`
+        : "Are you sure you want to permanently delete this team member? This action cannot be undone.",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      variant: "danger",
+    });
+    if (!isConfirmed) return;
     try {
       await api.delete(`/team/${id}`);
       mutate("/team?active=all");
@@ -460,7 +471,7 @@ export default function AdminTeamPage() {
                   <Archive className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => handleDelete(m.id)}
+                  onClick={() => handleDelete(m.id, m.name)}
                   className="p-1.5 rounded-lg hover:bg-red-500/5 text-[var(--muted)] hover:text-red-500 transition-all cursor-pointer"
                   title="Delete permanently"
                 >
