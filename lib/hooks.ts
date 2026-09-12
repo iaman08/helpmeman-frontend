@@ -148,12 +148,12 @@ export function useUnreadChatCount() {
   });
 }
 
-/* ─── Google Calendar Connection Status (mentor only) ─── */
+/* ─── Google Calendar Connection Status (mentor & privileged preview) ─── */
 export function useGoogleCalendarStatus() {
   const { user } = useAuth();
-  const isMentor = user?.role === "MENTOR";
-  const key = isMentor && user?.id ? ["/mentor/me/google/status", user.id] as [string, string] : null;
-  return useSWR<{ connected: boolean; timezone: string }>(key, fetcher, {
+  const canAccessMentor = user?.role === "MENTOR" || user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
+  const key = canAccessMentor && user?.id ? ["/mentor/me/google/status", user.id] as [string, string] : null;
+  return useSWR<{ connected: boolean; timezone: string; isAdminPreview?: boolean }>(key, fetcher, {
     revalidateOnFocus: false,
   });
 }

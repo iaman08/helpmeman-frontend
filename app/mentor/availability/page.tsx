@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { Clock, Plus, Trash2, AlertTriangle } from "lucide-react";
+import { Clock, Plus, Trash2, AlertTriangle, X } from "lucide-react";
 import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import type { Availability } from "@/lib/types";
 import { useGoogleCalendarStatus } from "@/lib/hooks";
+import { useToast } from "@/components/Toast";
+import { useSearchParams } from "next/navigation";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -14,8 +16,45 @@ export default function AvailabilityPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
-  const { data: calStatus } = useGoogleCalendarStatus();
+  const { data: calStatus, mutate: mutateCalStatus } = useGoogleCalendarStatus();
   const [connecting, setConnecting] = useState(false);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+  const { toast } = useToast();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setBannerDismissed(sessionStorage.getItem("hmm_cal_banner_dismissed") === "true");
+    }
+  }, []);
+
+  const handleDismissBanner = () => {
+    setBannerDismissed(true);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("hmm_cal_banner_dismissed", "true");
+    }
+  };
+
+  useEffect(() => {
+    const google = searchParams.get("google");
+    if (google === "connected") {
+      toast("Google Calendar connected successfully!", "success");
+      mutateCalStatus?.();
+      const url = new URL(window.location.href);
+      url.searchParams.delete("google");
+      window.history.replaceState({}, "", url.pathname + (url.search ? url.search : ""));
+    } else if (google === "denied") {
+      toast("Google Calendar access was denied.", "error");
+      const url = new URL(window.location.href);
+      url.searchParams.delete("google");
+      window.history.replaceState({}, "", url.pathname + (url.search ? url.search : ""));
+    } else if (google === "error") {
+      toast("Something went wrong connecting Google Calendar.", "error");
+      const url = new URL(window.location.href);
+      url.searchParams.delete("google");
+      window.history.replaceState({}, "", url.pathname + (url.search ? url.search : ""));
+    }
+  }, [searchParams, mutateCalStatus, toast]);
 
   // New slot form
   const [newDay, setNewDay] = useState(1);
@@ -62,29 +101,31 @@ export default function AvailabilityPage() {
       });
       setSlots(updated);
     } catch {
-      alert("Failed to remove.");
+      toast("Failed to remove slot.", "error");
     }
   }
 
   async function handleInstantConnect() {
     setConnecting(true);
     try {
-      const { data } = await api.get("/google/oauth/url");
+      const { data } = await api.get(`/google/oauth/url?returnPath=${encodeURIComponent("/mentor/availability")}`);
       window.location.href = data.url;
-    } catch {
-      alert("Failed to start Google authorization.");
+    } catch (e: any) {
+      const errorMsg = e?.response?.data?.error || "Failed to start Google authorization. Please try again.";
+      toast(errorMsg, "error");
       setConnecting(false);
     }
   }
 
   const calendarConnected = calStatus?.connected ?? false;
+  const showBanner = !calendarConnected && !loading && !calStatus?.isAdminPreview && !bannerDismissed;
 
   return (
     <div className="flex flex-col gap-8">
       {/* Google Calendar Warning Banner */}
-      {!calendarConnected && (
+      {showBanner && (
         <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs">
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-3 pr-6 md:pr-0">
             <div className="p-2 bg-amber-500/20 rounded-xl text-amber-600 shrink-0">
               <AlertTriangle size={20} />
             </div>
@@ -95,14 +136,24 @@ export default function AvailabilityPage() {
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={handleInstantConnect}
-            disabled={connecting}
-            className="w-full md:w-auto bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs px-5 py-2.5 rounded-xl transition-all cursor-pointer shadow shrink-0 disabled:opacity-50"
-          >
-            {connecting ? "Connecting…" : "Connect Calendar Now"}
-          </button>
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            <button
+              type="button"
+              onClick={handleInstantConnect}
+              disabled={connecting}
+              className="flex-1 md:flex-initial bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs px-5 py-2.5 rounded-xl transition-all cursor-pointer shadow shrink-0 disabled:opacity-50"
+            >
+              {connecting ? "Connecting…" : "Connect Calendar Now"}
+            </button>
+            <button
+              type="button"
+              onClick={handleDismissBanner}
+              aria-label="Dismiss banner"
+              className="p-2 rounded-xl text-amber-600/70 hover:text-amber-600 hover:bg-amber-500/20 transition-colors cursor-pointer shrink-0"
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
       )}
 

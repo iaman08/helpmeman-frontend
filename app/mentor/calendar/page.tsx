@@ -57,20 +57,30 @@ export default function MentorCalendarPage() {
     if (google === "connected") {
       toast("Google Calendar connected successfully! ✅", "success");
       mutateStatus();
+      const url = new URL(window.location.href);
+      url.searchParams.delete("google");
+      window.history.replaceState({}, "", url.pathname + (url.search ? url.search : ""));
     } else if (google === "denied") {
       toast("Google Calendar access was denied.", "error");
+      const url = new URL(window.location.href);
+      url.searchParams.delete("google");
+      window.history.replaceState({}, "", url.pathname + (url.search ? url.search : ""));
     } else if (google === "error") {
       toast("Something went wrong connecting Google Calendar.", "error");
+      const url = new URL(window.location.href);
+      url.searchParams.delete("google");
+      window.history.replaceState({}, "", url.pathname + (url.search ? url.search : ""));
     }
   }, [searchParams, mutateStatus, toast]);
 
   async function handleConnect() {
     setConnecting(true);
     try {
-      const { data } = await api.get("/google/oauth/url");
+      const { data } = await api.get(`/google/oauth/url?returnPath=${encodeURIComponent("/mentor/calendar")}`);
       window.location.href = data.url;
-    } catch {
-      toast("Failed to start Google authorization.", "error");
+    } catch (e: any) {
+      const msg = e?.response?.data?.error || "Failed to start Google authorization.";
+      toast(msg, "error");
       setConnecting(false);
     }
   }
