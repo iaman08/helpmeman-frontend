@@ -11,7 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
-import api from "./api";
+import api, { setAuthCookies, clearAuthCookies } from "./api";
 import { mutate } from "swr";
 import type { AuthResponse, User, OTPResponse } from "./types";
 import supabase from "./supabase";
@@ -103,13 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } else {
       localStorage.removeItem(KEYS.mentor);
     }
-    try {
-      const isHttps = typeof window !== "undefined" && window.location.protocol === "https:";
-      const secureFlag = isHttps ? ";Secure" : "";
-      document.cookie = `helpmeman.accessToken=${data.accessToken};path=/;max-age=31536000;SameSite=Lax${secureFlag}`;
-      // Role cookie — read by the middleware to redirect instantly without JS
-      document.cookie = `helpmeman.role=${data.user.role};path=/;max-age=31536000;SameSite=Lax${secureFlag}`;
-    } catch {}
+    setAuthCookies(data.accessToken, data.user.role);
     setUser(data.user);
     setMentor(data.mentor ?? null);
     const dest = getLoginDest(data.user, data.mentor ?? null);
@@ -201,6 +195,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const parsedUser = JSON.parse(storedUser);
           setUser(parsedUser);
           if (storedMentor) setMentor(JSON.parse(storedMentor));
+          setAuthCookies(token, parsedUser.role);
         }
       } catch { /* corrupted storage */ }
 
@@ -420,13 +415,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try { mutate(() => true, undefined, { revalidate: false }); } catch {}
     localStorage.clear();
     sessionStorage.clear();
-    try {
-      document.cookie.split(";").forEach((cookie) => {
-        const eqPos = cookie.indexOf("=");
-        const name = eqPos > -1 ? cookie.slice(0, eqPos).trim() : cookie.trim();
-        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-      });
-    } catch {}
+    clearAuthCookies();
     setUser(null);
     setMentor(null);
     window.location.replace("/");

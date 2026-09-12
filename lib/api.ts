@@ -45,6 +45,44 @@ export function registerApiLoader(
   stopLoaderCallback = stop;
 }
 
+export function getCookieDomain(): string {
+  if (typeof window === "undefined") return "";
+  const hostname = window.location.hostname;
+  if (hostname.endsWith("helpmeman.com")) {
+    return ";domain=.helpmeman.com";
+  }
+  return "";
+}
+
+export function setAuthCookies(accessToken: string, role?: string) {
+  if (typeof window === "undefined") return;
+  try {
+    const isHttps = window.location.protocol === "https:";
+    const secureFlag = isHttps ? ";Secure" : "";
+    const domainFlag = getCookieDomain();
+
+    document.cookie = `helpmeman.accessToken=${accessToken};path=/;max-age=31536000;SameSite=Lax${secureFlag}${domainFlag}`;
+    if (role) {
+      document.cookie = `helpmeman.role=${role};path=/;max-age=31536000;SameSite=Lax${secureFlag}${domainFlag}`;
+    }
+  } catch {}
+}
+
+export function clearAuthCookies() {
+  if (typeof window === "undefined") return;
+  try {
+    const domainFlag = getCookieDomain();
+    document.cookie.split(";").forEach((cookie) => {
+      const eqPos = cookie.indexOf("=");
+      const name = eqPos > -1 ? cookie.slice(0, eqPos).trim() : cookie.trim();
+      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+      if (domainFlag) {
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/${domainFlag}`;
+      }
+    });
+  } catch {}
+}
+
 /* ─── Request interceptor: attach token & dynamic baseURL ─── */
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const showLoader = config.headers?.["x-show-loader"] === "true";
@@ -93,29 +131,14 @@ api.interceptors.response.use(
     return res;
   },
   async (error: AxiosError) => {
-    // Detailed Axios Error Diagnostics
-    if (typeof window !== "undefined") {
-      const isNetworkError = !error.response;
-      const isTimeout = error.code === "ECONNABORTED" || error.message?.toLowerCase().includes("timeout");
+    if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
       const url = (error.config?.baseURL || "") + (error.config?.url || "");
       const method = error.config?.method?.toUpperCase() || "UNKNOWN";
-      
       console.groupCollapsed(`🚨 [API Error] ${method} ${url}`);
       console.error(`Error Message: ${error.message}`);
-      console.error(`Error Code: ${error.code || "N/A"}`);
-      console.log("Axios Config:", error.config);
-      
       if (error.response) {
         console.error(`Status Code: ${error.response.status}`);
-        console.log("Response Headers:", error.response.headers);
         console.log("Response Body:", error.response.data);
-      } else if (isTimeout) {
-        console.error("Diagnosis: Request Timed Out. The server took too long to respond.");
-      } else if (isNetworkError) {
-        console.error("Diagnosis: Network Error. Possible causes:\n" +
-          "1. DNS resolution failure (e.g., net::ERR_NAME_NOT_RESOLVED)\n" +
-          "2. Backend server is completely offline / unreachable\n" +
-          "3. CORS policy blocked the request (Preflight failed or disallowed origin)");
       }
       console.groupEnd();
     }
@@ -140,16 +163,14 @@ api.interceptors.response.use(
     ) {
       const refreshToken = localStorage.getItem("helpmeman.refreshToken");
       if (!refreshToken) {
+        const isOffline = typeof navigator !== "undefined" && !navigator.onLine;
+        if (isOffline) {
+          return Promise.reject(error);
+        }
         // No refresh token — clear session and redirect to landing
         localStorage.clear();
         sessionStorage.clear();
-        try {
-          document.cookie.split(";").forEach((cookie) => {
-            const eqPos = cookie.indexOf("=");
-            const name = eqPos > -1 ? cookie.slice(0, eqPos).trim() : cookie.trim();
-            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-          });
-        } catch {}
+        clearAuthCookies();
         window.location.replace("/");
         return Promise.reject(error);
       }
@@ -182,27 +203,23 @@ api.interceptors.response.use(
         if (data.refreshToken) {
           localStorage.setItem("helpmeman.refreshToken", data.refreshToken);
         }
-        const isHttps = typeof window !== "undefined" && window.location.protocol === "https:";
-        const secureFlag = isHttps ? ";Secure" : "";
-        document.cookie = `helpmeman.accessToken=${newToken};path=/;max-age=31536000;SameSite=Lax${secureFlag}`;
+        setAuthCookies(newToken);
         processQueue(null, newToken);
 
         if (original.headers) {
           original.headers.Authorization = `Bearer ${newToken}`;
         }
         return api(original);
-      } catch (refreshError) {
+      } catch (refreshError: any) {
         processQueue(refreshError, null);
-        localStorage.clear();
-        sessionStorage.clear();
-        try {
-          document.cookie.split(";").forEach((cookie) => {
-            const eqPos = cookie.indexOf("=");
-            const name = eqPos > -1 ? cookie.slice(0, eqPos).trim() : cookie.trim();
-            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-          });
-        } catch {}
-        window.location.replace("/");
+        // Only wipe credentials if the server explicitly rejected the refresh token with a 401.
+        // If the server is restarting/deploying (502, 503, network error), DO NOT clear session!
+        if (refreshError?.response?.status === 401) {
+          localStorage.clear();
+          sessionStorage.clear();
+          clearAuthCookies();
+          window.location.replace("/");
+        }
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
