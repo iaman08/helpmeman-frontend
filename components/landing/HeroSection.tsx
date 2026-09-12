@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { motion } from "motion/react";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/lib/auth-context";
 import { LogoStack } from "./LogoStack";
 const TYPED_WORDS = [
   "Fitness",
@@ -17,9 +18,22 @@ const TYPED_WORDS = [
 ];
 
 export function HeroSection() {
+  const { user, mentor, loading } = useAuth();
   const [wordIndex, setWordIndex] = useState(0);
   const [currentText, setCurrentText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const dashboardPath = user
+    ? user.role === "SUPER_ADMIN"
+      ? "/superadmin"
+      : user.role === "ADMIN"
+      ? "/admin"
+      : user.role === "MENTOR" && mentor
+      ? mentor.approvalStatus === "APPROVED"
+        ? "/mentor"
+        : "/mentor/status"
+      : "/dashboard"
+    : null;
 
   useEffect(() => {
     const currentFullWord = TYPED_WORDS[wordIndex];
@@ -98,12 +112,22 @@ export function HeroSection() {
           transition={{ duration: 0.7, delay: 0.24, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="mt-7 md:mt-9 flex flex-col sm:flex-row items-center justify-center gap-3"
         >
-          <Link
-            href="/?auth=signup"
-            className="inline-flex items-center justify-center px-7 py-3.5 bg-[#09090B] dark:bg-white text-white dark:text-[#09090B] text-[15px] font-semibold rounded-full hover:bg-neutral-800 dark:hover:bg-neutral-100 active:scale-[0.98] transition-all no-underline shadow-sm cursor-pointer"
-          >
-            Join for free
-          </Link>
+          {!loading && dashboardPath ? (
+            <Link
+              href={dashboardPath}
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-[#09090B] dark:bg-white text-white dark:text-[#09090B] text-[15px] font-semibold rounded-full hover:bg-neutral-800 dark:hover:bg-neutral-100 active:scale-[0.98] transition-all no-underline shadow-sm cursor-pointer"
+            >
+              <span>Go to Dashboard</span>
+              <ArrowRight size={15} strokeWidth={2.2} />
+            </Link>
+          ) : (
+            <Link
+              href="/?auth=signup"
+              className="inline-flex items-center justify-center px-7 py-3.5 bg-[#09090B] dark:bg-white text-white dark:text-[#09090B] text-[15px] font-semibold rounded-full hover:bg-neutral-800 dark:hover:bg-neutral-100 active:scale-[0.98] transition-all no-underline shadow-sm cursor-pointer"
+            >
+              Join for free
+            </Link>
+          )}
           <Link
             href="/mentors"
             className="inline-flex items-center justify-center gap-1.5 px-6 py-3.5 bg-white dark:bg-[#18181B] text-[var(--fg)] text-[15px] font-semibold rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/80 active:scale-[0.98] transition-all no-underline shadow-sm cursor-pointer"

@@ -27,14 +27,14 @@ export function FinalCTASection() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
-              href="/?auth=signup"
+              href="/mentors"
               className="px-8 py-4 bg-[#2563EB] text-white rounded-xl text-[14px] font-medium transition-all duration-200 hover:bg-[#1D4ED8] active:scale-[0.98] inline-flex items-center gap-2 group shadow-sm shadow-[#2563EB]/10 no-underline"
             >
               Find My Mentor
               <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
             </Link>
             <Link
-              href="/?auth=signup"
+              href="/mentors"
               className="px-8 py-4 border border-[#E5E7EB] dark:border-[#27272A] text-[#111111] dark:text-white hover:border-[#CCCCCC] dark:hover:border-[#3F3F46] rounded-xl text-[14px] font-medium transition-all duration-200 active:scale-[0.98] hover:bg-[#F9FAFB] dark:hover:bg-[#18181B] no-underline"
             >
               Browse Mentors

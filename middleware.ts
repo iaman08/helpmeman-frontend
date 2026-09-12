@@ -14,18 +14,6 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get("helpmeman.accessToken")?.value;
   const { pathname } = request.nextUrl;
 
-  // ── Authenticated user hitting the landing page ──────────────────────────
-  // Redirect instantly at the edge — no React, no flash, no delay.
-  if (pathname === "/" && token) {
-    const url = request.nextUrl.clone();
-    url.pathname = getDashboardDest(request);
-    const response = NextResponse.redirect(url);
-    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
-    response.headers.set("Pragma", "no-cache");
-    response.headers.set("Expires", "0");
-    return response;
-  }
-
   // ── Protected routes: redirect unauthenticated users to signin ────────────
   const protectedPaths = ["/dashboard", "/mentor", "/admin", "/superadmin", "/onboarding"];
   const isProtected = protectedPaths.some(
@@ -55,7 +43,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/",
     "/dashboard/:path*",
     "/mentor/:path*",
     "/admin/:path*",

@@ -154,7 +154,7 @@ export function LandingNavbar() {
                 </button>
               ))}
             </div>
-            {!isLoggedIn && (
+            {!isLoggedIn ? (
               <div className="border-t border-[var(--hairline)] mt-2 pt-3 flex gap-2">
                 <Link
                   href="/?auth=signin"
@@ -167,6 +167,15 @@ export function LandingNavbar() {
                   className="flex-1 text-center py-2.5 text-[14px] font-semibold text-white dark:text-black bg-[#141414] dark:bg-[#f4f4f5] rounded-xl no-underline"
                 >
                   Join for free
+                </Link>
+              </div>
+            ) : (
+              <div className="border-t border-[var(--hairline)] mt-2 pt-3 flex">
+                <Link
+                  href={dashboardPath}
+                  className="flex-1 text-center py-2.5 text-[14px] font-semibold text-white dark:text-black bg-[#141414] dark:bg-[#f4f4f5] rounded-xl no-underline shadow-sm"
+                >
+                  Go to Dashboard
                 </Link>
               </div>
             )}
