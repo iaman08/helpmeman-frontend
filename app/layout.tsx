@@ -15,7 +15,6 @@ import { PublicThemeManager } from "@/components/PublicThemeManager";
 
 import { SocketProvider } from "@/lib/socket-context";
 import { PlatformReviewTrigger } from "@/components/PlatformReviewTrigger";
-import { FloatingEagleButton } from "@/components/FloatingEagleButton";
 import { TawkToScript } from "@/components/TawkToScript";
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 
@@ -131,7 +130,6 @@ export default function RootLayout({
                       <AIChatWidget />
                       <PushPermissionPrompt />
                       <PlatformReviewTrigger />
-                      <FloatingEagleButton />
                       <TawkToScript />
                       <CookieConsentBanner />
                     </SocketProvider>

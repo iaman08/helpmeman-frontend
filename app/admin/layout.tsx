@@ -14,7 +14,6 @@ import {
   UserCog,
   ShieldAlert,
   ShieldCheck,
-  Bug,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { SidebarShell } from "@/components/SidebarShell";
@@ -28,7 +27,6 @@ const BASE_NAV = [
   { href: "/admin/approvals", label: "Approvals", icon: UserCheck },
   { href: "/admin/mentors", label: "All Mentors", icon: Users },
   { href: "/admin/users", label: "Users", icon: Users },
-  { href: "/admin/bugs", label: "Bug Reports", icon: Bug },
   { href: "/admin/team", label: "Team Management", icon: UserCog },
   { href: "/admin/bookings", label: "Bookings", icon: CalendarCheck },
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
@@ -118,9 +116,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const navItems = useMemo(() => {
     const items = isSuperAdmin
       ? [
-          ...BASE_NAV.slice(0, 5),
+          ...BASE_NAV.slice(0, 4),
           { href: "/admin/audit-logs", label: "Audit Logs", icon: ShieldAlert },
-          ...BASE_NAV.slice(5),
+          ...BASE_NAV.slice(4),
         ]
       : [...BASE_NAV];
 
