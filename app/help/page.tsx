@@ -294,123 +294,126 @@ export default function HelpPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)]">
-      {/* ── Navbar ── */}
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[var(--bg)]/80 border-b border-[var(--hairline)]">
-        <nav className="mx-auto flex max-w-[1100px] items-center justify-between px-6 sm:px-10 py-4">
-          <Link href="/" className="font-bold text-lg tracking-tight text-[var(--fg)] flex items-center gap-2 select-none">
-            <img src="/logo.svg" alt="HelpMeMan Logo" className="w-6 h-6 object-contain" />
-            <span>HelpMeMan</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/signin" className="text-sm text-[var(--muted)] hover:text-[var(--fg)] transition-colors">
-              Sign in
+    <div className="landing-page min-h-screen flex flex-col" style={{ background: '#0B0B0C' }}>
+      <div
+        className="relative z-10 flex-1 rounded-b-[40px] md:rounded-b-[48px] shadow-[0_20px_60px_rgba(0,0,0,0.10)] border-b border-[var(--hairline)] overflow-hidden flex flex-col"
+        style={{ background: 'var(--bg)' }}
+      >
+        {/* ── Navbar ── */}
+        <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[var(--bg)]/80 border-b border-[var(--hairline)]">
+          <nav className="mx-auto flex max-w-[1100px] items-center justify-between px-6 sm:px-10 py-4">
+            <Link href="/" className="font-bold text-lg tracking-tight text-[var(--fg)] flex items-center gap-2 select-none">
+              <img src="/logo.svg" alt="HelpMeMan Logo" className="w-6 h-6 object-contain" />
+              <span>HelpMeMan</span>
             </Link>
-            <Link
-              href="/"
-              className="text-sm text-[var(--muted)] hover:text-[var(--fg)] transition-colors flex items-center gap-1"
-            >
-              ← Home
-            </Link>
-          </div>
-        </nav>
-      </header>
-
-      <main className="flex-1 mx-auto max-w-[1100px] w-full px-6 sm:px-10 pt-28 pb-20">
-        {/* ── Hero ── */}
-        <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-4 py-1.5 mb-6">
-            <HelpCircle className="h-3.5 w-3.5 text-zinc-500" />
-            <span className="text-xs font-semibold text-zinc-600 uppercase tracking-wider">Support & Guidelines</span>
-          </div>
-          <h1 className="font-bold text-4xl sm:text-5xl text-zinc-900 tracking-tight mb-4">
-            How can we help?
-          </h1>
-          <p className="text-zinc-600 text-base max-w-xl mx-auto leading-relaxed">
-            Everything you need to know about HelpMeMan — for mentors and students alike.
-            Can't find your answer?{" "}
-            <a href="mailto:support@helpmeman.com" className="text-zinc-900 hover:text-zinc-700 underline font-semibold">
-              Email us →
-            </a>
-          </p>
-        </div>
-
-        {/* ── Category Quick Nav ── */}
-        <div className="flex flex-wrap gap-2 justify-center mb-14">
-          {CATEGORIES.map((cat) => {
-            const Icon = cat.icon;
-            const isActive = activeCategory === cat.id;
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => scrollTo(cat.id)}
-                className="flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-all duration-200 cursor-pointer"
-                style={{
-                  borderColor: isActive ? cat.color : "#e4e4e7",
-                  background: isActive ? cat.bg : "#f4f4f5",
-                  color: isActive ? cat.color : "#52525b",
-                }}
+            <div className="flex items-center gap-4">
+              <Link href="/signin" className="text-sm text-[var(--muted)] hover:text-[var(--fg)] transition-colors">
+                Sign in
+              </Link>
+              <Link
+                href="/"
+                className="text-sm text-[var(--muted)] hover:text-[var(--fg)] transition-colors flex items-center gap-1"
               >
-                <Icon className="h-3.5 w-3.5" />
-                {cat.label}
+                ← Home
+              </Link>
+            </div>
+          </nav>
+        </header>
+
+        <main className="flex-1 mx-auto max-w-[1100px] w-full px-6 sm:px-10 pt-28 pb-20">
+          {/* ── Hero ── */}
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-4 py-1.5 mb-6">
+              <HelpCircle className="h-3.5 w-3.5 text-zinc-500" />
+              <span className="text-xs font-semibold text-zinc-600 uppercase tracking-wider">Support & Guidelines</span>
+            </div>
+            <h1 className="font-bold text-4xl sm:text-5xl text-zinc-900 tracking-tight mb-4 font-display">
+              How can we help?
+            </h1>
+            <p className="text-zinc-600 text-base max-w-xl mx-auto leading-relaxed">
+              Everything you need to know about HelpMeMan — for mentors and students alike.
+              Can&apos;t find your answer?{" "}
+              <a href="mailto:support@helpmeman.com" className="text-zinc-900 hover:text-zinc-700 underline font-semibold">
+                Email us →
+              </a>
+            </p>
+          </div>
+
+          {/* ── Category Quick Nav ── */}
+          <div className="flex flex-wrap gap-2 justify-center mb-14">
+            {CATEGORIES.map((cat) => {
+              const Icon = cat.icon;
+              const isActive = activeCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => scrollTo(cat.id)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-all duration-200 cursor-pointer"
+                  style={{
+                    borderColor: isActive ? cat.color : "#e4e4e7",
+                    background: isActive ? cat.bg : "#f4f4f5",
+                    color: isActive ? cat.color : "#52525b",
+                  }}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {cat.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* ── FAQ Sections ── */}
+          <div className="flex flex-col gap-12">
+            {CATEGORIES.map((cat, i) => (
+              <CategorySection key={cat.id} category={cat} defaultOpen={i === 0} />
+            ))}
+          </div>
+
+          {/* ── Still need help CTA ── */}
+          <div className="mt-16 rounded-2xl border border-zinc-200 bg-zinc-50 p-8 sm:p-12 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-900 text-white mb-4">
+              <MessageCircle className="h-6 w-6" />
+            </div>
+            <h2 className="font-bold text-xl text-zinc-900 mb-2">Still have questions?</h2>
+            <p className="text-sm text-zinc-600 max-w-md mx-auto mb-6 leading-relaxed">
+              Our support team is always here to help. Reach out to us directly or chat with Ruth AI on the platform.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <a
+                href="mailto:support@helpmeman.com"
+                className="inline-flex items-center gap-2 rounded-full bg-zinc-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors"
+              >
+                Contact Support
+                <ArrowRight className="h-4 w-4" />
+              </a>
+              <Link
+                href="/?auth=signin"
+                className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-6 py-2.5 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 transition-colors"
+              >
+                <Sparkles className="h-4 w-4 text-purple-600" />
+                Ask Ruth AI
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    window.dispatchEvent(new CustomEvent("open-platform-review-modal"));
+                  }
+                }}
+                className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-6 py-2.5 text-sm font-semibold text-amber-500 hover:bg-amber-500/20 transition-colors cursor-pointer"
+              >
+                <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
+                Give Feedback
               </button>
-            );
-          })}
-        </div>
-
-        {/* ── FAQ Sections ── */}
-        <div className="flex flex-col gap-12">
-          {CATEGORIES.map((cat, i) => (
-            <CategorySection key={cat.id} category={cat} defaultOpen={i === 0} />
-          ))}
-        </div>
-
-        {/* ── Still need help CTA ── */}
-        <div
-          className="mt-16 rounded-3xl border border-zinc-200 p-8 sm:p-12 text-center bg-zinc-50"
-          style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(0,0,0,0.02) 0%, transparent 70%)" }}
-        >
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <MessageCircle className="h-5 w-5 text-zinc-500" />
-            <span className="text-xs uppercase tracking-[0.2em] text-zinc-500 font-semibold">Still need help?</span>
+            </div>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 mb-3">
-            We're here for you.
-          </h2>
-          <p className="text-zinc-600 text-sm leading-relaxed mb-8 max-w-md mx-auto">
-            Our support team replies within 24 hours on business days. You can also ask Ruth AI — she's available 24/7 inside the platform.
-          </p>
-          <div className="flex flex-wrap gap-3 justify-center">
-            <a
-              href="mailto:support@helpmeman.com"
-              className="inline-flex items-center gap-2 rounded-full bg-zinc-900 text-white text-sm font-semibold px-6 py-3 hover:bg-zinc-800 transition-colors shadow-sm"
-            >
-              Email Support <ArrowRight className="h-4 w-4" />
-            </a>
-            <Link
-              href="/signin"
-              className="inline-flex items-center gap-2 rounded-full border border-zinc-300 text-zinc-700 text-sm font-semibold px-6 py-3 hover:bg-zinc-50 transition-colors"
-            >
-              <Sparkles className="h-4 w-4 text-pink-500" />
-              Ask Ruth AI
-            </Link>
-            <button
-              onClick={() => {
-                if (typeof window !== "undefined") {
-                  window.dispatchEvent(new Event("open-platform-review-modal"));
-                }
-              }}
-              className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 text-amber-800 bg-amber-50 text-sm font-semibold px-6 py-3 hover:bg-amber-100 transition-colors shadow-xs cursor-pointer"
-            >
-              <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
-              Give Feedback
-            </button>
-          </div>
-        </div>
-      </main>
+        </main>
+      </div>
 
-      <FooterSection />
+      <div className="sticky bottom-0 z-0">
+        <FooterSection />
+      </div>
     </div>
   );
 }

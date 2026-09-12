@@ -275,8 +275,12 @@ export default function AptitudeTestPage() {
   };
 
   return (
-    <div className="landing-page min-h-screen flex flex-col bg-[#0B0B0C] text-[var(--fg)]">
-      <LandingNavbar />
+    <div className="landing-page min-h-screen flex flex-col" style={{ background: "#0B0B0C" }}>
+      <div
+        className="relative z-10 flex-1 rounded-b-[40px] md:rounded-b-[48px] shadow-[0_20px_60px_rgba(0,0,0,0.50)] border-b border-[#27272A] overflow-hidden flex flex-col"
+        style={{ background: "#0B0B0C" }}
+      >
+        <LandingNavbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         {/* ─────────────────────────────────────────────────────────────────
@@ -738,8 +742,11 @@ export default function AptitudeTestPage() {
           </div>
         </div>
       )}
+    </div>
 
-      <FooterSection />
+      <div className="sticky bottom-0 z-0">
+        <FooterSection />
+      </div>
     </div>
   );
 }

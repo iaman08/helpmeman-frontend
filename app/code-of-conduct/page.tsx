@@ -12,7 +12,10 @@ export default function CodeOfConductPage() {
   });
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-[#0A0A0B] text-gray-900 dark:text-zinc-100 transition-colors duration-300">
+    <div className="landing-page min-h-screen flex flex-col" style={{ background: "#0B0B0C" }}>
+      <div
+        className="relative z-10 flex-1 rounded-b-[40px] md:rounded-b-[48px] shadow-[0_20px_60px_rgba(0,0,0,0.10)] border-b border-gray-200/80 dark:border-zinc-800/80 overflow-hidden flex flex-col bg-gray-50 dark:bg-[#0A0A0B] text-gray-900 dark:text-zinc-100 transition-colors duration-300"
+      >
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/80 dark:bg-[#0A0A0B]/80 border-b border-gray-200/80 dark:border-zinc-800/80">
         <nav className="mx-auto flex max-w-[1100px] items-center justify-between px-6 sm:px-10 py-4">
@@ -482,8 +485,11 @@ export default function CodeOfConductPage() {
         </div>
       </main>
 
-      {/* Footer */}
-      <FooterSection />
+      </div>
+
+      <div className="sticky bottom-0 z-0">
+        <FooterSection />
+      </div>
     </div>
   );
 }

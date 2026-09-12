@@ -734,20 +734,23 @@ export default function TermsPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-zinc-900">
+    <div className="landing-page min-h-screen flex flex-col" style={{ background: "#0B0B0C" }}>
       <style>{`
         .terms-toc-sidebar::-webkit-scrollbar { width: 3px; }
         .terms-toc-sidebar::-webkit-scrollbar-track { background: transparent; }
         .terms-toc-sidebar::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 99px; }
       `}</style>
 
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/80 border-b border-zinc-200">
-        <nav className="mx-auto flex max-w-[1200px] items-center justify-between px-6 sm:px-10 py-4">
-          <Link
-            href="/"
-            className="font-bold text-xl tracking-tight text-zinc-900 flex items-center gap-2 select-none"
-          >
+      <div
+        className="relative z-10 flex-1 rounded-b-[40px] md:rounded-b-[48px] shadow-[0_20px_60px_rgba(0,0,0,0.10)] border-b border-zinc-200 overflow-hidden flex flex-col bg-white text-zinc-900"
+      >
+        {/* Header */}
+        <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/80 border-b border-zinc-200">
+          <nav className="mx-auto flex max-w-[1200px] items-center justify-between px-6 sm:px-10 py-4">
+            <Link
+              href="/"
+              className="font-bold text-xl tracking-tight text-zinc-900 flex items-center gap-2 select-none"
+            >
             <img
               src="/logo.svg"
               alt="HelpMeMan Logo"
@@ -1006,8 +1009,11 @@ export default function TermsPage() {
           </main>
         </div>
       </div>
+    </div>
 
+    <div className="sticky bottom-0 z-0">
       <FooterSection />
     </div>
-  );
+  </div>
+);
 }

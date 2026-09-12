@@ -5,6 +5,7 @@ import { CheckCircle2, MapPin, Calendar, Globe, Mail, Briefcase, GraduationCap, 
 import { FaLinkedin, FaGithub, FaTwitter } from "react-icons/fa";
 import { API_BASE } from "@/lib/api";
 import { Navbar } from "@/components/Navbar";
+import { FooterSection } from "@/components/landing/FooterSection";
 
 interface PageProps {
   params: Promise<{ username: string }>;
@@ -60,20 +61,27 @@ export default async function TeamMemberPage({ params }: PageProps) {
 
   if (!member) {
     return (
-      <div className="min-h-screen flex flex-col bg-bg text-fg">
-        <Navbar />
-        <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-          <h1 className="font-serif text-3xl font-bold">Profile Not Found</h1>
-          <p className="text-sm text-[var()] mt-2 max-w-sm">
-            We couldn't find a team member with the username <code className="bg-[var()]/5 px-1.5 py-0.5 rounded font-mono">@{username}</code>.
-          </p>
-          <Link
-            href="/team"
-            className="mt-6 px-5 py-2 rounded-full bg-[var()] text-[var()] text-sm font-semibold hover:opacity-90 transition-opacity no-underline"
-          >
-            ← Back to Team Directory
-          </Link>
-        </main>
+      <div className="landing-page min-h-screen flex flex-col" style={{ background: "#0B0B0C" }}>
+        <div
+          className="relative z-10 flex-1 rounded-b-[40px] md:rounded-b-[48px] shadow-[0_20px_60px_rgba(0,0,0,0.10)] border-b border-zinc-200 overflow-hidden flex flex-col bg-white text-zinc-900"
+        >
+          <Navbar />
+          <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+            <h1 className="font-serif text-3xl font-bold">Profile Not Found</h1>
+            <p className="text-sm text-zinc-500 mt-2 max-w-sm">
+              We couldn&apos;t find a team member with the username <code className="bg-zinc-100 px-1.5 py-0.5 rounded font-mono">@{username}</code>.
+            </p>
+            <Link
+              href="/team"
+              className="mt-6 px-5 py-2 rounded-full bg-zinc-900 text-white text-sm font-semibold hover:opacity-90 transition-opacity no-underline"
+            >
+              ← Back to Team Directory
+            </Link>
+          </main>
+        </div>
+        <div className="sticky bottom-0 z-0">
+          <FooterSection />
+        </div>
       </div>
     );
   }
@@ -111,8 +119,11 @@ export default async function TeamMemberPage({ params }: PageProps) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-bg text-fg">
-      <Navbar />
+    <div className="landing-page min-h-screen flex flex-col" style={{ background: "#0B0B0C" }}>
+      <div
+        className="relative z-10 flex-1 rounded-b-[40px] md:rounded-b-[48px] shadow-[0_20px_60px_rgba(0,0,0,0.10)] border-b border-zinc-200 overflow-hidden flex flex-col bg-white text-zinc-900"
+      >
+        <Navbar />
 
       {/* JSON-LD Script */}
       <script
@@ -352,6 +363,11 @@ export default async function TeamMemberPage({ params }: PageProps) {
           </div>
         </div>
       </main>
+      </div>
+
+      <div className="sticky bottom-0 z-0">
+        <FooterSection />
+      </div>
     </div>
   );
 }

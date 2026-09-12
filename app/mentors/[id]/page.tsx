@@ -33,6 +33,7 @@ import { useMentor, useMentorReviews, useUnreadChatCount } from "@/lib/hooks";
 import { useAuth } from "@/lib/auth-context";
 import { SidebarShell } from "@/components/SidebarShell";
 import { Navbar } from "@/components/Navbar";
+import { FooterSection } from "@/components/landing/FooterSection";
 import { InstitutionBadge } from "@/components/InstitutionBadge";
 import { Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
@@ -551,9 +552,16 @@ export default function MentorProfilePage() {
   }
 
   return (
-    <div className="min-h-screen">
-      <Navbar />
-      <main>{content}</main>
+    <div className="landing-page min-h-screen flex flex-col" style={{ background: "#0B0B0C" }}>
+      <div
+        className="relative z-10 flex-1 rounded-b-[40px] md:rounded-b-[48px] shadow-[0_20px_60px_rgba(0,0,0,0.10)] border-b border-[var(--hairline)] overflow-hidden flex flex-col bg-[var(--bg)]"
+      >
+        <Navbar />
+        <main className="flex-1">{content}</main>
+      </div>
+      <div className="sticky bottom-0 z-0">
+        <FooterSection />
+      </div>
     </div>
   );
 }

@@ -11,7 +11,10 @@ export default function MentorTermsPage() {
   });
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)]">
+    <div className="landing-page min-h-screen flex flex-col" style={{ background: "#0B0B0C" }}>
+      <div
+        className="relative z-10 flex-1 rounded-b-[40px] md:rounded-b-[48px] shadow-[0_20px_60px_rgba(0,0,0,0.10)] border-b border-zinc-200 overflow-hidden flex flex-col bg-white text-zinc-900"
+      >
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[var(--bg)]/80 border-b border-[var(--hairline)]">
         <nav className="mx-auto flex max-w-[1000px] items-center justify-between px-6 sm:px-10 py-5">
@@ -113,7 +116,11 @@ export default function MentorTermsPage() {
         </div>
       </main>
 
-      <FooterSection />
+      </div>
+
+      <div className="sticky bottom-0 z-0">
+        <FooterSection />
+      </div>
     </div>
   );
 }

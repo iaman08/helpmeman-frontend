@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import api, { getApiBaseUrl } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
+import { FooterSection } from "@/components/landing/FooterSection";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -662,7 +663,10 @@ export default function CompetitiveProgrammingPage() {
   const totalLadderSolved = Object.values(solvedProblemIds).filter(Boolean).length;
 
   return (
-    <div className="min-h-screen bg-[#09090B] text-white selection:bg-emerald-500 selection:text-black">
+    <div className="landing-page min-h-screen flex flex-col" style={{ background: "#0B0B0C" }}>
+      <div
+        className="relative z-10 flex-1 rounded-b-[40px] md:rounded-b-[48px] shadow-[0_20px_60px_rgba(0,0,0,0.50)] border-b border-[#27272A] overflow-hidden flex flex-col bg-[#09090B] text-white selection:bg-emerald-500 selection:text-black"
+      >
       {/* ── Top Glow Accents ── */}
       <div className="fixed top-0 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -z-10" />
       <div className="fixed top-20 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none -z-10" />
@@ -1248,6 +1252,11 @@ export default function CompetitiveProgrammingPage() {
           </div>
         )}
       </AnimatePresence>
+      </div>
+
+      <div className="sticky bottom-0 z-0">
+        <FooterSection />
+      </div>
     </div>
   );
 }

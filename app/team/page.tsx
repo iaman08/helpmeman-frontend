@@ -35,6 +35,7 @@ import api from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { Navbar } from "@/components/Navbar";
 import { SidebarShell } from "@/components/SidebarShell";
+import { FooterSection } from "@/components/landing/FooterSection";
 import { useUnreadChatCount } from "@/lib/hooks";
 
 const DEPARTMENTS = [
@@ -507,9 +508,16 @@ export default function TeamPage() {
           <div className="pt-6 pb-12">{publicContent}</div>
         </SidebarShell>
       ) : (
-        <div className="min-h-screen flex flex-col bg-[#FAFAFB]">
-          <Navbar />
-          <main className="flex-grow pt-2">{publicContent}</main>
+        <div className="landing-page min-h-screen flex flex-col" style={{ background: "#0B0B0C" }}>
+          <div
+            className="relative z-10 flex-1 rounded-b-[40px] md:rounded-b-[48px] shadow-[0_20px_60px_rgba(0,0,0,0.10)] border-b border-zinc-200 overflow-hidden flex flex-col bg-[#FAFAFB]"
+          >
+            <Navbar />
+            <main className="flex-grow pt-2">{publicContent}</main>
+          </div>
+          <div className="sticky bottom-0 z-0">
+            <FooterSection />
+          </div>
         </div>
       )}
 
