@@ -536,7 +536,29 @@ const parts = [
         id: "clause-35",
         number: 35,
         heading: "Intellectual Property Rights",
-        content: `Unless otherwise expressly stated, all content made available on the Platform, including but not limited to: Software, Source Code, Website Design, Mobile Interface, Graphics, Logos, Icons, Text, Images, Videos, Audio, Databases, Mentor Listings, Ruth AI Features, QR Designs, Trademarks, Trade Dress, Platform Branding, and Algorithms are the exclusive property of HelpMeMan or its licensors and are protected under applicable intellectual property laws. No User shall reproduce, distribute, modify, reverse engineer, sell, lease, copy, publicly display, or commercially exploit any part of the Platform without prior written permission from HelpMeMan.`,
+        content: `Unless otherwise expressly stated, all content made available on the Platform, including but not limited to:`,
+        list: [
+          "Software",
+          "Source Code",
+          "Website Design",
+          "Mobile Interface",
+          "Graphics",
+          "Logos",
+          "Icons",
+          "Text",
+          "Images",
+          "Videos",
+          "Audio",
+          "Databases",
+          "Mentor Listings",
+          "Ruth AI Features",
+          "QR Designs",
+          "Trademarks",
+          "Trade Dress",
+          "Platform Branding",
+          "Algorithms",
+        ],
+        listSuffix: `are the exclusive property of HelpMeMan or its licensors and are protected under applicable intellectual property laws. No User shall reproduce, distribute, modify, reverse engineer, sell, lease, copy, publicly display, or commercially exploit any part of the Platform without prior written permission from HelpMeMan.`,
       },
       {
         id: "clause-36",
@@ -669,7 +691,7 @@ const parts = [
         id: "clause-46",
         number: 46,
         heading: "Dispute Resolution",
-        content: `Any dispute arising out of or relating to these Terms or the use of the Platform shall first be attempted to be resolved amicably through mutual discussions. If the dispute is not resolved within thirty (30) days, it shall be referred to arbitration in accordance with the Arbitration and Conciliation Act, 1996. The seat and venue of arbitration shall be Deoghar, Jharkhand, India, and the proceedings shall be conducted in the English language. Subject to arbitration, the courts having jurisdiction over the registered office of HelpMeMan shall have exclusive jurisdiction.`,
+        content: `Any dispute arising out of or relating to these Terms or the use of the Platform shall first be attempted to be resolved amicably through mutual discussions. If the dispute is not resolved within thirty (30) days, it shall be referred to arbitration in accordance with the Arbitration and Conciliation Act, 1996. The seat and venue of arbitration shall be Deoghar, Jharkhand, India (or the company's registered office once incorporated), and the proceedings shall be conducted in the English language. Subject to arbitration, the courts having jurisdiction over the registered office of HelpMeMan shall have exclusive jurisdiction.`,
       },
       {
         id: "clause-47",
@@ -701,7 +723,7 @@ const parts = [
 
 export default function TermsPage() {
   const [activeClause, setActiveClause] = useState<string | null>(null);
-  const lastUpdated = "July 23, 2025";
+  const lastUpdated = "September 13, 2026";
 
   const scrollToClause = (id: string) => {
     const el = document.getElementById(id);
