@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { SidebarProvider } from "@/components/SidebarContext";
 import { AuthProvider } from "@/lib/auth-context";
 import { ToastProvider } from "@/components/Toast";
 import { ConfirmProvider } from "@/components/ConfirmModal";
@@ -197,26 +198,28 @@ export default function RootLayout({
       </head>
       <body className="font-sans bg-bg text-fg overflow-x-hidden">
         <ThemeProvider>
-          <LoaderProvider>
-            <PublicThemeManager />
-            <AuthProvider>
-              <CurrencyProvider>
-                <GoogleAuthOverlay />
-                <ToastProvider>
-                  <ConfirmProvider>
-                    <SocketProvider>
-                      {children}
-                      <AIChatWidget />
-                      <PushPermissionPrompt />
-                      <PlatformReviewTrigger />
-                      <TawkToScript />
-                      <CookieConsentBanner />
-                    </SocketProvider>
-                  </ConfirmProvider>
-                </ToastProvider>
-              </CurrencyProvider>
-            </AuthProvider>
-          </LoaderProvider>
+          <SidebarProvider>
+            <LoaderProvider>
+              <PublicThemeManager />
+              <AuthProvider>
+                <CurrencyProvider>
+                  <GoogleAuthOverlay />
+                  <ToastProvider>
+                    <ConfirmProvider>
+                      <SocketProvider>
+                        {children}
+                        <AIChatWidget />
+                        <PushPermissionPrompt />
+                        <PlatformReviewTrigger />
+                        <TawkToScript />
+                        <CookieConsentBanner />
+                      </SocketProvider>
+                    </ConfirmProvider>
+                  </ToastProvider>
+                </CurrencyProvider>
+              </AuthProvider>
+            </LoaderProvider>
+          </SidebarProvider>
         </ThemeProvider>
       </body>
     </html>
