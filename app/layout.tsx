@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { SidebarProvider } from "@/components/SidebarContext";
 import { AuthProvider } from "@/lib/auth-context";
 import { ToastProvider } from "@/components/Toast";
 import { AIChatWidget } from "@/components/AIChatWidget";
@@ -117,24 +118,26 @@ export default function RootLayout({
       </head>
       <body className="font-sans bg-bg text-fg overflow-x-hidden">
         <ThemeProvider>
-          <LoaderProvider>
-            <PublicThemeManager />
-            <AuthProvider>
-              <CurrencyProvider>
-                <GoogleAuthOverlay />
-                <ToastProvider>
-                  <SocketProvider>
-                    {children}
-                    <AIChatWidget />
-                    <PushPermissionPrompt />
-                    <PlatformReviewTrigger />
-                    <FloatingEagleButton />
-                    <TawkToScript />
-                  </SocketProvider>
-                </ToastProvider>
-              </CurrencyProvider>
-            </AuthProvider>
-          </LoaderProvider>
+          <SidebarProvider>
+            <LoaderProvider>
+              <PublicThemeManager />
+              <AuthProvider>
+                <CurrencyProvider>
+                  <GoogleAuthOverlay />
+                  <ToastProvider>
+                    <SocketProvider>
+                      {children}
+                      <AIChatWidget />
+                      <PushPermissionPrompt />
+                      <PlatformReviewTrigger />
+                      <FloatingEagleButton />
+                      <TawkToScript />
+                    </SocketProvider>
+                  </ToastProvider>
+                </CurrencyProvider>
+              </AuthProvider>
+            </LoaderProvider>
+          </SidebarProvider>
         </ThemeProvider>
       </body>
     </html>
