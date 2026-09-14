@@ -33,26 +33,39 @@ function CompanyLogo({ company }: { company: string }) {
 
 export function MentorCard({ mentor, onShare }: Props) {
   const [avatarError, setAvatarError] = useState(false);
-  const avatarUrl = mentor.avatar || `https://i.pravatar.cc/150?u=${mentor.id}`;
-  const initials = mentor.displayName.slice(0, 2).toUpperCase();
+  const avatarUrl = mentor.avatar || mentor.user?.avatar;
+  const displayName = mentor.displayName || mentor.user?.name || "Mentor";
+  const initials = displayName
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
     <Link
       href={`/mentors/${mentor.id}`}
-      className="group flex flex-col gap-4 rounded-2xl bg-[var()]/[0.02] hover:bg-[var()]/5 p-5 sm:p-6 transition-colors border border-transparent hover:border-[var()]"
+      className="group flex flex-col gap-4 rounded-2xl bg-[var(--fg)]/[0.02] hover:bg-[var(--fg)]/5 p-5 sm:p-6 transition-colors border border-transparent hover:border-[var(--hairline)]"
     >
       {/* ─── Header ─── */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-4 min-w-0">
-          {!avatarError ? (
+          {avatarUrl && !avatarError ? (
             <img
               src={avatarUrl}
-              alt={mentor.displayName}
-              className="h-14 w-14 rounded-full object-cover shrink-0 border border-[var()]"
+              alt={displayName}
+              className="h-14 w-14 rounded-full object-cover shrink-0 border border-[var(--hairline)]"
               onError={() => setAvatarError(true)}
             />
           ) : (
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var()]/8 text-lg font-medium shrink-0 border border-[var()]">
+            <div
+              className="flex h-14 w-14 items-center justify-center rounded-full text-lg font-bold shrink-0 shadow-inner"
+              style={{
+                background: "color-mix(in srgb, var(--fg) 8%, transparent)",
+                color: "var(--fg)",
+                border: "1px solid var(--hairline)",
+              }}
+            >
               {initials}
             </div>
           )}
@@ -64,10 +77,10 @@ export function MentorCard({ mentor, onShare }: Props) {
               </span>
             )}
             <span className="font-display text-lg leading-tight truncate">
-              {mentor.displayName}
+              {displayName}
             </span>
             {mentor.currentRole && (
-              <span className="text-xs text-[var()] truncate">
+              <span className="text-xs text-[var(--fg)] truncate">
                 {mentor.currentRole}
               </span>
             )}
@@ -82,10 +95,10 @@ export function MentorCard({ mentor, onShare }: Props) {
               e.stopPropagation();
               onShare(mentor);
             }}
-            className="p-2 bg-[var()]/5 hover:bg-[var()]/10 border border-[var()] rounded-full transition-colors cursor-pointer shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100 transition-all"
+            className="p-2 bg-[var(--fg)]/5 hover:bg-[var(--fg)]/10 border border-[var(--hairline)] rounded-full transition-colors cursor-pointer shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100 transition-all"
             title="Share profile"
           >
-            <Share2 className="h-3.5 w-3.5 text-[var()] hover:text-[var()]" />
+            <Share2 className="h-3.5 w-3.5 text-[var(--fg)] hover:text-[var(--fg)]" />
           </button>
         )}
       </div>
@@ -100,13 +113,13 @@ export function MentorCard({ mentor, onShare }: Props) {
       </div>
 
       {/* ─── Bio snippet ─── */}
-      <p className="text-sm text-[var()] leading-relaxed line-clamp-2 mt-1">
+      <p className="text-sm text-[var(--fg)] leading-relaxed line-clamp-2 mt-1">
         {mentor.bio}
       </p>
 
       {/* ─── Profile Details (Location, Active Status) ─── */}
       {(mentor.location || mentor.activeStatus || mentor.averageResponseTime) && (
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var()] mt-1">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--fg)] mt-1">
           {mentor.location && (
             <span className="flex items-center gap-1 shrink-0">
               <Globe className="h-3 w-3 shrink-0" />
@@ -123,7 +136,7 @@ export function MentorCard({ mentor, onShare }: Props) {
       )}
 
       {/* ─── Footer ─── */}
-      <div className="flex items-center justify-between mt-auto pt-3 border-t border-[var()]">
+      <div className="flex items-center justify-between mt-auto pt-3 border-t border-[var(--hairline)]">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1">
             <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
@@ -131,11 +144,11 @@ export function MentorCard({ mentor, onShare }: Props) {
               {mentor.rating > 0 ? mentor.rating.toFixed(1) : "New"}
             </span>
           </div>
-          <span className="text-xs text-[var()] font-medium">
+          <span className="text-xs text-[var(--fg)] font-medium">
             {mentor.totalSessions} session{mentor.totalSessions !== 1 ? "s" : ""}
           </span>
         </div>
-        <span className="font-display text-lg text-[var()]">
+        <span className="font-display text-lg text-[var(--fg)]">
           <PriceDisplay amountInPaise={mentor.pricePerSession} />
         </span>
       </div>

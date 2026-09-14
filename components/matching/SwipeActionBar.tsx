@@ -46,7 +46,7 @@ function ActionButton({
         whileHover={disabled ? {} : { scale: 1.12, y: -2 }}
         whileTap={disabled ? {} : { scale: 0.88 }}
         transition={{ type: "spring", stiffness: 450, damping: 22 }}
-        className={`${sizeClasses[size]} rounded-full flex items-center justify-center border bg-[var()] border-[var()] shadow-md transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed group relative`}
+        className={`${sizeClasses[size]} rounded-full flex items-center justify-center border bg-[var(--bg)] border-[var(--hairline)] shadow-md transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed group relative`}
         style={{
           color: disabled ? "var(--muted)" : color,
         }}
@@ -67,7 +67,7 @@ function ActionButton({
           {icon}
         </span>
       </motion.button>
-      <span className="text-[10px] font-bold tracking-wider text-[var()]/70 uppercase select-none">
+      <span className="text-[10px] font-bold tracking-wider text-[var(--fg)]/70 uppercase select-none">
         {label}
       </span>
     </div>

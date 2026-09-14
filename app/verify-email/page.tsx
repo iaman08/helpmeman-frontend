@@ -39,7 +39,7 @@ function VerifyEmailContent() {
   return (
     <>
       <div className="flex flex-col gap-3">
-        <p className="text-sm uppercase tracking-[0.22em] text-[var()]">
+        <p className="text-sm uppercase tracking-[0.22em] text-[var(--fg)]">
           Email verification
         </p>
         <h1 className="font-display text-5xl leading-none">
@@ -52,8 +52,8 @@ function VerifyEmailContent() {
       </div>
 
       {status === "loading" && (
-        <div className="flex items-center gap-3 text-[var()]">
-          <div className="h-4 w-4 rounded-full border-2 border-[var()]/20 border-t-[var()] animate-spin" />
+        <div className="flex items-center gap-3 text-[var(--fg)]">
+          <div className="h-4 w-4 rounded-full border-2 border-[var(--hairline)]/20 border--[var(--hairline)] animate-spin" />
           <span className="text-sm">Verifying your email…</span>
         </div>
       )}
@@ -65,7 +65,7 @@ function VerifyEmailContent() {
           </div>
           <Link
             href="/signin"
-            className="self-start rounded-full bg-[var()] text-[var()] px-7 py-3.5 text-sm hover:opacity-90 transition-opacity"
+            className="self-start rounded-full bg-[var(--bg)] text-[var(--fg)] px-7 py-3.5 text-sm hover:opacity-90 transition-opacity"
           >
             Continue to sign in
           </Link>
@@ -82,7 +82,7 @@ function VerifyEmailContent() {
           </div>
           <Link
             href="/signin"
-            className="text-sm text-[var()] underline-offset-4 hover:underline"
+            className="text-sm text-[var(--fg)] underline-offset-4 hover:underline"
           >
             Go to sign in
           </Link>
@@ -99,7 +99,7 @@ export default function VerifyEmailPage() {
         <div>
           <Link
             href="/"
-            className="text-xs uppercase tracking-[0.22em] text-[var()] hover:text-[var()]"
+            className="text-xs uppercase tracking-[0.22em] text-[var(--fg)] hover:text-[var(--fg)]"
           >
             ← HelpMeMan
           </Link>

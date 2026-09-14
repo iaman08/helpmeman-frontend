@@ -112,8 +112,7 @@ export function NotificationBell({ notificationsPath = "/dashboard/notifications
       markRead(notification.id).catch(() => {});
     }
     setOpen(false);
-    const href = getNotificationHref(notification, notificationsPath);
-    router.push(href);
+    router.push(notificationsPath);
   }
 
   return (
@@ -139,7 +138,7 @@ export function NotificationBell({ notificationsPath = "/dashboard/notifications
 
       {open && (
         <div
-          className="fixed md:absolute top-[72px] md:top-full left-4 right-4 md:left-0 md:right-auto md:w-[340px] z-[999] mt-2 overflow-hidden rounded-2xl shadow-2xl animate-in fade-in zoom-in-95 duration-150"
+          className="fixed md:absolute top-[72px] md:top-full left-4 right-4 md:left-0 md:right-auto md:w-[360px] z-[999] mt-2 overflow-hidden rounded-2xl shadow-2xl animate-in fade-in zoom-in-95 duration-150"
           style={{
             background: "var(--bg)",
             border: "1px solid var(--hairline)",

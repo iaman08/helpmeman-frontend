@@ -69,21 +69,21 @@ export function CountdownTimer({ scheduledAt, durationMinutes, className = "" }:
 
   const colorClass =
     state === "ended"
-      ? "text-[var()]"
+      ? "text-[var(--fg)]"
       : state === "ongoing"
         ? "text-green-500"
         : state === "starting"
           ? "text-amber-500"
           : state === "soon"
             ? "text-blue-400"
-            : "text-[var()]";
+            : "text-[var(--fg)]";
 
   const dotClass =
     state === "ongoing"
       ? "bg-green-500 animate-pulse"
       : state === "starting"
         ? "bg-amber-500 animate-pulse"
-        : "bg-[var()]/20";
+        : "bg-[var(--fg)]/20";
 
   return (
     <span className={`flex items-center gap-1.5 text-xs font-medium ${colorClass} ${className}`}>

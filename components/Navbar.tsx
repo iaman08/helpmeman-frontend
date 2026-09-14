@@ -63,19 +63,19 @@ export function Navbar() {
   const dashboardPath = getDashboardPath(user?.role);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[var()]/70">
+    <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[var(--fg)]/70">
       <nav className="mx-auto flex max-w-[1400px] items-center justify-between px-6 sm:px-10 py-5">
         <Link
           href="/"
-          className="font-display text-2xl tracking-tight cursor-pointer no-underline text-[var()]"
+          className="font-display text-2xl tracking-tight cursor-pointer no-underline text-[var(--fg)]"
           aria-label="HelpMeMan home"
         >
-          HelpMeMan<span className="text-[var()]">.</span>
+          HelpMeMan<span className="text-[var(--fg)]">.</span>
         </Link>
 
         {/* Desktop Links — visible at lg: (≥1024px) */}
         <div className="hidden lg:flex items-center gap-6 ml-10 mr-auto">
-          <Link href="/mentors" className="text-sm font-medium text-[var()] hover:text-[var()] transition-colors no-underline">
+          <Link href="/mentors" className="text-sm font-medium text-[var(--fg)] hover:text-[var(--fg)] transition-colors no-underline">
             Mentors
           </Link>
           {user?.role !== "STUDENT" && (
@@ -92,7 +92,7 @@ export function Navbar() {
 
           {/* Auth section */}
           {loading ? (
-            <div className="h-8 w-8 rounded-full bg-[var()]/5 animate-pulse" />
+            <div className="h-8 w-8 rounded-full bg-[var(--fg)]/5 animate-pulse" />
           ) : user ? (
             /* ─── Logged in ─── */
             <>
@@ -111,18 +111,18 @@ export function Navbar() {
                     {user.name.split(" ")[0]}
                   </span>
                   <ChevronDown
-                    className={`h-3.5 w-3.5 text-[var()] transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
+                    className={`h-3.5 w-3.5 text-[var(--fg)] transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
                   />
                 </button>
 
                 {dropdownOpen && (
                   <div
-                    className="absolute right-0 top-full mt-2 w-56 rounded-xl py-2 shadow-lg border border-[var()]"
+                    className="absolute right-0 top-full mt-2 w-56 rounded-xl py-2 shadow-lg border border-[var(--hairline)]"
                     style={{ background: "var(--bg)" }}
                   >
-                    <div className="px-4 py-2 border-b border-[var()]">
+                    <div className="px-4 py-2 border-b border-[var(--hairline)]">
                       <p className="text-sm font-medium truncate">{user.name}</p>
-                      <p className="text-[11px] text-[var()] truncate">
+                      <p className="text-[11px] text-[var(--fg)] truncate">
                         {user.email}
                       </p>
                     </div>
@@ -130,7 +130,7 @@ export function Navbar() {
                     <Link
                       href={dashboardPath}
                       onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var()]/80 hover:bg-[var()]/5 transition-colors"
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--fg)]/80 hover:bg-[var(--fg)]/5 transition-colors"
                     >
                       <LayoutDashboard className="h-4 w-4" />
                       Dashboard
@@ -139,7 +139,7 @@ export function Navbar() {
                     <Link
                       href="/mentors"
                       onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var()]/80 hover:bg-[var()]/5 transition-colors no-underline"
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--fg)]/80 hover:bg-[var(--fg)]/5 transition-colors no-underline"
                     >
                       Browse Mentors
                     </Link>
@@ -172,13 +172,13 @@ export function Navbar() {
             <>
               <Link
                 href="/signin"
-                className="hidden sm:block text-sm text-[var()]/80 hover:text-[var()] transition-colors"
+                className="hidden sm:block text-sm text-[var(--fg)]/80 hover:text-[var(--fg)] transition-colors"
               >
                 Sign in
               </Link>
               <Link
                 href="/signup"
-                className="text-sm rounded-full bg-[var()] text-[var()] px-5 py-2.5 hover:opacity-90 transition-opacity"
+                className="text-sm rounded-full bg-[var(--bg)] text-[var(--fg)] px-5 py-2.5 hover:opacity-90 transition-opacity"
               >
                 Sign up
               </Link>
@@ -204,13 +204,13 @@ export function Navbar() {
       {/* Mobile menu — visible below lg: (<1024px) */}
       {mobileOpen && (
         <div
-          className="lg:hidden border-t border-[var()] px-6 py-4 flex flex-col gap-3"
+          className="lg:hidden border-t border-[var(--hairline)] px-6 py-4 flex flex-col gap-3"
           style={{ background: "var(--bg)" }}
         >
           <Link
             href="/mentors"
             onClick={() => setMobileOpen(false)}
-            className="text-sm text-[var()]/80 hover:text-[var()] py-1 no-underline"
+            className="text-sm text-[var(--fg)]/80 hover:text-[var(--fg)] py-1 no-underline"
           >
             Browse Mentors
           </Link>
@@ -230,7 +230,7 @@ export function Navbar() {
             <Link
               href="/signin"
               onClick={() => setMobileOpen(false)}
-              className="text-sm text-[var()]/80 hover:text-[var()] py-1 sm:hidden no-underline"
+              className="text-sm text-[var(--fg)]/80 hover:text-[var(--fg)] py-1 sm:hidden no-underline"
             >
               Sign in
             </Link>

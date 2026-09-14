@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle, XCircle, PauseCircle, PlayCircle, ToggleLeft, ToggleRight, AlertTriangle, X, Search, Eye, Trash2 } from "lucide-react";
+import { CheckCircle, XCircle, PauseCircle, PlayCircle, ToggleLeft, ToggleRight, AlertTriangle, X, Search, Eye, Trash2, DollarSign } from "lucide-react";
 import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { InstitutionBadge } from "@/components/InstitutionBadge";
 import { MentorApplicationModal } from "@/components/MentorApplicationModal";
+import { PriceDisplay } from "@/components/PriceDisplay";
+import { EditMentorPriceModal } from "@/components/EditMentorPriceModal";
 import type { Mentor } from "@/lib/types";
 
 export default function AdminMentorsPage() {
@@ -15,6 +17,7 @@ export default function AdminMentorsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [selectedMentor, setSelectedMentor] = useState<Mentor | null>(null);
+  const [editingPriceMentor, setEditingPriceMentor] = useState<Mentor | null>(null);
 
   // Status modal state
   const [statusModalUser, setStatusModalUser] = useState<{ id: string; name: string; email: string; currentStatus: string } | null>(null);
@@ -233,7 +236,7 @@ export default function AdminMentorsPage() {
           <table className="w-full min-w-[750px] border-collapse">
             <thead>
               <tr style={{ borderBottom: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
-                {["Mentor", "Institution", "Status", "Rating", "Sessions", "Active", "Actions"].map((h) => (
+                {["Mentor", "Institution", "Status", "Price", "Rating", "Sessions", "Active", "Actions"].map((h) => (
                   <th key={h} className="text-left py-3.5 px-5 text-[10px] uppercase tracking-[0.22em] font-semibold" style={{ color: "var(--muted)" }}>
                     {h}
                   </th>
@@ -243,6 +246,7 @@ export default function AdminMentorsPage() {
             <tbody>
               {mentors.map((m, idx) => {
                 const displayName = m.displayName || m.user?.name || "Mentor";
+                const avatarUrl = m.avatar || m.user?.avatar;
                 const initials = displayName
                   .split(" ")
                   .map((w) => w[0])
@@ -261,12 +265,12 @@ export default function AdminMentorsPage() {
                     <td className="py-4 px-5 text-sm">
                       <div className="flex items-center gap-3">
                         <div
-                          className="flex h-9 w-9 items-center justify-center rounded-xl text-xs font-bold shrink-0"
+                          className="flex h-9 w-9 items-center justify-center rounded-xl text-xs font-bold shrink-0 overflow-hidden"
                           style={{ background: "color-mix(in srgb, var(--fg) 8%, transparent)", color: "var(--fg)", border: "1px solid var(--hairline)" }}
                         >
-                          {m.avatar ? (
+                          {avatarUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={m.avatar} alt={displayName} className="h-full w-full rounded-xl object-cover" />
+                            <img src={avatarUrl} alt={displayName} className="h-full w-full rounded-xl object-cover" />
                           ) : (
                             initials
                           )}
@@ -288,6 +292,25 @@ export default function AdminMentorsPage() {
                       }`}>
                         {m.approvalStatus}
                       </span>
+                    </td>
+                    <td className="py-4 px-5 text-sm">
+                      <button
+                        type="button"
+                        onClick={() => setEditingPriceMentor(m)}
+                        className="group flex items-center gap-1.5 px-2.5 py-1 rounded-lg border hover:border-amber-500/50 hover:bg-amber-500/10 transition-all cursor-pointer text-left"
+                        style={{
+                          borderColor: "var(--hairline)",
+                          background: "color-mix(in srgb, var(--fg) 2%, transparent)",
+                        }}
+                        title="Click to edit session price"
+                      >
+                        <span className="font-semibold text-xs font-mono" style={{ color: "var(--fg)" }}>
+                          <PriceDisplay amountInPaise={m.pricePerSession} />
+                        </span>
+                        <span className="text-[10px] text-amber-500 opacity-60 group-hover:opacity-100 transition-opacity font-sans">
+                          ✎
+                        </span>
+                      </button>
                     </td>
                     <td className="py-4 px-5 text-sm" style={{ color: "var(--muted)" }}>{m.rating > 0 ? m.rating.toFixed(1) : "—"}</td>
                     <td className="py-4 px-5 text-sm" style={{ color: "var(--muted)" }}>{m.totalSessions}</td>
@@ -313,6 +336,19 @@ export default function AdminMentorsPage() {
                         >
                           <Eye className="h-3.5 w-3.5 text-amber-500" />
                           <span>View</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditingPriceMentor(m)}
+                          className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer hover:opacity-80"
+                          style={{
+                            background: "color-mix(in srgb, var(--fg) 6%, transparent)",
+                            color: "var(--fg)",
+                          }}
+                          title="Edit Price"
+                        >
+                          <DollarSign className="h-3.5 w-3.5 text-amber-500" />
+                          <span className="hidden sm:inline">Price</span>
                         </button>
                         {m.approvalStatus === "PENDING" && (
                           <>
@@ -441,6 +477,12 @@ export default function AdminMentorsPage() {
           onReject={() => {
             fetchMentors();
           }}
+          onPriceUpdated={(mentorId, newPricePaise) => {
+            setMentors((prev) =>
+              prev.map((m) => (m.id === mentorId ? { ...m, pricePerSession: newPricePaise } : m))
+            );
+            setSelectedMentor((prev) => (prev && prev.id === mentorId ? { ...prev, pricePerSession: newPricePaise } : prev));
+          }}
         />
       )}
 
@@ -520,6 +562,23 @@ export default function AdminMentorsPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Edit Mentor Price Modal */}
+      {editingPriceMentor && (
+        <EditMentorPriceModal
+          isOpen={!!editingPriceMentor}
+          mentor={editingPriceMentor}
+          onClose={() => setEditingPriceMentor(null)}
+          onSuccess={(updatedMentor) => {
+            setMentors((prev) =>
+              prev.map((m) => (m.id === updatedMentor.id ? { ...m, ...updatedMentor } : m))
+            );
+            if (selectedMentor?.id === updatedMentor.id) {
+              setSelectedMentor((prev) => (prev ? { ...prev, ...updatedMentor } : null));
+            }
+          }}
+        />
       )}
     </div>
   );

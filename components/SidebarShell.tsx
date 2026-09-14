@@ -114,7 +114,7 @@ export function SidebarShell({
   }, [mobileOpen]);
 
   const renderSidebarContent = (collapsed: boolean, isMobileDrawer: boolean = false) => (
-    <div className="flex flex-col h-full overflow-x-hidden">
+    <div className="flex flex-col h-full overflow-visible">
       {/* Brand + bell + toggle button */}
       {collapsed ? (
         <div className="py-6 px-2 flex flex-col items-center gap-3">
@@ -545,6 +545,7 @@ export function SidebarShell({
           width: isCollapsed ? 76 : 280,
           background: "var(--bg)",
           borderRight: "1px solid var(--hairline)",
+          overflow: "visible",
         }}
       >
         {renderSidebarContent(isCollapsed, false)}

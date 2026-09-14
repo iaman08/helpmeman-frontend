@@ -656,52 +656,52 @@ export default function AdminTeamPage() {
 
               {/* 1. Basic Fields */}
               <div className="space-y-4">
-                <h3 className="text-xs uppercase tracking-wider font-bold text-[var()] border-b border-[var()] pb-1">
+                <h3 className="text-xs uppercase tracking-wider font-bold text-[var(--fg)] border-b border-[var(--hairline)] pb-1">
                   Primary details
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[var()]">Full Name *</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">Full Name *</label>
                     <input
                       type="text"
                       required
                       placeholder="e.g. John Doe"
                       value={form.fullName}
                       onChange={(e) => setForm((p: any) => ({ ...p, fullName: e.target.value }))}
-                      className="px-3.5 py-2 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all"
+                      className="px-3.5 py-2 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all"
                     />
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[var()]">Username Slug (Unique) *</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">Username Slug (Unique) *</label>
                     <input
                       type="text"
                       required
                       placeholder="e.g. john-doe"
                       value={form.username}
                       onChange={(e) => setForm((p: any) => ({ ...p, username: e.target.value }))}
-                      className="px-3.5 py-2 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all"
+                      className="px-3.5 py-2 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all"
                     />
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[var()]">Role title *</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">Role title *</label>
                     <input
                       type="text"
                       required
                       placeholder="e.g. Head of Product"
                       value={form.role}
                       onChange={(e) => setForm((p: any) => ({ ...p, role: e.target.value }))}
-                      className="px-3.5 py-2 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all"
+                      className="px-3.5 py-2 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all"
                     />
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[var()]">Department *</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">Department *</label>
                     <select
                       value={form.department}
                       onChange={(e) => setForm((p: any) => ({ ...p, department: e.target.value }))}
-                      className="px-3.5 py-2 rounded-xl border border-[var()] bg-bg focus:border-amber-500 outline-none transition-all"
+                      className="px-3.5 py-2 rounded-xl border border-[var(--hairline)] bg-bg focus:border-amber-500 outline-none transition-all"
                     >
                       {DEPARTMENTS.map((d) => (
                         <option key={d} value={d}>
@@ -715,14 +715,14 @@ export default function AdminTeamPage() {
 
               {/* 2. Image uploads (Avatar) */}
               <div className="space-y-4">
-                <h3 className="text-xs uppercase tracking-wider font-bold text-[var()] border-b border-[var()] pb-1">
+                <h3 className="text-xs uppercase tracking-wider font-bold text-[var(--fg)] border-b border-[var(--hairline)] pb-1">
                   Media uploads (Cropping & Compression)
                 </h3>
                 {/* Profile Picture */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-xs font-semibold text-[var()]">Profile Avatar Picture (1:1 Ratio)</label>
+                  <label className="text-xs font-semibold text-[var(--fg)]">Profile Avatar Picture (1:1 Ratio)</label>
                   <div className="flex items-center gap-4">
-                    <div className="w-20 h-20 rounded-xl bg-zinc-100 border border-[var()] overflow-hidden flex-shrink-0 relative group">
+                    <div className="w-20 h-20 rounded-xl bg-zinc-100 border border-[var(--hairline)] overflow-hidden flex-shrink-0 relative group">
                       {imagePreview ? (
                         <img src={imagePreview} className="w-full h-full object-cover" />
                       ) : (
@@ -731,7 +731,7 @@ export default function AdminTeamPage() {
                         </div>
                       )}
                     </div>
-                    <label className="px-4 py-2 border border-[var()] hover:border-[var()]/30 rounded-xl text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5">
+                    <label className="px-4 py-2 border border-[var(--hairline)] hover:border-[var(--hairline)]/30 rounded-xl text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5">
                       <Upload className="w-3.5 h-3.5" />
                       Upload Profile
                       <input
@@ -747,33 +747,33 @@ export default function AdminTeamPage() {
 
               {/* 3. Text Areas (Bio & Story) */}
               <div className="space-y-4">
-                <h3 className="text-xs uppercase tracking-wider font-bold text-[var()] border-b border-[var()] pb-1">
+                <h3 className="text-xs uppercase tracking-wider font-bold text-[var(--fg)] border-b border-[var(--hairline)] pb-1">
                   Biographical Description (Markdown support)
                 </h3>
 
                 {/* Bio Field */}
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-[var()]">Short Bio Description *</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">Short Bio Description *</label>
                     <div className="flex gap-2">
                       <button
                         type="button"
                         onClick={() => setBioPreview(false)}
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded cursor-pointer ${!bioPreview ? "bg-red-500/10 text-red-500" : "text-[var()]"}`}
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded cursor-pointer ${!bioPreview ? "bg-red-500/10 text-red-500" : "text-[var(--fg)]"}`}
                       >
                         Edit
                       </button>
                       <button
                         type="button"
                         onClick={() => setBioPreview(true)}
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded cursor-pointer ${bioPreview ? "bg-red-500/10 text-red-500" : "text-[var()]"}`}
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded cursor-pointer ${bioPreview ? "bg-red-500/10 text-red-500" : "text-[var(--fg)]"}`}
                       >
                         Preview
                       </button>
                     </div>
                   </div>
                   {bioPreview ? (
-                    <div className="p-3 border border-[var()] rounded-xl text-xs bg-[var()]/[0.01] h-32 overflow-y-auto whitespace-pre-line text-[var()]/80">
+                    <div className="p-3 border border-[var(--hairline)] rounded-xl text-xs bg-[var(--fg)]/[0.01] h-32 overflow-y-auto whitespace-pre-line text-[var(--fg)]/80">
                       {form.bio || <span className="italic text-zinc-300">Nothing to preview</span>}
                     </div>
                   ) : (
@@ -782,7 +782,7 @@ export default function AdminTeamPage() {
                       placeholder="Write a brief, punchy intro biography..."
                       value={form.bio}
                       onChange={(e) => setForm((p: any) => ({ ...p, bio: e.target.value }))}
-                      className="px-3.5 py-2.5 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all h-32 text-xs"
+                      className="px-3.5 py-2.5 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all h-32 text-xs"
                     />
                   )}
                 </div>
@@ -790,26 +790,26 @@ export default function AdminTeamPage() {
                 {/* Story Field */}
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-[var()]">Journey Story</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">Journey Story</label>
                     <div className="flex gap-2">
                       <button
                         type="button"
                         onClick={() => setStoryPreview(false)}
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded cursor-pointer ${!storyPreview ? "bg-red-500/10 text-red-500" : "text-[var()]"}`}
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded cursor-pointer ${!storyPreview ? "bg-red-500/10 text-red-500" : "text-[var(--fg)]"}`}
                       >
                         Edit
                       </button>
                       <button
                         type="button"
                         onClick={() => setStoryPreview(true)}
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded cursor-pointer ${storyPreview ? "bg-red-500/10 text-red-500" : "text-[var()]"}`}
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded cursor-pointer ${storyPreview ? "bg-red-500/10 text-red-500" : "text-[var(--fg)]"}`}
                       >
                         Preview
                       </button>
                     </div>
                   </div>
                   {storyPreview ? (
-                    <div className="p-3 border border-[var()] rounded-xl text-xs bg-[var()]/[0.01] h-40 overflow-y-auto whitespace-pre-line text-[var()]/80">
+                    <div className="p-3 border border-[var(--hairline)] rounded-xl text-xs bg-[var(--fg)]/[0.01] h-40 overflow-y-auto whitespace-pre-line text-[var(--fg)]/80">
                       {form.story || <span className="italic text-zinc-300">Nothing to preview</span>}
                     </div>
                   ) : (
@@ -817,7 +817,7 @@ export default function AdminTeamPage() {
                       placeholder="Tell the detailed story of how they joined or their journey..."
                       value={form.story}
                       onChange={(e) => setForm((p: any) => ({ ...p, story: e.target.value }))}
-                      className="px-3.5 py-2.5 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all h-40 text-xs"
+                      className="px-3.5 py-2.5 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all h-40 text-xs"
                     />
                   )}
                 </div>
@@ -825,47 +825,47 @@ export default function AdminTeamPage() {
 
               {/* 4. Structured fields */}
               <div className="space-y-4">
-                <h3 className="text-xs uppercase tracking-wider font-bold text-[var()] border-b border-[var()] pb-1">
+                <h3 className="text-xs uppercase tracking-wider font-bold text-[var(--fg)] border-b border-[var(--hairline)] pb-1">
                   Structured Details
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[var()]">Experience Details</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">Experience Details</label>
                     <textarea
                       placeholder="e.g. Senior Software Architect at Google (3 yrs)&#10;Software Dev at Amazon (2 yrs)"
                       value={form.experience}
                       onChange={(e) => setForm((p: any) => ({ ...p, experience: e.target.value }))}
-                      className="px-3.5 py-2 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all h-24 text-xs"
+                      className="px-3.5 py-2 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all h-24 text-xs"
                     />
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[var()]">Education Details</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">Education Details</label>
                     <textarea
                       placeholder="e.g. B.Tech Computer Science, IIT Bombay (2021)&#10;M.S. Artificial Intelligence, Stanford (2023)"
                       value={form.education}
                       onChange={(e) => setForm((p: any) => ({ ...p, education: e.target.value }))}
-                      className="px-3.5 py-2 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all h-24 text-xs"
+                      className="px-3.5 py-2 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all h-24 text-xs"
                     />
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[var()]">Achievements</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">Achievements</label>
                     <textarea
                       placeholder="e.g. ACM ICPC World Finalist 2022&#10;Open Source Contributor of the Year 2024"
                       value={form.achievements}
                       onChange={(e) => setForm((p: any) => ({ ...p, achievements: e.target.value }))}
-                      className="px-3.5 py-2 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all h-24 text-xs"
+                      className="px-3.5 py-2 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all h-24 text-xs"
                     />
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[var()]">Projects</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">Projects</label>
                     <textarea
                       placeholder="e.g. HelpMeMan Scheduler Engine (Node/Postgres)&#10;Linear Notion Integrations Library"
                       value={form.projects}
                       onChange={(e) => setForm((p: any) => ({ ...p, projects: e.target.value }))}
-                      className="px-3.5 py-2 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all h-24 text-xs"
+                      className="px-3.5 py-2 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all h-24 text-xs"
                     />
                   </div>
                 </div>
@@ -873,38 +873,38 @@ export default function AdminTeamPage() {
 
               {/* 5. Skills, Languages, Interests (Comma Separated arrays) */}
               <div className="space-y-4">
-                <h3 className="text-xs uppercase tracking-wider font-bold text-[var()] border-b border-[var()] pb-1">
+                <h3 className="text-xs uppercase tracking-wider font-bold text-[var(--fg)] border-b border-[var(--hairline)] pb-1">
                   Skills, Languages & Interests (Comma Separated)
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[var()]">Skills List</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">Skills List</label>
                     <input
                       type="text"
                       placeholder="React, Node.js, Prisma, S3"
                       value={form.skills}
                       onChange={(e) => setForm((p: any) => ({ ...p, skills: e.target.value }))}
-                      className="px-3.5 py-2 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
+                      className="px-3.5 py-2 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[var()]">Languages Spoken</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">Languages Spoken</label>
                     <input
                       type="text"
                       placeholder="English, Hindi, Spanish"
                       value={form.languages}
                       onChange={(e) => setForm((p: any) => ({ ...p, languages: e.target.value }))}
-                      className="px-3.5 py-2 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
+                      className="px-3.5 py-2 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[var()]">Interests</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">Interests</label>
                     <input
                       type="text"
                       placeholder="Hiking, Chess, Open Source"
                       value={form.interests}
                       onChange={(e) => setForm((p: any) => ({ ...p, interests: e.target.value }))}
-                      className="px-3.5 py-2 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
+                      className="px-3.5 py-2 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
                     />
                   </div>
                 </div>
@@ -912,88 +912,88 @@ export default function AdminTeamPage() {
 
               {/* 6. Contact & Social Profiles */}
               <div className="space-y-4">
-                <h3 className="text-xs uppercase tracking-wider font-bold text-[var()] border-b border-[var()] pb-1">
+                <h3 className="text-xs uppercase tracking-wider font-bold text-[var(--fg)] border-b border-[var(--hairline)] pb-1">
                   Contact & Social profiles
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[var()]">Email Address</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">Email Address</label>
                     <input
                       type="email"
                       placeholder="member@helpmeman.com"
                       value={form.email}
                       onChange={(e) => setForm((p: any) => ({ ...p, email: e.target.value }))}
-                      className="px-3.5 py-2 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
+                      className="px-3.5 py-2 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[var()]">Phone Number (Optional)</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">Phone Number (Optional)</label>
                     <input
                       type="text"
                       placeholder="+91 99999 99999"
                       value={form.phone}
                       onChange={(e) => setForm((p: any) => ({ ...p, phone: e.target.value }))}
-                      className="px-3.5 py-2 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
+                      className="px-3.5 py-2 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[var()]">Location / City</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">Location / City</label>
                     <input
                       type="text"
                       placeholder="Bengaluru"
                       value={form.location}
                       onChange={(e) => setForm((p: any) => ({ ...p, location: e.target.value }))}
-                      className="px-3.5 py-2 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
+                      className="px-3.5 py-2 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[var()]">Country</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">Country</label>
                     <input
                       type="text"
                       placeholder="India"
                       value={form.country}
                       onChange={(e) => setForm((p: any) => ({ ...p, country: e.target.value }))}
-                      className="px-3.5 py-2 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
+                      className="px-3.5 py-2 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[var()]">LinkedIn URL</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">LinkedIn URL</label>
                     <input
                       type="text"
                       placeholder="https://linkedin.com/in/username"
                       value={form.linkedin}
                       onChange={(e) => setForm((p: any) => ({ ...p, linkedin: e.target.value }))}
-                      className="px-3.5 py-2 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
+                      className="px-3.5 py-2 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[var()]">GitHub URL</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">GitHub URL</label>
                     <input
                       type="text"
                       placeholder="https://github.com/username"
                       value={form.github}
                       onChange={(e) => setForm((p: any) => ({ ...p, github: e.target.value }))}
-                      className="px-3.5 py-2 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
+                      className="px-3.5 py-2 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[var()]">Twitter/X URL</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">Twitter/X URL</label>
                     <input
                       type="text"
                       placeholder="https://x.com/username"
                       value={form.twitter}
                       onChange={(e) => setForm((p: any) => ({ ...p, twitter: e.target.value }))}
-                      className="px-3.5 py-2 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
+                      className="px-3.5 py-2 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[var()]">Portfolio Website</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">Portfolio Website</label>
                     <input
                       type="text"
                       placeholder="https://username.com"
                       value={form.website}
                       onChange={(e) => setForm((p: any) => ({ ...p, website: e.target.value }))}
-                      className="px-3.5 py-2 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
+                      className="px-3.5 py-2 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
                     />
                   </div>
                 </div>
@@ -1001,7 +1001,7 @@ export default function AdminTeamPage() {
 
               {/* 7. Settings Toggles */}
               <div className="space-y-4">
-                <h3 className="text-xs uppercase tracking-wider font-bold text-[var()] border-b border-[var()] pb-1">
+                <h3 className="text-xs uppercase tracking-wider font-bold text-[var(--fg)] border-b border-[var(--hairline)] pb-1">
                   Metadata & Settings Switches
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3">
@@ -1010,7 +1010,7 @@ export default function AdminTeamPage() {
                       type="checkbox"
                       checked={form.isFounder}
                       onChange={(e) => setForm((p: any) => ({ ...p, isFounder: e.target.checked }))}
-                      className="rounded border-[var()] text-red-500 focus:ring-red-500 w-4 h-4"
+                      className="rounded border-[var(--hairline)] text-red-500 focus:ring-red-500 w-4 h-4"
                     />
                     Is Founder
                   </label>
@@ -1020,7 +1020,7 @@ export default function AdminTeamPage() {
                       type="checkbox"
                       checked={form.isLeadership}
                       onChange={(e) => setForm((p: any) => ({ ...p, isLeadership: e.target.checked }))}
-                      className="rounded border-[var()] text-red-500 focus:ring-red-500 w-4 h-4"
+                      className="rounded border-[var(--hairline)] text-red-500 focus:ring-red-500 w-4 h-4"
                     />
                     Is Leadership
                   </label>
@@ -1030,7 +1030,7 @@ export default function AdminTeamPage() {
                       type="checkbox"
                       checked={form.isVerified}
                       onChange={(e) => setForm((p: any) => ({ ...p, isVerified: e.target.checked }))}
-                      className="rounded border-[var()] text-red-500 focus:ring-red-500 w-4 h-4"
+                      className="rounded border-[var(--hairline)] text-red-500 focus:ring-red-500 w-4 h-4"
                     />
                     Is Verified
                   </label>
@@ -1040,7 +1040,7 @@ export default function AdminTeamPage() {
                       type="checkbox"
                       checked={form.isFeatured}
                       onChange={(e) => setForm((p: any) => ({ ...p, isFeatured: e.target.checked }))}
-                      className="rounded border-[var()] text-red-500 focus:ring-red-500 w-4 h-4"
+                      className="rounded border-[var(--hairline)] text-red-500 focus:ring-red-500 w-4 h-4"
                     />
                     Is Featured
                   </label>
@@ -1050,7 +1050,7 @@ export default function AdminTeamPage() {
                       type="checkbox"
                       checked={form.availableForMentorship}
                       onChange={(e) => setForm((p: any) => ({ ...p, availableForMentorship: e.target.checked }))}
-                      className="rounded border-[var()] text-red-500 focus:ring-red-500 w-4 h-4"
+                      className="rounded border-[var(--hairline)] text-red-500 focus:ring-red-500 w-4 h-4"
                     />
                     Available for Mentorship
                   </label>
@@ -1060,7 +1060,7 @@ export default function AdminTeamPage() {
                       type="checkbox"
                       checked={form.allowContact}
                       onChange={(e) => setForm((p: any) => ({ ...p, allowContact: e.target.checked }))}
-                      className="rounded border-[var()] text-red-500 focus:ring-red-500 w-4 h-4"
+                      className="rounded border-[var(--hairline)] text-red-500 focus:ring-red-500 w-4 h-4"
                     />
                     Allow Direct Contact
                   </label>
@@ -1070,7 +1070,7 @@ export default function AdminTeamPage() {
                       type="checkbox"
                       checked={form.showEmail}
                       onChange={(e) => setForm((p: any) => ({ ...p, showEmail: e.target.checked }))}
-                      className="rounded border-[var()] text-red-500 focus:ring-red-500 w-4 h-4"
+                      className="rounded border-[var(--hairline)] text-red-500 focus:ring-red-500 w-4 h-4"
                     />
                     Show Public Email
                   </label>
@@ -1080,7 +1080,7 @@ export default function AdminTeamPage() {
                       type="checkbox"
                       checked={form.showSocialLinks}
                       onChange={(e) => setForm((p: any) => ({ ...p, showSocialLinks: e.target.checked }))}
-                      className="rounded border-[var()] text-red-500 focus:ring-red-500 w-4 h-4"
+                      className="rounded border-[var(--hairline)] text-red-500 focus:ring-red-500 w-4 h-4"
                     />
                     Show Socials
                   </label>
@@ -1090,7 +1090,7 @@ export default function AdminTeamPage() {
                       type="checkbox"
                       checked={form.isActive}
                       onChange={(e) => setForm((p: any) => ({ ...p, isActive: e.target.checked }))}
-                      className="rounded border-[var()] text-red-500 focus:ring-red-500 w-4 h-4"
+                      className="rounded border-[var(--hairline)] text-red-500 focus:ring-red-500 w-4 h-4"
                     />
                     Is Active Profile
                   </label>
@@ -1099,26 +1099,26 @@ export default function AdminTeamPage() {
 
               {/* 8. Dates */}
               <div className="space-y-4">
-                <h3 className="text-xs uppercase tracking-wider font-bold text-[var()] border-b border-[var()] pb-1">
+                <h3 className="text-xs uppercase tracking-wider font-bold text-[var(--fg)] border-b border-[var(--hairline)] pb-1">
                   Dates
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[var()]">Joined Date</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">Joined Date</label>
                     <input
                       type="date"
                       value={form.joinedAt}
                       onChange={(e) => setForm((p: any) => ({ ...p, joinedAt: e.target.value }))}
-                      className="px-3.5 py-2 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
+                      className="px-3.5 py-2 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[var()]">Departure Date (If Left)</label>
+                    <label className="text-xs font-semibold text-[var(--fg)]">Departure Date (If Left)</label>
                     <input
                       type="date"
                       value={form.leftAt}
                       onChange={(e) => setForm((p: any) => ({ ...p, leftAt: e.target.value }))}
-                      className="px-3.5 py-2 rounded-xl border border-[var()] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
+                      className="px-3.5 py-2 rounded-xl border border-[var(--hairline)] bg-transparent focus:border-amber-500 outline-none transition-all text-xs"
                     />
                   </div>
                 </div>

@@ -89,119 +89,119 @@ body {
   transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease;
 }
 
-/* ── Global Fallbacks for Tailwind v4 [var()] Utility Classes ── */
-[class*="text-[var()]"] {
+/* ── Global Fallbacks for Tailwind v4 [var(--fg)] Utility Classes ── */
+[class*="text-[var(--fg)]"] {
   color: var(--fg);
 }
 
-[class*="text-[var()]/40"] {
+[class*="text-[var(--fg)]/40"] {
   color: color-mix(in srgb, var(--fg) 40%, transparent);
 }
 
-[class*="text-[var()]/45"] {
+[class*="text-[var(--fg)]/45"] {
   color: color-mix(in srgb, var(--fg) 45%, transparent);
 }
 
-[class*="text-[var()]/60"] {
+[class*="text-[var(--fg)]/60"] {
   color: color-mix(in srgb, var(--fg) 60%, transparent);
 }
 
-[class*="text-[var()]/70"] {
+[class*="text-[var(--fg)]/70"] {
   color: color-mix(in srgb, var(--fg) 70%, transparent);
 }
 
-[class*="text-[var()]/80"] {
+[class*="text-[var(--fg)]/80"] {
   color: color-mix(in srgb, var(--fg) 80%, transparent);
 }
 
-[class*="text-[var()]/90"] {
+[class*="text-[var(--fg)]/90"] {
   color: color-mix(in srgb, var(--fg) 90%, transparent);
 }
 
-[class*="border-[var()]"] {
+[class*="border-[var(--hairline)]"] {
   border-color: var(--hairline);
 }
 
-[class*="border-[var()]/10"],
-[class*="border-[var()]/15"],
-[class*="border-[var()]/20"],
-[class*="border-[var()]/25"],
-[class*="border-[var()]/30"],
-[class*="border-[var()]/40"],
-[class*="border-[var()]/50"] {
+[class*="border-[var(--hairline)]/10"],
+[class*="border-[var(--hairline)]/15"],
+[class*="border-[var(--hairline)]/20"],
+[class*="border-[var(--hairline)]/25"],
+[class*="border-[var(--hairline)]/30"],
+[class*="border-[var(--hairline)]/40"],
+[class*="border-[var(--hairline)]/50"] {
   border-color: var(--hairline);
 }
 
-[class*="border-t-[var()]"] {
+[class*="border-t-[var(--hairline)]"] {
   border-top-color: var(--hairline);
 }
 
-[class*="border-b-[var()]"] {
+[class*="border-b-[var(--hairline)]"] {
   border-bottom-color: var(--hairline);
 }
 
-[class*="border-l-[var()]"] {
+[class*="border-l-[var(--hairline)]"] {
   border-left-color: var(--hairline);
 }
 
-[class*="border-r-[var()]"] {
+[class*="border-r-[var(--hairline)]"] {
   border-right-color: var(--hairline);
 }
 
-[class*="bg-[var()]"] {
+[class*="bg-[var(--bg)]"] {
   background-color: var(--bg);
 }
 
-[class*="bg-[var()]/[0.01]"] {
+[class*="bg-[var(--fg)]/[0.01]"] {
   background-color: color-mix(in srgb, var(--fg) 1%, transparent);
 }
 
-[class*="bg-[var()]/[0.02]"] {
+[class*="bg-[var(--fg)]/[0.02]"] {
   background-color: color-mix(in srgb, var(--fg) 2%, transparent);
 }
 
-[class*="bg-[var()]/[0.03]"] {
+[class*="bg-[var(--fg)]/[0.03]"] {
   background-color: color-mix(in srgb, var(--fg) 3%, transparent);
 }
 
-[class*="bg-[var()]/[0.04]"] {
+[class*="bg-[var(--fg)]/[0.04]"] {
   background-color: color-mix(in srgb, var(--fg) 4%, transparent);
 }
 
-[class*="bg-[var()]/4"],
-[class*="bg-[var()]/5"] {
+[class*="bg-[var(--fg)]/4"],
+[class*="bg-[var(--fg)]/5"] {
   background-color: color-mix(in srgb, var(--fg) 5%, transparent);
 }
 
-[class*="bg-[var()]/6"] {
+[class*="bg-[var(--fg)]/6"] {
   background-color: color-mix(in srgb, var(--fg) 6%, transparent);
 }
 
-[class*="bg-[var()]/8"] {
+[class*="bg-[var(--fg)]/8"] {
   background-color: color-mix(in srgb, var(--fg) 8%, transparent);
 }
 
-[class*="bg-[var()]/10"] {
+[class*="bg-[var(--fg)]/10"] {
   background-color: color-mix(in srgb, var(--fg) 10%, transparent);
 }
 
-[class*="bg-[var()]/15"] {
+[class*="bg-[var(--fg)]/15"] {
   background-color: color-mix(in srgb, var(--fg) 15%, transparent);
 }
 
-[class*="bg-[var()]/20"] {
+[class*="bg-[var(--fg)]/20"] {
   background-color: color-mix(in srgb, var(--fg) 20%, transparent);
 }
 
-[class*="bg-[var()]/60"] {
+[class*="bg-[var(--fg)]/60"] {
   background-color: color-mix(in srgb, var(--fg) 60%, transparent);
 }
 
-[class*="bg-[var()]/80"] {
+[class*="bg-[var(--fg)]/80"] {
   background-color: color-mix(in srgb, var(--fg) 80%, transparent);
 }
 
-[class*="placeholder-[var()]"]::placeholder {
+[class*="placeholder-[var(--muted)]"]::placeholder {
   color: var(--muted);
 }
 

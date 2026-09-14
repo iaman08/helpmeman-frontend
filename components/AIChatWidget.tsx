@@ -493,8 +493,9 @@ function formatReadReceiptTime(dateStr: string) {
 
 function MentorCardInChat({ mentor, onBook }: { mentor: MentorData; onBook: (mentor: MentorData) => void }) {
   const [avatarError, setAvatarError] = useState(false);
-  const avatarUrl = mentor.avatar || `https://i.pravatar.cc/150?u=${mentor.id}`;
-  const initials = mentor.displayName.slice(0, 2).toUpperCase();
+  const avatarUrl = mentor.avatar || (mentor as any).user?.avatar;
+  const displayName = mentor.displayName || (mentor as any).user?.name || "Mentor";
+  const initials = displayName.slice(0, 2).toUpperCase();
 
   // Institution badge color
   const instColor =
@@ -506,10 +507,10 @@ function MentorCardInChat({ mentor, onBook }: { mentor: MentorData; onBook: (men
     <div className="rounded-2xl border border-[var(--hairline)] bg-[var(--bg)] shadow-sm overflow-hidden hover:shadow-md transition-shadow">
       {/* Header */}
       <div className="flex items-start gap-3 p-4 pb-3">
-        {!avatarError ? (
+        {avatarUrl && !avatarError ? (
           <img
             src={avatarUrl}
-            alt={mentor.displayName}
+            alt={displayName}
             className="h-12 w-12 rounded-full object-cover shrink-0 border border-[var(--hairline)]"
             onError={() => setAvatarError(true)}
           />
@@ -788,16 +789,17 @@ function BookingModalInChat({
 
 function MentorProfileInChat({ mentor, onBook }: { mentor: MentorData; onBook: (mentor: MentorData) => void }) {
   const [avatarError, setAvatarError] = useState(false);
-  const avatarUrl = mentor.avatar || `https://i.pravatar.cc/150?u=${mentor.id}`;
-  const initials = mentor.displayName.slice(0, 2).toUpperCase();
+  const avatarUrl = mentor.avatar || (mentor as any).user?.avatar;
+  const displayName = mentor.displayName || (mentor as any).user?.name || "Mentor";
+  const initials = displayName.slice(0, 2).toUpperCase();
 
   return (
     <div className="rounded-2xl border border-[var(--hairline)] bg-[var(--bg)] shadow-md overflow-hidden p-4 flex flex-col gap-3">
       <div className="flex items-center gap-3">
-        {!avatarError ? (
+        {avatarUrl && !avatarError ? (
           <img
             src={avatarUrl}
-            alt={mentor.displayName}
+            alt={displayName}
             className="h-14 w-14 rounded-full object-cover border border-[var(--hairline)]"
             onError={() => setAvatarError(true)}
           />
@@ -808,7 +810,7 @@ function MentorProfileInChat({ mentor, onBook }: { mentor: MentorData; onBook: (
         )}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="font-semibold text-sm truncate">{mentor.displayName}</span>
+            <span className="font-semibold text-sm truncate">{displayName}</span>
             <BadgeCheck className="h-3.5 w-3.5 text-blue-500 shrink-0" />
           </div>
           {mentor.currentRole && (

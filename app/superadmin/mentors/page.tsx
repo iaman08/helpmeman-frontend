@@ -6,8 +6,10 @@ import { Skeleton } from "@/components/Skeleton";
 import { StatusBadge } from "@/components/StatusBadge";
 import { InstitutionBadge } from "@/components/InstitutionBadge";
 import { MentorApplicationModal } from "@/components/MentorApplicationModal";
-import { Search, ChevronLeft, ChevronRight, CheckCircle, XCircle, Eye } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, CheckCircle, XCircle, Eye, DollarSign } from "lucide-react";
 import { useConfirm } from "@/components/ConfirmModal";
+import { PriceDisplay } from "@/components/PriceDisplay";
+import { EditMentorPriceModal } from "@/components/EditMentorPriceModal";
 import type { Mentor } from "@/lib/types";
 
 export default function SuperAdminMentorsPage() {
@@ -21,6 +23,7 @@ export default function SuperAdminMentorsPage() {
   const [rejectReason, setRejectReason] = useState("");
   const [rejectId, setRejectId] = useState<string | null>(null);
   const [selectedMentor, setSelectedMentor] = useState<Mentor | null>(null);
+  const [editingPriceMentor, setEditingPriceMentor] = useState<Mentor | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -130,6 +133,7 @@ export default function SuperAdminMentorsPage() {
                 <th className="px-6 py-4">Mentor</th>
                 <th className="px-6 py-4">Institution</th>
                 <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4">Price</th>
                 <th className="px-6 py-4">Stats</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
@@ -141,23 +145,45 @@ export default function SuperAdminMentorsPage() {
                     <td className="px-6 py-4"><Skeleton className="h-5 w-40" /></td>
                     <td className="px-6 py-4"><Skeleton className="h-5 w-32" /></td>
                     <td className="px-6 py-4"><Skeleton className="h-5 w-20" /></td>
+                    <td className="px-6 py-4"><Skeleton className="h-5 w-20" /></td>
                     <td className="px-6 py-4"><Skeleton className="h-5 w-24" /></td>
                     <td className="px-6 py-4"><Skeleton className="h-8 w-20 ml-auto" /></td>
                   </tr>
                 ))
               ) : mentors.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-10 text-center text-sm" style={{ color: "var(--muted)" }}>No mentors found.</td>
+                  <td colSpan={6} className="px-6 py-10 text-center text-sm" style={{ color: "var(--muted)" }}>No mentors found.</td>
                 </tr>
               ) : (
                 mentors.map((mentor, idx) => {
                   const displayName = mentor.displayName || mentor.user?.name || "Mentor";
+                  const avatarUrl = mentor.avatar || mentor.user?.avatar;
+                  const initials = displayName
+                    .split(" ")
+                    .map((w) => w[0])
+                    .join("")
+                    .slice(0, 2)
+                    .toUpperCase();
+
                   return (
                     <tr key={mentor.id} className="transition-colors" style={{ borderBottom: idx < mentors.length - 1 ? "1px solid var(--hairline)" : "none" }}>
                       <td className="px-6 py-4">
-                        <div className="flex flex-col">
-                          <span className="font-semibold" style={{ color: "var(--fg)" }}>{displayName}</span>
-                          <span className="text-xs" style={{ color: "var(--muted)" }}>{mentor.user?.email || mentor.institutionEmail}</span>
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="flex h-9 w-9 items-center justify-center rounded-xl text-xs font-bold shrink-0 overflow-hidden"
+                            style={{ background: "color-mix(in srgb, var(--fg) 8%, transparent)", color: "var(--fg)", border: "1px solid var(--hairline)" }}
+                          >
+                            {avatarUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={avatarUrl} alt={displayName} className="h-full w-full rounded-xl object-cover" />
+                            ) : (
+                              initials
+                            )}
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="font-semibold" style={{ color: "var(--fg)" }}>{displayName}</span>
+                            <span className="text-xs" style={{ color: "var(--muted)" }}>{mentor.user?.email || mentor.institutionEmail}</span>
+                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-xs font-medium" style={{ color: "var(--muted)" }}>
@@ -165,6 +191,25 @@ export default function SuperAdminMentorsPage() {
                       </td>
                       <td className="px-6 py-4">
                         <StatusBadge status={mentor.approvalStatus} />
+                      </td>
+                      <td className="px-6 py-4">
+                        <button
+                          type="button"
+                          onClick={() => setEditingPriceMentor(mentor)}
+                          className="group flex items-center gap-1.5 px-2.5 py-1 rounded-lg border hover:border-amber-500/50 hover:bg-amber-500/10 transition-all cursor-pointer text-left"
+                          style={{
+                            borderColor: "var(--hairline)",
+                            background: "color-mix(in srgb, var(--fg) 2%, transparent)",
+                          }}
+                          title="Click to edit session price"
+                        >
+                          <span className="font-semibold text-xs font-mono" style={{ color: "var(--fg)" }}>
+                            <PriceDisplay amountInPaise={mentor.pricePerSession} />
+                          </span>
+                          <span className="text-[10px] text-amber-500 opacity-60 group-hover:opacity-100 transition-opacity">
+                            ✎
+                          </span>
+                        </button>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-col text-xs font-medium" style={{ color: "var(--muted)" }}>
@@ -184,6 +229,17 @@ export default function SuperAdminMentorsPage() {
                             title="View Application"
                           >
                             <Eye className="h-4 w-4 text-amber-500" />
+                          </button>
+                          <button
+                            onClick={() => setEditingPriceMentor(mentor)}
+                            className="p-1.5 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer"
+                            style={{
+                              background: "color-mix(in srgb, var(--fg) 6%, transparent)",
+                              color: "var(--fg)",
+                            }}
+                            title="Edit Price"
+                          >
+                            <DollarSign className="h-4 w-4 text-amber-500" />
                           </button>
                           {mentor.approvalStatus === "PENDING" && (
                             <>
@@ -282,6 +338,31 @@ export default function SuperAdminMentorsPage() {
           onClose={() => setSelectedMentor(null)}
           onApprove={(id) => handleApprove(id)}
           onReject={(id, reason) => handleReject(id, reason)}
+          onPriceUpdated={(id, newPricePaise) => {
+            setMentors((prev) =>
+              prev.map((m) => (m.id === id ? { ...m, pricePerSession: newPricePaise } : m))
+            );
+            if (selectedMentor?.id === id) {
+              setSelectedMentor((prev) => (prev ? { ...prev, pricePerSession: newPricePaise } : null));
+            }
+          }}
+        />
+      )}
+
+      {/* Edit Mentor Price Modal */}
+      {editingPriceMentor && (
+        <EditMentorPriceModal
+          isOpen={!!editingPriceMentor}
+          mentor={editingPriceMentor}
+          onClose={() => setEditingPriceMentor(null)}
+          onSuccess={(updatedMentor) => {
+            setMentors((prev) =>
+              prev.map((m) => (m.id === updatedMentor.id ? { ...m, ...updatedMentor } : m))
+            );
+            if (selectedMentor?.id === updatedMentor.id) {
+              setSelectedMentor((prev) => (prev ? { ...prev, ...updatedMentor } : null));
+            }
+          }}
         />
       )}
     </div>

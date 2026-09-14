@@ -33,7 +33,7 @@ export function AIMatchScore({ score, reasons, compact = false }: AIMatchScorePr
   }
 
   return (
-    <div className="flex flex-col gap-3 text-[var()]">
+    <div className="flex flex-col gap-3 text-[var(--fg)]">
       {/* Ring + Score */}
       <div className="flex items-center gap-4">
         <div className="relative flex-shrink-0">
@@ -57,14 +57,14 @@ export function AIMatchScore({ score, reasons, compact = false }: AIMatchScorePr
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-xs font-bold font-display text-[var()]">
+            <span className="text-xs font-bold font-display text-[var(--fg)]">
               {score}%
             </span>
           </div>
         </div>
         <div>
-          <p className="font-bold text-sm text-[var()]">AI Match Score</p>
-          <p className="text-xs text-[var()] mt-0.5">
+          <p className="font-bold text-sm text-[var(--fg)]">AI Match Score</p>
+          <p className="text-xs text-[var(--fg)] mt-0.5">
             {score >= 85
               ? "Excellent compatibility"
               : score >= 70
@@ -85,7 +85,7 @@ export function AIMatchScore({ score, reasons, compact = false }: AIMatchScorePr
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 + i * 0.08 }}
-              className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-[var()]/5 text-[var()] border border-[var()]"
+              className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-[var(--fg)]/5 text-[var(--fg)] border border-[var(--hairline)]"
             >
               <span>{r.icon}</span>
               <span>{r.label}</span>

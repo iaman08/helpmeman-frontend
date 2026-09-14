@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { InstitutionBadge } from "@/components/InstitutionBadge";
 import { StatusBadge } from "@/components/StatusBadge";
+import { EditMentorPriceModal } from "@/components/EditMentorPriceModal";
 import api from "@/lib/api";
 import { useConfirm } from "@/components/ConfirmModal";
 import type { Mentor } from "@/lib/types";
@@ -34,6 +35,7 @@ interface Props {
   onClose: () => void;
   onApprove?: (id: string) => Promise<void> | void;
   onReject?: (id: string, reason: string) => Promise<void> | void;
+  onPriceUpdated?: (id: string, newPricePaise: number) => void;
 }
 
 export function MentorApplicationModal({
@@ -42,16 +44,26 @@ export function MentorApplicationModal({
   onClose,
   onApprove,
   onReject,
+  onPriceUpdated,
 }: Props) {
   const confirm = useConfirm();
   const [activeTab, setActiveTab] = useState<"answers" | "profile" | "ai" | "docs">("answers");
   const [rejecting, setRejecting] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [showPriceModal, setShowPriceModal] = useState(false);
+  const [currentPrice, setCurrentPrice] = useState<number | undefined>(mentor?.pricePerSession);
+  const [avatarError, setAvatarError] = useState(false);
+
+  React.useEffect(() => {
+    setCurrentPrice(mentor?.pricePerSession);
+    setAvatarError(false);
+  }, [mentor]);
 
   if (!isOpen || !mentor) return null;
 
   const displayName = mentor.displayName || mentor.user?.name || "Mentor";
+  const avatarUrl = mentor.avatar || mentor.user?.avatar;
   const initials = displayName
     .split(" ")
     .map((w) => w[0])
@@ -143,11 +155,12 @@ export function MentorApplicationModal({
                 border: "1px solid var(--hairline)",
               }}
             >
-              {mentor.avatar ? (
+              {avatarUrl && !avatarError ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={mentor.avatar}
+                  src={avatarUrl}
                   alt={displayName}
+                  onError={() => setAvatarError(true)}
                   className="h-full w-full rounded-2xl object-cover"
                 />
               ) : (
@@ -457,18 +470,27 @@ export function MentorApplicationModal({
                 </div>
 
                 <div
-                  className="p-3.5 rounded-xl flex flex-col gap-1"
+                  className="p-3.5 rounded-xl flex items-center justify-between gap-2"
                   style={{
                     background: "color-mix(in srgb, var(--fg) 2%, transparent)",
                     border: "1px solid var(--hairline)",
                   }}
                 >
-                  <span className="text-[11px] font-semibold text-zinc-400 flex items-center gap-1">
-                    <DollarSign className="h-3.5 w-3.5 text-amber-500" /> Pricing
-                  </span>
-                  <span className="text-xs font-medium">
-                    {mentor.pricePerSession ? `₹${(mentor.pricePerSession / 100).toFixed(0)}` : "Free / Trial"}
-                  </span>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[11px] font-semibold text-zinc-400 flex items-center gap-1">
+                      <DollarSign className="h-3.5 w-3.5 text-amber-500" /> Pricing
+                    </span>
+                    <span className="text-xs font-semibold text-amber-500">
+                      {currentPrice !== undefined && currentPrice > 0 ? `₹${(currentPrice / 100).toFixed(0)}` : "Free / Trial"}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowPriceModal(true)}
+                    className="text-[11px] font-medium px-2 py-1 rounded-md border border-amber-500/30 text-amber-500 hover:bg-amber-500/10 transition-colors"
+                  >
+                    Edit
+                  </button>
                 </div>
 
                 <div
@@ -697,6 +719,14 @@ export function MentorApplicationModal({
                   </>
                 )}
                 <button
+                  type="button"
+                  onClick={() => setShowPriceModal(true)}
+                  className="px-4 py-2.5 rounded-xl text-xs font-semibold border border-amber-500/30 text-amber-500 hover:bg-amber-500/10 transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <DollarSign className="h-4 w-4" />
+                  Edit Price
+                </button>
+                <button
                   onClick={onClose}
                   className="px-4 py-2.5 rounded-xl text-xs font-semibold cursor-pointer"
                   style={{
@@ -711,6 +741,18 @@ export function MentorApplicationModal({
           </div>
         </div>
       </div>
+
+      {showPriceModal && (
+        <EditMentorPriceModal
+          isOpen={showPriceModal}
+          mentor={{ ...mentor, pricePerSession: currentPrice ?? mentor.pricePerSession ?? 0 }}
+          onClose={() => setShowPriceModal(false)}
+          onSuccess={(updatedMentor) => {
+            setCurrentPrice(updatedMentor.pricePerSession);
+            if (onPriceUpdated) onPriceUpdated(mentor.id, updatedMentor.pricePerSession);
+          }}
+        />
+      )}
     </div>
   );
 }

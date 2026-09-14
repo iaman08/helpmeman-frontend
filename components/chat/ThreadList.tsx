@@ -28,8 +28,8 @@ function formatDate(d: string) {
 }
 
 function PresenceDot({ status }: { status?: string }) {
-  if (status === "ONLINE") return <span className="h-2.5 w-2.5 rounded-full bg-green-400 border-2 border-[var()] shadow-sm" />;
-  if (status === "AWAY") return <span className="h-2.5 w-2.5 rounded-full bg-amber-400 border-2 border-[var()] shadow-sm" />;
+  if (status === "ONLINE") return <span className="h-2.5 w-2.5 rounded-full bg-green-400 border-2 border-[var(--hairline)] shadow-sm" />;
+  if (status === "AWAY") return <span className="h-2.5 w-2.5 rounded-full bg-amber-400 border-2 border-[var(--hairline)] shadow-sm" />;
   return null;
 }
 
@@ -163,7 +163,7 @@ export function ThreadList({
                     </div>
                     <div className="flex items-center justify-between gap-2">
                       <span className={`text-xs truncate ${
-                        unread > 0 ? "text-[var()]/70 font-medium" : "text-[var()]/45"
+                        unread > 0 ? "text-[var(--fg)]/70 font-medium" : "text-[var(--fg)]/45"
                       }`}>
                         {lastMsg?.deletedAt
                           ? "Message deleted"
@@ -174,7 +174,7 @@ export function ThreadList({
                           : "No messages yet"}
                       </span>
                       {unread > 0 && (
-                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[var()] text-[var()] text-[10px] font-bold px-1.5 shrink-0 animate-in zoom-in duration-200">
+                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--bg)] text-[var(--fg)] text-[10px] font-bold px-1.5 shrink-0 animate-in zoom-in duration-200">
                           {unread > 99 ? "99+" : unread}
                         </span>
                       )}

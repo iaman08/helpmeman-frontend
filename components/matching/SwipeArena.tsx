@@ -183,12 +183,12 @@ export function SwipeArena({ initialFilters = {} }: SwipeArenaProps) {
       {/* ─── Matchmaker Mini Header ─── */}
       <div className="flex items-center justify-between px-4 sm:px-6 py-2 z-10 flex-shrink-0">
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var()]/6 border border-[var()] text-xs font-bold text-[var()] shadow-xs">
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--fg)]/6 border border-[var(--hairline)] text-xs font-bold text-[var(--fg)] shadow-xs">
             <Sparkles className="h-3.5 w-3.5 text-amber-500 fill-amber-500 animate-pulse" />
             <span>AI Matchmaker</span>
           </div>
           {deck.length > 0 && (
-            <span className="text-xs text-[var()]/60 font-medium hidden sm:inline">
+            <span className="text-xs text-[var(--fg)]/60 font-medium hidden sm:inline">
               {deck.length} curated profiles ready
             </span>
           )}
@@ -197,12 +197,12 @@ export function SwipeArena({ initialFilters = {} }: SwipeArenaProps) {
         <button
           type="button"
           onClick={() => setShowFilters(true)}
-          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-[var()]/5 hover:bg-[var()]/10 border border-[var()] text-[var()] transition-colors cursor-pointer shadow-xs"
+          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-[var(--fg)]/5 hover:bg-[var(--fg)]/10 border border-[var(--hairline)] text-[var(--fg)] transition-colors cursor-pointer shadow-xs"
         >
           <SlidersHorizontal className="h-3.5 w-3.5" />
           <span>Filters</span>
           {activeFiltersCount > 0 && (
-            <span className="h-4.5 w-4.5 rounded-full bg-[var()] text-[var()] text-[10px] font-bold flex items-center justify-center">
+            <span className="h-4.5 w-4.5 rounded-full bg-[var(--bg)] text-[var(--fg)] text-[10px] font-bold flex items-center justify-center">
               {activeFiltersCount}
             </span>
           )}
@@ -309,7 +309,7 @@ export function SwipeArena({ initialFilters = {} }: SwipeArenaProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="text-center text-[10px] text-[var()]/50 pb-1 flex-shrink-0 hidden sm:block select-none"
+          className="text-center text-[10px] text-[var(--fg)]/50 pb-1 flex-shrink-0 hidden sm:block select-none"
         >
           ← Skip · → Like & View Profile · ↑ Priority · Enter View Details · Ctrl+Z Undo
         </motion.p>

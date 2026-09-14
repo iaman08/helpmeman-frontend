@@ -31,9 +31,9 @@ export function About() {
       {/* Feature Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
         {features.map((f, i) => (
-          <div key={i} className="flex flex-col gap-2.5 pt-4 border-t border-[var()]">
+          <div key={i} className="flex flex-col gap-2.5 pt-4 border-t border-[var(--hairline)]">
             <h3 className="font-display text-base sm:text-lg leading-snug">{f.t}</h3>
-            <p className="text-sm text-[var()] leading-relaxed">{f.d}</p>
+            <p className="text-sm text-[var(--fg)] leading-relaxed">{f.d}</p>
           </div>
         ))}
       </div>

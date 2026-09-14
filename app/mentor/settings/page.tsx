@@ -323,7 +323,10 @@ export default function MentorSettingsPage() {
         setCurrentRole(m.currentRole ?? "");
         setCompany(m.company ?? "");
         setExperienceYears(m.experienceYears != null ? String(m.experienceYears) : "");
-        setPricePerSession(m.pricePerSession != null ? String(m.pricePerSession) : "");
+        const loadedPrice = m.pricePerSession != null 
+          ? (m.pricePerSession >= 1000 ? Math.round(m.pricePerSession / 100) : m.pricePerSession) 
+          : "";
+        setPricePerSession(String(loadedPrice));
         setSessionDuration(m.sessionDuration != null ? String(m.sessionDuration) : "30");
         setSkills(m.expertise ?? []);
         setPreferredLanguage((m as any).preferredLanguage ?? "en");
@@ -416,14 +419,17 @@ export default function MentorSettingsPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const payload = {
+        const priceInRupees = pricePerSession ? parseFloat(pricePerSession) : 0;
+        const priceInPaise = Math.round(priceInRupees * 100);
+
+        const payload = {
         displayName: displayName.trim(),
         bio: bio.trim(),
         linkedinUrl: linkedinUrl.trim() || null,
         currentRole: currentRole.trim() || null,
         company: company.trim() || null,
         experienceYears: experienceYears ? parseInt(experienceYears) : null,
-        pricePerSession: pricePerSession ? parseInt(pricePerSession) : 0,
+        pricePerSession: priceInPaise,
         sessionDuration: parseInt(sessionDuration),
         expertise: skills,
         preferredLanguage,

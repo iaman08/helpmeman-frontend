@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { motion, AnimatePresence, type PanInfo } from "motion/react";
 import {
   X,
@@ -47,8 +47,8 @@ const SESSION_TYPES = [
 
 function InfoChip({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
   return (
-    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-[var()]/5 border border-[var()] text-[var()] shadow-xs">
-      <Icon className="h-3.5 w-3.5 text-[var()]/60" />
+    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-[var(--fg)]/5 border border-[var(--hairline)] text-[var(--fg)] shadow-xs">
+      <Icon className="h-3.5 w-3.5 text-[var(--fg)]/60" />
       <span>{label}</span>
     </div>
   );
@@ -65,15 +65,15 @@ function ReviewCard({
   };
 }) {
   return (
-    <div className="flex-shrink-0 w-72 p-4 rounded-2xl bg-[var()]/4 border border-[var()] flex flex-col justify-between shadow-xs">
+    <div className="flex-shrink-0 w-72 p-4 rounded-2xl bg-[var(--fg)]/4 border border-[var(--hairline)] flex flex-col justify-between shadow-xs">
       <div>
         <div className="flex items-center gap-2.5 mb-2.5">
           <div className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white shadow-sm">
             {(review.userName || "U").charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-bold text-[var()] truncate">{review.userName || "Mentee"}</p>
-            <p className="text-[10px] text-[var()]/60">Verified Session</p>
+            <p className="text-xs font-bold text-[var(--fg)] truncate">{review.userName || "Mentee"}</p>
+            <p className="text-[10px] text-[var(--fg)]/60">Verified Session</p>
           </div>
           <div className="ml-auto flex items-center gap-0.5">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -89,7 +89,7 @@ function ReviewCard({
           </div>
         </div>
         {review.comment && (
-          <p className="text-xs text-[var()]/85 leading-relaxed line-clamp-3 italic">
+          <p className="text-xs text-[var(--fg)]/85 leading-relaxed line-clamp-3 italic">
             &ldquo;{review.comment}&rdquo;
           </p>
         )}
@@ -105,6 +105,16 @@ export function ExpandedMentorPanel({
   onSwipeAction,
   onAction,
 }: ExpandedMentorPanelProps) {
+  const [avatarError, setAvatarError] = useState(false);
+  const avatarUrl = mentor?.avatar || mentor?.user?.avatar;
+  const displayName = mentor?.displayName || mentor?.user?.name || "Mentor";
+  const initials = displayName
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
   // Close on Escape key
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -113,6 +123,10 @@ export function ExpandedMentorPanel({
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
+
+  useEffect(() => {
+    setAvatarError(false);
+  }, [mentor]);
 
   const languages: string[] = Array.isArray(mentor?.languages)
     ? mentor.languages
@@ -163,21 +177,21 @@ export function ExpandedMentorPanel({
             dragConstraints={{ top: 0, bottom: 0 }}
             dragElastic={{ top: 0, bottom: 0.5 }}
             onDragEnd={handleDragEnd}
-            className="fixed bottom-0 left-0 right-0 md:left-1/2 md:-translate-x-1/2 md:max-w-2xl md:bottom-3 rounded-t-3xl md:rounded-3xl z-50 max-h-[92vh] overflow-y-auto no-scrollbar shadow-2xl border-t md:border border-[var()] will-change-transform"
+            className="fixed bottom-0 left-0 right-0 md:left-1/2 md:-translate-x-1/2 md:max-w-2xl md:bottom-3 rounded-t-3xl md:rounded-3xl z-50 max-h-[92vh] overflow-y-auto no-scrollbar shadow-2xl border-t md:border border-[var(--hairline)] will-change-transform"
             style={{
               background: "var(--bg)",
               color: "var(--fg)",
             }}
           >
             {/* Grab Handle */}
-            <div className="flex justify-center pt-3 pb-1 sticky top-0 z-20 bg-[var()]/90 backdrop-blur-md cursor-grab active:cursor-grabbing">
-              <div className="h-1.5 w-12 rounded-full bg-[var()]/25" />
+            <div className="flex justify-center pt-3 pb-1 sticky top-0 z-20 bg-[var(--fg)]/90 backdrop-blur-md cursor-grab active:cursor-grabbing">
+              <div className="h-1.5 w-12 rounded-full bg-[var(--fg)]/25" />
             </div>
 
             {/* Top Toolbar */}
             <div className="flex items-center justify-between px-6 py-2 sticky top-5 z-20">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-[var()]/60 flex items-center gap-1.5">
+                <span className="text-xs font-bold uppercase tracking-wider text-[var(--fg)]/60 flex items-center gap-1.5">
                   {isInterested && <Heart className="h-3.5 w-3.5 text-emerald-500 fill-emerald-500" />}
                   {isInterested ? "Liked Profile" : "Mentor Details"}
                 </span>
@@ -186,7 +200,7 @@ export function ExpandedMentorPanel({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-[var()]/8 hover:bg-[var()]/15 transition-colors cursor-pointer text-[var()]"
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-[var(--fg)]/8 hover:bg-[var(--fg)]/15 transition-colors cursor-pointer text-[var(--fg)]"
                 >
                   <span>Next Mentor</span>
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -194,7 +208,7 @@ export function ExpandedMentorPanel({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="p-2 rounded-full bg-[var()]/8 hover:bg-[var()]/15 transition-colors cursor-pointer text-[var()]"
+                  className="p-2 rounded-full bg-[var(--fg)]/8 hover:bg-[var(--fg)]/15 transition-colors cursor-pointer text-[var(--fg)]"
                   aria-label="Close mentor preview"
                 >
                   <X className="h-4 w-4" />
@@ -226,20 +240,34 @@ export function ExpandedMentorPanel({
               )}
 
               {/* Hero Banner with Avatar */}
-              <div className="flex items-start gap-4 p-4 rounded-2xl bg-[var()]/3 border border-[var()]">
+              <div className="flex items-start gap-4 p-4 rounded-2xl bg-[var(--fg)]/3 border border-[var(--hairline)]">
                 <div className="relative flex-shrink-0">
-                  <img
-                    src={mentor.avatar || `https://i.pravatar.cc/300?u=${mentor.id}`}
-                    alt={mentor.displayName}
-                    className="h-20 w-20 rounded-2xl object-cover border border-[var()] shadow-md"
-                  />
+                  {avatarUrl && !avatarError ? (
+                    <img
+                      src={avatarUrl}
+                      alt={displayName}
+                      className="h-20 w-20 rounded-2xl object-cover border border-[var(--hairline)] shadow-md"
+                      onError={() => setAvatarError(true)}
+                    />
+                  ) : (
+                    <div
+                      className="flex h-20 w-20 items-center justify-center rounded-2xl text-2xl font-bold font-display shrink-0 shadow-inner"
+                      style={{
+                        background: "color-mix(in srgb, var(--fg) 8%, transparent)",
+                        color: "var(--fg)",
+                        border: "1px solid var(--hairline)",
+                      }}
+                    >
+                      {initials}
+                    </div>
+                  )}
                   {mentor.isOnline && (
-                    <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-[var()] bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]" />
+                    <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-[var(--bg)] bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]" />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h2 className="text-xl sm:text-2xl font-black font-display text-[var()] leading-tight">
+                    <h2 className="text-xl sm:text-2xl font-black font-display text-[var(--fg)] leading-tight">
                       {mentor.displayName}
                     </h2>
                     <CheckCircle2 className="h-4 w-4 text-blue-500 flex-shrink-0" />
@@ -251,57 +279,57 @@ export function ExpandedMentorPanel({
                     )}
                   </div>
                   {mentor.currentRole && (
-                    <p className="text-xs sm:text-sm text-[var()]/80 mt-1 font-medium">
+                    <p className="text-xs sm:text-sm text-[var(--fg)]/80 mt-1 font-medium">
                       {mentor.currentRole}
                       {mentor.institutionName && (
-                        <span className="font-bold text-[var()]"> @ {mentor.institutionName}</span>
+                        <span className="font-bold text-[var(--fg)]"> @ {mentor.institutionName}</span>
                       )}
                     </p>
                   )}
                   <div className="flex items-center gap-3 mt-2 flex-wrap text-xs">
                     <div className="flex items-center gap-1">
                       <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
-                      <span className="font-bold text-[var()]">
+                      <span className="font-bold text-[var(--fg)]">
                         {mentor.rating > 0 ? mentor.rating.toFixed(1) : "New"}
                       </span>
                       {mentor.totalSessions > 0 && (
-                        <span className="text-[var()]/60">({mentor.totalSessions} sessions)</span>
+                        <span className="text-[var(--fg)]/60">({mentor.totalSessions} sessions)</span>
                       )}
                     </div>
                     {mentor.experienceYears !== undefined && (
-                      <span className="text-[var()]/60">• {mentor.experienceYears}y exp</span>
+                      <span className="text-[var(--fg)]/60">• {mentor.experienceYears}y exp</span>
                     )}
                   </div>
                 </div>
               </div>
 
               {/* Price & Key Metrics */}
-              <div className="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-[var()]/4 border border-[var()] text-center">
+              <div className="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-[var(--fg)]/4 border border-[var(--hairline)] text-center">
                 <div>
-                  <p className="text-lg sm:text-xl font-black font-display text-[var()]">
+                  <p className="text-lg sm:text-xl font-black font-display text-[var(--fg)]">
                     {mentor.pricePerSession === 0 ? (
                       <span className="text-emerald-500">Free</span>
                     ) : (
                       <PriceDisplay amountInPaise={mentor.pricePerSession} />
                     )}
                   </p>
-                  <p className="text-[10px] uppercase tracking-wider font-bold text-[var()]/60 mt-0.5">
+                  <p className="text-[10px] uppercase tracking-wider font-bold text-[var(--fg)]/60 mt-0.5">
                     per session
                   </p>
                 </div>
-                <div className="border-x border-[var()]">
-                  <p className="text-lg sm:text-xl font-black font-display text-[var()]">
+                <div className="border-x border-[var(--hairline)]">
+                  <p className="text-lg sm:text-xl font-black font-display text-[var(--fg)]">
                     {mentor.totalSessions}
                   </p>
-                  <p className="text-[10px] uppercase tracking-wider font-bold text-[var()]/60 mt-0.5">
+                  <p className="text-[10px] uppercase tracking-wider font-bold text-[var(--fg)]/60 mt-0.5">
                     sessions
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm sm:text-base font-bold text-[var()]">
+                  <p className="text-sm sm:text-base font-bold text-[var(--fg)]">
                     {mentor.averageResponseTime || "Fast"}
                   </p>
-                  <p className="text-[10px] uppercase tracking-wider font-bold text-[var()]/60 mt-0.5">
+                  <p className="text-[10px] uppercase tracking-wider font-bold text-[var(--fg)]/60 mt-0.5">
                     response
                   </p>
                 </div>
@@ -315,10 +343,10 @@ export function ExpandedMentorPanel({
               {/* Bio / About */}
               {mentor.bio && (
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var()]/60 mb-2">
+                  <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var(--fg)]/60 mb-2">
                     About Mentor
                   </p>
-                  <p className="text-sm text-[var()]/85 leading-relaxed bg-[var()]/3 p-4 rounded-2xl border border-[var()]">
+                  <p className="text-sm text-[var(--fg)]/85 leading-relaxed bg-[var(--fg)]/3 p-4 rounded-2xl border border-[var(--hairline)]">
                     {mentor.bio}
                   </p>
                 </div>
@@ -327,14 +355,14 @@ export function ExpandedMentorPanel({
               {/* Expertise Skills */}
               {mentor.expertise && mentor.expertise.length > 0 && (
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var()]/60 mb-2">
+                  <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var(--fg)]/60 mb-2">
                     Skills & Areas of Expertise
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {mentor.expertise.map((skill) => (
                       <span
                         key={skill}
-                        className="px-3 py-1 rounded-full text-xs font-bold bg-[var()]/5 text-[var()] border border-[var()] shadow-xs"
+                        className="px-3 py-1 rounded-full text-xs font-bold bg-[var(--fg)]/5 text-[var(--fg)] border border-[var(--hairline)] shadow-xs"
                       >
                         {skill}
                       </span>
@@ -345,19 +373,19 @@ export function ExpandedMentorPanel({
 
               {/* Session Types Provided */}
               <div>
-                <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var()]/60 mb-2">
+                <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var(--fg)]/60 mb-2">
                   Session Formats Available
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {SESSION_TYPES.map(({ icon: Icon, label, desc }) => (
                     <div
                       key={label}
-                      className="flex items-center gap-3 p-3 rounded-xl bg-[var()]/3 border border-[var()]"
+                      className="flex items-center gap-3 p-3 rounded-xl bg-[var(--fg)]/3 border border-[var(--hairline)]"
                     >
                       <Icon className="h-4 w-4 text-indigo-400 flex-shrink-0" />
                       <div>
-                        <p className="text-xs font-bold text-[var()]">{label}</p>
-                        <p className="text-[10px] text-[var()]/60">{desc}</p>
+                        <p className="text-xs font-bold text-[var(--fg)]">{label}</p>
+                        <p className="text-[10px] text-[var(--fg)]/60">{desc}</p>
                       </div>
                     </div>
                   ))}
@@ -384,7 +412,7 @@ export function ExpandedMentorPanel({
               {/* Mentee Reviews */}
               {uniquePanelReviews.length > 0 && (
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var()]/60 mb-2.5">
+                  <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var(--fg)]/60 mb-2.5">
                     Recent Mentee Feedback ({uniquePanelReviews.length})
                   </p>
                   <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
@@ -423,7 +451,7 @@ export function ExpandedMentorPanel({
             </div>
 
             {/* Sticky Action Footer */}
-            <div className="fixed bottom-0 left-0 right-0 md:left-1/2 md:-translate-x-1/2 md:max-w-2xl px-6 py-4 flex items-center gap-3 border-t border-[var()] bg-[var()]/95 backdrop-blur-md z-30">
+            <div className="fixed bottom-0 left-0 right-0 md:left-1/2 md:-translate-x-1/2 md:max-w-2xl px-6 py-4 flex items-center gap-3 border-t border-[var(--hairline)] bg-[var(--fg)]/95 backdrop-blur-md z-30">
               <Link
                 href={`/book/${mentor.id}`}
                 onClick={() => {
@@ -442,7 +470,7 @@ export function ExpandedMentorPanel({
                   onAction?.("chat_opened");
                   onClose();
                 }}
-                className="flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-xl font-bold text-xs bg-[var()]/5 border border-[var()] text-[var()] hover:bg-[var()]/10 transition-all"
+                className="flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-xl font-bold text-xs bg-[var(--fg)]/5 border border-[var(--hairline)] text-[var(--fg)] hover:bg-[var(--fg)]/10 transition-all"
               >
                 <MessageSquare className="h-4 w-4" />
                 <span>Chat</span>
@@ -454,7 +482,7 @@ export function ExpandedMentorPanel({
                   onAction?.("profile_opened");
                   onClose();
                 }}
-                className="flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-xl font-bold text-xs bg-[var()]/5 border border-[var()] text-[var()] hover:bg-[var()]/10 transition-all"
+                className="flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-xl font-bold text-xs bg-[var(--fg)]/5 border border-[var(--hairline)] text-[var(--fg)] hover:bg-[var(--fg)]/10 transition-all"
               >
                 <ExternalLink className="h-4 w-4" />
                 <span>Profile</span>

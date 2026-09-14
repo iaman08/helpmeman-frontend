@@ -86,10 +86,14 @@ export const MentorSwipeCard = forwardRef<MentorSwipeCardHandle, MentorSwipeCard
       : typeof mentor.languages === "string"
       ? mentor.languages.split(",").map((l) => l.trim())
       : [];
-
-    const avatarUrl = imgError
-      ? `https://i.pravatar.cc/400?u=${mentor.id}`
-      : mentor.avatar || `https://i.pravatar.cc/400?u=${mentor.id}`;
+    const actualAvatar = mentor.avatar || mentor.user?.avatar;
+    const displayName = mentor.displayName || mentor.user?.name || "Mentor";
+    const initials = displayName
+      .split(" ")
+      .map((w) => w[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
 
     const throwCard = useCallback(
       async (direction: "left" | "right" | "up") => {
@@ -242,14 +246,23 @@ export const MentorSwipeCard = forwardRef<MentorSwipeCardHandle, MentorSwipeCard
           )}
 
           {/* Photo Section (Top 46%) */}
-          <div className="relative h-[46%] w-full overflow-hidden bg-[var()]/4">
-            <img
-              src={avatarUrl}
-              alt={mentor.displayName}
-              className="w-full h-full object-cover object-top pointer-events-none transition-transform duration-500"
-              draggable={false}
-              onError={() => setImgError(true)}
-            />
+          <div className="relative h-[46%] w-full overflow-hidden bg-gradient-to-br from-amber-500/10 via-purple-500/5 to-transparent">
+            {actualAvatar && !imgError ? (
+              <img
+                src={actualAvatar}
+                alt={displayName}
+                className="w-full h-full object-cover object-top pointer-events-none transition-transform duration-500"
+                draggable={false}
+                onError={() => setImgError(true)}
+              />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-gradient-to-tr from-amber-500/20 via-zinc-800 to-zinc-900 text-white select-none">
+                <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 text-3xl font-black font-display tracking-wider shadow-2xl">
+                  {initials}
+                </div>
+                <span className="text-xs font-medium text-white/60 tracking-wider uppercase">Mentor</span>
+              </div>
+            )}
 
             {/* Smooth gradient shadow overlay */}
             <div
@@ -290,10 +303,10 @@ export const MentorSwipeCard = forwardRef<MentorSwipeCardHandle, MentorSwipeCard
           </div>
 
           {/* Divider */}
-          <div className="w-full h-px bg-[var()]" />
+          <div className="w-full h-px bg-[var(--bg)]" />
 
           {/* Info Section (Bottom 54%) */}
-          <div className="flex-1 flex flex-col justify-between p-4.5 sm:p-5 bg-transparent text-[var()]">
+          <div className="flex-1 flex flex-col justify-between p-4.5 sm:p-5 bg-transparent text-[var(--fg)]">
             <div>
               {/* Name & Verified Badge */}
               <div className="flex items-center gap-1.5 mb-1">
@@ -310,39 +323,39 @@ export const MentorSwipeCard = forwardRef<MentorSwipeCardHandle, MentorSwipeCard
 
               {/* Current Role & Institution */}
               {mentor.currentRole && (
-                <p className="text-xs text-[var()] leading-snug mb-3 line-clamp-1 font-medium">
+                <p className="text-xs text-[var(--fg)] leading-snug mb-3 line-clamp-1 font-medium">
                   {mentor.currentRole}
                   {mentor.institutionName && (
-                    <span className="font-bold text-[var()]/90"> @ {mentor.institutionName}</span>
+                    <span className="font-bold text-[var(--fg)]/90"> @ {mentor.institutionName}</span>
                   )}
                 </p>
               )}
 
               {/* Stats Bar */}
-              <div className="grid grid-cols-2 gap-2 border-t border-b border-[var()] py-2.5 my-2">
-                <div className="flex items-center gap-1.5 text-xs text-[var()] font-medium">
+              <div className="grid grid-cols-2 gap-2 border-t border-b border-[var(--hairline)] py-2.5 my-2">
+                <div className="flex items-center gap-1.5 text-xs text-[var(--fg)] font-medium">
                   <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400 flex-shrink-0" />
-                  <span className="font-bold text-[var()]">
+                  <span className="font-bold text-[var(--fg)]">
                     {mentor.rating > 0 ? mentor.rating.toFixed(1) : "New"}
                   </span>
                   {mentor.totalSessions > 0 && (
-                    <span className="text-[10px] text-[var()]/70">({mentor.totalSessions} sessions)</span>
+                    <span className="text-[10px] text-[var(--fg)]/70">({mentor.totalSessions} sessions)</span>
                   )}
                 </div>
 
                 {mentor.experienceYears !== undefined && mentor.experienceYears !== null && (
-                  <div className="flex items-center gap-1.5 text-xs text-[var()] font-medium">
-                    <Briefcase className="h-3.5 w-3.5 text-[var()]/70 flex-shrink-0" />
-                    <span className="font-bold text-[var()]">{mentor.experienceYears}y</span>
-                    <span className="text-[10px] text-[var()]/70">experience</span>
+                  <div className="flex items-center gap-1.5 text-xs text-[var(--fg)] font-medium">
+                    <Briefcase className="h-3.5 w-3.5 text-[var(--fg)]/70 flex-shrink-0" />
+                    <span className="font-bold text-[var(--fg)]">{mentor.experienceYears}y</span>
+                    <span className="text-[10px] text-[var(--fg)]/70">experience</span>
                   </div>
                 )}
 
                 {mentor.averageResponseTime && (
-                  <div className="flex items-center gap-1.5 text-xs text-[var()] col-span-2">
-                    <Clock className="h-3.5 w-3.5 text-[var()]/70 flex-shrink-0" />
-                    <span className="text-[10px] text-[var()]/70">Replies:</span>
-                    <span className="font-bold text-[var()] text-xs">{mentor.averageResponseTime}</span>
+                  <div className="flex items-center gap-1.5 text-xs text-[var(--fg)] col-span-2">
+                    <Clock className="h-3.5 w-3.5 text-[var(--fg)]/70 flex-shrink-0" />
+                    <span className="text-[10px] text-[var(--fg)]/70">Replies:</span>
+                    <span className="font-bold text-[var(--fg)] text-xs">{mentor.averageResponseTime}</span>
                   </div>
                 )}
               </div>
@@ -353,7 +366,7 @@ export const MentorSwipeCard = forwardRef<MentorSwipeCardHandle, MentorSwipeCard
                   {mentor.expertise.slice(0, 3).map((skill) => (
                     <span
                       key={skill}
-                      className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide bg-[var()]/5 text-[var()] border border-[var()]"
+                      className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide bg-[var(--fg)]/5 text-[var(--fg)] border border-[var(--hairline)]"
                     >
                       {skill}
                     </span>
@@ -363,8 +376,8 @@ export const MentorSwipeCard = forwardRef<MentorSwipeCardHandle, MentorSwipeCard
             </div>
 
             {/* Card Footer: Language & View Details Button */}
-            <div className="mt-3 pt-2.5 border-t border-[var()] flex flex-col gap-2">
-              <div className="flex items-center justify-between text-[11px] text-[var()]/80">
+            <div className="mt-3 pt-2.5 border-t border-[var(--hairline)] flex flex-col gap-2">
+              <div className="flex items-center justify-between text-[11px] text-[var(--fg)]/80">
                 {languages.length > 0 ? (
                   <span className="flex items-center gap-1 truncate max-w-[200px]">
                     <Globe className="h-3 w-3 flex-shrink-0" />
@@ -373,7 +386,7 @@ export const MentorSwipeCard = forwardRef<MentorSwipeCardHandle, MentorSwipeCard
                 ) : (
                   <span />
                 )}
-                <span className="text-[10px] uppercase font-bold tracking-wider text-[var()]/60">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--fg)]/60">
                   Swipe or tap to view
                 </span>
               </div>
@@ -388,7 +401,7 @@ export const MentorSwipeCard = forwardRef<MentorSwipeCardHandle, MentorSwipeCard
                   }}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-[var()] text-[var()] hover:opacity-90 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
+                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-[var(--bg)] text-[var(--fg)] hover:opacity-90 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
                 >
                   <span>View Details & Schedule</span>
                   <ChevronRight className="h-3.5 w-3.5" />
@@ -422,20 +435,20 @@ export function SwipeCardSkeleton({ stackIndex }: { stackIndex: number }) {
       }}
     >
       <div className="h-full w-full rounded-3xl overflow-hidden flex flex-col">
-        <div className="h-[46%] w-full bg-[var()]/6 border-b border-[var()]" />
+        <div className="h-[46%] w-full bg-[var(--fg)]/6 border-b border-[var(--hairline)]" />
         <div className="flex-1 p-5 flex flex-col justify-between">
           <div>
-            <div className="h-5 w-40 bg-[var()]/10 rounded-md mb-2" />
-            <div className="h-3 w-52 bg-[var()]/6 rounded-md mb-4" />
-            <div className="h-10 w-full bg-[var()]/4 rounded-xl mb-3" />
+            <div className="h-5 w-40 bg-[var(--fg)]/10 rounded-md mb-2" />
+            <div className="h-3 w-52 bg-[var(--fg)]/6 rounded-md mb-4" />
+            <div className="h-10 w-full bg-[var(--fg)]/4 rounded-xl mb-3" />
             <div className="flex gap-2">
-              <div className="h-5 w-16 bg-[var()]/6 rounded-full" />
-              <div className="h-5 w-16 bg-[var()]/6 rounded-full" />
+              <div className="h-5 w-16 bg-[var(--fg)]/6 rounded-full" />
+              <div className="h-5 w-16 bg-[var(--fg)]/6 rounded-full" />
             </div>
           </div>
-          <div className="mt-auto pt-3 border-t border-[var()] flex justify-between items-center">
-            <div className="h-3 w-24 bg-[var()]/6 rounded" />
-            <div className="h-8 w-full bg-[var()]/8 rounded-xl mt-2" />
+          <div className="mt-auto pt-3 border-t border-[var(--hairline)] flex justify-between items-center">
+            <div className="h-3 w-24 bg-[var(--fg)]/6 rounded" />
+            <div className="h-8 w-full bg-[var(--fg)]/8 rounded-xl mt-2" />
           </div>
         </div>
       </div>
