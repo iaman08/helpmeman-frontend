@@ -90,6 +90,7 @@ export default function AptitudeTestPage() {
   const [submitting, setSubmitting] = useState(false);
   const [results, setResults] = useState<TestResult | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [priceINR, setPriceINR] = useState(1);
 
   // Load Razorpay script
   useEffect(() => {
@@ -112,6 +113,9 @@ export default function AptitudeTestPage() {
         if (user) {
           const sRes = await api.get("/aptitude-test/status");
           setUnlocked(Boolean(sRes.data.unlocked));
+          if (sRes.data.priceINR) {
+            setPriceINR(sRes.data.priceINR);
+          }
         }
       } catch (err) {
         console.error("Error loading aptitude data:", err);
@@ -355,10 +359,10 @@ export default function AptitudeTestPage() {
                   </p>
 
                   <div className="flex items-baseline gap-2 mb-6">
-                    <span className="text-3xl font-black text-white">₹299</span>
-                    <span className="text-xs text-[var(--muted)] line-through">₹999</span>
+                    <span className="text-3xl font-black text-white">₹{priceINR}</span>
+                    <span className="text-xs text-[var(--muted)] line-through">₹299</span>
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                      70% OFF
+                      SPECIAL OFFER
                     </span>
                   </div>
 
@@ -372,7 +376,7 @@ export default function AptitudeTestPage() {
                     ) : (
                       <>
                         <Zap className="w-5 h-5" />
-                        <span>Unlock Aptitude Test Series (₹299)</span>
+                        <span>Unlock Aptitude Test Series (₹{priceINR})</span>
                       </>
                     )}
                   </button>
