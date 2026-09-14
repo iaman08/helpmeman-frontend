@@ -52,7 +52,7 @@ export default function AdminMentorsPage() {
       },
     })
       .then((res) => setMentors(res.data.mentors ?? []))
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   };
 
@@ -285,11 +285,10 @@ export default function AdminMentorsPage() {
                       <InstitutionBadge institutionName={m.institutionName} institutionType={m.institutionType} />
                     </td>
                     <td className="py-4 px-5 text-sm">
-                      <span className={`text-xs rounded-full px-2.5 py-0.5 font-medium ${
-                        m.approvalStatus === "APPROVED" ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20" :
+                      <span className={`text-xs rounded-full px-2.5 py-0.5 font-medium ${m.approvalStatus === "APPROVED" ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20" :
                         m.approvalStatus === "PENDING" ? "bg-amber-500/10 text-amber-600 border border-amber-500/20" :
-                        "bg-red-500/10 text-red-600 border border-red-500/20"
-                      }`}>
+                          "bg-red-500/10 text-red-600 border border-red-500/20"
+                        }`}>
                         {m.approvalStatus}
                       </span>
                     </td>
@@ -583,4 +582,5 @@ export default function AdminMentorsPage() {
     </div>
   );
 }
+
 
