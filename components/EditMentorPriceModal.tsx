@@ -62,9 +62,30 @@ export function EditMentorPriceModal({
 
     setSaving(true);
     try {
-      const res = await api.patch(`/admin/mentors/${mentor.id}/price`, {
-        priceInRupees: val,
-      });
+      let res;
+      try {
+        res = await api.patch(`/admin/mentors/${mentor.id}/price`, {
+          priceInRupees: val,
+        });
+      } catch (patchErr: any) {
+        if (patchErr.response?.status === 404 || patchErr.response?.status === 405) {
+          try {
+            res = await api.put(`/admin/mentors/${mentor.id}/price`, {
+              priceInRupees: val,
+            });
+          } catch (putErr: any) {
+            if (putErr.response?.status === 404 || putErr.response?.status === 405) {
+              res = await api.post(`/admin/mentors/${mentor.id}/price`, {
+                priceInRupees: val,
+              });
+            } else {
+              throw putErr;
+            }
+          }
+        } else {
+          throw patchErr;
+        }
+      }
       const updated = res.data?.mentor || {
         ...mentor,
         pricePerSession: Math.round(val * 100),
@@ -72,7 +93,13 @@ export function EditMentorPriceModal({
       onSuccess(updated);
       onClose();
     } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to update mentor price.");
+      const msg =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        (err.response?.status === 404
+          ? "Endpoint not found (404). Please ensure the backend server has deployed the latest updates."
+          : "Failed to update mentor price.");
+      setError(msg);
     } finally {
       setSaving(false);
     }
