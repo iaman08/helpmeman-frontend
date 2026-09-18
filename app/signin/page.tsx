@@ -80,7 +80,8 @@ export default function SignInPage() {
     if (isNavigatingRef.current) return;
 
     if (!loading && user) {
-      const dest = getLoginDest(user, mentor);
+      const redirectParam = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("redirect") : null;
+      const dest = redirectParam || getLoginDest(user, mentor);
       router.replace(dest);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -132,7 +133,8 @@ export default function SignInPage() {
       // Mark navigation as in-flight BEFORE router.push so the redirect
       // useEffect (which fires when React commits setUser()) is suppressed.
       isNavigatingRef.current = true;
-      if (typeof result === "string") router.push(result);
+      const redirectParam = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("redirect") : null;
+      if (typeof result === "string") router.push(redirectParam || result);
     } catch (err) {
       setCaptchaRefreshTrigger((prev) => prev + 1);
       if (err instanceof AxiosError && err.response?.status === 403 && err.response?.data?.requiresVerification) {

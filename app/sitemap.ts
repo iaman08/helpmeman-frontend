@@ -69,12 +69,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/team`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
       url: `${baseUrl}/help`,
       lastModified: now,
       changeFrequency: "monthly",
@@ -136,22 +130,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     mentorRoutes = [];
   }
 
-  // Dynamic team profile routes
-  let teamRoutes: MetadataRoute.Sitemap = [];
-  try {
-    const res = await axios.get(`${API_BASE}/team`, { timeout: 3000 });
-    const members = res.data?.members || [];
-    teamRoutes = members
-      .filter((mem: any) => mem && mem.username)
-      .map((mem: any) => ({
-        url: `${baseUrl}/team/${mem.username}`,
-        lastModified: mem.updatedAt ? new Date(mem.updatedAt) : now,
-        changeFrequency: "monthly" as const,
-        priority: 0.75,
-      }));
-  } catch {
-    teamRoutes = [];
-  }
-
-  return [...staticRoutes, ...mentorRoutes, ...teamRoutes];
+  return [...staticRoutes, ...mentorRoutes];
 }

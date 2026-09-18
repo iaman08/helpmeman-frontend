@@ -18,8 +18,6 @@ export default function robots(): MetadataRoute.Robots {
           "/competitive-programming",
           "/typing-test",
           "/aptitude-test",
-          "/team",
-          "/team/*",
           "/help",
           "/terms",
           "/privacy",

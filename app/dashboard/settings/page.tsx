@@ -612,6 +612,96 @@ export default function MenteeSettingsPage() {
                 </form>
               </div>
 
+              {/* Apply as a Mentor Card */}
+              {user?.role !== "ADMIN" && user?.role !== "SUPER_ADMIN" && (
+                <div
+                  className="rounded-3xl p-6 md:p-8 mt-6 relative overflow-hidden transition-all"
+                  style={{
+                    border: "1px solid rgba(245, 158, 11, 0.3)",
+                    background: "linear-gradient(135deg, rgba(245, 158, 11, 0.06) 0%, color-mix(in srgb, var(--fg) 2%, transparent) 100%)",
+                  }}
+                >
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+                  
+                  <div className="relative z-10">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 bg-amber-500/15 text-amber-500 rounded-2xl border border-amber-500/30 shadow-sm shrink-0">
+                          <Sparkles className="w-5 h-5 text-amber-500" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-lg md:text-xl font-bold tracking-tight" style={{ color: "var(--fg)" }}>
+                              {mentor?.approvalStatus === "APPROVED"
+                                ? "Mentor Portal"
+                                : mentor?.approvalStatus === "PENDING"
+                                ? "Mentor Application Pending"
+                                : "Apply as a Mentor"}
+                            </h3>
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-500 border border-amber-500/30">
+                              {mentor?.approvalStatus === "APPROVED"
+                                ? "Active Mentor"
+                                : mentor?.approvalStatus === "PENDING"
+                                ? "Under Review"
+                                : "Join Us"}
+                            </span>
+                          </div>
+                          <p className="text-xs sm:text-sm mt-0.5" style={{ color: "var(--muted)" }}>
+                            {mentor?.approvalStatus === "APPROVED"
+                              ? "Manage your bookings, availability, and session earnings in your mentor workspace."
+                              : mentor?.approvalStatus === "PENDING"
+                              ? "Your application is currently being reviewed by our team. You can check the status anytime."
+                              : "Share your knowledge, guide medical & exam aspirants, and earn by hosting 1-on-1 sessions."}
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        id="apply-as-mentor-button"
+                        type="button"
+                        onClick={() => {
+                          if (mentor?.approvalStatus === "APPROVED") {
+                            router.push("/mentor");
+                          } else if (mentor?.approvalStatus === "PENDING") {
+                            router.push("/mentor/status");
+                          } else {
+                            router.push("/onboarding?role=mentor");
+                          }
+                        }}
+                        className="w-full sm:w-auto px-5 py-3 rounded-2xl font-semibold text-xs cursor-pointer shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98] shrink-0"
+                        style={{ background: "#F59E0B", color: "#000000" }}
+                      >
+                        <span>
+                          {mentor?.approvalStatus === "APPROVED"
+                            ? "Go to Mentor Portal"
+                            : mentor?.approvalStatus === "PENDING"
+                            ? "View Application Status"
+                            : "Apply as a Mentor"}
+                        </span>
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {!mentor && (
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-amber-500/15 text-xs">
+                        <div className="flex items-center gap-2" style={{ color: "var(--fg)" }}>
+                          <CheckCircle2 className="w-4 h-4 text-amber-500 shrink-0" />
+                          <span>Set your own price & schedule</span>
+                        </div>
+                        <div className="flex items-center gap-2" style={{ color: "var(--fg)" }}>
+                          <CheckCircle2 className="w-4 h-4 text-amber-500 shrink-0" />
+                          <span>1-on-1 Google Meet sessions</span>
+                        </div>
+                        <div className="flex items-center gap-2" style={{ color: "var(--fg)" }}>
+                          <CheckCircle2 className="w-4 h-4 text-amber-500 shrink-0" />
+                          <span>Official Verified Mentor badge</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Platform Review Section */}
               <div className="rounded-3xl p-6 md:p-8 mt-6" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
                 <div className="flex items-center gap-3 mb-4">

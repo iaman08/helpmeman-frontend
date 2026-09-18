@@ -78,7 +78,7 @@ export function Navbar() {
           <Link href="/mentors" className="text-sm font-medium text-[var(--fg)] hover:text-[var(--fg)] transition-colors no-underline">
             Mentors
           </Link>
-          {user?.role !== "STUDENT" && (
+          {user?.role !== "MENTOR" && user?.role !== "ADMIN" && user?.role !== "SUPER_ADMIN" && (
             <Link href="/apply-mentor" className="text-sm font-medium text-amber-500 hover:text-amber-400 transition-colors no-underline">
               Apply as Mentor
             </Link>
@@ -214,7 +214,7 @@ export function Navbar() {
           >
             Browse Mentors
           </Link>
-          {user?.role !== "STUDENT" && (
+          {user?.role !== "MENTOR" && user?.role !== "ADMIN" && user?.role !== "SUPER_ADMIN" && (
             <Link
               href="/apply-mentor"
               onClick={() => setMobileOpen(false)}

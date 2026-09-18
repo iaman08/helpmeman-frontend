@@ -66,10 +66,7 @@ export function getLoginDest(u: User, m: MentorMeta | null): string {
   if (u.role === "SUPER_ADMIN") return "/superadmin";
   if (u.role === "ADMIN") return "/admin";
   if (u.role === "MENTOR" || u.onboardingRole === "MENTOR") {
-    if (m?.onboardingCompleted === false) {
-      return "/onboarding";
-    }
-    return m?.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status";
+    return "/mentor";
   }
   if (u.onboardingRole === "MENTEE" || u.role === "STUDENT") return "/dashboard";
   return "/onboarding";
@@ -106,6 +103,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthCookies(data.accessToken, data.user.role);
     setUser(data.user);
     setMentor(data.mentor ?? null);
+    if (typeof sessionStorage !== "undefined" && (data.user.role === "MENTOR" || data.user.onboardingRole === "MENTOR")) {
+      sessionStorage.setItem("hmm.activeRole", "mentor");
+    }
     const dest = getLoginDest(data.user, data.mentor ?? null);
     return dest;
   }, []);
@@ -129,6 +129,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         const mentorIntent = localStorage.getItem("helpmeman.onboardingRoleIntent");
         if (mentorIntent) localStorage.removeItem("helpmeman.onboardingRoleIntent");
+        const redirectIntent = localStorage.getItem("helpmeman.loginRedirectIntent");
+        if (redirectIntent) localStorage.removeItem("helpmeman.loginRedirectIntent");
 
         const { data } = await api.post<AuthResponse>("/auth/google", {
           accessToken,
@@ -148,7 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // lets React commit the setUser() call before navigating.
         setLoading(false);
         setGoogleAuthenticating(false);
-        router.push(dest);
+        router.push(redirectIntent || dest);
       } catch (err: any) {
         console.error("[AUTH] Backend sync failed:", err);
         // Reset flags to allow retry
