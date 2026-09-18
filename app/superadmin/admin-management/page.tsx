@@ -13,7 +13,8 @@ interface AdminUser {
   email: string;
   role: string;
   status: string;
-  lastLoginAt: string | null;
+  lastLoginAt?: string | null;
+  lastSeen?: string | null;
   createdAt: string;
 }
 
@@ -287,7 +288,7 @@ export default function SuperAdminManagementPage() {
                       <StatusBadge status={admin.status} />
                     </td>
                     <td className="px-6 py-4 text-xs font-mono" style={{ color: "var(--muted)" }}>
-                      {admin.lastLoginAt ? new Date(admin.lastLoginAt).toLocaleString() : 'Never'}
+                      {(admin.lastLoginAt || admin.lastSeen) ? new Date(admin.lastLoginAt || admin.lastSeen!).toLocaleString() : 'Never'}
                     </td>
                     <td className="px-6 py-4">
                       {editId === admin.id ? (
