@@ -358,7 +358,7 @@ export function FloatingStatsSection() {
               }`}
           >
             <h2 className="text-[clamp(36px,7.5vw,90px)] font-extrabold leading-[1.04] tracking-[-0.04em]">
-              15+ sessions
+              200+ sessions
             </h2>
           </div>
 
@@ -382,7 +382,7 @@ export function FloatingStatsSection() {
               }`}
           >
             <h2 className="text-[clamp(36px,7.5vw,90px)] font-extrabold leading-[1.04] tracking-[-0.04em] text-[#111111] dark:text-white">
-              1000+ minutes
+              4400+ minutes
             </h2>
           </div>
         </div>
