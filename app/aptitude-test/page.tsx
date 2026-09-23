@@ -90,7 +90,7 @@ export default function AptitudeTestPage() {
   const [submitting, setSubmitting] = useState(false);
   const [results, setResults] = useState<TestResult | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [priceINR, setPriceINR] = useState(1);
+  const [priceINR, setPriceINR] = useState(2);
 
   // Load Razorpay script
   useEffect(() => {
