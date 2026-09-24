@@ -70,22 +70,16 @@ export default function SignInPage() {
     }
   }, [router]);
 
-  // Redirect if already logged in — fires on direct URL navigation (/signin
-  // visited while already authenticated). Also fires after form submission when
-  // React commits setUser(), but isNavigatingRef guards against that case.
+  // Redirect if already logged in
   useEffect(() => {
-    // Form handler has already called router.push() — don't race it with
-    // window.location.replace(). The router.push() soft navigation preserves
-    // the mounted AuthProvider and its committed user state.
     if (isNavigatingRef.current) return;
 
     if (!loading && user) {
       const redirectParam = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("redirect") : null;
       const dest = redirectParam || getLoginDest(user, mentor);
-      router.replace(dest);
+      window.location.replace(dest);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, mentor, loading, router]);
+  }, [user, mentor, loading]);
 
   // Cooldown countdown timer
   useEffect(() => {
@@ -96,8 +90,17 @@ export default function SignInPage() {
     return () => clearInterval(timer);
   }, [cooldown]);
 
-  // Return null while checking auth state or if already logged in (redirect in progress)
-  if (loading || user) return null;
+  // Loading or redirecting state — prevent blank page
+  if (loading || user) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[var(--bg)] text-[var(--fg)]">
+        <div className="flex flex-col items-center gap-4 animate-in fade-in duration-300">
+          <div className="w-10 h-10 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm font-medium text-[var(--muted)]">Redirecting to your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();

@@ -51,9 +51,9 @@ export default function ApplyMentorPage() {
       if (typeof sessionStorage !== "undefined") {
         sessionStorage.setItem("hmm.activeRole", "mentor");
       }
-      router.replace("/mentor");
+      window.location.replace("/mentor");
     }
-  }, [user, loading, step, router]);
+  }, [user, loading, step]);
 
   // Cooldown countdown timer
   useEffect(() => {
@@ -64,8 +64,17 @@ export default function ApplyMentorPage() {
     return () => clearInterval(timer);
   }, [cooldown]);
 
-  // Return null while checking auth state or if redirecting
-  if (loading || (user && step === 1)) return null;
+  // Loading or redirecting state — prevent blank page
+  if (loading || (user && step === 1)) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[var(--bg)] text-[var(--fg)]">
+        <div className="flex flex-col items-center gap-4 animate-in fade-in duration-300">
+          <div className="w-10 h-10 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm font-medium text-[var(--muted)]">Redirecting to mentor portal...</p>
+        </div>
+      </div>
+    );
+  }
 
   async function handleRegisterSubmit(e: FormEvent) {
     e.preventDefault();
