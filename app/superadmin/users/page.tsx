@@ -5,7 +5,7 @@ import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { StatusBadge } from "@/components/StatusBadge";
 import Link from "next/link";
-import { Search, ChevronLeft, ChevronRight, UserCog, PauseCircle, PlayCircle, AlertTriangle, X, ShieldOff, CheckCircle2, Clock, UserX, Trash2 } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, UserCog, PauseCircle, PlayCircle, AlertTriangle, X, ShieldOff, CheckCircle2, Clock, UserX, Trash2, ShieldCheck, ShieldAlert } from "lucide-react";
 import { useConfirm } from "@/components/ConfirmModal";
 
 interface User {
@@ -101,20 +101,37 @@ export default function SuperAdminUsersPage() {
   };
 
   const handleRoleChange = async (userId: string, newRole: string) => {
+    let title = "Change User Role?";
+    let message = `Are you sure you want to change this user's role to ${newRole}?`;
+    let confirmText = `Make ${newRole}`;
+    let variant: "warning" | "danger" | "info" = "warning";
+
+    if (newRole === "ADMIN") {
+      title = "Grant Administrator Access?";
+      message = "This will grant this user administrative privileges and dashboard access.";
+      confirmText = "Grant Admin Access";
+      variant = "warning";
+    } else if (newRole === "STUDENT") {
+      title = "Revoke Admin Privileges?";
+      message = "This will revoke administrative privileges and revert this user to a regular account.";
+      confirmText = "Revoke Admin";
+      variant = "danger";
+    }
+
     const isConfirmed = await confirm({
-      title: "Change User Role?",
-      message: `Are you sure you want to change this user's role to ${newRole}?`,
-      confirmText: "Change Role",
+      title,
+      message,
+      confirmText,
       cancelText: "Cancel",
-      variant: "warning",
+      variant,
     });
     if (!isConfirmed) return;
     
     try {
       await api.post(`/super-admin/users/${userId}/role`, { role: newRole });
       fetchUsers();
-    } catch (err) {
-      alert("Failed to update role");
+    } catch (err: any) {
+      alert(err.response?.data?.error || "Failed to update role");
     }
   };
 
@@ -271,6 +288,30 @@ export default function SuperAdminUsersPage() {
                         </td>
                         <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center gap-1.5 flex-wrap">
+                            {user.role === 'SUPER_ADMIN' ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-lg bg-violet-500/15 text-violet-600 border border-violet-500/30">
+                                Primary Super Admin
+                              </span>
+                            ) : user.role === 'ADMIN' ? (
+                              <button
+                                type="button"
+                                onClick={() => handleRoleChange(user.id, "STUDENT")}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-rose-500/10 text-rose-600 hover:bg-rose-500/20 transition-colors cursor-pointer border border-rose-500/20"
+                                title="Revoke Admin privileges from this user"
+                              >
+                                <ShieldAlert className="w-3 h-3" /> Revoke Admin
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => handleRoleChange(user.id, "ADMIN")}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-violet-500/10 text-violet-600 hover:bg-violet-500/20 transition-colors cursor-pointer border border-violet-500/20"
+                                title="Make this user an Admin"
+                              >
+                                <ShieldCheck className="w-3 h-3" /> Make Admin
+                              </button>
+                            )}
+
                             {user.pendingDeletion && user.status !== "DELETED" && (
                               <Link
                                 href="/superadmin/deletion-requests"
@@ -289,7 +330,7 @@ export default function SuperAdminUsersPage() {
                                 <PlayCircle className="w-3 h-3" /> Reactivate
                               </button>
                             )}
-                            {!isOnHold && user.status !== "DELETED" && (
+                            {!isOnHold && user.status !== "DELETED" && user.role !== 'SUPER_ADMIN' && (
                               <button
                                 type="button"
                                 onClick={() => openStatusModal(user, "ON_HOLD")}
@@ -298,7 +339,7 @@ export default function SuperAdminUsersPage() {
                                 <PauseCircle className="w-3 h-3" /> Hold
                               </button>
                             )}
-                            {!isDisabled && user.status !== "DELETED" && (
+                            {!isDisabled && user.status !== "DELETED" && user.role !== 'SUPER_ADMIN' && (
                               <button
                                 type="button"
                                 onClick={() => openStatusModal(user, "DISABLED")}
@@ -313,28 +354,39 @@ export default function SuperAdminUsersPage() {
                       {expandedId === user.id && (
                         <tr style={{ background: "color-mix(in srgb, var(--fg) 2%, transparent)", borderBottom: "1px solid var(--hairline)" }}>
                           <td colSpan={5} className="px-6 py-4 border-l-4 border-violet-500">
-                            <div className="flex flex-col gap-3">
-                              <h4 className="text-xs uppercase tracking-wider font-semibold flex items-center gap-2" style={{ color: "var(--fg)" }}>
-                                <UserCog className="h-3.5 w-3.5 text-violet-500" /> Manage Role
-                              </h4>
-                              <div className="flex gap-2">
-                                {['STUDENT', 'MENTOR', 'ADMIN', 'SUPER_ADMIN'].map(r => (
-                                  <button
-                                    key={r}
-                                    onClick={() => handleRoleChange(user.id, r)}
-                                    disabled={user.role === r}
-                                    className="px-3 py-1.5 text-xs rounded-lg font-medium transition-colors cursor-pointer disabled:opacity-40"
-                                    style={{
-                                      border: "1px solid var(--hairline)",
-                                      background: user.role === r ? "color-mix(in srgb, var(--fg) 10%, transparent)" : "color-mix(in srgb, var(--fg) 4%, transparent)",
-                                      color: "var(--fg)",
-                                    }}
-                                  >
-                                    Make {r}
-                                  </button>
-                                ))}
+                            {user.role === 'SUPER_ADMIN' ? (
+                              <div className="flex flex-col gap-1.5">
+                                <h4 className="text-xs uppercase tracking-wider font-semibold flex items-center gap-2" style={{ color: "var(--fg)" }}>
+                                  <UserCog className="h-3.5 w-3.5 text-violet-500" /> Super Admin Status
+                                </h4>
+                                <p className="text-xs" style={{ color: "var(--muted)" }}>
+                                  This is the platform&apos;s primary Super Admin account. Its role is protected and immutable.
+                                </p>
                               </div>
-                            </div>
+                            ) : (
+                              <div className="flex flex-col gap-3">
+                                <h4 className="text-xs uppercase tracking-wider font-semibold flex items-center gap-2" style={{ color: "var(--fg)" }}>
+                                  <UserCog className="h-3.5 w-3.5 text-violet-500" /> Manage Role
+                                </h4>
+                                <div className="flex gap-2">
+                                  {['STUDENT', 'MENTOR', 'ADMIN'].map(r => (
+                                    <button
+                                      key={r}
+                                      onClick={() => handleRoleChange(user.id, r)}
+                                      disabled={user.role === r}
+                                      className="px-3 py-1.5 text-xs rounded-lg font-medium transition-colors cursor-pointer disabled:opacity-40"
+                                      style={{
+                                        border: "1px solid var(--hairline)",
+                                        background: user.role === r ? "color-mix(in srgb, var(--fg) 10%, transparent)" : "color-mix(in srgb, var(--fg) 4%, transparent)",
+                                        color: "var(--fg)",
+                                      }}
+                                    >
+                                      Make {r}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                           </td>
                         </tr>
                       )}

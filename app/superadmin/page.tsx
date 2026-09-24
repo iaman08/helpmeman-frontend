@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, GraduationCap, CalendarCheck, DollarSign, ShieldCheck, UserCheck, Activity } from "lucide-react";
+import { Users, GraduationCap, CalendarCheck, DollarSign, ShieldCheck, UserCheck, Activity, UserPlus } from "lucide-react";
 import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import Link from "next/link";
@@ -112,19 +112,33 @@ export default function SuperAdminDashboardPage() {
             </div>
           </Link>
         )}
-        <Link
-          href="/superadmin/admin-management"
-          className="flex-1 flex items-center justify-between rounded-xl p-4 transition-colors"
+        <div
+          className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl p-4 transition-colors"
           style={{
             border: "1px solid var(--hairline)",
             background: "color-mix(in srgb, var(--fg) 2%, transparent)",
           }}
         >
           <div className="flex items-center gap-3" style={{ color: "var(--fg)" }}>
-            <ShieldCheck className="h-5 w-5" />
-            <span className="text-sm font-medium">Manage Administrators</span>
+            <div className="p-2 rounded-lg bg-violet-500/10 text-violet-600">
+              <ShieldCheck className="h-5 w-5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold">Administrator Management</span>
+              <span className="text-xs text-[var(--muted)]">
+                {data?.totalAdmins ?? 0} active administrators · Make or revoke admin access
+              </span>
+            </div>
           </div>
-        </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/superadmin/admin-management"
+              className="px-3.5 py-1.5 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-xs font-semibold cursor-pointer shadow transition-colors flex items-center gap-1.5"
+            >
+              <UserPlus className="h-3.5 w-3.5" /> Manage Admins
+            </Link>
+          </div>
+        </div>
       </div>
 
       <div>
