@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function GlobalError({
   error,
@@ -24,20 +25,21 @@ export default function GlobalError({
         An unexpected error occurred. Please try again or return to the home page.
       </p>
       <div className="flex items-center gap-4 mt-2">
-        <button
+        <Button
           type="button"
           onClick={reset}
-          className="rounded-full px-7 py-3 text-sm font-medium hover:opacity-90 cursor-pointer transition-all"
-          style={{ background: "var(--fg)", color: "var(--bg)" }}
+          className="rounded-full px-7 py-3 text-sm font-medium h-auto"
         >
           Try again
-        </button>
-        <Link
-          href="/"
-          className="rounded-full px-7 py-3 text-sm font-medium border transition-colors"
-          style={{ border: "1px solid var(--hairline)", color: "var(--fg)" }}
-        >
-          Go home
+        </Button>
+        <Link href="/">
+          <Button
+            type="button"
+            variant="outline"
+            className="rounded-full px-7 py-3 text-sm font-medium h-auto"
+          >
+            Go home
+          </Button>
         </Link>
       </div>
     </main>

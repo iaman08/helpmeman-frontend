@@ -11,6 +11,7 @@ import React, {
 } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Trash2, AlertTriangle, Info, X, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export type ConfirmVariant = "danger" | "warning" | "info" | "primary";
 
@@ -180,20 +181,21 @@ export function ConfirmModal({
 
             {/* Actions */}
             <div className="mt-6 flex flex-col-reverse sm:flex-row items-center justify-end gap-3">
-              <button
+              <Button
                 type="button"
+                variant="outline"
                 disabled={isLoading}
                 onClick={onClose}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border border-[color:var(--hairline)] text-[color:var(--fg)] bg-transparent hover:bg-[color:var(--fg)]/5 transition-all cursor-pointer text-center disabled:opacity-40"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold h-auto"
               >
                 {cancelText}
-              </button>
-              <button
+              </Button>
+              <Button
                 ref={confirmButtonRef}
                 type="button"
                 disabled={isLoading}
                 onClick={onConfirm}
-                className={`w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-white shadow-md active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 text-center disabled:opacity-60 ${getConfirmButtonStyle()}`}
+                className={`w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-white shadow-md active:scale-[0.98] transition-all h-auto flex items-center justify-center gap-2 ${getConfirmButtonStyle()}`}
               >
                 {isLoading ? (
                   <>
@@ -203,7 +205,7 @@ export function ConfirmModal({
                 ) : (
                   defaultConfirmText
                 )}
-              </button>
+              </Button>
             </div>
           </motion.div>
         </div>
