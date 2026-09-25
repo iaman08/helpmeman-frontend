@@ -6,6 +6,7 @@ import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import Link from "next/link";
 import { PriceDisplay } from "@/components/PriceDisplay";
+import { AdminBentoCard } from "@/components/admin/AdminBentoCard";
 
 interface DashboardData {
   totalUsers: number;
@@ -64,6 +65,9 @@ export default function AdminDashboardPage() {
           Platform overview.
         </h1>
       </div>
+
+      {/* ── Bento Admin Console ── */}
+      <AdminBentoCard data={data} loading={loading} />
 
       {/* ── Stats Grid ── */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
