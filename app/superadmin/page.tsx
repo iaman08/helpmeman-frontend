@@ -6,7 +6,6 @@ import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import Link from "next/link";
 import { PriceDisplay } from "@/components/PriceDisplay";
-import { SuperAdminBentoCard } from "@/components/superadmin/SuperAdminBentoCard";
 
 interface AuditLog {
   id: string;
@@ -60,9 +59,6 @@ export default function SuperAdminDashboardPage() {
         <p className="text-xs uppercase tracking-[0.22em]" style={{ color: "var(--muted)" }}>Super Admin</p>
         <h1 className="font-display text-4xl leading-tight" style={{ color: "var(--fg)" }}>Platform overview.</h1>
       </div>
-
-      {/* ── Super Admin Bento Console ── */}
-      <SuperAdminBentoCard data={data} loading={loading} />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map((s, idx) => {

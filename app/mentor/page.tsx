@@ -10,7 +10,6 @@ import { useSearchParams } from "next/navigation";
 import { useGoogleCalendarStatus } from "@/lib/hooks";
 import { useToast } from "@/components/Toast";
 import { PriceDisplay } from "@/components/PriceDisplay";
-import { MentorBentoCard } from "@/components/mentor/MentorBentoCard";
 
 interface MentorStats {
   totalBookings: number;
@@ -154,15 +153,6 @@ export default function MentorOverviewPage() {
         </p>
         <h1 className="font-display text-4xl leading-tight font-extrabold" style={{ color: "var(--fg)" }}>Your overview.</h1>
       </div>
-
-      {/* ─── Bento Mentor Command Center ─── */}
-      <MentorBentoCard
-        stats={stats}
-        bookings={bookings}
-        loading={loading}
-        calendarConnected={calendarConnected}
-        onConnectCalendar={handleInstantConnect}
-      />
 
       {/* ─── Stats Grid ─── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

@@ -21,7 +21,5 @@
   },
   "menuColor": "default",
   "menuAccent": "subtle",
-  "registries": {
-    "@uselayouts": "https://uselayouts.com/r/{name}.json"
-  }
+  "registries": {}
 }

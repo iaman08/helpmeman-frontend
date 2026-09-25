@@ -11,7 +11,6 @@ import { RatingModal } from "@/components/RatingModal";
 import api from "@/lib/api";
 import type { PendingReview } from "@/lib/types";
 import { MenteePlatformReviewCard } from "@/components/MenteePlatformReviewCard";
-import { MenteeBentoCard } from "@/components/dashboard/MenteeBentoCard";
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-IN", {
@@ -103,15 +102,6 @@ export default function DashboardPage() {
       <div className="transform hover:-translate-y-0.5 transition-transform duration-300">
         <MenteePlatformReviewCard />
       </div>
-
-      {/* ─── Bento Dashboard Console ─── */}
-      <MenteeBentoCard
-        userName={user?.name?.split(" ")[0]}
-        totalBookings={bookingData?.total ?? 0}
-        upcomingBookings={upcomingBookings}
-        unreadMessages={notifData?.unreadCount ?? 0}
-        isLoading={bookingsLoading}
-      />
 
       {/* ─── Premium Stats Grid ─── */}
       <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
