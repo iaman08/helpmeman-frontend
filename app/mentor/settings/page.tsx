@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { PrivacyDataPanel } from "@/components/PrivacyDataPanel";
 import { useAuth } from "@/lib/auth-context";
+import { FaLinkedin } from "react-icons/fa";
 import api from "@/lib/api";
 import { useToast } from "@/components/Toast";
 import { ImageCropModal } from "@/components/ImageCropModal";
@@ -310,6 +311,9 @@ export default function MentorSettingsPage() {
   });
 
   const [mentorLanguages, setMentorLanguages] = useState<string[]>([]);
+  const [linkedinConnected, setLinkedinConnected] = useState(false);
+  const [linkedinProfileName, setLinkedinProfileName] = useState("");
+  const [disconnectingLinkedIn, setDisconnectingLinkedIn] = useState(false);
 
   useEffect(() => {
     api
@@ -345,6 +349,16 @@ export default function MentorSettingsPage() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
+
+    api
+      .get("/linkedin/profile")
+      .then((res) => {
+        if (res.data?.connected) {
+          setLinkedinConnected(true);
+          setLinkedinProfileName(res.data.profile?.name || "");
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -628,6 +642,76 @@ export default function MentorSettingsPage() {
                     />
                   </div>
                 </Field>
+              </div>
+
+              {/* LinkedIn Account Connection Status Card */}
+              <div className="rounded-2xl border border-[var(--hairline)] bg-[var(--fg)]/[0.02] p-5">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0A66C2] text-white">
+                      <FaLinkedin className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-[var(--fg)]">LinkedIn Identity</span>
+                        {linkedinConnected ? (
+                          <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-500">
+                            Connected
+                          </span>
+                        ) : (
+                          <span className="rounded-full bg-[var(--fg)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--muted)]">
+                            Not Linked
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-[var(--muted)] mt-0.5">
+                        {linkedinConnected
+                          ? `Connected as ${linkedinProfileName || "LinkedIn User"}. Used to import verified credentials.`
+                          : "Connect your LinkedIn profile to import your professional background."}
+                      </p>
+                    </div>
+                  </div>
+
+                  {linkedinConnected ? (
+                    <button
+                      type="button"
+                      disabled={disconnectingLinkedIn}
+                      onClick={async () => {
+                        setDisconnectingLinkedIn(true);
+                        try {
+                          await api.post("/linkedin/disconnect");
+                          setLinkedinConnected(false);
+                          setLinkedinProfileName("");
+                          toast("LinkedIn Disconnected. Your approved mentor profile was preserved.", "info");
+                        } catch (e) {
+                          toast("Failed to disconnect LinkedIn account.", "error");
+                        } finally {
+                          setDisconnectingLinkedIn(false);
+                        }
+                      }}
+                      className="px-3.5 py-1.5 rounded-xl border border-red-500/30 text-xs font-semibold text-red-500 hover:bg-red-500/10 transition cursor-pointer"
+                    >
+                      {disconnectingLinkedIn ? "Disconnecting..." : "Disconnect LinkedIn"}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          const { data } = await api.get<{ url: string }>("/linkedin/auth-url?returnPath=/mentor/settings");
+                          if (data.url) window.location.href = data.url;
+                        } catch (e: any) {
+                          const msg = e?.response?.data?.error || "Failed to start LinkedIn connection.";
+                          toast(msg, "error");
+                        }
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#0A66C2] text-white text-xs font-semibold hover:bg-[#004182] transition cursor-pointer"
+                    >
+                      <FaLinkedin className="h-3.5 w-3.5" />
+                      Connect LinkedIn
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Bio */}

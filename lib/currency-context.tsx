@@ -89,51 +89,14 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     return DEFAULT_RATES;
   }, []);
 
-  // 2. Detect user's local currency based on IP or browser locale
+  // 2. Detect user's local currency based on browser timezone, locale, or IP
   const detectCurrency = useCallback(async (): Promise<string> => {
-    let detected: string | null = null;
-    
-    try {
-      // Call public IP-to-Geo API
-      const res = await fetch("https://ipapi.co/json/");
-      if (res.ok) {
-        const data = await res.json();
-        detected = data.currency;
-      }
-    } catch {
-      // Ignore GeoIP error, fallback to next API
-    }
-
-    // Fallback API if ipapi.co fails/rate-limits
-    if (!detected) {
-      try {
-        const res = await fetch("https://ipinfo.io/json");
-        if (res.ok) {
-          const data = await res.json();
-          const country = data.country;
-          if (country === "IN") detected = "INR";
-          else if (country === "US") detected = "USD";
-          else if (country === "GB") detected = "GBP";
-          else if (country === "JP") detected = "JPY";
-          else if (country === "CA") detected = "CAD";
-          else if (country === "AU") detected = "AUD";
-          else if (["DE", "FR", "IT", "ES", "NL", "BE", "AT", "IE", "FI", "PT", "GR"].includes(country)) detected = "EUR";
-        }
-      } catch {
-        // Ignore fallback GeoIP errors
-      }
-    }
-
-    if (detected && CURRENCY_CONFIGS[detected.toUpperCase()]) {
-      return detected.toUpperCase();
-    }
-
-    // Fallback: Detect via timezone resolved options (most reliable client-side fallback)
+    // Primary: Detect via timezone resolved options (instant, 100% reliable, no CORS or rate-limit)
     try {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
       if (tz) {
         const tzLower = tz.toLowerCase();
-        if (tzLower.includes("kolkata") || tzLower.includes("calcutta") || tzLower.includes("india")) return "INR";
+        if (tzLower.includes("kolkata") || tzLower.includes("calcutta") || tzLower.includes("india") || tzLower.includes("asia/calcutta")) return "INR";
         if (tzLower.includes("london") || tzLower.includes("europe/london")) return "GBP";
         if (tzLower.includes("tokyo")) return "JPY";
         if (tzLower.includes("toronto") || tzLower.includes("vancouver") || tzLower.includes("montreal")) return "CAD";
@@ -141,18 +104,21 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
         if (tzLower.includes("europe") || tzLower.includes("berlin") || tzLower.includes("paris") || tzLower.includes("rome") || tzLower.includes("madrid") || tzLower.includes("brussels") || tzLower.includes("amsterdam")) {
           return "EUR";
         }
+        if (tzLower.includes("new_york") || tzLower.includes("chicago") || tzLower.includes("denver") || tzLower.includes("los_angeles") || tzLower.includes("america/")) {
+          return "USD";
+        }
       }
 
-      // Check browser locale language
-      const locale = navigator.language || "en-US";
-      if (locale.includes("IN")) return "INR";
+      // Check browser locale
+      const locale = typeof navigator !== "undefined" ? navigator.language : "en-US";
+      if (locale.includes("IN") || locale === "hi") return "INR";
       if (locale.includes("GB")) return "GBP";
-      if (locale.includes("JP")) return "JPY";
+      if (locale.includes("JP") || locale === "ja") return "JPY";
       if (locale.includes("CA")) return "CAD";
       if (locale.includes("AU")) return "AUD";
     } catch {}
 
-    return "INR"; // Ultimate global fallback (using INR as default)
+    return "INR"; // Default currency
   }, []);
 
   // 3. Set Active Currency (manual vs automatic)

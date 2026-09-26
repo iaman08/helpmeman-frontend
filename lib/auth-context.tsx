@@ -41,6 +41,7 @@ interface AuthState {
   verifySignupOTP: (formData: { name: string; email: string; password: string; phone?: string; otp: string; role?: string; onboardingRole?: string }) => Promise<string>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  setSessionFromToken: (token: string, refreshToken?: string) => Promise<User | null>;
   updateUser: (updates: Partial<User>) => void;
   isUser: boolean;
   isStudent: boolean;
@@ -189,17 +190,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /* ─── Hydrate from localStorage on mount ─── */
   useEffect(() => {
     async function hydrate() {
-      const isCallback = typeof window !== "undefined" && (
+      // An OAuth callback ONLY exists if the URL contains tokens/code or active in-flight ref
+      const hasUrlTokens = typeof window !== "undefined" && (
         window.location.hash.includes("access_token=") ||
-        window.location.search.includes("code=") ||
-        sessionStorage.getItem("helpmeman.oauthInProgress") === "true"
+        window.location.search.includes("code=")
       );
+      const isCallback = Boolean(
+        googleAuthRef.current ||
+        hasUrlTokens ||
+        (typeof sessionStorage !== "undefined" &&
+          sessionStorage.getItem("helpmeman.oauthInProgress") === "true" &&
+          hasUrlTokens)
+      );
+
+      // Clean up stale oauthInProgress flags if URL doesn't have OAuth tokens
+      if (!hasUrlTokens && typeof sessionStorage !== "undefined") {
+        sessionStorage.removeItem("helpmeman.oauthInProgress");
+      }
 
       try {
         const storedUser = localStorage.getItem(KEYS.user);
         const storedMentor = localStorage.getItem(KEYS.mentor);
         const token = localStorage.getItem(KEYS.access);
-        if (!isCallback && storedUser && token) {
+        if (storedUser && token) {
           const parsedUser = JSON.parse(storedUser);
           setUser(parsedUser);
           if (storedMentor) setMentor(JSON.parse(storedMentor));
@@ -282,28 +295,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session: Session | null) => {
-        const isOAuthCallback =
+        const isOAuthCallback = Boolean(
           googleAuthRef.current ||
           (typeof window !== "undefined" && (
             window.location.hash.includes("access_token=") ||
-            window.location.search.includes("code=") ||
-            sessionStorage.getItem("helpmeman.oauthInProgress") === "true"
-          ));
+            window.location.search.includes("code=")
+          ))
+        );
 
         if (!session) return;
 
-        // INITIAL_SESSION: Accept during active OAuth callback.
-        // SIGNED_IN: Always accept session.
+        // INITIAL_SESSION: Accept ONLY during active OAuth callback.
         if (event === "INITIAL_SESSION") {
           if (!isOAuthCallback) return;
         } else if (event !== "SIGNED_IN") {
           return;
         }
 
-        if (isOAuthCallback || session.access_token) {
+        // Only invoke sync if this is an explicit OAuth redirect callback
+        if (isOAuthCallback && session.access_token) {
           await syncGoogleSession(session.access_token, session.refresh_token ?? undefined);
         } else {
-          // Non-OAuth background event
+          // Normal background or tab-switch event: NEVER re-sync or force-redirect
           setLoading(false);
           setGoogleAuthenticating(false);
         }
@@ -474,6 +487,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch { /* silent */ }
   }, []);
 
+  /* ─── Establish session directly from received access token ─── */
+  const setSessionFromToken = useCallback(async (token: string, refreshToken?: string): Promise<User | null> => {
+    try {
+      localStorage.setItem(KEYS.access, token);
+      if (refreshToken) localStorage.setItem(KEYS.refresh, refreshToken);
+      const { data } = await api.get<{ user: User; mentor: MentorMeta | null }>("/users/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAuthCookies(token, data.user.role);
+      setUser(data.user);
+      localStorage.setItem(KEYS.user, JSON.stringify(data.user));
+      if (data.mentor) {
+        setMentor(data.mentor);
+        localStorage.setItem(KEYS.mentor, JSON.stringify(data.mentor));
+      }
+      return data.user;
+    } catch (err) {
+      console.error("[AuthContext] setSessionFromToken failed:", err);
+      return null;
+    }
+  }, []);
+
   /* ─── Update user locally (optimistic) ─── */
   const updateUser = useCallback((updates: Partial<User>) => {
     setUser((prev) => {
@@ -498,6 +533,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       verifySignupOTP,
       logout,
       refreshUser,
+      setSessionFromToken,
       updateUser,
       isUser: user?.role === "STUDENT",
       isStudent: user?.role === "STUDENT",
@@ -505,7 +541,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAdmin: user?.role === "ADMIN" || user?.role === "SUPER_ADMIN",
       isSuperAdmin: user?.role === "SUPER_ADMIN",
     }),
-    [user, mentor, loading, googleAuthenticating, login, verify2FALogin, verifyPasskeyLogin, loginWithGoogle, register, verifySignupOTP, logout, refreshUser, updateUser],
+    [user, mentor, loading, googleAuthenticating, login, verify2FALogin, verifyPasskeyLogin, loginWithGoogle, register, verifySignupOTP, logout, refreshUser, setSessionFromToken, updateUser],
   );
 
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;

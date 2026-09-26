@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import api from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
+import LinkedInOnboarding from "@/components/mentor/LinkedInOnboarding";
 
 type QuestionType = "text" | "single_choice" | "multi_choice";
 type Answer = { id: string; question: string; answer: string; skipped: boolean; questionKey?: string };
@@ -43,7 +44,7 @@ type State = {
   message?: string;
 };
 
-type Stage = "role" | "name" | "preparing" | "tour" | "chat";
+type Stage = "role" | "method_choice" | "linkedin" | "name" | "preparing" | "tour" | "chat";
 
 const DEMO_QUESTIONS: Question[] = [
   { key: "full_name", phase: "Identity", type: "text", text: "Let's begin with your full name.", prompt: "What's your full name?", placeholder: "Enter your full name" },
@@ -179,8 +180,16 @@ function OnboardingContent() {
           return;
         }
         setState(data);
-        if (data.currentQuestion === 0 && data.answers.length === 0) setStage("name");
-        else setStage("chat");
+        if (searchParams.get("linkedin") || searchParams.get("linkedinError")) {
+          setStage("linkedin");
+        } else if (searchParams.get("mode") === "manual") {
+          if (data.currentQuestion === 0 && data.answers.length === 0) setStage("name");
+          else setStage("chat");
+        } else if (data.currentQuestion === 0 && data.answers.length === 0) {
+          setStage("method_choice");
+        } else {
+          setStage("chat");
+        }
         if (data.question) setLatestRuthMessage(data.message || data.question.text);
         return;
       }
@@ -198,7 +207,7 @@ function OnboardingContent() {
 
       setState(data);
       const current = localStageRef.current;
-      const localOnlyStages: Stage[] = ["preparing", "tour", "name"];
+      const localOnlyStages: Stage[] = ["preparing", "tour", "name", "method_choice", "linkedin"];
       if (localOnlyStages.includes(current)) {
         if (current === "name" && (data.currentQuestion > 0 || data.answers.length > 0)) {
           setStage("chat");
@@ -206,9 +215,18 @@ function OnboardingContent() {
         return;
       }
 
-      if (data.role !== "MENTOR") setStage("role");
-      else if (data.currentQuestion === 0 && data.answers.length === 0) setStage("name");
-      else setStage("chat");
+      if (searchParams.get("linkedin") || searchParams.get("linkedinError")) {
+        setStage("linkedin");
+      } else if (data.role !== "MENTOR") {
+        setStage("role");
+      } else if (searchParams.get("mode") === "manual") {
+        if (data.currentQuestion === 0 && data.answers.length === 0) setStage("name");
+        else setStage("chat");
+      } else if (data.currentQuestion === 0 && data.answers.length === 0) {
+        setStage("method_choice");
+      } else {
+        setStage("chat");
+      }
 
       if (data.question) setLatestRuthMessage(data.message || data.question.text);
     } catch (err: any) {
@@ -294,7 +312,7 @@ function OnboardingContent() {
       });
       if (role === "MENTEE") return router.replace("/dashboard");
       setState(data);
-      if (data.currentQuestion === 0 && data.answers.length === 0) setStage("name");
+      if (data.currentQuestion === 0 && data.answers.length === 0) setStage("method_choice");
       else setStage("chat");
     } catch {
       setError("Couldn't save that choice. Please try again.");
@@ -474,6 +492,14 @@ function OnboardingContent() {
           {error && <p className="mt-5 text-center text-sm text-red-500">{error}</p>}
         </motion.section>
       </main>
+    );
+  }
+
+  if (stage === "method_choice" || stage === "linkedin") {
+    return (
+      <LinkedInOnboarding
+        onContinueManual={() => setStage("name")}
+      />
     );
   }
 

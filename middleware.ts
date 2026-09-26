@@ -12,7 +12,17 @@ function getDashboardDest(request: NextRequest): string {
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("helpmeman.accessToken")?.value;
-  const { pathname } = request.nextUrl;
+  const { pathname, searchParams } = request.nextUrl;
+
+  // ── Allow LinkedIn OAuth callback and token hydration ───────────────────
+  if (
+    pathname.startsWith("/onboarding/linkedin") ||
+    searchParams.has("linkedin") ||
+    searchParams.has("token") ||
+    searchParams.has("linkedinError")
+  ) {
+    return NextResponse.next();
+  }
 
   // ── Protected routes: redirect unauthenticated users to signin ────────────
   const protectedPaths = ["/dashboard", "/mentor", "/admin", "/superadmin", "/onboarding"];
