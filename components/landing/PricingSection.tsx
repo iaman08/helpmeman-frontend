@@ -155,14 +155,14 @@ export function PricingSection() {
   };
 
   return (
-    <section id="pricing" ref={ref} className="py-20 md:py-28 lg:py-36 bg-white dark:bg-[#0A0A0A] border-t border-[#F3F4F6] dark:border-[#1F1F23] transition-colors duration-300">
+    <section id="pricing" ref={ref} className="py-10 md:py-14 lg:py-16 bg-white dark:bg-[#0A0A0A] border-t border-[#F3F4F6] dark:border-[#1F1F23] transition-colors duration-300">
       <div className="max-w-[1200px] mx-auto px-6">
         {/* Header & View Switcher */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center max-w-3xl mx-auto mb-12"
+          className="text-center max-w-3xl mx-auto mb-8 md:mb-10"
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-wider mb-4">
             <Sparkles className="w-4 h-4" />

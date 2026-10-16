@@ -2,9 +2,6 @@
 
 import { useEffect, useState, useRef } from "react";
 import { motion, useInView } from "motion/react";
-import { MessageSquarePlus } from "lucide-react";
-import { useAuth } from "@/lib/auth-context";
-import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 
 interface PublicReview {
@@ -126,8 +123,6 @@ const CURATED_MOBBIN_REVIEWS: PublicReview[] = [
 ];
 
 export function TestimonialsSection() {
-  const { user } = useAuth();
-  const router = useRouter();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
@@ -175,20 +170,10 @@ export function TestimonialsSection() {
     };
   }, []);
 
-  const handleOpenReviewModal = () => {
-    if (!user) {
-      router.push("/signin");
-      return;
-    }
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new Event("open-platform-review-modal"));
-    }
-  };
-
   return (
     <section
       ref={ref}
-      className="py-20 md:py-28 lg:py-36 bg-white dark:bg-[#0A0A0A] border-t border-[#E5E7EB] dark:border-[#27272A] transition-colors duration-300 relative overflow-hidden"
+      className="py-10 md:py-14 lg:py-16 bg-white dark:bg-[#0A0A0A] border-t border-[#E5E7EB] dark:border-[#27272A] transition-colors duration-300 relative overflow-hidden"
     >
       {/* Header */}
       <div className="max-w-[1200px] mx-auto px-6">
@@ -196,7 +181,7 @@ export function TestimonialsSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="mb-14 md:mb-16 text-center max-w-2xl mx-auto flex flex-col items-center gap-3.5"
+          className="mb-8 md:mb-10 text-center max-w-2xl mx-auto flex flex-col items-center gap-3.5"
         >
           {/* Aggregate Rating Pill */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-[#111827] dark:text-white text-xs font-semibold shadow-xs">
@@ -279,17 +264,6 @@ export function TestimonialsSection() {
             </motion.div>
           ))}
         </motion.div>
-      </div>
-
-      {/* Call to Action Button */}
-      <div className="mt-14 flex justify-center px-6">
-        <button
-          onClick={handleOpenReviewModal}
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-[13px] font-semibold bg-[#09090B] dark:bg-white text-white dark:text-black hover:opacity-90 active:scale-[0.98] transition-all shadow-sm cursor-pointer"
-        >
-          <MessageSquarePlus className="w-4 h-4" />
-          <span>Leave a Platform Review</span>
-        </button>
       </div>
     </section>
   );

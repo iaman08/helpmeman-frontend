@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Bot, X, Trash2, Sparkles, Clock, ChevronRight, MessageSquare, RotateCcw, Plus, History, Calendar, Video, Edit2, Check, Smile, Mic, ArrowUp, Star, BadgeCheck, Zap, Flame, Compass } from "lucide-react";
+import { X, Trash2, Sparkles, Clock, ChevronRight, MessageSquare, RotateCcw, Plus, History, Calendar, Video, Edit2, Check, Smile, Mic, ArrowUp, Star, BadgeCheck, Zap, Flame, Compass } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import api, { API_BASE } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
@@ -1026,7 +1026,7 @@ function AIChatWidgetInner() {
       try {
         const saved = localStorage.getItem("helpmeman.ruthWidgetPos");
         if (saved) return JSON.parse(saved);
-      } catch {}
+      } catch { }
     }
     return null;
   });
@@ -1126,7 +1126,7 @@ function AIChatWidgetInner() {
         const finalPos = { x: snapX, y: clampedY };
         try {
           localStorage.setItem("helpmeman.ruthWidgetPos", JSON.stringify(finalPos));
-        } catch {}
+        } catch { }
         return finalPos;
       });
     }
@@ -1721,41 +1721,37 @@ function AIChatWidgetInner() {
   const starterCards = [
     {
       icon: Zap,
-      title: "Crack DSA & Ratings",
+      title: "Crack DSA & Coding",
+      desc: "Roadmap & interview problem strategy",
       prompt: "I want to improve my DSA rating for technical interviews. Give me a 4-week structured roadmap.",
       color: "from-amber-500/10 to-orange-500/10",
-      accent: "text-amber-400",
-      border: "hover:border-amber-500/40",
-      badge: "Interview Prep",
+      accent: "text-amber-500",
     },
     {
       icon: Compass,
       title: "Match Top Mentors",
+      desc: "Find vetted 1-on-1 industry mentors",
       prompt: "Find me top-rated mentors specializing in Fullstack and System Design under ₹500.",
       color: "from-sky-500/10 to-blue-500/10",
-      accent: "text-sky-400",
-      border: "hover:border-sky-500/40",
-      badge: "Instant Match",
+      accent: "text-sky-500",
     },
     {
       icon: Flame,
-      title: ruthlessMode ? "Ruthless Roast: Roadmap" : "Roast My Tech Stack",
+      title: ruthlessMode ? "Ruthless Roast" : "Review My Tech Stack",
+      desc: ruthlessMode ? "Brutal, no-BS reality check" : "Honest critique & upgrade tips",
       prompt: ruthlessMode
         ? "Ruth, give me a brutally honest roast of modern web dev tutorials and tell me how to actually stand out."
         : "Give me critical, honest feedback on my tech stack and what I should upgrade.",
       color: "from-rose-500/10 to-orange-500/10",
-      accent: "text-rose-400",
-      border: "hover:border-rose-500/40",
-      badge: ruthlessMode ? "Ruthless Mode 🔥" : "No BS Audit",
+      accent: "text-rose-500",
     },
     {
       icon: Sparkles,
-      title: "System Design Blueprint",
+      title: "System Design Prep",
+      desc: "Architecture patterns for top roles",
       prompt: "How do I prepare for System Design interviews at top product companies?",
       color: "from-purple-500/10 to-indigo-500/10",
-      accent: "text-purple-400",
-      border: "hover:border-purple-500/40",
-      badge: "Architecture",
+      accent: "text-purple-500",
     },
   ];
 
@@ -1778,24 +1774,21 @@ function AIChatWidgetInner() {
             className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9998] pointer-events-none flex flex-col items-center gap-1.5 select-none"
           >
             <div
-              className={`flex items-center justify-center rounded-full transition-all duration-200 ${
-                isOverDismiss
+              className={`flex items-center justify-center rounded-full transition-all duration-200 ${isOverDismiss
                   ? "w-16 h-16 bg-gradient-to-tr from-red-600 via-rose-600 to-pink-600 text-white shadow-[0_0_50px_rgba(239,68,68,0.95)] border-2 border-white ring-4 ring-red-400/40"
                   : "w-13 h-13 bg-black/80 dark:bg-zinc-900/90 text-white/80 backdrop-blur-xl border border-white/25 shadow-2xl"
-              }`}
+                }`}
             >
               <X
-                className={`transition-transform duration-200 ${
-                  isOverDismiss ? "w-8 h-8 rotate-90 scale-110" : "w-5 h-5"
-                }`}
+                className={`transition-transform duration-200 ${isOverDismiss ? "w-8 h-8 rotate-90 scale-110" : "w-5 h-5"
+                  }`}
               />
             </div>
             <span
-              className={`text-[10px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full transition-all ${
-                isOverDismiss
+              className={`text-[10px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full transition-all ${isOverDismiss
                   ? "text-white bg-red-600 shadow-lg scale-105"
                   : "text-white/75 bg-black/60 backdrop-blur-md border border-white/10"
-              }`}
+                }`}
             >
               {isOverDismiss ? "Release to close" : "Drag here to close"}
             </span>
@@ -1824,9 +1817,8 @@ function AIChatWidgetInner() {
       {isHomePage && !isDismissed && (
         <div
           ref={widgetRef}
-          className={`fixed z-[9990] flex items-center gap-3 select-none touch-none transition-transform duration-75 ${
-            isPoofing ? "scale-0 opacity-0 transition-all duration-300 pointer-events-none" : ""
-          }`}
+          className={`fixed z-[9990] flex items-center gap-3 select-none touch-none transition-transform duration-75 ${isPoofing ? "scale-0 opacity-0 transition-all duration-300 pointer-events-none" : ""
+            }`}
           style={
             widgetPos
               ? { left: widgetPos.x, top: widgetPos.y, bottom: "auto" }
@@ -1896,18 +1888,17 @@ function AIChatWidgetInner() {
       {isOpen && (
         <div
           data-ai-chat-open="true"
-          className={`fixed z-[9999] w-[calc(100vw-2.5rem)] sm:w-[425px] h-[610px] max-h-[84vh] rounded-3xl shadow-[0_25px_80px_rgba(0,0,0,0.5),0_0_35px_rgba(99,102,241,0.2)] flex flex-col overflow-hidden border border-white/20 dark:border-white/10 backdrop-blur-2xl bg-white/95 dark:bg-[#0c0d12]/95 text-[var(--fg)] animate-in zoom-in-95 slide-in-from-bottom-6 duration-200 ${
-            isHomePage
+          className={`fixed z-[9999] w-[calc(100vw-2.5rem)] sm:w-[425px] h-[610px] max-h-[84vh] rounded-3xl shadow-[0_25px_80px_rgba(0,0,0,0.5),0_0_35px_rgba(99,102,241,0.2)] flex flex-col overflow-hidden border border-white/20 dark:border-white/10 backdrop-blur-2xl bg-white/95 dark:bg-[#0c0d12]/95 text-[var(--fg)] animate-in zoom-in-95 slide-in-from-bottom-6 duration-200 ${isHomePage
               ? "bottom-24"
               : "bottom-4 right-4 sm:bottom-6 sm:right-6"
-          }`}
+            }`}
           style={
             isHomePage
               ? {
-                  left: widgetPos
-                    ? Math.max(16, Math.min(window.innerWidth - 440, widgetPos.x > window.innerWidth / 2 ? widgetPos.x - 365 : widgetPos.x))
-                    : 24,
-                }
+                left: widgetPos
+                  ? Math.max(16, Math.min(window.innerWidth - 440, widgetPos.x > window.innerWidth / 2 ? widgetPos.x - 365 : widgetPos.x))
+                  : 24,
+              }
               : undefined
           }
         >
@@ -2166,50 +2157,31 @@ function AIChatWidgetInner() {
                     </div>
                   )}
 
-                  {/* Empty state - Futuristic Holographic Neural Core */}
+                  {/* Empty state - Clean Human-First Welcome */}
                   {!sessionLoading && messages.length === 0 && (
-                    <div className="flex-1 flex flex-col items-center justify-center gap-5 text-center py-6 sm:py-8 max-w-lg mx-auto w-full">
-                      {/* Holographic Neural Core Hero */}
-                      <div className="relative flex items-center justify-center mb-1">
-                        {/* Outer rotating pulse aura */}
+                    <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center py-5 sm:py-7 max-w-lg mx-auto w-full">
+                      {/* Ruth Avatar Hero */}
+                      <div className="relative flex items-center justify-center">
                         <div
-                          className={`absolute -inset-4 rounded-full blur-xl opacity-60 animate-pulse transition-all duration-700 ${
-                            ruthlessMode
-                              ? "bg-gradient-to-r from-orange-600/40 via-red-600/40 to-amber-600/40"
-                              : "bg-gradient-to-r from-sky-500/30 via-indigo-500/30 to-purple-500/30"
-                          }`}
-                        />
-                        {/* Spinning geometric dashed ring */}
-                        <div
-                          className={`absolute -inset-2 rounded-full border border-dashed animate-spin transition-all duration-700 ${
-                            ruthlessMode
-                              ? "border-orange-500/40 [animation-duration:14s]"
-                              : "border-sky-400/40 [animation-duration:12s]"
-                          }`}
-                        />
-                        {/* Inner glowing core */}
-                        <div
-                          className={`relative flex h-16 w-16 items-center justify-center rounded-2xl shadow-xl backdrop-blur-md transition-all duration-500 ${
-                            ruthlessMode
-                              ? "bg-gradient-to-br from-neutral-900 via-orange-950 to-neutral-950 border border-orange-500/50 shadow-orange-500/20"
-                              : "bg-gradient-to-br from-neutral-900 via-slate-900 to-indigo-950 border border-sky-400/40 shadow-sky-500/20"
-                          }`}
+                          className="relative flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-300 shadow-xs"
+                          style={{
+                            background: ruthlessMode
+                              ? "color-mix(in srgb, #f97316 12%, var(--bg))"
+                              : "color-mix(in srgb, var(--fg) 5%, var(--bg))",
+                            border: ruthlessMode
+                              ? "1px solid rgba(249, 115, 22, 0.3)"
+                              : "1px solid var(--hairline)",
+                          }}
                         >
                           {ruthlessMode ? (
-                            <Flame className="h-8 w-8 text-orange-400 animate-pulse" />
+                            <Flame className="h-7 w-7 text-orange-500" />
                           ) : (
-                            <Bot className="h-8 w-8 text-sky-400" />
+                            <RuthMascotInline size={38} />
                           )}
-                          <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+                          <span className="absolute -top-1 -right-1 flex h-3 w-3">
                             <span
-                              className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                                ruthlessMode ? "bg-orange-400" : "bg-sky-400"
-                              }`}
-                            />
-                            <span
-                              className={`relative inline-flex rounded-full h-3.5 w-3.5 ${
-                                ruthlessMode ? "bg-orange-500" : "bg-sky-500"
-                              }`}
+                              className={`relative inline-flex rounded-full h-3 w-3 border-2 border-[var(--bg)] ${ruthlessMode ? "bg-orange-500" : "bg-emerald-500"
+                                }`}
                             />
                           </span>
                         </div>
@@ -2218,24 +2190,32 @@ function AIChatWidgetInner() {
                       {/* Header copy */}
                       <div className="space-y-1.5 px-2">
                         <div
-                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold tracking-wider uppercase backdrop-blur-md border border-[var(--hairline)]"
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium border border-[var(--hairline)] select-none"
                           style={{
                             background: ruthlessMode
-                              ? "linear-gradient(90deg, rgba(234,88,12,0.15), rgba(220,38,38,0.15))"
-                              : "linear-gradient(90deg, rgba(14,165,233,0.15), rgba(99,102,241,0.15))",
-                            color: ruthlessMode ? "#fb923c" : "#38bdf8",
+                              ? "rgba(249, 115, 22, 0.1)"
+                              : "color-mix(in srgb, var(--fg) 4%, transparent)",
+                            color: ruthlessMode ? "#ea580c" : "var(--muted)",
                           }}
                         >
-                          {ruthlessMode ? <Flame className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
-                          {ruthlessMode ? "Ruthless Mode Active" : "Autonomous Career Intelligence"}
+                          {ruthlessMode ? (
+                            <Flame className="h-3 w-3 text-orange-500" />
+                          ) : (
+                            <Sparkles className="h-3 w-3 text-amber-500" />
+                          )}
+                          <span>{ruthlessMode ? "Ruthless Mode" : "Ruth Copilot"}</span>
                         </div>
-                        <h3 className="text-lg font-bold tracking-tight text-[var(--fg)]">
-                          Hi {user?.name ? user.name.split(" ")[0] : "there"}! Meet Ruth.
+                        <h3 className="text-lg sm:text-xl font-bold tracking-tight text-[var(--fg)]">
+                          {(() => {
+                            const raw = user?.name ? user.name.trim().split(" ")[0] : "";
+                            const name = raw ? raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase() : "";
+                            return name ? `Hi ${name}! Meet Ruth.` : "Meet Ruth.";
+                          })()}
                         </h3>
                         <p className="text-xs text-[var(--muted)] leading-relaxed max-w-sm mx-auto">
                           {ruthlessMode
-                            ? "Brutally candid, unfiltered advice. No sugarcoating, just real-world clarity."
-                            : "Your AI mentor for interview prep, 1-on-1 mentor matching, and tech career acceleration."}
+                            ? "Direct, unfiltered advice and honest career feedback."
+                            : "Your guide for interview prep, 1-on-1 mentor matching, and career advice."}
                         </p>
                       </div>
 
@@ -2251,7 +2231,7 @@ function AIChatWidgetInner() {
                                 setInput(card.prompt);
                                 inputRef.current?.focus();
                               }}
-                              className={`group relative text-left p-3 rounded-xl border border-[var(--hairline)] transition-all duration-200 cursor-pointer overflow-hidden backdrop-blur-sm ${card.border}`}
+                              className="group relative text-left p-3 rounded-xl border border-[var(--hairline)] hover:border-[var(--fg)]/25 transition-all duration-200 cursor-pointer overflow-hidden backdrop-blur-xs"
                               style={{
                                 background: "color-mix(in srgb, var(--fg) 2%, transparent)",
                               }}
@@ -2261,21 +2241,16 @@ function AIChatWidgetInner() {
                               />
                               <div className="relative z-10 flex items-start gap-2.5">
                                 <div
-                                  className={`p-1.5 rounded-lg bg-[var(--fg)]/5 group-hover:scale-110 transition-transform duration-200 ${card.accent}`}
+                                  className={`p-2 rounded-lg bg-[var(--fg)]/5 shrink-0 group-hover:scale-105 transition-transform duration-200 ${card.accent}`}
                                 >
                                   <CardIcon className="h-4 w-4" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <div className="flex items-center justify-between gap-1">
-                                    <span className="text-xs font-semibold text-[var(--fg)] group-hover:text-[var(--fg)] truncate">
-                                      {card.title}
-                                    </span>
-                                    <span className="text-[9px] px-1.5 py-0.5 rounded-md font-medium text-[var(--muted)] bg-[var(--fg)]/5">
-                                      {card.badge}
-                                    </span>
-                                  </div>
-                                  <p className="text-[11px] text-[var(--muted)] line-clamp-2 mt-0.5 leading-snug">
-                                    {card.prompt}
+                                  <span className="block text-xs font-semibold text-[var(--fg)]">
+                                    {card.title}
+                                  </span>
+                                  <p className="text-[11px] text-[var(--muted)] truncate mt-0.5 leading-snug">
+                                    {card.desc}
                                   </p>
                                 </div>
                               </div>

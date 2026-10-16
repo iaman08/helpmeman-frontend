@@ -222,7 +222,7 @@ function AIDemoSectionInner() {
     <section
       ref={sectionRef}
       id="about"
-      className="ai-section-bg py-20 md:py-28 lg:py-36 px-6"
+      className="ai-section-bg py-10 md:py-14 lg:py-16 px-6"
     >
       <div className="max-w-[1200px] mx-auto">
         {/* Header */}
@@ -230,7 +230,7 @@ function AIDemoSectionInner() {
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12 md:mb-16"
+          className="text-center mb-8 md:mb-10"
         >
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#E67579]/30 dark:border-yellow-500/30 bg-[#E67579]/10 dark:bg-yellow-500/10 text-[#E67579] dark:text-yellow-400 text-[12px] font-medium mb-6 select-none">
             <Sparkles size={13} />

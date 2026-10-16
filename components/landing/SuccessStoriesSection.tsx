@@ -36,14 +36,14 @@ export function SuccessStoriesSection() {
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section ref={ref} id="success" className="py-20 md:py-28 lg:py-36 px-6 bg-white dark:bg-[#0A0A0A] transition-colors duration-300">
+    <section ref={ref} id="success" className="py-10 md:py-14 lg:py-16 px-6 bg-white dark:bg-[#0A0A0A] transition-colors duration-300">
       <div className="max-w-[1200px] mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12 md:mb-16"
+          className="text-center mb-8 md:mb-10"
         >
           <h2 className="text-[clamp(28px,4vw,44px)] font-semibold tracking-[-0.02em] text-[#111111] dark:text-white leading-[1.1]">
             Real outcomes, not promises

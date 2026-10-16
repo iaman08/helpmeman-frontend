@@ -3,19 +3,80 @@
 import { useRef, useEffect, useState } from "react";
 import { useInView } from "motion/react";
 
-const LOGOS = [
+interface LogoItem {
+  name: string;
+  size: number;
+  mobileSize: number;
+  slug?: string;
+  imgSrc?: string;
+  customIcon?: React.ReactNode;
+}
+
+const LOGOS: LogoItem[] = [
   { name: "Google", slug: "google", size: 66, mobileSize: 44 },
+  { name: "AIIMS Delhi", imgSrc: "/aiimsdelhi.png", size: 66, mobileSize: 44 },
+  { name: "NLSIU Law", imgSrc: "/nlsiu.png", size: 64, mobileSize: 42 },
   { name: "Apple", slug: "apple", size: 62, mobileSize: 42 },
-  { name: "Spotify", slug: "spotify", size: 64, mobileSize: 42 },
+  {
+    name: "IIT Bombay",
+    size: 66,
+    mobileSize: 44,
+    customIcon: (
+      <div className="flex flex-col items-center justify-center select-none">
+        <span className="text-[#003366] dark:text-[#60A5FA] font-black text-[17px] leading-none tracking-tight">
+          IIT
+        </span>
+        <span className="text-amber-500 font-bold text-[7px] tracking-widest uppercase mt-0.5">
+          BOMBAY
+        </span>
+      </div>
+    ),
+  },
+  { name: "Apollo Hospitals", slug: "apollo", size: 66, mobileSize: 44 },
+  {
+    name: "Cultfit",
+    size: 64,
+    mobileSize: 42,
+    customIcon: (
+      <svg viewBox="0 0 160 160" className="w-8 h-8 text-zinc-900 dark:text-zinc-100" fill="none">
+        <rect x="76.5" y="14" width="7" height="12" rx="3.5" fill="#E8005A" />
+        <line x1="56" y1="35" x2="68" y2="43" stroke="currentColor" strokeWidth="6.5" strokeLinecap="round" />
+        <line x1="104" y1="35" x2="92" y2="43" stroke="currentColor" strokeWidth="6.5" strokeLinecap="round" />
+        <circle cx="80" cy="39" r="8" stroke="currentColor" strokeWidth="6.5" fill="none" />
+        <line x1="42" y1="57" x2="118" y2="57" stroke="currentColor" strokeWidth="7" strokeLinecap="round" />
+        <line x1="47" y1="77" x2="58" y2="69" stroke="#00B4D8" strokeWidth="7" strokeLinecap="round" />
+        <line x1="113" y1="77" x2="102" y2="69" stroke="#FFB703" strokeWidth="7" strokeLinecap="round" />
+        <path d="M56 93L80 71L104 93" stroke="currentColor" strokeWidth="7.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
+    name: "Law & Justice",
+    size: 64,
+    mobileSize: 42,
+    customIcon: (
+      <svg viewBox="0 0 24 24" className="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" fill="currentColor" fillOpacity="0.15" />
+        <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" fill="currentColor" fillOpacity="0.15" />
+        <path d="M7 21h10" />
+        <path d="M12 3v18" />
+        <path d="M3 7h18" />
+      </svg>
+    ),
+  },
   { name: "Microsoft", slug: "microsoft", size: 62, mobileSize: 42 },
-  { name: "ChatGPT", slug: "chatgpt", size: 66, mobileSize: 44 },
-  { name: "Amazon", slug: "amazon", size: 64, mobileSize: 42 },
+  {
+    name: "Y Combinator",
+    size: 64,
+    mobileSize: 42,
+    customIcon: (
+      <div className="w-7 h-7 rounded-md bg-[#F26522] flex items-center justify-center text-white font-extrabold text-[15px] leading-none shadow-xs">
+        Y
+      </div>
+    ),
+  },
+  { name: "Unilever", slug: "unilever", size: 64, mobileSize: 42 },
   { name: "Meta", slug: "meta", size: 64, mobileSize: 42 },
-  { name: "Slack", slug: "slack", size: 60, mobileSize: 40 },
-  { name: "Figma", slug: "figma", size: 62, mobileSize: 42 },
-  { name: "Airbnb", slug: "airbnb", size: 66, mobileSize: 44 },
-  { name: "Adobe", slug: "adobe", size: 62, mobileSize: 42 },
-  { name: "Uber", slug: "uber", size: 64, mobileSize: 42 },
 ];
 
 const INITIAL_SPREAD = [
@@ -33,12 +94,33 @@ const INITIAL_SPREAD = [
   { xPct: 0.82, yPct: 0.66 },
 ];
 
-function LogoIcon({ slug, size }: { slug: string; size: number }) {
+function LogoIcon({ logo, size }: { logo: LogoItem; size: number }) {
   const iconSize = Math.round(size * 0.56);
+  if (logo.customIcon) {
+    return (
+      <div style={{ width: iconSize, height: iconSize }} className="flex items-center justify-center">
+        {logo.customIcon}
+      </div>
+    );
+  }
+  if (logo.imgSrc) {
+    return (
+      <img
+        src={logo.imgSrc}
+        alt={logo.name}
+        width={iconSize}
+        height={iconSize}
+        style={{ objectFit: "contain", display: "block" }}
+        className="rounded-lg"
+        loading="eager"
+        draggable={false}
+      />
+    );
+  }
   return (
     <img
-      src={`/logos/${slug}.svg`}
-      alt={slug}
+      src={`/logos/${logo.slug}.svg`}
+      alt={logo.name}
       width={iconSize}
       height={iconSize}
       style={{ objectFit: "contain", display: "block" }}
@@ -301,14 +383,14 @@ export function FloatingStatsSection() {
   }, [mounted, isSectionInView]);
 
   // Stage flags based on scroll progress
-  const isStage1Active = scrollProgress >= 0.05;
+  const isStage1Active = scrollProgress >= 0.04;
   const isStage2Active = scrollProgress >= 0.28;
-  const isStage3Active = scrollProgress >= 0.58;
+  const isStage3Active = scrollProgress >= 0.55;
 
   return (
     <section
       ref={sectionRef}
-      className="relative w-full h-[220vh] bg-white dark:bg-[#0A0A0A]"
+      className="relative w-full h-[135vh] bg-white dark:bg-[#0A0A0A]"
     >
       {/* Sticky Full-Viewport Stage */}
       <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col items-center justify-center px-4 select-none">
@@ -336,7 +418,7 @@ export function FloatingStatsSection() {
                   }}
                   className="w-full h-full flex items-center justify-center cursor-pointer bg-white dark:bg-[#18181B] border border-neutral-200/90 dark:border-neutral-800 shadow-[0_4px_16px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_16px_rgba(0,0,0,0.35)] rounded-2xl sm:rounded-[20px] transition-transform duration-200 hover:scale-110 active:scale-95"
                 >
-                  <LogoIcon slug={logo.slug} size={s} />
+                  <LogoIcon logo={logo} size={s} />
                 </div>
               </div>
             );
@@ -350,7 +432,8 @@ export function FloatingStatsSection() {
             A growing community of
           </p>
 
-          {/* Line 1: No of Sessions */}
+
+          {/* Line 1: No of Mentors */}
           <div
             className={`transition-all duration-500 ease-out transform ${isStage1Active
               ? "text-[#111111] dark:text-white opacity-100 scale-100"
@@ -358,11 +441,11 @@ export function FloatingStatsSection() {
               }`}
           >
             <h2 className="text-[clamp(36px,7.5vw,90px)] font-extrabold leading-[1.04] tracking-[-0.04em]">
-              200+ sessions
+              100+ mentors
             </h2>
           </div>
 
-          {/* Line 2: Total Minutes */}
+          {/* Line 2: No of Sessions */}
           <div
             className={`transition-all duration-500 ease-out transform ${isStage2Active
               ? "opacity-100 translate-y-0 scale-100 max-h-[140px] mt-1 sm:mt-2.5"
@@ -370,9 +453,10 @@ export function FloatingStatsSection() {
               }`}
           >
             <h2 className="text-[clamp(36px,7.5vw,90px)] font-extrabold leading-[1.04] tracking-[-0.04em] text-[#111111] dark:text-white">
-              100+ mentors
+              200+ sessions
             </h2>
           </div>
+
 
           {/* Line 3: No of Mentees */}
           <div

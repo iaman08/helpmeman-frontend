@@ -5,23 +5,14 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import { motion } from "motion/react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { LogoStack } from "./LogoStack";
-const TYPED_WORDS = [
-  "Fitness",
-  "IITian",
-  "Doctor",
-  "Nutritionist",
-  "Lawyer",
-  "Gym Trainer",
-  "Developer",
-  "Founder",
-];
+import { LogoStack, LOGOS } from "./LogoStack";
 
 export function HeroSection() {
   const { user, mentor, loading } = useAuth();
   const [wordIndex, setWordIndex] = useState(0);
   const [currentText, setCurrentText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   const dashboardPath = user
     ? user.role === "SUPER_ADMIN"
@@ -36,41 +27,54 @@ export function HeroSection() {
     : null;
 
   useEffect(() => {
-    const currentFullWord = TYPED_WORDS[wordIndex];
+    if (isPaused) return;
+
+    const currentLogo = LOGOS[wordIndex % LOGOS.length];
+    const currentFullWord = currentLogo.word;
     let timer: NodeJS.Timeout;
 
     if (isDeleting) {
       timer = setTimeout(() => {
         setCurrentText((prev) => prev.slice(0, -1));
-      }, 40);
+      }, 35);
     } else {
       timer = setTimeout(() => {
         setCurrentText((prev) => currentFullWord.slice(0, prev.length + 1));
-      }, 80);
+      }, 75);
     }
 
     if (!isDeleting && currentText === currentFullWord) {
+      // Dwell on the full word & logo for 1.8s
       timer = setTimeout(() => {
         setIsDeleting(true);
       }, 1800);
     } else if (isDeleting && currentText === "") {
+      // Completed deletion: advance to next synchronized logo and word
       setIsDeleting(false);
-      setWordIndex((prev) => (prev + 1) % TYPED_WORDS.length);
+      setWordIndex((prev) => (prev + 1) % LOGOS.length);
     }
 
     return () => clearTimeout(timer);
-  }, [currentText, isDeleting, wordIndex]);
+  }, [currentText, isDeleting, wordIndex, isPaused]);
 
   const scrollToAI = () => {
     document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
-    <section className="relative pt-16 pb-20 md:pt-24 md:pb-28 lg:pt-28 lg:pb-36 px-6 overflow-hidden min-h-[640px] md:min-h-[720px] flex flex-col justify-center">
+    <section className="relative pt-8 pb-8 md:pt-12 md:pb-12 lg:pt-14 lg:pb-14 px-6 overflow-hidden min-h-[480px] md:min-h-[540px] flex flex-col justify-center">
       {/* ── Main Hero Content ── */}
       <div className="max-w-[1200px] mx-auto text-center relative z-20">
-        {/* Mobbin-style Stacked Logo Cards — directly above hero headline */}
-        <LogoStack />
+        {/* Mobbin-style Stacked Logo Cards — synced with typed headline words */}
+        <LogoStack
+          activeIndex={wordIndex}
+          onSelectIndex={(newIndex) => {
+            setWordIndex(newIndex);
+            setCurrentText("");
+            setIsDeleting(false);
+          }}
+          onHoverChange={setIsPaused}
+        />
 
         {/* Headline with Typing Effect matching Mobbin bold typography */}
         <motion.h1
@@ -142,7 +146,7 @@ export function HeroSection() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.5 }}
-          className="mt-14 md:mt-20 text-[13px] font-medium text-[#71717A] dark:text-[#A1A1AA] tracking-normal"
+          className="mt-7 md:mt-10 text-[13px] font-medium text-[#71717A] dark:text-[#A1A1AA] tracking-normal"
         >
           Trusted by design teams &amp; ambitious minds at
         </motion.p>

@@ -9,9 +9,9 @@ export function FooterSection() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="landing-footer py-16 md:py-24">
+    <footer className="landing-footer py-10 md:py-14">
       <div className="max-w-[1200px] mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8 pb-16">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8 pb-8">
           {/* Logo & Tagline column */}
           <div className="md:col-span-6 flex flex-col items-start gap-4">
             <div className="flex items-center gap-2">

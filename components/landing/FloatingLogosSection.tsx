@@ -493,7 +493,7 @@ export function FloatingLogosSection() {
   return (
     <section
       ref={ref}
-      className="relative w-full py-20 md:py-28 px-6 bg-[var(--bg)] border-t border-[var(--hairline)] overflow-hidden min-h-[460px] flex flex-col items-center justify-center gap-10"
+      className="relative w-full py-10 md:py-14 px-6 bg-[var(--bg)] border-t border-[var(--hairline)] overflow-hidden min-h-[360px] flex flex-col items-center justify-center gap-6"
     >
       {/* Ambient Grid Background */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:16px_24px] pointer-events-none" />
