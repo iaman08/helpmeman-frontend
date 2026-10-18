@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { X, Trash2, Sparkles, Clock, ChevronRight, MessageSquare, RotateCcw, Plus, History, Calendar, Video, Edit2, Check, Smile, Mic, ArrowUp, Star, BadgeCheck, Zap, Flame, Compass } from "lucide-react";
+import { X, Trash2, Sparkles, Clock, ChevronRight, MessageSquare, RotateCcw, Plus, History, Calendar, Video, Edit2, Check, Smile, Mic, ArrowUp, Star, BadgeCheck, Zap, Flame, Compass, Code2, Users, Cpu, Layers } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import api, { API_BASE } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
@@ -10,7 +10,7 @@ import { usePathname } from "next/navigation";
 import { AxiosError } from "axios";
 import { useAIStream } from "@/hooks/useAIStream";
 import { chatSoundService } from "@/lib/chatSoundService";
-import { RuthMascot, RuthMascotInline, BotStateProvider, useBotState } from "@/components/AICompanion/AICompanion";
+import { RuthMascot, RuthMascotInline, BotStateProvider, useBotState, HelpMeManLogo } from "@/components/AICompanion/AICompanion";
 
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -1716,42 +1716,34 @@ function AIChatWidgetInner() {
     }
   }, [sessionId, handleNewChat]);
 
-  // ─── Futuristic Capability Cards ──────────────────────────────────────────
+  // ─── Capability Cards ──────────────────────────────────────────────────────
 
   const starterCards = [
     {
-      icon: Zap,
+      icon: Code2,
       title: "Crack DSA & Coding",
       desc: "Roadmap & interview problem strategy",
       prompt: "I want to improve my DSA rating for technical interviews. Give me a 4-week structured roadmap.",
-      color: "from-amber-500/10 to-orange-500/10",
-      accent: "text-amber-500",
     },
     {
-      icon: Compass,
+      icon: Users,
       title: "Match Top Mentors",
       desc: "Find vetted 1-on-1 industry mentors",
       prompt: "Find me top-rated mentors specializing in Fullstack and System Design under ₹500.",
-      color: "from-sky-500/10 to-blue-500/10",
-      accent: "text-sky-500",
     },
     {
-      icon: Flame,
+      icon: Cpu,
       title: ruthlessMode ? "Ruthless Roast" : "Review My Tech Stack",
       desc: ruthlessMode ? "Brutal, no-BS reality check" : "Honest critique & upgrade tips",
       prompt: ruthlessMode
         ? "Ruth, give me a brutally honest roast of modern web dev tutorials and tell me how to actually stand out."
         : "Give me critical, honest feedback on my tech stack and what I should upgrade.",
-      color: "from-rose-500/10 to-orange-500/10",
-      accent: "text-rose-500",
     },
     {
-      icon: Sparkles,
+      icon: Layers,
       title: "System Design Prep",
       desc: "Architecture patterns for top roles",
       prompt: "How do I prepare for System Design interviews at top product companies?",
-      color: "from-purple-500/10 to-indigo-500/10",
-      accent: "text-purple-500",
     },
   ];
 
@@ -1813,8 +1805,8 @@ function AIChatWidgetInner() {
         </button>
       )}
 
-      {/* ─── Floating Ruth AI Mascot Launcher (Home Page Only) ─── */}
-      {isHomePage && !isDismissed && (
+      {/* ─── Floating Ruth AI Assistant Launcher (Home Page Only) ─── */}
+      {isHomePage && !isDismissed && !isOpen && (
         <div
           ref={widgetRef}
           className={`fixed z-[9990] flex items-center gap-3 select-none touch-none transition-transform duration-75 ${isPoofing ? "scale-0 opacity-0 transition-all duration-300 pointer-events-none" : ""
@@ -1836,9 +1828,9 @@ function AIChatWidgetInner() {
             }
           }}
         >
-          {/* Animated Ruth mascot with quick-close hover button */}
+          {/* Floating trigger button */}
           <div className="relative group">
-            {/* Quick ✕ close button right on the mascot */}
+            {/* Quick ✕ close button */}
             <button
               type="button"
               onClick={(e) => {
@@ -1850,7 +1842,7 @@ function AIChatWidgetInner() {
                   setIsOpen(false);
                 }, 200);
               }}
-              title="Dismiss Ruth AI"
+              title="Dismiss Ruth"
               className="absolute -top-1.5 -right-1.5 z-30 w-5 h-5 rounded-full bg-black/85 text-white/80 hover:text-white hover:bg-red-600 border border-white/30 flex items-center justify-center shadow-lg transition-all duration-200 cursor-pointer opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95"
             >
               <X className="w-3 h-3 stroke-[2.5]" />
@@ -1858,29 +1850,10 @@ function AIChatWidgetInner() {
 
             <RuthMascot
               isOpen={isOpen}
-              size={typeof window !== "undefined" && window.innerWidth < 640 ? 64 : 80}
+              size={52}
               onClick={() => setIsOpen((p) => !p)}
             />
           </div>
-
-          {/* "Ask Ruth AI" pill beside the mascot */}
-          {!isOpen && (
-            <div className="hidden sm:flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-black/85 dark:bg-zinc-900/90 text-white backdrop-blur-xl border border-white/15 shadow-2xl transition-all group-hover:scale-105 cursor-grab active:cursor-grabbing">
-              {ruthlessMode ? (
-                <Flame className="w-4 h-4 text-amber-400 animate-pulse shrink-0" />
-              ) : (
-                <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse shrink-0" />
-              )}
-              <div className="flex flex-col leading-tight">
-                <span className="text-xs font-bold tracking-tight">
-                  {ruthlessMode ? "Ruthless Ruth" : "Ruth AI Copilot"}
-                </span>
-                <span className="text-[10px] text-white/60 font-medium">
-                  {ruthlessMode ? "Candid Roast Active" : "Ask about DSA & Mentors"}
-                </span>
-              </div>
-            </div>
-          )}
         </div>
       )}
 
@@ -1908,13 +1881,13 @@ function AIChatWidgetInner() {
             <div className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2">
 
               {/* Left Segment: Brand and inline breadcrumb layout */}
-              <div className="flex items-center gap-2 min-w-0 flex-1">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full shrink-0" style={{ background: "color-mix(in srgb, var(--fg) 8%, transparent)" }}>
-                  <RuthMascotInline size={20} />
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0B0B0C] border border-white/10 shrink-0 overflow-hidden">
+                  <HelpMeManLogo size={20} />
                 </div>
 
                 <div className={`shrink-0 ${sessionTitle && activeTab === "chat" ? "hidden sm:block" : ""}`}>
-                  <h3 className="text-xs sm:text-sm font-bold tracking-tight" style={{ color: "var(--fg)" }}>
+                  <h3 className="text-xs sm:text-sm font-semibold tracking-tight" style={{ color: "var(--fg)" }}>
                     Ruth
                   </h3>
                 </div>
@@ -2157,65 +2130,31 @@ function AIChatWidgetInner() {
                     </div>
                   )}
 
-                  {/* Empty state - Clean Human-First Welcome */}
+                  {/* Empty state - Clean Professional Welcome */}
                   {!sessionLoading && messages.length === 0 && (
-                    <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center py-5 sm:py-7 max-w-lg mx-auto w-full">
-                      {/* Ruth Avatar Hero */}
-                      <div className="relative flex items-center justify-center">
-                        <div
-                          className="relative flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-300 shadow-xs"
-                          style={{
-                            background: ruthlessMode
-                              ? "color-mix(in srgb, #f97316 12%, var(--bg))"
-                              : "color-mix(in srgb, var(--fg) 5%, var(--bg))",
-                            border: ruthlessMode
-                              ? "1px solid rgba(249, 115, 22, 0.3)"
-                              : "1px solid var(--hairline)",
-                          }}
-                        >
-                          {ruthlessMode ? (
-                            <Flame className="h-7 w-7 text-orange-500" />
-                          ) : (
-                            <RuthMascotInline size={38} />
-                          )}
-                          <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                            <span
-                              className={`relative inline-flex rounded-full h-3 w-3 border-2 border-[var(--bg)] ${ruthlessMode ? "bg-orange-500" : "bg-emerald-500"
-                                }`}
-                            />
-                          </span>
-                        </div>
+                    <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center py-6 sm:py-8 max-w-lg mx-auto w-full">
+                      {/* Clean Icon */}
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0B0B0C] border border-white/15 dark:border-white/10 shadow-sm overflow-hidden">
+                        {ruthlessMode ? (
+                          <Flame className="h-6 w-6 text-orange-500" />
+                        ) : (
+                          <HelpMeManLogo size={36} />
+                        )}
                       </div>
 
-                      {/* Header copy */}
+                      {/* Header copy - Clean, direct, no unnecessary badges or AI labels */}
                       <div className="space-y-1.5 px-2">
-                        <div
-                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium border border-[var(--hairline)] select-none"
-                          style={{
-                            background: ruthlessMode
-                              ? "rgba(249, 115, 22, 0.1)"
-                              : "color-mix(in srgb, var(--fg) 4%, transparent)",
-                            color: ruthlessMode ? "#ea580c" : "var(--muted)",
-                          }}
-                        >
-                          {ruthlessMode ? (
-                            <Flame className="h-3 w-3 text-orange-500" />
-                          ) : (
-                            <Sparkles className="h-3 w-3 text-amber-500" />
-                          )}
-                          <span>{ruthlessMode ? "Ruthless Mode" : "Ruth Copilot"}</span>
-                        </div>
-                        <h3 className="text-lg sm:text-xl font-bold tracking-tight text-[var(--fg)]">
+                        <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--fg)]">
                           {(() => {
                             const raw = user?.name ? user.name.trim().split(" ")[0] : "";
                             const name = raw ? raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase() : "";
-                            return name ? `Hi ${name}! Meet Ruth.` : "Meet Ruth.";
+                            return name ? `Hi ${name}, how can we help?` : "How can we help today?";
                           })()}
                         </h3>
-                        <p className="text-xs text-[var(--muted)] leading-relaxed max-w-sm mx-auto">
+                        <p className="text-xs sm:text-sm text-[var(--muted)] leading-relaxed max-w-sm mx-auto">
                           {ruthlessMode
                             ? "Direct, unfiltered advice and honest career feedback."
-                            : "Your guide for interview prep, 1-on-1 mentor matching, and career advice."}
+                            : "Find vetted 1-on-1 mentors, prep for interviews, or ask any career question."}
                         </p>
                       </div>
 
@@ -2231,18 +2170,13 @@ function AIChatWidgetInner() {
                                 setInput(card.prompt);
                                 inputRef.current?.focus();
                               }}
-                              className="group relative text-left p-3 rounded-xl border border-[var(--hairline)] hover:border-[var(--fg)]/25 transition-all duration-200 cursor-pointer overflow-hidden backdrop-blur-xs"
+                              className="group relative text-left p-3 rounded-xl border border-[var(--hairline)] hover:border-[var(--fg)]/30 hover:bg-[var(--fg)]/[0.03] transition-all duration-200 cursor-pointer overflow-hidden backdrop-blur-xs"
                               style={{
                                 background: "color-mix(in srgb, var(--fg) 2%, transparent)",
                               }}
                             >
-                              <div
-                                className={`absolute inset-0 bg-gradient-to-br ${card.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`}
-                              />
                               <div className="relative z-10 flex items-start gap-2.5">
-                                <div
-                                  className={`p-2 rounded-lg bg-[var(--fg)]/5 shrink-0 group-hover:scale-105 transition-transform duration-200 ${card.accent}`}
-                                >
+                                <div className="p-2 rounded-lg bg-[var(--fg)]/5 text-[var(--fg)] shrink-0 group-hover:scale-105 group-hover:bg-[var(--fg)]/10 transition-all duration-200">
                                   <CardIcon className="h-4 w-4" />
                                 </div>
                                 <div className="flex-1 min-w-0">
