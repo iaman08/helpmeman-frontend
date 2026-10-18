@@ -14,8 +14,8 @@ export function FooterSection() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8 pb-8">
           {/* Logo & Tagline column */}
           <div className="md:col-span-6 flex flex-col items-start gap-4">
-            <div className="flex items-center gap-2">
-              <img src="/logo.svg" alt="HelpMeMan Logo" className="w-8 h-8 object-contain brightness-0 invert" />
+            <div className="flex items-center gap-2.5">
+              <img src="/logo.svg" alt="HelpMeMan Logo" className="w-8 h-8 object-contain rounded-md border border-white/20" />
               <span className="font-bold text-[20px] tracking-tight text-white">
                 HelpMeMan
               </span>
