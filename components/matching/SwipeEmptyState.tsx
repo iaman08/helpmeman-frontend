@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Sparkles, TrendingUp, Users, Filter } from "lucide-react";
+import { GraduationCap, TrendingUp, Users, Filter } from "lucide-react";
 import Link from "next/link";
 
 interface SwipeEmptyStateProps {
@@ -34,11 +34,11 @@ export function SwipeEmptyState({ onExpandFilters, hasFilters }: SwipeEmptyState
           ))}
           <div className="absolute inset-0 flex items-center justify-center">
             <motion.div
-              animate={{ rotate: [0, 10, -10, 0] }}
+              animate={{ rotate: [0, 8, -8, 0] }}
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="text-4xl"
+              className="h-12 w-12 rounded-2xl bg-neutral-100 dark:bg-zinc-800 border border-neutral-200 dark:border-zinc-700 flex items-center justify-center text-neutral-600 dark:text-neutral-300 shadow-sm"
             >
-              🎓
+              <GraduationCap className="h-6 w-6 stroke-[1.8]" />
             </motion.div>
           </div>
         </div>

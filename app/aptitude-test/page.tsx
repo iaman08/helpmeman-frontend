@@ -9,7 +9,6 @@ import {
   Award,
   Download,
   ArrowRight,
-  Sparkles,
   ChevronRight,
   ChevronLeft,
   RotateCcw,
@@ -647,7 +646,7 @@ export default function AptitudeTestPage() {
             {/* AI Diagnostic Breakdown */}
             <div className="p-6 rounded-3xl bg-blue-500/10 border border-blue-500/20">
               <h3 className="text-sm font-bold text-blue-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
+                <Brain className="w-4 h-4" />
                 AI Diagnostic & Skill Assessment
               </h3>
               <p className="text-sm text-blue-100 leading-relaxed font-medium">

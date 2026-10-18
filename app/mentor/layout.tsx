@@ -9,7 +9,7 @@ import {
   Star,
   Clock,
   User,
-  Sparkles,
+  Bot,
   Bell,
   MessageCircle,
   Calendar,
@@ -47,7 +47,7 @@ export default function MentorLayout({
         }
       },
       label: "Ruth",
-      icon: Sparkles,
+      icon: Bot,
     },
   ];
 

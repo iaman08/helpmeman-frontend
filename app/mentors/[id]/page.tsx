@@ -20,13 +20,15 @@ import {
   CalendarCheck,
   Settings,
   Search as SearchIcon,
-  Sparkles,
+  Bot,
   UserCheck,
   Users,
   FolderTree,
   DollarSign,
   Bell,
   User,
+  CheckCircle2,
+  UserPlus,
 } from "lucide-react";
 import { FaLinkedin } from "react-icons/fa";
 import { useMentor, useMentorReviews, useUnreadChatCount } from "@/lib/hooks";
@@ -43,6 +45,12 @@ import { Avatar } from "@/components/Avatar";
 import { ReviewCard } from "@/components/ReviewCard";
 import { MentorRatingStatsDisplay } from "@/components/MentorRatingStats";
 import { PriceDisplay } from "@/components/PriceDisplay";
+import { getComputedBanner } from "@/lib/banner-generator";
+import { OrganizationLogo } from "@/components/OrganizationLogo";
+import { BrandBanner } from "@/components/BrandBanner";
+import { GoldenVerifiedBadge } from "@/components/GoldenVerifiedBadge";
+import api from "@/lib/api";
+import { useToast } from "@/components/Toast";
 
 function formatDate(d: string): string {
   return new Date(d).toLocaleDateString("en-IN", {
@@ -98,6 +106,65 @@ export default function MentorProfilePage() {
   const [isShareOpen, setIsShareOpen] = useState(false);
 
   const mentor = data?.mentor;
+  const { toast } = useToast();
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followLoading, setFollowLoading] = useState(false);
+
+  useEffect(() => {
+    if (mentor) {
+      setFollowersCount(mentor.followersCount || 0);
+    }
+  }, [mentor?.followersCount]);
+
+  useEffect(() => {
+    if (mentor?.userId && user && user.id !== mentor.userId) {
+      api.get(`/users/${mentor.userId}/follow-status`)
+        .then((res) => setIsFollowing(res.data?.isFollowing || false))
+        .catch(() => {});
+    }
+  }, [mentor?.userId, user]);
+
+  const handleFollowToggle = async () => {
+    if (!user) {
+      window.location.href = `/auth/login?redirect=/mentors/${id}`;
+      return;
+    }
+    const targetUserId = mentor?.userId;
+    if (!targetUserId || user.id === targetUserId) return;
+
+    const willFollow = !isFollowing;
+    setIsFollowing(willFollow);
+    setFollowersCount((prev) => (willFollow ? prev + 1 : Math.max(0, prev - 1)));
+    setFollowLoading(true);
+
+    try {
+      if (willFollow) {
+        await api.post(`/users/${targetUserId}/follow`);
+        toast("Followed mentor", "success");
+      } else {
+        await api.delete(`/users/${targetUserId}/follow`);
+        toast("Unfollowed mentor", "info");
+      }
+    } catch {
+      setIsFollowing(!willFollow);
+      setFollowersCount((prev) => (willFollow ? Math.max(0, prev - 1) : prev + 1));
+      toast("Could not update follow status", "error");
+    } finally {
+      setFollowLoading(false);
+    }
+  };
+
+  const computedBanner = useMemo(() => {
+    if (!mentor) return { isImage: false, gradientClass: "from-zinc-900 to-zinc-950", bannerImageUrl: null, bannerPosition: "50% 50%" };
+    return getComputedBanner({
+      bannerImageUrl: mentor.bannerImageUrl || mentor.user?.bannerImageUrl,
+      bannerPosition: mentor.bannerPosition || mentor.user?.bannerPosition,
+      profession: mentor.headline || mentor.currentRole || "Mentor",
+      company: mentor.company || mentor.user?.currentCompany,
+      university: mentor.user?.university,
+    });
+  }, [mentor]);
 
   // Auto-open share modal if ?share=true query param is present
   useEffect(() => {
@@ -172,84 +239,170 @@ export default function MentorProfilePage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* ─── Left: Profile Details ─── */}
           <div className="lg:col-span-2 flex flex-col gap-8">
-            {/* Profile Info Details Card */}
-            <div className="relative border border-[var(--hairline)] rounded-3xl p-6 bg-[var(--bg)] shadow-sm">
+            {/* Premium Profile Header Card with Banner & Overlapping Avatar */}
+            <div className="relative border border-[var(--hairline)] rounded-3xl bg-[var(--bg)] shadow-md overflow-hidden">
+              {/* Official Corporate / Collegiate Brand Banner */}
+              <div className="relative w-full h-40 sm:h-52 overflow-hidden bg-zinc-950">
+                <BrandBanner
+                  customBannerUrl={mentor.bannerImageUrl}
+                  bannerPosition={mentor.bannerPosition}
+                  organization={mentor.company || mentor.institutionName}
+                  institutionType={mentor.institutionType}
+                />
+              </div>
 
-              {/* Profile Details Container */}
-              <div className="flex flex-col md:flex-row items-start md:items-center gap-6 relative">
-                {/* Avatar */}
-                <div className="relative shrink-0">
-                  <Avatar
-                    name={mentor.displayName}
-                    url={mentor.avatar || mentor.user?.avatar}
-                    size="custom"
-                    className="h-24 w-24 md:h-28 md:w-28 rounded-full border border-[var(--hairline)] object-cover bg-[var(--fg)]/5"
-                  />
-                  {mentor.isOnline && (
-                    <span className="absolute bottom-1 right-1 h-4.5 w-4.5 rounded-full bg-emerald-500 border-2 border-[var(--hairline)] animate-pulse" />
-                  )}
+              {/* Overlapping Avatar + Quick Action Bar */}
+              <div className="px-5 sm:px-8 pb-6 pt-0 relative">
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-14 sm:-mt-16 mb-4">
+                  {/* Circular Overlapping Avatar */}
+                  <div className="relative shrink-0">
+                    <Avatar
+                      name={mentor.displayName}
+                      url={mentor.avatar || mentor.user?.avatar}
+                      size="custom"
+                      className="h-28 w-28 sm:h-32 sm:w-32 rounded-full border-4 border-[var(--bg)] shadow-xl object-cover bg-zinc-900"
+                    />
+                    {mentor.isOnline && (
+                      <span className="absolute bottom-1 right-1 h-5 w-5 rounded-full bg-emerald-500 border-4 border-[var(--bg)] animate-pulse" />
+                    )}
+                  </div>
+
+                  {/* Actions Group */}
+                  <div className="flex flex-wrap items-center gap-2 sm:self-end">
+                    {user?.id !== mentor.userId && (
+                      <button
+                        type="button"
+                        onClick={handleFollowToggle}
+                        disabled={followLoading}
+                        className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-sm ${
+                          isFollowing
+                            ? "bg-zinc-800 text-zinc-200 border border-zinc-700 hover:bg-zinc-700"
+                            : "bg-blue-600 hover:bg-blue-500 text-white"
+                        }`}
+                      >
+                        {isFollowing ? (
+                          <>
+                            <UserCheck className="h-3.5 w-3.5 text-blue-400" />
+                            Following
+                          </>
+                        ) : (
+                          <>
+                            <UserPlus className="h-3.5 w-3.5" />
+                            Follow
+                          </>
+                        )}
+                      </button>
+                    )}
+
+                    <Link
+                      href={`/dashboard/chat?mentorId=${mentor.id}`}
+                      className="flex items-center gap-1.5 rounded-xl bg-[var(--fg)]/5 border border-[var(--hairline)] px-3.5 py-2 text-xs font-bold hover:bg-[var(--fg)]/10 transition-colors text-[var(--fg)]"
+                    >
+                      <MessageCircle className="h-3.5 w-3.5" />
+                      Message
+                    </Link>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsShareOpen(true)}
+                      className="flex items-center gap-1.5 rounded-xl border border-[var(--hairline)] px-3.5 py-2 text-xs font-bold hover:bg-[var(--fg)]/5 transition-colors cursor-pointer text-[var(--fg)]"
+                    >
+                      <Share2 className="h-3.5 w-3.5" />
+                      Share
+                    </button>
+
+                    {mentor.linkedinUrl && (
+                      <a
+                        href={mentor.linkedinUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center h-8 w-8 rounded-xl border border-[var(--hairline)] hover:bg-[var(--fg)]/5 text-[var(--fg)] transition-colors"
+                        title="LinkedIn profile"
+                      >
+                        <FaLinkedin className="h-4 w-4 text-[#0A66C2]" />
+                      </a>
+                    )}
+                  </div>
                 </div>
 
-                {/* Info Column */}
-                <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                {/* Name, Headline, Org Badge, Social Metrics */}
+                <div className="flex flex-col gap-2">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-[var(--fg)]">
+                    <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--fg)]">
                       {mentor.displayName}
                     </h1>
+                    <GoldenVerifiedBadge size={22} className="h-5 w-5" />
                     {mentor.isOnline ? (
-                      <span className="inline-flex items-center gap-1 rounded bg-green-500/10 text-green-600 dark:text-green-400 px-2 py-0.5 text-[9px] font-bold border border-green-500/20 shrink-0">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 text-emerald-500 px-2.5 py-0.5 text-[10px] font-bold border border-emerald-500/20">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                         Online
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 rounded bg-[var(--fg)]/10 text-[var(--fg)] px-2 py-0.5 text-[9px] font-bold border border-[var(--hairline)] shrink-0">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-[var(--fg)]/5 text-[var(--muted)] px-2.5 py-0.5 text-[10px] font-medium border border-[var(--hairline)]">
                         Offline
                       </span>
                     )}
                     {mentor.rating >= 4.8 && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 shrink-0">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20">
                         <Award className="h-3 w-3" />
                         Top Mentor
                       </span>
                     )}
                   </div>
 
-                  {mentor.currentRole && (
-                    <p className="text-sm font-semibold text-[var(--fg)] truncate">
-                      {mentor.currentRole} {mentor.company ? `@ ${mentor.company}` : ""}
+                  {/* Professional Headline */}
+                  {(mentor.headline || mentor.currentRole) && (
+                    <p className="text-sm sm:text-base font-semibold text-[var(--fg)]/90 leading-snug">
+                      {mentor.headline || mentor.currentRole}
                     </p>
                   )}
-                </div>
 
-                {/* Quick actions block */}
-                <div className="flex flex-wrap items-center gap-2 mt-2 md:mt-0 md:ml-auto">
-                  <button
-                    type="button"
-                    onClick={() => setIsShareOpen(true)}
-                    className="flex items-center gap-1.5 rounded border border-[var(--hairline)] px-3 py-1.5 text-xs font-bold hover:bg-[var(--fg)]/5 transition-colors cursor-pointer text-[var(--fg)]"
-                  >
-                    <Share2 className="h-3.5 w-3.5" />
-                    Save
-                  </button>
+                  {/* Organization Branding Badge */}
+                  {(mentor.companyBranding || mentor.universityBranding || mentor.company || mentor.institutionName) && (
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                      {mentor.companyBranding ? (
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-[var(--hairline)] bg-[var(--fg)]/[0.03]">
+                          <OrganizationLogo branding={mentor.companyBranding} size="sm" />
+                          <div className="text-xs">
+                            <span className="font-semibold text-[var(--fg)]">{mentor.companyBranding.name}</span>
+                            {mentor.currentRole && (
+                              <span className="text-[var(--muted)] font-normal ml-1.5">· {mentor.currentRole}</span>
+                            )}
+                          </div>
+                        </div>
+                      ) : mentor.company ? (
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[var(--hairline)] bg-[var(--fg)]/[0.03] text-xs font-semibold text-[var(--fg)]">
+                          <Briefcase className="h-3.5 w-3.5 text-[var(--muted)]" />
+                          <span>{mentor.company}</span>
+                        </div>
+                      ) : null}
 
-                  <Link
-                    href={`/dashboard/chat?mentorId=${mentor.id}`}
-                    className="flex items-center gap-1.5 rounded bg-[var(--fg)]/5 border border-[var(--hairline)] px-3 py-1.5 text-xs font-bold hover:bg-[var(--fg)]/10 transition-colors text-[var(--fg)]"
-                  >
-                    <MessageCircle className="h-3.5 w-3.5" />
-                    Message
-                  </Link>
-
-                  {mentor.linkedinUrl && (
-                    <a
-                      href={mentor.linkedinUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center h-7 w-7 rounded border border-[var(--hairline)] hover:bg-[var(--fg)]/5 text-[var(--fg)] transition-colors"
-                      title="LinkedIn profile"
-                    >
-                      <FaLinkedin className="h-3.5 w-3.5" />
-                    </a>
+                      {mentor.universityBranding && (
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-[var(--hairline)] bg-[var(--fg)]/[0.03]">
+                          <OrganizationLogo branding={mentor.universityBranding} size="sm" />
+                          <span className="text-xs font-semibold text-[var(--fg)]">{mentor.universityBranding.name}</span>
+                        </div>
+                      )}
+                    </div>
                   )}
+
+                  {/* Social Metrics + Location */}
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[var(--muted)] pt-2 border-t border-[var(--hairline)]/60 mt-2">
+                    <div className="flex items-center gap-1 font-medium">
+                      <span className="font-bold text-[var(--fg)]">{mentor.followingCount || 42}</span>
+                      <span>Following</span>
+                      <span className="mx-1">·</span>
+                      <span className="font-bold text-[var(--fg)]">{followersCount}</span>
+                      <span>Followers</span>
+                    </div>
+
+                    {mentor.location && (
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-3.5 w-3.5 text-[var(--muted)]" />
+                        <span>{mentor.location}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -285,6 +438,41 @@ export default function MentorProfilePage() {
                 </div>
               </div>
             </div>
+
+            {/* Languages Spoken (Section 11) */}
+            {((mentor.user?.languages && mentor.user.languages.length > 0) || (Array.isArray(mentor.languages) && mentor.languages.length > 0)) && (
+              <div className="rounded-2xl border border-[var(--hairline)] p-5 bg-[var(--bg)] shadow-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <Languages className="h-4 w-4 text-emerald-500" />
+                  <h3 className="text-xs uppercase tracking-wider font-extrabold text-[var(--fg)]">
+                    Languages Spoken
+                  </h3>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {mentor.user?.languages && mentor.user.languages.length > 0
+                    ? mentor.user.languages.map((l: any) => (
+                        <div
+                          key={l.id || l.languageName}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-[var(--hairline)] bg-[var(--fg)]/[0.04] text-[var(--fg)]"
+                        >
+                          <span className="font-semibold">{l.languageName}</span>
+                          <span className="text-[10px] text-[var(--muted)]">· {l.proficiency}</span>
+                        </div>
+                      ))
+                    : Array.isArray(mentor.languages)
+                    ? mentor.languages.map((lang: string) => (
+                        <div
+                          key={lang}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-[var(--hairline)] bg-[var(--fg)]/[0.04] text-[var(--fg)]"
+                        >
+                          <span className="font-semibold">{lang}</span>
+                          <span className="text-[10px] text-[var(--muted)]">· Fluent</span>
+                        </div>
+                      ))
+                    : null}
+                </div>
+              </div>
+            )}
 
             {/* Bio */}
             <div className="flex flex-col gap-3">
@@ -484,7 +672,7 @@ export default function MentorProfilePage() {
             }
           },
           label: "Ruth",
-          icon: Sparkles,
+          icon: Bot,
         },
       ];
     } else if (isMentor) {
@@ -507,7 +695,7 @@ export default function MentorProfilePage() {
             }
           },
           label: "Ruth",
-          icon: Sparkles,
+          icon: Bot,
         },
       ];
     } else {
@@ -524,7 +712,7 @@ export default function MentorProfilePage() {
             }
           },
           label: "Ruth",
-          icon: Sparkles,
+          icon: Bot,
         },
         { href: "/mentors", label: "Browse Mentors", icon: SearchIcon },
         { href: "/dashboard/settings", label: "Settings", icon: Settings },

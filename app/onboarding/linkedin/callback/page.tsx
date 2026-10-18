@@ -3,7 +3,7 @@
 import { useEffect, Suspense } from "react";
 import { getApiBaseUrl } from "@/lib/api";
 import { FaLinkedin } from "react-icons/fa";
-import { Sparkles } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 function CallbackHandler() {
   useEffect(() => {
@@ -28,8 +28,8 @@ function CallbackHandler() {
             Ruth AI is receiving your verified credentials...
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-amber-500 font-medium">
-          <Sparkles className="h-4 w-4 animate-spin" /> Preparing mentor profile review
+        <div className="flex items-center gap-2 text-xs text-blue-500 font-medium">
+          <Loader2 className="h-4 w-4 animate-spin" /> Preparing mentor profile review
         </div>
       </div>
     </div>

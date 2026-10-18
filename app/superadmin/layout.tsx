@@ -14,7 +14,7 @@ import {
   ScrollText,
   Settings,
   Activity,
-  Sparkles,
+  Bot,
   KeyRound,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
@@ -72,7 +72,7 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
         }
       },
       label: "Ruth",
-      icon: Sparkles,
+      icon: Bot,
     },
   ], [pendingDeletionCount]);
 

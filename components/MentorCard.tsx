@@ -1,157 +1,22 @@
-import Link from "next/link";
-import { Star, Building2, Share2, Globe, Clock, Award } from "lucide-react";
-import { InstitutionBadge } from "./InstitutionBadge";
-import { useState } from "react";
+"use client";
+
+import { ProfileCard } from "./ProfileCard";
 import type { Mentor } from "@/lib/types";
 
 type Props = {
   mentor: Mentor;
   onShare?: (mentor: Mentor) => void;
+  className?: string;
 };
 
-import { PriceDisplay } from "./PriceDisplay";
-
-function CompanyLogo({ company }: { company: string }) {
-  const [error, setError] = useState(false);
-  const companyLogoUrl = `https://logo.clearbit.com/${company.toLowerCase().replace(/[^a-z0-9]/g, "")}.com`;
-
+export function MentorCard({ mentor, onShare, className }: Props) {
   return (
-    <div className="h-8 w-8 rounded-lg overflow-hidden bg-white flex items-center justify-center shrink-0 border border-neutral-200">
-      {!error ? (
-        <img
-          src={companyLogoUrl}
-          alt={company}
-          className="h-full w-full object-contain"
-          onError={() => setError(true)}
-        />
-      ) : (
-        <Building2 className="h-4 w-4 text-neutral-400" />
-      )}
-    </div>
+    <ProfileCard
+      mentor={mentor}
+      mode="mentor"
+      onShare={onShare as any}
+      className={className}
+    />
   );
 }
 
-export function MentorCard({ mentor, onShare }: Props) {
-  const [avatarError, setAvatarError] = useState(false);
-  const avatarUrl = mentor.avatar || mentor.user?.avatar;
-  const displayName = mentor.displayName || mentor.user?.name || "Mentor";
-  const initials = displayName
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
-  return (
-    <Link
-      href={`/mentors/${mentor.id}`}
-      className="group flex flex-col gap-4 rounded-2xl bg-[var(--fg)]/[0.02] hover:bg-[var(--fg)]/5 p-5 sm:p-6 transition-colors border border-transparent hover:border-[var(--hairline)]"
-    >
-      {/* ─── Header ─── */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-4 min-w-0">
-          {avatarUrl && !avatarError ? (
-            <img
-              src={avatarUrl}
-              alt={displayName}
-              className="h-14 w-14 rounded-full object-cover shrink-0 border border-[var(--hairline)]"
-              onError={() => setAvatarError(true)}
-            />
-          ) : (
-            <div
-              className="flex h-14 w-14 items-center justify-center rounded-full text-lg font-bold shrink-0 shadow-inner"
-              style={{
-                background: "color-mix(in srgb, var(--fg) 8%, transparent)",
-                color: "var(--fg)",
-                border: "1px solid var(--hairline)",
-              }}
-            >
-              {initials}
-            </div>
-          )}
-          <div className="flex flex-col gap-0.5 min-w-0">
-            {mentor.rating >= 4.8 && (
-              <span className="inline-flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 self-start mb-0.5">
-                <Award className="h-2.5 w-2.5" />
-                Top Mentor
-              </span>
-            )}
-            <span className="font-display text-lg leading-tight truncate">
-              {displayName}
-            </span>
-            {mentor.currentRole && (
-              <span className="text-xs text-[var(--fg)] truncate">
-                {mentor.currentRole}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {onShare && (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onShare(mentor);
-            }}
-            className="p-2 bg-[var(--fg)]/5 hover:bg-[var(--fg)]/10 border border-[var(--hairline)] rounded-full transition-colors cursor-pointer shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100 transition-all"
-            title="Share profile"
-          >
-            <Share2 className="h-3.5 w-3.5 text-[var(--fg)] hover:text-[var(--fg)]" />
-          </button>
-        )}
-      </div>
-
-      {/* ─── Company / Institution ─── */}
-      <div className="flex flex-col gap-2 mt-2">
-        <InstitutionBadge
-          institutionName={mentor.institutionName}
-          institutionType={mentor.institutionType}
-          className="self-start"
-        />
-      </div>
-
-      {/* ─── Bio snippet ─── */}
-      <p className="text-sm text-[var(--fg)] leading-relaxed line-clamp-2 mt-1">
-        {mentor.bio}
-      </p>
-
-      {/* ─── Profile Details (Location, Active Status) ─── */}
-      {(mentor.location || mentor.activeStatus || mentor.averageResponseTime) && (
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--fg)] mt-1">
-          {mentor.location && (
-            <span className="flex items-center gap-1 shrink-0">
-              <Globe className="h-3 w-3 shrink-0" />
-              {mentor.location}
-            </span>
-          )}
-          {mentor.activeStatus && (
-            <span className="flex items-center gap-1 shrink-0">
-              <Clock className="h-3 w-3 shrink-0" />
-              {mentor.activeStatus}
-            </span>
-          )}
-        </div>
-      )}
-
-      {/* ─── Footer ─── */}
-      <div className="flex items-center justify-between mt-auto pt-3 border-t border-[var(--hairline)]">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1">
-            <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
-            <span className="text-sm font-bold">
-              {mentor.rating > 0 ? mentor.rating.toFixed(1) : "New"}
-            </span>
-          </div>
-          <span className="text-xs text-[var(--fg)] font-medium">
-            {mentor.totalSessions} session{mentor.totalSessions !== 1 ? "s" : ""}
-          </span>
-        </div>
-        <span className="font-display text-lg text-[var(--fg)]">
-          <PriceDisplay amountInPaise={mentor.pricePerSession} />
-        </span>
-      </div>
-    </Link>
-  );
-}

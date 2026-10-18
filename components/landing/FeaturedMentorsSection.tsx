@@ -1,183 +1,190 @@
 "use client";
 
-import { Star, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { motion, useInView } from "motion/react";
 import { useRef } from "react";
 import Link from "next/link";
+import { ProfileCard } from "@/components/ProfileCard";
+import type { Mentor } from "@/lib/types";
 
-const mentors = [
+const rawMentors = [
   {
-    name: "Anwesh das",
-    role: "Software Engineer (1Cr+ pkg)",
+    id: "featured-1",
+    userId: "featured-user-1",
+    displayName: "Anwesh das",
+    currentRole: "Software Engineer",
     company: "Rubrik",
-    expertise: ["System Design", "DSA"],
+    institutionName: "Rubrik",
+    institutionType: "COMPANY",
+    expertise: ["System Design", "DSA", "Distributed Systems"],
     rating: 5,
-    reviews: 48,
-    fee: "₹499",
-    img: "/mentor3.jpg",
+    totalSessions: 48,
+    pricePerSession: 49900,
+    sessionDuration: 45,
+    avatar: "/mentor3.jpg",
+    location: "Bengaluru, Karnataka, India",
+    languages: ["English", "Hindi"],
+    bio: "Software Engineer at Rubrik. Helping engineers master system design and crack product tech rounds.",
+    approvalStatus: "APPROVED",
+    isActive: true,
+    categoryId: "tech",
   },
   {
-    name: "Prakhar Shrivastava",
-    role: "Co-founder, TrenchersAI ",
+    id: "featured-2",
+    userId: "featured-user-2",
+    displayName: "Prakhar Shrivastava",
+    currentRole: "Co-founder, TrenchersAI",
     company: "IIT Madras",
-    expertise: ["Tech", "Ops"],
+    institutionName: "IIT Madras",
+    institutionType: "COLLEGE",
+    expertise: ["Tech", "Ops", "Product Strategy"],
     rating: 5,
-    reviews: 36,
-    fee: "₹999",
-    img: "/mentor5.jpeg",
+    totalSessions: 36,
+    pricePerSession: 99900,
+    sessionDuration: 60,
+    avatar: "/mentor5.jpeg",
+    location: "Chennai, Tamil Nadu, India",
+    languages: ["English", "Hindi"],
+    bio: "IIT Madras Alum & Founder. Guiding students through early-stage ventures and operations.",
+    approvalStatus: "APPROVED",
+    isActive: true,
+    categoryId: "startup",
   },
   {
-    name: "Aryan Gupta",
-    role: "SDE",
+    id: "featured-3",
+    userId: "featured-user-3",
+    displayName: "Aryan Gupta",
+    currentRole: "Software Development Engineer",
     company: "Cohesity",
-    expertise: ["Startups", "Fundraising"],
+    institutionName: "Cohesity",
+    institutionType: "COMPANY",
+    expertise: ["Startups", "Fundraising", "Backend"],
     rating: 5,
-    reviews: 24,
-    fee: "₹599",
-    img: "/mentor6.jpeg",
+    totalSessions: 24,
+    pricePerSession: 59900,
+    sessionDuration: 45,
+    avatar: "/mentor6.jpeg",
+    location: "Bengaluru, Karnataka, India",
+    languages: ["English", "Hindi"],
+    bio: "SDE at Cohesity. Mentor for early-stage startup engineering, backend architectures, and fundraising.",
+    approvalStatus: "APPROVED",
+    isActive: true,
+    categoryId: "tech",
   },
   {
-    name: "Vineet",
-    role: "GSoC '25 & '26",
+    id: "featured-4",
+    userId: "featured-user-4",
+    displayName: "Vineet",
+    currentRole: "GSoC Mentor & Open Source Lead",
     company: "IIT Roorkee",
-    expertise: ["Open Source", "GSoC"],
+    institutionName: "IIT Roorkee",
+    institutionType: "COLLEGE",
+    expertise: ["Open Source", "GSoC", "Fullstack"],
     rating: 5,
-    reviews: 62,
-    fee: "₹299",
-    img: "/mentor1.png",
+    totalSessions: 62,
+    pricePerSession: 29900,
+    sessionDuration: 45,
+    avatar: "/mentor1.png",
+    location: "Roorkee, Uttarakhand, India",
+    languages: ["English", "Hindi"],
+    bio: "GSoC '25 & '26 Contributor from IIT Roorkee. Assisting aspiring open-source developers.",
+    approvalStatus: "APPROVED",
+    isActive: true,
+    categoryId: "general",
   },
   {
-    name: "Sunny Sharma",
-    role: "Tech Lead",
+    id: "featured-5",
+    userId: "featured-user-5",
+    displayName: "Sunny Sharma",
+    currentRole: "Tech Lead",
     company: "Salesforce",
-    expertise: ["Backend", "Cloud"],
-    rating: 4,
-    reviews: 31,
-    fee: "₹349",
-    img: "/mentor4.jpg",
+    institutionName: "Salesforce",
+    institutionType: "COMPANY",
+    expertise: ["Backend Architecture", "Cloud", "Java"],
+    rating: 5,
+    totalSessions: 31,
+    pricePerSession: 34900,
+    sessionDuration: 45,
+    avatar: "/mentor4.jpg",
+    location: "Hyderabad, Telangana, India",
+    languages: ["English", "Hindi"],
+    bio: "Tech Lead at Salesforce with 8+ years experience architecting mission-critical cloud solutions.",
+    approvalStatus: "APPROVED",
+    isActive: true,
+    categoryId: "tech",
   },
   {
-    name: "Omi Shourya",
-    role: "Electrical Engineer",
-    company: "Delhi Technical University",
-    expertise: ["Electrical Engineering", "EE Core"],
+    id: "featured-6",
+    userId: "featured-user-6",
+    displayName: "Omi Shourya",
+    currentRole: "Electrical Engineer & Hardware Lead",
+    company: "Delhi Technological University",
+    institutionName: "Delhi Technological University",
+    institutionType: "COLLEGE",
+    expertise: ["Electrical Engineering", "EE Core", "GATE Prep"],
     rating: 5,
-    reviews: 55,
-    fee: "₹299",
-    img: "/mentor7.jpeg",
+    totalSessions: 55,
+    pricePerSession: 29900,
+    sessionDuration: 45,
+    avatar: "/mentor7.jpeg",
+    location: "New Delhi, Delhi, India",
+    languages: ["English", "Hindi"],
+    bio: "DTU graduate specializing in EE Core placements, competitive exams, and technical career roadmaps.",
+    approvalStatus: "APPROVED",
+    isActive: true,
+    categoryId: "placements",
   },
 ];
+
+const featuredMentors: Mentor[] = rawMentors.map((m) => ({
+  ...m,
+  institutionEmail: `${m.userId}@helpmeman.com`,
+  isOnline: true,
+  createdAt: "2025-01-01T00:00:00Z",
+})) as Mentor[];
 
 export function FeaturedMentorsSection() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section ref={ref} id="mentors" className="py-10 md:py-14 lg:py-16 px-6 bg-white dark:bg-[#0A0A0A] transition-colors duration-300">
-      <div className="max-w-[1200px] mx-auto">
+    <section ref={ref} id="mentors" className="py-10 md:py-16 lg:py-20 px-6 bg-white dark:bg-[#0A0A0A] transition-colors duration-300">
+      <div className="max-w-[1240px] mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 md:mb-10"
+          className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 md:mb-12"
         >
           <div>
             <h2 className="text-[clamp(28px,4vw,44px)] font-semibold tracking-[-0.02em] text-[#111111] dark:text-white leading-[1.1]">
               Featured Mentors
             </h2>
             <p className="mt-3 text-[16px] text-[#6B7280] dark:text-[#A1A1AA] max-w-md leading-relaxed">
-              Handpicked professionals who are ready to guide you.
+              Handpicked top-rated professionals and alumni ready to guide you.
             </p>
           </div>
           <Link
-            href="/?auth=signup"
-            className="inline-flex items-center gap-1.5 text-[14px] font-medium text-[#2563EB] hover:text-[#1d4ed8] transition-colors no-underline shrink-0"
+            href="/mentors"
+            className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors no-underline shrink-0 group"
           >
-            View all mentors <ArrowRight size={15} />
+            <span>View all 1,000+ mentors</span>
+            <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
           </Link>
         </motion.div>
 
         {/* Mentor grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-6">
-          {mentors.map((mentor, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+          {featuredMentors.map((mentor, i) => (
             <motion.div
-              key={mentor.name}
+              key={mentor.id}
               initial={{ opacity: 0, y: 24 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: i * 0.07 }}
-              className="group bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] rounded-2xl overflow-hidden hover:border-[#D1D5DB] dark:hover:border-[#3F3F46] hover:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.08)] transition-all duration-300"
+              className="h-full flex flex-col"
             >
-              {/* Image */}
-              <div className="aspect-square sm:aspect-[4/3] bg-[#F3F4F6] dark:bg-[#27272A] overflow-hidden">
-                <img
-                  src={mentor.img}
-                  alt={mentor.name}
-                  className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
-                  loading="lazy"
-                />
-              </div>
-
-              {/* Details */}
-              <div className="p-3.5 sm:p-5">
-                <div className="mb-1.5">
-                  <span className="text-[9px] sm:text-[11px] font-semibold text-[#2563EB] bg-[#EFF6FF] dark:bg-[#1E3A8A]/30 dark:text-[#60A5FA] px-2 sm:px-2.5 py-0.5 rounded-full select-none">
-                    {mentor.company}
-                  </span>
-                </div>
-                <h3 className="text-[14px] sm:text-[16px] font-semibold text-[#111111] dark:text-white leading-snug">
-                  {mentor.name}
-                </h3>
-                <p className="text-[11px] sm:text-[13px] text-[#6B7280] dark:text-[#A1A1AA] mt-0.5 truncate">
-                  {mentor.role}
-                </p>
-
-                {/* Expertise tags */}
-                <div className="flex flex-wrap gap-1 mt-2.5">
-                  {mentor.expertise.slice(0, 2).map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-[9px] sm:text-[11px] font-medium text-[#6B7280] dark:text-[#A1A1AA] bg-[#F3F4F6] dark:bg-[#27272A] px-2 py-0.5 rounded select-none"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Rating */}
-                <div className="flex items-center gap-0.5 mt-2.5">
-                  {Array.from({ length: 5 }).map((_, si) => (
-                    <Star
-                      key={si}
-                      size={10}
-                      className={
-                        si < mentor.rating
-                          ? "fill-[#F59E0B] text-[#F59E0B]"
-                          : "fill-[#E5E7EB] dark:fill-[#27272A] text-[#E5E7EB] dark:text-[#27272A]"
-                      }
-                    />
-                  ))}
-                  <span className="text-[10px] sm:text-[12px] text-[#9CA3AF] ml-1">
-                    ({mentor.reviews})
-                  </span>
-                </div>
-
-                {/* Price + Book */}
-                <div className="flex items-center justify-between mt-3.5 pt-3.5 border-t border-[#F3F4F6] dark:border-[#27272A]">
-                  <span className="text-[13px] sm:text-[15px] font-semibold text-[#111111] dark:text-white">
-                    {mentor.fee}
-                    <span className="text-[10px] sm:text-[12px] font-normal text-[#9CA3AF]">
-                      /session
-                    </span>
-                  </span>
-                  <Link
-                    href="/?auth=signup"
-                    className="text-[11px] sm:text-[13px] font-semibold text-[#2563EB] hover:text-[#1d4ed8] transition-colors no-underline"
-                  >
-                    Book →
-                  </Link>
-                </div>
-              </div>
+              <ProfileCard mentor={mentor} mode="mentor" className="h-full" />
             </motion.div>
           ))}
         </div>

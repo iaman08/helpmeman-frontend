@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { ArrowLeft, Calendar, Clock, CreditCard, Star, Tag, X, CheckCircle2, Sparkles } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, CreditCard, Star, Tag, X, CheckCircle2 } from "lucide-react";
 import { useMentor } from "@/lib/hooks";
 import { useAuth } from "@/lib/auth-context";
 import api from "@/lib/api";
@@ -469,7 +469,7 @@ export default function BookMentorPage() {
 
                   {!appliedCoupon && (
                     <div className="flex items-center gap-1.5 text-[11px] text-[var(--muted)] mt-0.5">
-                      <Sparkles className="w-3 h-3 text-amber-500 shrink-0" />
+                      <Tag className="w-3 h-3 text-amber-500 shrink-0" />
                       <span>
                         Testing? Use code{" "}
                         <button

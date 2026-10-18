@@ -187,7 +187,11 @@ function MentorSupportPanel() {
 }
 import { LanguageMultiSelect } from "@/components/LanguageMultiSelect";
 import { Skeleton } from "@/components/Skeleton";
-import type { Mentor } from "@/lib/types";
+import { BannerManager } from "@/components/BannerManager";
+import { OrganizationAutocomplete } from "@/components/OrganizationAutocomplete";
+import { LanguageProficiencySelector } from "@/components/LanguageProficiencySelector";
+import { ProfileCard } from "@/components/ProfileCard";
+import type { Mentor, UserLanguage, OrganizationBranding } from "@/lib/types";
 
 const LANGUAGES = [
   { value: "en", label: "English" },
@@ -290,10 +294,15 @@ export default function MentorSettingsPage() {
   const [imageError, setImageError] = useState(false);
 
   const [displayName, setDisplayName] = useState("");
+  const [headline, setHeadline] = useState("");
+  const [bannerImageUrl, setBannerImageUrl] = useState<string | null>(null);
+  const [bannerPosition, setBannerPosition] = useState<string>("50% 50%");
   const [bio, setBio] = useState("");
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [currentRole, setCurrentRole] = useState("");
   const [company, setCompany] = useState("");
+  const [companyId, setCompanyId] = useState<string | null>(null);
+  const [companyBranding, setCompanyBranding] = useState<OrganizationBranding | null>(null);
   const [experienceYears, setExperienceYears] = useState("");
   const [pricePerSession, setPricePerSession] = useState("");
   const [sessionDuration, setSessionDuration] = useState("30");
@@ -301,6 +310,7 @@ export default function MentorSettingsPage() {
   const [expertiseInput, setExpertiseInput] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [preferredLanguage, setPreferredLanguage] = useState("en");
+  const [userLanguages, setUserLanguages] = useState<UserLanguage[]>([]);
 
   const [mentorAddress, setMentorAddress] = useState({
     country: "",
@@ -319,13 +329,18 @@ export default function MentorSettingsPage() {
     api
       .get("/mentor/me")
       .then((res) => {
-        const m: Mentor = res.data.mentor;
+        const m: any = res.data.mentor;
         setMentor(m);
         setDisplayName(m.displayName ?? "");
+        setHeadline(m.headline || m.user?.headline || "");
+        setBannerImageUrl(m.bannerImageUrl || m.user?.bannerImageUrl || null);
+        setBannerPosition(m.bannerPosition || m.user?.bannerPosition || "50% 50%");
         setBio(m.bio ?? "");
         setLinkedinUrl(m.linkedinUrl ?? "");
         setCurrentRole(m.currentRole ?? "");
         setCompany(m.company ?? "");
+        setCompanyId(m.companyId || m.user?.companyId || null);
+        setCompanyBranding(m.companyBranding || null);
         setExperienceYears(m.experienceYears != null ? String(m.experienceYears) : "");
         const loadedPrice = m.pricePerSession != null 
           ? (m.pricePerSession >= 1000 ? Math.round(m.pricePerSession / 100) : m.pricePerSession) 
@@ -349,6 +364,15 @@ export default function MentorSettingsPage() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
+
+    api
+      .get("/users/me/languages")
+      .then((res) => {
+        if (res.data?.languages) {
+          setUserLanguages(res.data.languages);
+        }
+      })
+      .catch(() => {});
 
     api
       .get("/linkedin/profile")
@@ -438,10 +462,14 @@ export default function MentorSettingsPage() {
 
         const payload = {
         displayName: displayName.trim(),
+        headline: headline.trim() || null,
+        bannerImageUrl,
+        bannerPosition,
         bio: bio.trim(),
         linkedinUrl: linkedinUrl.trim() || null,
         currentRole: currentRole.trim() || null,
         company: company.trim() || null,
+        companyId: companyId || null,
         experienceYears: experienceYears ? parseInt(experienceYears) : null,
         pricePerSession: priceInPaise,
         sessionDuration: parseInt(sessionDuration),
@@ -452,11 +480,14 @@ export default function MentorSettingsPage() {
         city: mentorAddress.city || null,
         locality: mentorAddress.locality || null,
         postalCode: mentorAddress.postalCode || null,
-        languages: mentorLanguages,
+        languages: userLanguages.length > 0 ? userLanguages.map(l => l.languageName) : mentorLanguages,
       };
 
       const res = await api.put("/mentor/me", payload);
       setMentor(res.data.mentor);
+      if (userLanguages.length > 0) {
+        await api.put("/users/me/languages", { languages: userLanguages }).catch(() => {});
+      }
       await updateUser({ name: displayName.trim() });
       toast("Mentor profile updated successfully", "success");
     } catch (err: any) {
@@ -544,6 +575,17 @@ export default function MentorSettingsPage() {
             </div>
 
             <div className="p-4 sm:p-6 flex flex-col gap-8">
+              {/* Cover Banner Manager */}
+              <BannerManager
+                currentBannerUrl={bannerImageUrl}
+                bannerPosition={bannerPosition}
+                onUpdate={(newUrl: string | null, pos?: string) => {
+                  setBannerImageUrl(newUrl);
+                  if (pos) setBannerPosition(pos);
+                }}
+                isMentor={true}
+              />
+
               {/* Photo Section */}
               <div className="flex flex-col sm:flex-row items-center gap-6 pb-6" style={{ borderBottom: "1px solid var(--hairline)" }}>
                 <div className="relative group shrink-0">
@@ -585,6 +627,11 @@ export default function MentorSettingsPage() {
                   <h3 className="font-display text-2xl font-extrabold tracking-tight" style={{ color: "var(--fg)" }}>
                     {displayName || "Mentor Name"}
                   </h3>
+                  {headline && (
+                    <p className="text-xs font-medium text-amber-500">
+                      {headline}
+                    </p>
+                  )}
                   {company ? (
                     <p className="text-sm font-semibold flex items-center justify-center sm:justify-start gap-1.5" style={{ color: "var(--muted)" }}>
                       <Building2 size={14} /> {company}
@@ -615,8 +662,8 @@ export default function MentorSettingsPage() {
                 </div>
               </div>
 
-              {/* Name + LinkedIn */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Name + Headline + LinkedIn */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <Field label="Display Name">
                   <input
                     type="text"
@@ -624,6 +671,17 @@ export default function MentorSettingsPage() {
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     required
+                    className="w-full rounded-xl px-4 py-3 text-sm outline-none font-medium"
+                    style={inputStyle()}
+                  />
+                </Field>
+
+                <Field label="Professional Headline" description="e.g. Senior Software Engineer | AI Mentor">
+                  <input
+                    type="text"
+                    placeholder="e.g. Senior Engineer @ Google | AI Mentor"
+                    value={headline}
+                    onChange={(e) => setHeadline(e.target.value)}
                     className="w-full rounded-xl px-4 py-3 text-sm outline-none font-medium"
                     style={inputStyle()}
                   />
@@ -742,14 +800,16 @@ export default function MentorSettingsPage() {
                   </div>
                 </Field>
 
-                <Field label="Company">
-                  <input
-                    type="text"
-                    placeholder="e.g. Google, Startup..."
+                <Field label="Company / Employer">
+                  <OrganizationAutocomplete
+                    type="COMPANY"
                     value={company}
-                    onChange={(e) => setCompany(e.target.value)}
-                    className="w-full rounded-xl px-4 py-3 text-sm outline-none font-medium"
-                    style={inputStyle()}
+                    placeholder="e.g. Google, Microsoft, Meta..."
+                    onChange={(val, org) => {
+                      setCompany(val);
+                      setCompanyId(org?.id || null);
+                      setCompanyBranding(org || null);
+                    }}
                   />
                 </Field>
 
@@ -780,11 +840,14 @@ export default function MentorSettingsPage() {
                 />
               </div>
 
-              {/* Languages Spoken */}
-              <Field label="Languages Spoken" description="Select all languages you speak fluently. Popular choices are shown first.">
-                <LanguageMultiSelect
-                  selectedLanguages={mentorLanguages}
-                  onChange={(langs) => setMentorLanguages(langs)}
+              {/* Languages Spoken (Section 11) */}
+              <Field
+                label="Languages Spoken"
+                description="Specify the languages you speak and your proficiency level. These appear as compact pills on your card and power mentee language search."
+              >
+                <LanguageProficiencySelector
+                  languages={userLanguages}
+                  onChange={(updated) => setUserLanguages(updated)}
                 />
               </Field>
 
@@ -957,6 +1020,51 @@ export default function MentorSettingsPage() {
             </div>
           </div>
             </form>
+
+            {/* Live Mentor Profile Card Preview */}
+            <div className="mt-8 rounded-2xl sm:rounded-3xl p-6 sm:p-8" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+                <div>
+                  <h3 className="text-lg font-bold" style={{ color: "var(--fg)" }}>
+                    Live Mentor Profile Card Preview
+                  </h3>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+                    Real-time preview of how your card appears to students across the platform and in mentor discovery.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-center p-4 sm:p-8 rounded-2xl bg-zinc-950/40 border border-[var(--hairline)]">
+                <div className="w-full max-w-sm">
+                  <ProfileCard
+                    profile={{
+                      id: mentor?.userId || "preview",
+                      name: displayName || "Your Name",
+                      username: "mentor",
+                      headline: headline || currentRole || "Mentor & Industry Expert",
+                      bio: bio || "Guiding students and developers through personalized 1:1 sessions.",
+                      avatar: currentAvatar,
+                      bannerImageUrl,
+                      bannerPosition,
+                      currentCompany: company,
+                      jobTitle: currentRole,
+                      skills: skills.length > 0 ? skills : ["Mentorship", "System Design"],
+                      city: mentorAddress.city,
+                      state: mentorAddress.state,
+                      country: mentorAddress.country,
+                      followersCount: (mentor as any)?.followersCount || 128,
+                      followingCount: (mentor as any)?.followingCount || 42,
+                      languages: userLanguages.length > 0 ? userLanguages : [
+                        { id: "1", userId: "p", languageCode: "en", languageName: "English", proficiency: "Fluent", displayOrder: 0 },
+                        { id: "2", userId: "p", languageCode: "hi", languageName: "Hindi", proficiency: "Native", displayOrder: 1 },
+                      ],
+                      companyBranding,
+                    } as any}
+                    mode="mentor"
+                  />
+                </div>
+              </div>
+            </div>
 
             {/* Help & Support Shortcut Card */}
             <div className="mt-8 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>

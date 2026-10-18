@@ -8,7 +8,7 @@ import {
   MessageCircle,
   Settings,
   Search,
-  Sparkles,
+  Bot,
   Bell,
   Video,
   Star,
@@ -42,7 +42,7 @@ export default function DashboardLayout({
         }
       },
       label: "Ruth",
-      icon: Sparkles,
+      icon: Bot,
     },
     { href: "/dashboard/settings", label: "Settings", icon: Settings },
   ];

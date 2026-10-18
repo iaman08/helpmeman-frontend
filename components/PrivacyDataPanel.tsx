@@ -9,7 +9,7 @@ import {
   CheckCircle2,
   Mail,
   Scale,
-  Sparkles,
+  Bot,
   ExternalLink,
   Loader2,
   Lock,
@@ -308,7 +308,7 @@ export function PrivacyDataPanel({ userRole = "STUDENT" }: { userRole?: "STUDENT
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+                <Bot className="w-3.5 h-3.5 text-purple-500" />
                 <p className="text-xs sm:text-sm font-semibold" style={{ color: "var(--fg)" }}>
                   Ruth AI Memory &amp; Learning Context
                 </p>

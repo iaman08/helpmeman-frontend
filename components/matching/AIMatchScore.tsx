@@ -19,14 +19,9 @@ export function AIMatchScore({ score, reasons, compact = false }: AIMatchScorePr
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", stiffness: 260, damping: 20 }}
-        className="flex items-center gap-1.5 px-3 py-1 rounded-full shadow-sm text-xs font-bold border"
-        style={{
-          background: "var(--fg)",
-          borderColor: "var(--hairline)",
-          color: "var(--bg)",
-        }}
+        className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-neutral-900/90 text-white dark:bg-white dark:text-neutral-950 border border-neutral-800 dark:border-white/20 shadow-xs backdrop-blur-md"
       >
-        <span className="text-[#f5c518] text-xs">✦</span>
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 inline-block" />
         <span>{score}% Match</span>
       </motion.div>
     );

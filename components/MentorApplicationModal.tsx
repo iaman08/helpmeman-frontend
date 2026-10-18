@@ -8,7 +8,7 @@ import {
   ExternalLink,
   Building2,
   GraduationCap,
-  Sparkles,
+  Bot,
   User,
   Mail,
   Phone,
@@ -243,7 +243,7 @@ export function MentorApplicationModal({
                 : "border-transparent text-zinc-400 hover:text-zinc-200"
             }`}
           >
-            <Sparkles className="h-3.5 w-3.5" />
+            <Bot className="h-3.5 w-3.5" />
             AI Profile & Synthesis
           </button>
 
@@ -273,7 +273,7 @@ export function MentorApplicationModal({
                 }}
               >
                 <div className="flex items-center gap-2 text-xs" style={{ color: "var(--muted)" }}>
-                  <Sparkles className="h-4 w-4 text-amber-400" />
+                  <Bot className="h-4 w-4 text-amber-400" />
                   <span>Onboarding completed with Ruth AI assistant</span>
                 </div>
                 <span className="text-xs font-semibold">
@@ -582,7 +582,7 @@ export function MentorApplicationModal({
                     color: "var(--muted)",
                   }}
                 >
-                  <Sparkles className="h-8 w-8 text-amber-400" />
+                  <Bot className="h-8 w-8 text-amber-400" />
                   <p className="text-sm font-medium">AI profile synthesis not available yet.</p>
                   <p className="text-xs max-w-sm">
                     Ruth AI creates synthesized profiles automatically upon completing the conversational questionnaire.

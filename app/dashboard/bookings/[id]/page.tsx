@@ -22,7 +22,7 @@ import { CountdownTimer, isJoinable } from "@/components/CountdownTimer";
 import { useState as useLiveState, useEffect as useLiveEffect } from "react";
 import { PreSessionIntakeModal } from "@/components/PreSessionIntakeModal";
 import { PreSessionBriefCard } from "@/components/PreSessionBriefCard";
-import { Sparkles, Edit3 } from "lucide-react";
+import { Bot, Edit3 } from "lucide-react";
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-IN", {
@@ -289,7 +289,7 @@ export default function BookingDetailPage() {
                   onClick={() => setIntakeModalOpen(true)}
                   className="w-full py-3.5 px-4 bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-500/20 border border-amber-500/40 hover:border-amber-400 text-amber-300 font-bold text-xs rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer group"
                 >
-                  <Sparkles size={16} className="text-amber-400 group-hover:rotate-12 transition-transform" />
+                  <Bot size={16} className="text-amber-400 group-hover:scale-110 transition-transform" />
                   <span>⚡ Add Pre-Session Prerequisites (1-Min AI Form)</span>
                 </button>
               )}

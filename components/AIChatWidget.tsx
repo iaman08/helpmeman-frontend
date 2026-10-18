@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { X, Trash2, Sparkles, Clock, ChevronRight, MessageSquare, RotateCcw, Plus, History, Calendar, Video, Edit2, Check, Smile, Mic, ArrowUp, Star, BadgeCheck, Zap, Flame, Compass, Code2, Users, Cpu, Layers } from "lucide-react";
+import { X, Trash2, Bot, Clock, ChevronRight, MessageSquare, RotateCcw, Plus, History, Calendar, Video, Edit2, Check, Smile, Mic, ArrowUp, Star, BadgeCheck, Zap, Flame, Compass, Code2, Users, Cpu, Layers } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import api, { API_BASE } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
@@ -11,6 +11,7 @@ import { AxiosError } from "axios";
 import { useAIStream } from "@/hooks/useAIStream";
 import { chatSoundService } from "@/lib/chatSoundService";
 import { RuthMascot, RuthMascotInline, BotStateProvider, useBotState, HelpMeManLogo } from "@/components/AICompanion/AICompanion";
+import { GoldenVerifiedBadge } from "@/components/GoldenVerifiedBadge";
 
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -522,7 +523,7 @@ function MentorCardInChat({ mentor, onBook }: { mentor: MentorData; onBook: (men
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="font-semibold text-sm truncate">{mentor.displayName}</span>
-            <BadgeCheck className="h-3.5 w-3.5 text-blue-500 shrink-0" />
+            <GoldenVerifiedBadge size={14} className="h-3.5 w-3.5" />
           </div>
           {mentor.currentRole && (
             <p className="text-xs text-[var(--fg)] truncate">{mentor.currentRole}</p>
@@ -1799,7 +1800,7 @@ function AIChatWidgetInner() {
           className="fixed bottom-6 left-6 z-[9990] flex items-center gap-2 px-3.5 py-2 rounded-full bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white shadow-[0_10px_30px_rgba(99,102,241,0.5)] backdrop-blur-xl border border-white/30 hover:scale-105 active:scale-95 transition-all cursor-pointer select-none animate-in fade-in zoom-in-90 duration-300"
           title="Restore Ruth AI"
         >
-          <Sparkles className="w-4 h-4 text-cyan-200 animate-pulse" />
+          <Bot className="w-4 h-4 text-cyan-200" />
           <span className="text-xs font-bold tracking-tight">Ruth AI</span>
           <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-semibold">Restore</span>
         </button>
@@ -1934,7 +1935,7 @@ function AIChatWidgetInner() {
                     </div>
                   ) : (
                     <div className="inline-flex items-center gap-1.5 rounded-full pl-2 pr-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold shadow-sm min-w-0 max-w-[90px] sm:max-w-[140px]" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 5%, transparent)", color: "var(--fg)" }}>
-                      <Sparkles className="h-2.5 w-2.5 shrink-0" style={{ color: "var(--fg)" }} />
+                      <Bot className="h-2.5 w-2.5 shrink-0" style={{ color: "var(--fg)" }} />
                       <span className="truncate tracking-wide uppercase font-semibold">
                         {sessionTitle}
                       </span>

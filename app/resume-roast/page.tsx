@@ -3,7 +3,6 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import {
-  Sparkles,
   Upload,
   FileText,
   CheckCircle2,
@@ -263,7 +262,7 @@ export default function ResumeRoastPage() {
                       : "bg-gray-50 dark:bg-zinc-900 text-[var(--fg)] border-gray-200 dark:border-zinc-800 hover:border-gray-300"
                   }`}
                 >
-                  ✨ Custom Role
+                  Custom Role
                 </button>
               </div>
 
@@ -503,7 +502,7 @@ export default function ResumeRoastPage() {
             {result.bulletRewrites && result.bulletRewrites.length > 0 && (
               <div className="bg-white dark:bg-[#121214] p-6 sm:p-8 rounded-3xl border border-gray-200/80 dark:border-zinc-800/80 shadow-sm space-y-4">
                 <h3 className="text-sm font-bold text-[var(--fg)] uppercase tracking-wider flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-purple-500" />
+                  <Bot className="w-4 h-4 text-purple-500" />
                   Bullet Point Transformer (Before → AI STAR Rewrite)
                 </h3>
                 <div className="space-y-4">

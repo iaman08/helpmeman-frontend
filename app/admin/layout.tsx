@@ -10,7 +10,7 @@ import {
   FolderTree,
   DollarSign,
   Star,
-  Sparkles,
+  Bot,
   UserCog,
   ShieldAlert,
   ShieldCheck,
@@ -40,7 +40,7 @@ const BASE_NAV = [
       }
     },
     label: "Ruth",
-    icon: Sparkles,
+    icon: Bot,
   },
 ];
 

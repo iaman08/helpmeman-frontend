@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { User, Bell, CreditCard, Camera, Check, Sparkles, Star, HelpCircle, MessageSquare, Mail, ExternalLink, ChevronRight, CheckCircle2, Clock, ShieldCheck } from "lucide-react";
+import { User, Bell, CreditCard, Camera, Check, Building2, Award, Star, HelpCircle, MessageSquare, Mail, ExternalLink, ChevronRight, CheckCircle2, Clock, ShieldCheck, Plus, X, Globe } from "lucide-react";
+import { FaLinkedin, FaGithub } from "react-icons/fa";
 import { useAuth } from "@/lib/auth-context";
 import api from "@/lib/api";
 import { ImageCropModal } from "@/components/ImageCropModal";
@@ -9,6 +10,11 @@ import { PrivacyDataPanel } from "@/components/PrivacyDataPanel";
 import { useCurrency, CURRENCY_CONFIGS } from "@/lib/currency-context";
 import { useRouter } from "next/navigation";
 import { openTawkChat, setTawkVisibility } from "@/components/TawkToScript";
+import { BannerManager } from "@/components/BannerManager";
+import { OrganizationAutocomplete } from "@/components/OrganizationAutocomplete";
+import { LanguageProficiencySelector } from "@/components/LanguageProficiencySelector";
+import { ProfileCard } from "@/components/ProfileCard";
+import type { UserLanguage, OrganizationBranding, User as UserType } from "@/lib/types";
 
 function MenteeSupportPanel() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -293,8 +299,29 @@ export default function MenteeSettingsPage() {
   const [phone, setPhone] = useState(user?.phone ?? "");
   const [username, setUsername] = useState(user?.username ?? user?.email?.split("@")[0] ?? "");
   const [currentRole, setCurrentRole] = useState(user?.currentRole ?? "");
+  const [headline, setHeadline] = useState(user?.headline ?? "");
+  const [bio, setBio] = useState(user?.bio ?? "");
+  const [bannerImageUrl, setBannerImageUrl] = useState<string | null>(user?.bannerImageUrl ?? null);
+  const [bannerPosition, setBannerPosition] = useState(user?.bannerPosition ?? "50% 50%");
+  const [currentCompany, setCurrentCompany] = useState(user?.currentCompany ?? "");
+  const [companyOrg, setCompanyOrg] = useState<OrganizationBranding | null>(user?.companyBranding ?? null);
+  const [jobTitle, setJobTitle] = useState(user?.jobTitle ?? "");
+  const [university, setUniversity] = useState(user?.university ?? "");
+  const [universityOrg, setUniversityOrg] = useState<OrganizationBranding | null>(user?.universityBranding ?? null);
+  const [degree, setDegree] = useState(user?.degree ?? "");
+  const [graduationYear, setGraduationYear] = useState(user?.graduationYear ? String(user.graduationYear) : "");
+  const [city, setCity] = useState(user?.city ?? "");
+  const [state, setState] = useState(user?.state ?? "");
+  const [country, setCountry] = useState(user?.country ?? "India");
+  const [skills, setSkills] = useState<string[]>(user?.skills ?? []);
+  const [skillInput, setSkillInput] = useState("");
+  const [languages, setLanguages] = useState<UserLanguage[]>(user?.languages ?? []);
+  const [websiteUrl, setWebsiteUrl] = useState(user?.websiteUrl ?? "");
+  const [linkedinUrl, setLinkedinUrl] = useState(user?.socialLinks?.linkedin ?? "");
+  const [githubUrl, setGithubUrl] = useState(user?.socialLinks?.github ?? "");
 
   const [saving, setSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
   const [currentAvatar, setCurrentAvatar] = useState<string | null>(user?.avatar ?? null);
@@ -309,16 +336,29 @@ export default function MenteeSettingsPage() {
       setPhone(user.phone ?? "");
       setUsername(user.username ?? user.email?.split("@")[0] ?? "");
       setCurrentRole(user.currentRole ?? "");
+      setHeadline(user.headline ?? "");
+      setBio(user.bio ?? "");
+      setBannerImageUrl(user.bannerImageUrl ?? null);
+      setBannerPosition(user.bannerPosition ?? "50% 50%");
+      setCurrentCompany(user.currentCompany ?? "");
+      setCompanyOrg(user.companyBranding ?? null);
+      setJobTitle(user.jobTitle ?? "");
+      setUniversity(user.university ?? "");
+      setUniversityOrg(user.universityBranding ?? null);
+      setDegree(user.degree ?? "");
+      setGraduationYear(user.graduationYear ? String(user.graduationYear) : "");
+      setCity(user.city ?? "");
+      setState(user.state ?? "");
+      setCountry(user.country ?? "India");
+      setSkills(user.skills ?? []);
+      setLanguages(user.languages ?? []);
+      setWebsiteUrl(user.websiteUrl ?? "");
+      setLinkedinUrl(user.socialLinks?.linkedin ?? "");
+      setGithubUrl(user.socialLinks?.github ?? "");
       setCurrentAvatar(user.avatar ?? null);
       setImageError(false);
     }
   }, [user]);
-
-  const hasChanges =
-    name !== (user?.name ?? "") ||
-    phone !== (user?.phone ?? "") ||
-    username !== (user?.username ?? "") ||
-    currentRole !== (user?.currentRole ?? "");
 
   const initials = user?.name
     ? user.name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()
@@ -366,25 +406,100 @@ export default function MenteeSettingsPage() {
     }
   };
 
+  const handleAddSkill = () => {
+    const trimmed = skillInput.trim();
+    if (!trimmed) return;
+    if (skills.includes(trimmed)) return;
+    setSkills([...skills, trimmed]);
+    setSkillInput("");
+  };
+
+  const handleRemoveSkill = (skillToRemove: string) => {
+    setSkills(skills.filter(s => s !== skillToRemove));
+  };
+
   const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!hasChanges) return;
     setSaving(true);
+    setSaveSuccess(false);
     try {
-      const res = await api.put("/users/me", {
+      const payload = {
         name: name.trim(),
         phone: phone.trim() || undefined,
         username: username.trim() || undefined,
         currentRole: currentRole.trim() || undefined,
-      });
-      if (res.data?.user) {
-        await updateUser(res.data.user);
+        headline: headline.trim() || undefined,
+        bio: bio.trim() || undefined,
+        bannerPosition,
+        currentCompany: currentCompany.trim() || undefined,
+        companyId: companyOrg?.id || undefined,
+        jobTitle: jobTitle.trim() || undefined,
+        university: university.trim() || undefined,
+        universityId: universityOrg?.id || undefined,
+        degree: degree.trim() || undefined,
+        graduationYear: graduationYear ? parseInt(graduationYear) || undefined : undefined,
+        skills,
+        city: city.trim() || undefined,
+        state: state.trim() || undefined,
+        country: country.trim() || undefined,
+        websiteUrl: websiteUrl.trim() || undefined,
+        socialLinks: {
+          linkedin: linkedinUrl.trim(),
+          github: githubUrl.trim(),
+        },
+      };
+
+      const [profileRes] = await Promise.all([
+        api.put("/users/me", payload),
+        api.put("/users/me/languages", { languages }),
+      ]);
+
+      if (profileRes.data?.user) {
+        await updateUser({
+          ...profileRes.data.user,
+          languages,
+        });
       }
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 4000);
     } catch (err: any) {
       alert(err.response?.data?.error || "Failed to update profile");
     } finally {
       setSaving(false);
     }
+  };
+
+  // Preview user object synthesized for live card preview
+  const previewUser: UserType = {
+    id: user?.id || "preview-user",
+    name: name || "Your Name",
+    username: username || "username",
+    email: user?.email || "email@example.com",
+    role: user?.role || "STUDENT",
+    isEmailVerified: true,
+    avatar: currentAvatar,
+    headline: headline || currentRole || "Full-Stack Developer | AI Enthusiast",
+    bio: bio || "Passionate about building scalable systems and helping others grow in tech.",
+    bannerImageUrl,
+    bannerPosition,
+    currentCompany: currentCompany || null,
+    jobTitle: jobTitle || currentRole || null,
+    university: university || null,
+    skills: skills.length > 0 ? skills : ["React", "Node.js", "Python", "AI/ML"],
+    city: city || "Ludhiana",
+    state: state || "Punjab",
+    country: country || "India",
+    websiteUrl: websiteUrl || null,
+    socialLinks: {
+      linkedin: linkedinUrl || "",
+      github: githubUrl || "",
+    },
+    followersCount: user?.followersCount || 84,
+    followingCount: user?.followingCount || 238,
+    languages: languages.length > 0 ? languages : [{ languageName: "English", proficiency: "Fluent" }, { languageName: "Hindi", proficiency: "Native" }],
+    companyBranding: companyOrg,
+    universityBranding: universityOrg,
+    createdAt: user?.createdAt || new Date().toISOString(),
   };
 
   const TABS = [
@@ -397,11 +512,11 @@ export default function MenteeSettingsPage() {
 
   return (
     <>
-      <div className="max-w-5xl mx-auto px-4 md:px-0 py-4 md:py-8">
+      <div className="max-w-6xl mx-auto px-4 md:px-0 py-4 md:py-8">
         <div className="mb-8 md:mb-10 flex flex-col gap-1.5">
           <span className="uppercase tracking-[0.2em] text-[10px] md:text-xs font-semibold" style={{ color: "var(--muted)" }}>Configuration</span>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight" style={{ color: "var(--fg)" }}>Settings.</h1>
-          <p className="text-sm md:text-base" style={{ color: "var(--muted)" }}>Manage your account preferences and profile.</p>
+          <p className="text-sm md:text-base" style={{ color: "var(--muted)" }}>Manage your account preferences and professional profile.</p>
         </div>
 
         {/* Tabs */}
@@ -428,189 +543,443 @@ export default function MenteeSettingsPage() {
         <div className="space-y-8 md:space-y-10">
           {activeTab === "profile" && (
             <>
-              {/* Profile Photo Section */}
-              <div className="rounded-3xl p-6 md:p-8" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8">
-                  <div className="relative group shrink-0">
-                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden flex items-center justify-center shadow-lg" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 8%, transparent)" }}>
-                      {currentAvatar && !imageError ? (
-                        <img
-                          src={currentAvatar}
-                          alt="Profile"
-                          className="w-full h-full object-cover"
-                          onError={() => setImageError(true)}
-                        />
-                      ) : (
-                        <span className="text-2xl md:text-3xl font-semibold tracking-tight opacity-90" style={{ color: "var(--fg)" }}>{initials}</span>
-                      )}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              {/* Left Column: Form Controls */}
+              <div className="lg:col-span-7 space-y-6">
+                {/* 1. Cover Banner Manager */}
+                <div className="rounded-3xl p-6 md:p-8" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-base sm:text-lg font-bold" style={{ color: "var(--fg)" }}>Cover Banner</h3>
+                      <p className="text-xs text-[var(--muted)]">Upload a custom banner or let our system generate one automatically.</p>
                     </div>
-
-                    <label className="absolute bottom-0 right-0 p-2 rounded-full cursor-pointer hover:scale-105 transition-transform shadow-md" style={{ background: "var(--fg)", color: "var(--bg)" }}>
-                      <Camera className="w-3.5 h-3.5" />
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleAvatarChange}
-                      />
-                    </label>
                   </div>
+                  <BannerManager
+                    currentBannerUrl={bannerImageUrl}
+                    bannerPosition={bannerPosition}
+                    onUpdate={(newUrl, newPos) => {
+                      setBannerImageUrl(newUrl);
+                      if (newPos) setBannerPosition(newPos);
+                    }}
+                  />
+                </div>
 
-                  <div className="flex-1 text-center sm:text-left space-y-4">
-                    <div className="space-y-1">
-                      <h3 className="text-xl md:text-2xl font-bold tracking-tight" style={{ color: "var(--fg)" }}>
-                        {name || "Your Name"}
-                      </h3>
-                      {currentRole ? (
-                        <p className="text-xs sm:text-sm font-semibold" style={{ color: "var(--muted)" }}>
-                          {currentRole}
-                        </p>
-                      ) : (
-                        <p className="text-xs italic font-medium" style={{ color: "var(--muted)" }}>Add your current role below</p>
-                      )}
+                {/* 2. Profile Photo */}
+                <div className="rounded-3xl p-6 md:p-8" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+                  <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+                    <div className="relative group shrink-0">
+                      <div className="w-20 h-20 rounded-full overflow-hidden flex items-center justify-center shadow-lg" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 8%, transparent)" }}>
+                        {currentAvatar && !imageError ? (
+                          <img
+                            src={currentAvatar}
+                            alt="Profile"
+                            className="w-full h-full object-cover"
+                            onError={() => setImageError(true)}
+                          />
+                        ) : (
+                          <span className="text-2xl font-bold tracking-tight opacity-90" style={{ color: "var(--fg)" }}>{initials}</span>
+                        )}
+                      </div>
+
+                      <label className="absolute bottom-0 right-0 p-2 rounded-full cursor-pointer hover:scale-105 transition-transform shadow-md" style={{ background: "var(--fg)", color: "var(--bg)" }}>
+                        <Camera className="w-3.5 h-3.5" />
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleAvatarChange}
+                        />
+                      </label>
                     </div>
-                    <div className="flex flex-wrap gap-2.5 justify-center sm:justify-start">
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={avatarSaving}
-                        className="px-4 py-2 rounded-xl font-semibold text-xs cursor-pointer shadow-sm transition-opacity hover:opacity-90 disabled:opacity-50"
-                        style={{ background: "var(--fg)", color: "var(--bg)" }}
-                      >
-                        {avatarSaving ? "Uploading..." : "Change Photo"}
-                      </button>
-                      {user?.avatar && (
+
+                    <div className="flex-1 text-center sm:text-left space-y-2">
+                      <div>
+                        <h4 className="font-bold text-sm" style={{ color: "var(--fg)" }}>Profile Picture</h4>
+                        <p className="text-xs text-[var(--muted)]">A professional circular photo overlapping your profile banner.</p>
+                      </div>
+                      <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                         <button
                           type="button"
-                          onClick={removePhoto}
-                          className="px-4 py-2 rounded-xl font-semibold text-xs cursor-pointer transition-colors"
-                          style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 5%, transparent)", color: "var(--fg)" }}
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={avatarSaving}
+                          className="px-3.5 py-1.5 rounded-xl font-semibold text-xs cursor-pointer shadow-sm transition-opacity hover:opacity-90 disabled:opacity-50"
+                          style={{ background: "var(--fg)", color: "var(--bg)" }}
                         >
-                          Remove
+                          {avatarSaving ? "Uploading..." : "Change Photo"}
                         </button>
-                      )}
+                        {user?.avatar && (
+                          <button
+                            type="button"
+                            onClick={removePhoto}
+                            className="px-3.5 py-1.5 rounded-xl font-semibold text-xs cursor-pointer transition-colors"
+                            style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 5%, transparent)", color: "var(--fg)" }}
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Personal Information */}
-              <div className="rounded-3xl p-6 md:p-8" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 rounded-xl" style={{ background: "color-mix(in srgb, var(--fg) 8%, transparent)" }}>
-                    <User className="w-4 h-4" style={{ color: "var(--fg)" }} />
+                {/* 3. Personal & Professional Details Form */}
+                <form onSubmit={handleProfileSave} className="space-y-6">
+                  <div className="rounded-3xl p-6 md:p-8 space-y-5" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+                    <div className="flex items-center gap-2.5 pb-3 border-b border-[var(--hairline)]">
+                      <User size={16} className="text-[var(--muted)]" />
+                      <h3 className="text-base sm:text-lg font-bold" style={{ color: "var(--fg)" }}>Personal & Role Information</h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-[10px] uppercase tracking-wider font-bold text-[var(--muted)]">Full Name</label>
+                        <input
+                          type="text"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="Your Full Name"
+                          className="w-full rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium border border-[var(--hairline)] focus:outline-none"
+                          style={{ background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] uppercase tracking-wider font-bold text-[var(--muted)]">Username</label>
+                        <div className="relative">
+                          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs text-[var(--muted)] font-semibold">@</span>
+                          <input
+                            type="text"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
+                            placeholder="username"
+                            className="w-full rounded-xl pl-8 pr-3.5 py-2 text-xs sm:text-sm font-medium border border-[var(--hairline)] focus:outline-none"
+                            style={{ background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="sm:col-span-2 space-y-1">
+                        <label className="text-[10px] uppercase tracking-wider font-bold text-[var(--muted)]">Professional Headline</label>
+                        <input
+                          type="text"
+                          value={headline}
+                          onChange={(e) => setHeadline(e.target.value)}
+                          placeholder="e.g. Full-Stack Developer | AI Enthusiast | Open Source Contributor"
+                          className="w-full rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium border border-[var(--hairline)] focus:outline-none"
+                          style={{ background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] uppercase tracking-wider font-bold text-[var(--muted)]">Job Title / Current Role</label>
+                        <input
+                          type="text"
+                          value={currentRole}
+                          onChange={(e) => {
+                            setCurrentRole(e.target.value);
+                            setJobTitle(e.target.value);
+                          }}
+                          placeholder="e.g. Software Engineer"
+                          className="w-full rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium border border-[var(--hairline)] focus:outline-none"
+                          style={{ background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] uppercase tracking-wider font-bold text-[var(--muted)]">Phone Number</label>
+                        <div className="flex gap-2">
+                          <span className="px-3 py-2 rounded-xl text-xs font-mono font-semibold border border-[var(--hairline)] bg-[color:var(--fg)]/5">
+                            +91
+                          </span>
+                          <input
+                            type="tel"
+                            maxLength={10}
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                            placeholder="10-digit number"
+                            className="flex-1 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium border border-[var(--hairline)] focus:outline-none"
+                            style={{ background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="text-lg font-bold" style={{ color: "var(--fg)" }}>Personal Information</h3>
-                </div>
 
-                <form onSubmit={handleProfileSave} className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] uppercase tracking-[0.15em] font-semibold ml-1" style={{ color: "var(--muted)" }}>Full Name</label>
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Enter your name"
-                      className="w-full rounded-xl px-4 py-2.5 outline-none transition-colors text-xs sm:text-sm font-medium"
-                      style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}
-                    />
+                  {/* 4. Company & University Branding */}
+                  <div className="rounded-3xl p-6 md:p-8 space-y-5" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+                    <div className="flex items-center gap-2.5 pb-3 border-b border-[var(--hairline)]">
+                      <Building2 size={16} className="text-blue-500" />
+                      <div>
+                        <h3 className="text-base sm:text-lg font-bold" style={{ color: "var(--fg)" }}>Organization Branding</h3>
+                        <p className="text-xs text-[var(--muted)]">Select your company or university to automatically display its official logo badge.</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] uppercase tracking-wider font-bold text-[var(--muted)]">Current Company</label>
+                        <OrganizationAutocomplete
+                          value={currentCompany}
+                          onChange={(val, org) => {
+                            setCurrentCompany(val);
+                            setCompanyOrg(org || null);
+                          }}
+                          type="COMPANY"
+                          placeholder="e.g. Google, Meta, Microsoft"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] uppercase tracking-wider font-bold text-[var(--muted)]">University / College</label>
+                        <OrganizationAutocomplete
+                          value={university}
+                          onChange={(val, org) => {
+                            setUniversity(val);
+                            setUniversityOrg(org || null);
+                          }}
+                          type="UNIVERSITY"
+                          placeholder="e.g. IIT Delhi, IIT Bombay, NIT Jalandhar"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] uppercase tracking-wider font-bold text-[var(--muted)]">Degree / Program</label>
+                        <input
+                          type="text"
+                          value={degree}
+                          onChange={(e) => setDegree(e.target.value)}
+                          placeholder="e.g. B.Tech Computer Science"
+                          className="w-full rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium border border-[var(--hairline)] focus:outline-none"
+                          style={{ background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] uppercase tracking-wider font-bold text-[var(--muted)]">Graduation Year</label>
+                        <input
+                          type="number"
+                          value={graduationYear}
+                          onChange={(e) => setGraduationYear(e.target.value)}
+                          placeholder="e.g. 2025"
+                          className="w-full rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium border border-[var(--hairline)] focus:outline-none"
+                          style={{ background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}
+                        />
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] uppercase tracking-[0.15em] font-semibold ml-1" style={{ color: "var(--muted)" }}>Username</label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 font-semibold text-xs sm:text-sm" style={{ color: "var(--muted)" }}>@</span>
+                  {/* 5. Skills Tags */}
+                  <div className="rounded-3xl p-6 md:p-8 space-y-4" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+                    <div>
+                      <h3 className="text-base sm:text-lg font-bold" style={{ color: "var(--fg)" }}>Skills & Expertise</h3>
+                      <p className="text-xs text-[var(--muted)]">Displayed as clean, compact tags on your profile card.</p>
+                    </div>
+
+                    <div className="flex gap-2">
                       <input
                         type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
-                        placeholder="username"
-                        className="w-full rounded-xl pl-8 pr-4 py-2.5 outline-none transition-colors text-xs sm:text-sm font-medium"
-                        style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}
+                        value={skillInput}
+                        onChange={(e) => setSkillInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleAddSkill();
+                          }
+                        }}
+                        placeholder="Add skill (e.g. React, Node.js, Python, AI/ML)..."
+                        className="flex-1 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium border border-[var(--hairline)] focus:outline-none"
+                        style={{ background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}
                       />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] uppercase tracking-[0.15em] font-semibold ml-1" style={{ color: "var(--muted)" }}>Email Address</label>
-                    <input
-                      type="email"
-                      value={user?.email || ""}
-                      disabled
-                      className="w-full rounded-xl px-4 py-2.5 opacity-40 cursor-not-allowed italic text-xs sm:text-sm font-medium"
-                      style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] uppercase tracking-[0.15em] font-semibold ml-1" style={{ color: "var(--muted)" }}>Phone Number</label>
-                    <div className="flex gap-2">
-                      <div className="w-14 rounded-xl flex items-center justify-center font-mono text-xs sm:text-sm py-2.5 font-semibold" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 4%, transparent)", color: "var(--fg)" }}>
-                        +91
-                      </div>
-                      <input
-                        type="tel"
-                        maxLength={10}
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                        placeholder="10-digit number"
-                        className="flex-1 rounded-xl px-4 py-2.5 outline-none transition-colors text-xs sm:text-sm font-medium"
-                        style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] uppercase tracking-[0.15em] font-semibold ml-1" style={{ color: "var(--muted)" }}>Current Role</label>
-                    <input
-                      type="text"
-                      value={currentRole}
-                      onChange={(e) => setCurrentRole(e.target.value)}
-                      placeholder="e.g. Software Engineer, Product Manager"
-                      className="w-full rounded-xl px-4 py-2.5 outline-none transition-colors text-xs sm:text-sm font-medium"
-                      style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] uppercase tracking-[0.15em] font-semibold ml-1" style={{ color: "var(--muted)" }}>Preferred Currency</label>
-                    <select
-                      value={activeCurrency}
-                      onChange={(e) => setCurrency(e.target.value, true)}
-                      className="w-full rounded-xl px-4 py-2.5 outline-none transition-colors text-xs sm:text-sm font-medium cursor-pointer"
-                      style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}
-                    >
-                      {Object.entries(CURRENCY_CONFIGS).map(([code, config]) => (
-                        <option key={code} value={code} style={{ background: "var(--bg)", color: "var(--fg)" }}>
-                          {code} ({config.symbol}) - {config.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {hasChanges && (
-                    <div className="md:col-span-2 flex flex-col sm:flex-row justify-end gap-2.5 pt-2">
                       <button
                         type="button"
-                        onClick={() => { setName(user?.name ?? ""); setPhone(user?.phone ?? ""); setUsername(user?.username ?? user?.email?.split("@")[0] ?? ""); setCurrentRole(user?.currentRole ?? ""); }}
-                        className="px-4 py-2 font-semibold text-xs cursor-pointer rounded-xl transition-colors"
-                        style={{ color: "var(--muted)" }}
+                        onClick={handleAddSkill}
+                        className="px-4 py-2 rounded-xl text-xs font-semibold bg-[color:var(--fg)] text-[color:var(--bg)] hover:opacity-90 transition-all cursor-pointer flex items-center gap-1"
                       >
-                        Discard Changes
-                      </button>
-                      <button
-                        type="submit"
-                        disabled={saving}
-                        className="px-5 py-2 rounded-xl font-semibold text-xs transition-opacity disabled:opacity-50 cursor-pointer shadow"
-                        style={{ background: "var(--fg)", color: "var(--bg)" }}
-                      >
-                        {saving ? "Saving..." : "Save Changes"}
+                        <Plus size={14} />
+                        <span>Add</span>
                       </button>
                     </div>
-                  )}
+
+                    {skills.length > 0 && (
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {skills.map((skill) => (
+                          <span
+                            key={skill}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium border border-[var(--hairline)] bg-[color:var(--fg)]/5 text-[var(--fg)]"
+                          >
+                            <span>{skill}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveSkill(skill)}
+                              className="hover:text-rose-500 cursor-pointer"
+                            >
+                              <X size={12} />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 6. Languages Spoken (Section 11) */}
+                  <div className="rounded-3xl p-6 md:p-8 space-y-4" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+                    <div>
+                      <h3 className="text-base sm:text-lg font-bold" style={{ color: "var(--fg)" }}>Languages Spoken</h3>
+                      <p className="text-xs text-[var(--muted)]">Specify the languages you can communicate in and your proficiency level.</p>
+                    </div>
+
+                    <LanguageProficiencySelector
+                      languages={languages}
+                      onChange={(updatedLangs) => setLanguages(updatedLangs)}
+                    />
+                  </div>
+
+                  {/* 7. Location & Bio */}
+                  <div className="rounded-3xl p-6 md:p-8 space-y-4" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+                    <h3 className="text-base sm:text-lg font-bold" style={{ color: "var(--fg)" }}>Location & Bio</h3>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[10px] uppercase tracking-wider font-bold text-[var(--muted)]">City</label>
+                        <input
+                          type="text"
+                          value={city}
+                          onChange={(e) => setCity(e.target.value)}
+                          placeholder="e.g. Ludhiana"
+                          className="w-full rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium border border-[var(--hairline)] focus:outline-none"
+                          style={{ background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] uppercase tracking-wider font-bold text-[var(--muted)]">State</label>
+                        <input
+                          type="text"
+                          value={state}
+                          onChange={(e) => setState(e.target.value)}
+                          placeholder="e.g. Punjab"
+                          className="w-full rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium border border-[var(--hairline)] focus:outline-none"
+                          style={{ background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] uppercase tracking-wider font-bold text-[var(--muted)]">Country</label>
+                        <input
+                          type="text"
+                          value={country}
+                          onChange={(e) => setCountry(e.target.value)}
+                          placeholder="e.g. India"
+                          className="w-full rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium border border-[var(--hairline)] focus:outline-none"
+                          style={{ background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1 pt-2">
+                      <label className="text-[10px] uppercase tracking-wider font-bold text-[var(--muted)]">Short Bio</label>
+                      <textarea
+                        rows={3}
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                        placeholder="Tell others about your professional background, expertise, or passions..."
+                        className="w-full rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium border border-[var(--hairline)] focus:outline-none"
+                        style={{ background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* 8. Links */}
+                  <div className="rounded-3xl p-6 md:p-8 space-y-4" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+                    <h3 className="text-base sm:text-lg font-bold" style={{ color: "var(--fg)" }}>Website & Social Links</h3>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Globe size={16} className="text-[var(--muted)] shrink-0" />
+                        <input
+                          type="url"
+                          value={websiteUrl}
+                          onChange={(e) => setWebsiteUrl(e.target.value)}
+                          placeholder="https://yourportfolio.com"
+                          className="flex-1 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium border border-[var(--hairline)] focus:outline-none"
+                          style={{ background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}
+                        />
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <FaLinkedin size={16} className="text-[#0a66c2] shrink-0" />
+                        <input
+                          type="url"
+                          value={linkedinUrl}
+                          onChange={(e) => setLinkedinUrl(e.target.value)}
+                          placeholder="https://linkedin.com/in/username"
+                          className="flex-1 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium border border-[var(--hairline)] focus:outline-none"
+                          style={{ background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}
+                        />
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <FaGithub size={16} className="text-[var(--fg)] shrink-0" />
+                        <input
+                          type="url"
+                          value={githubUrl}
+                          onChange={(e) => setGithubUrl(e.target.value)}
+                          placeholder="https://github.com/username"
+                          className="flex-1 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium border border-[var(--hairline)] focus:outline-none"
+                          style={{ background: "color-mix(in srgb, var(--fg) 3%, transparent)", color: "var(--fg)" }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Save Button Bar */}
+                  <div className="sticky bottom-4 z-20 p-4 rounded-2xl border border-[var(--hairline)] shadow-xl flex items-center justify-between gap-4" style={{ background: "var(--bg)" }}>
+                    {saveSuccess ? (
+                      <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-500">
+                        <Check size={16} />
+                        <span>Profile updated successfully!</span>
+                      </span>
+                    ) : (
+                      <span className="text-xs text-[var(--muted)]">Changes are saved directly to your live profile.</span>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="px-6 py-2.5 rounded-xl font-semibold text-xs transition-transform active:scale-95 disabled:opacity-50 cursor-pointer shadow-md"
+                      style={{ background: "var(--fg)", color: "var(--bg)" }}
+                    >
+                      {saving ? "Saving Changes..." : "Save Profile"}
+                    </button>
+                  </div>
                 </form>
               </div>
+
+              {/* Right Column: Instant Live Preview */}
+              <div className="lg:col-span-5 sticky top-8 space-y-4">
+                <div className="flex items-center justify-between px-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
+                      Instant Live Preview
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-[var(--muted)]">Updates in real-time</span>
+                </div>
+
+                {/* Render master ProfileCard in live interactive mode */}
+                <ProfileCard
+                  profile={previewUser}
+                  mode="user"
+                  className="shadow-2xl"
+                />
+
+                <p className="text-[11px] text-center text-[var(--muted)] italic">
+                  This is how other users and mentees will see your card across HelpMeMan.
+                </p>
+              </div>
+            </div>
 
               {/* Apply as a Mentor Card */}
               {user?.role !== "ADMIN" && user?.role !== "SUPER_ADMIN" && (
@@ -627,7 +996,7 @@ export default function MenteeSettingsPage() {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                       <div className="flex items-center gap-3">
                         <div className="p-2.5 bg-amber-500/15 text-amber-500 rounded-2xl border border-amber-500/30 shadow-sm shrink-0">
-                          <Sparkles className="w-5 h-5 text-amber-500" />
+                          <Award className="w-5 h-5 text-amber-500" />
                         </div>
                         <div>
                           <div className="flex items-center gap-2">

@@ -20,7 +20,6 @@ import {
   Target,
   FileText,
   Heart,
-  Sparkles,
   ArrowRight,
 } from "lucide-react";
 import { FaLinkedin } from "react-icons/fa";

@@ -26,6 +26,7 @@ export interface MentorFilters {
   minPrice?: number;    
   maxPrice?: number;
   minRating?: number;
+  language?: string;
   sortBy?: string;
   page?: number;
   limit?: number;

@@ -12,7 +12,7 @@ import {
   FileVideo,
   Trash2,
   AlertCircle,
-  Sparkles,
+  Globe,
   ExternalLink,
   Clock,
   Lock,
@@ -413,7 +413,7 @@ export function EagleFlyFormModal({
                         id="trenchers-ai-header-btn"
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-500 hover:via-indigo-500 hover:to-blue-500 text-white text-xs sm:text-sm font-semibold shadow-[0_4px_16px_rgba(59,130,246,0.35)] hover:shadow-[0_6px_22px_rgba(59,130,246,0.55)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 group border border-blue-400/30 cursor-pointer"
                       >
-                        <Sparkles className="w-3.5 h-3.5 text-blue-200 animate-pulse" />
+                        <Globe className="w-3.5 h-3.5 text-blue-200" />
                         <span>Visit Trenchers AI</span>
                         <span className="text-[11px] text-blue-200/80 font-normal hidden xs:inline">
                           (trenchers.ai)
@@ -467,7 +467,7 @@ export function EagleFlyFormModal({
                           id="trenchers-ai-success-btn"
                           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-semibold shadow-md shadow-blue-500/30 transition-all hover:scale-105 active:scale-95 cursor-pointer"
                         >
-                          <Sparkles size={14} />
+                          <Globe size={14} />
                           <span>Visit Trenchers AI (trenchers.ai)</span>
                           <ExternalLink size={14} />
                         </a>

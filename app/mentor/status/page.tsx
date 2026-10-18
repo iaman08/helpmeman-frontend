@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
-import { Clock, CheckCircle, XCircle, Sparkles } from "lucide-react";
+import { Clock, CheckCircle, XCircle, Bot } from "lucide-react";
 import api from "@/lib/api";
 
 export default function MentorStatusPage() {
@@ -39,7 +39,7 @@ export default function MentorStatusPage() {
 
   const config = {
     INCOMPLETE: {
-      icon: <Sparkles className="h-8 w-8 text-amber-500" />,
+      icon: <Bot className="h-8 w-8 text-blue-500" />,
       bg: "bg-amber-500/10",
       title: "Please complete your onboarding first.",
       description:
