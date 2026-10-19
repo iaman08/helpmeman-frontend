@@ -14,6 +14,7 @@ import { AxiosError } from "axios";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import { useCurrency } from "@/lib/currency-context";
 import { FooterSection } from "@/components/landing/FooterSection";
+import { playSuccessSound } from "@/lib/soundService";
 
 declare global {
   interface Window {
@@ -160,7 +161,8 @@ export default function BookMentorPage() {
 
       // ── Zero-Amount / Free Coupon Booking Success ──
       if (isFree || !order || !razorpayKeyId || !window.Razorpay) {
-        router.push(`/dashboard/bookings/${bookingData.id}`);
+        playSuccessSound(0.35, bookingData.id);
+        router.push(`/dashboard/bookings/${bookingData.id}?justBooked=true`);
         return;
       }
 
@@ -183,7 +185,8 @@ export default function BookMentorPage() {
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
             });
-            router.push(`/dashboard/bookings/${bookingData.id}`);
+            playSuccessSound(0.35, bookingData.id);
+            router.push(`/dashboard/bookings/${bookingData.id}?justBooked=true`);
           } catch {
             setError("Payment verification failed. Please contact support.");
           }

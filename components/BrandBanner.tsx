@@ -42,18 +42,9 @@ export function BrandBanner({
   if (!brand) {
     return (
       <div
-        className={`relative w-full h-full overflow-hidden select-none ${className}`}
-        style={{
-          background: "linear-gradient(135deg, #0e1219 0%, #161c26 50%, #1e2633 100%)",
-        }}
+        className={`relative w-full h-full overflow-hidden select-none bg-[#121316] ${className}`}
       >
-        <div
-          className="absolute inset-0 opacity-10 pointer-events-none"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.3) 0%, transparent 60%)",
-          }}
-        />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-white/[0.06] pointer-events-none" />
       </div>
     );
   }
@@ -63,23 +54,16 @@ export function BrandBanner({
     <div
       className={`relative w-full h-full flex items-center justify-between px-5 sm:px-7 overflow-hidden select-none ${className}`}
       style={{
-        background: brand.bannerBg,
+        backgroundColor: brand.bannerBg || "#121316",
       }}
     >
-      {/* Subtle modern geometric mesh texture */}
-      <div
-        className="absolute inset-0 opacity-10 pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-        }}
-      />
+      {/* Subtle luxury edge highlight */}
+      <div className="absolute inset-x-0 bottom-0 h-px bg-white/[0.06] pointer-events-none" />
 
       {/* Main Branding Logo & Typographic Identity */}
       <div className="relative z-10 flex items-center gap-3">
         {brand.logoUrl ? (
-          <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 p-1.5 flex items-center justify-center shrink-0 shadow-sm">
+          <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-white/[0.08] backdrop-blur-md border border-white/15 p-1.5 flex items-center justify-center shrink-0 shadow-sm">
             <img
               src={brand.logoUrl}
               alt={brand.name}
@@ -88,16 +72,16 @@ export function BrandBanner({
             />
           </div>
         ) : (
-          <div className="h-9 w-9 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shrink-0 text-white font-bold text-xs tracking-wider shadow-sm">
+          <div className="h-9 w-9 rounded-xl bg-white/[0.08] backdrop-blur-md border border-white/15 flex items-center justify-center shrink-0 text-white font-bold text-xs tracking-wider shadow-sm">
             {brand.shortName.slice(0, 3).toUpperCase()}
           </div>
         )}
 
         <div className="flex flex-col min-w-0">
-          <span className="text-white font-extrabold tracking-wider text-sm sm:text-base font-display leading-tight truncate">
+          <span className="text-white font-bold tracking-wide text-sm sm:text-base font-display leading-tight truncate">
             {brand.shortName.toUpperCase()}
           </span>
-          <span className="text-white/70 text-[9px] sm:text-[10px] font-medium tracking-wider uppercase truncate">
+          <span className="text-white/60 text-[9px] sm:text-[10px] font-medium tracking-wider uppercase truncate">
             {brand.subtext || brand.name}
           </span>
         </div>

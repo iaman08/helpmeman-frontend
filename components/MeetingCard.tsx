@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Video, Calendar, Clock, User, ExternalLink } from "lucide-react";
+import { Video, Calendar, Clock, User, ExternalLink, CalendarPlus } from "lucide-react";
 import { CountdownTimer, isJoinable } from "./CountdownTimer";
 import { StatusBadge } from "./StatusBadge";
 import type { Booking } from "@/lib/types";
 import { formatCurrency } from "@/lib/currency-context";
+import { getGoogleCalendarUrl } from "@/lib/calendar-utils";
 
 interface MeetingCardProps {
   booking: Booking & {
@@ -133,31 +134,63 @@ export function MeetingCard({ booking, viewAs, onCancel, onReschedule, onRateSes
         />
       )}
 
-      {/* ─── Join Meeting Button ─── */}
+      {/* ─── Join Meeting & Google Calendar ─── */}
       {booking.status === "CONFIRMED" && booking.meetLink && (
-        <a
-          href={booking.meetLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Join Google Meet session"
-          className={`flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all ${
-            joinable
-              ? "bg-green-500 text-white hover:bg-green-600 shadow-lg shadow-green-500/20 animate-pulse-subtle"
-              : "bg-[var(--fg)]/8 text-[var(--fg)] cursor-not-allowed opacity-60"
-          }`}
-          onClick={!joinable ? (e) => e.preventDefault() : undefined}
-          title={!joinable ? "Join button activates 15 minutes before the session" : "Join Google Meet"}
-        >
-          <Video className="h-4 w-4" />
-          {joinable ? "Join Google Meet" : "Join opens 15 min before"}
-          {joinable && <ExternalLink className="h-3.5 w-3.5 opacity-70" />}
-        </a>
+        <div className="flex flex-col sm:flex-row items-stretch gap-2">
+          <a
+            href={booking.meetLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Join Google Meet session"
+            className={`flex-1 flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 text-xs sm:text-sm font-semibold transition-all ${
+              joinable
+                ? "bg-emerald-600 text-white hover:bg-emerald-700 shadow-md shadow-emerald-600/25 animate-pulse-subtle"
+                : "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+            }`}
+            title="Open Google Meet session"
+          >
+            <Video className="h-4 w-4 shrink-0" />
+            <span>{joinable ? "Join Google Meet (Live Now)" : "Join / Test Google Meet"}</span>
+            <ExternalLink className="h-3.5 w-3.5 opacity-70 shrink-0" />
+          </a>
+
+          <a
+            href={getGoogleCalendarUrl({
+              title: `1:1 Mentorship Session with ${otherPersonName}`,
+              description: `Mentorship session via HelpMeMan.\nGoogle Meet: ${booking.meetLink}\nSession Duration: ${booking.durationMinutes} mins`,
+              location: booking.meetLink,
+              startDate: booking.scheduledAt,
+              durationMinutes: booking.durationMinutes,
+            })}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Add to Google Calendar"
+            className="flex items-center justify-center gap-1.5 rounded-xl border border-[var(--hairline)] bg-[var(--fg)]/[0.04] hover:bg-[var(--fg)]/[0.08] px-3 py-2.5 text-xs font-semibold transition-colors shrink-0"
+            title="Add to Google Calendar"
+          >
+            <CalendarPlus className="h-4 w-4 text-blue-500 shrink-0" />
+            <span>Add to Calendar</span>
+          </a>
+        </div>
       )}
 
       {/* No meet link yet */}
       {booking.status === "CONFIRMED" && !booking.meetLink && (
-        <div className="rounded-xl bg-amber-500/8 border border-amber-500/15 px-4 py-3 text-xs text-amber-600">
-          ⏳ Meet link will be shared shortly by the mentor
+        <div className="rounded-xl bg-amber-500/8 border border-amber-500/15 px-4 py-3 text-xs text-amber-600 flex items-center justify-between">
+          <span>⏳ Meet link will be generated shortly by Google Calendar</span>
+          <a
+            href={getGoogleCalendarUrl({
+              title: `1:1 Mentorship Session with ${otherPersonName}`,
+              description: `Mentorship session via HelpMeMan.\nSession Duration: ${booking.durationMinutes} mins`,
+              startDate: booking.scheduledAt,
+              durationMinutes: booking.durationMinutes,
+            })}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:underline font-semibold ml-2 inline-flex items-center gap-1"
+          >
+            <CalendarPlus className="h-3.5 w-3.5" /> Add to Calendar
+          </a>
         </div>
       )}
 

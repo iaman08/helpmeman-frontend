@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Video, CalendarCheck, ArrowRight, Clock3 } from "lucide-react";
+import { Video, CalendarCheck, ArrowRight, Clock3, CalendarPlus } from "lucide-react";
 import { useUpcomingMeetings } from "@/lib/hooks";
 import { MeetingCard } from "@/components/MeetingCard";
 import { Skeleton } from "@/components/Skeleton";
@@ -11,6 +11,7 @@ import Link from "next/link";
 import { mutate } from "swr";
 import { useAuth } from "@/lib/auth-context";
 import type { Booking } from "@/lib/types";
+import { getGoogleCalendarUrl } from "@/lib/calendar-utils";
 
 const TABS = [
   { value: "upcoming", label: "Upcoming" },
@@ -110,17 +111,35 @@ export default function MeetingsPage() {
               })} · {nextSession.durationMinutes} min
             </p>
           </div>
-          {nextSession.meetLink && (
+          <div className="flex items-center gap-2">
+            {nextSession.meetLink && (
+              <a
+                href={nextSession.meetLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 text-xs sm:text-sm font-semibold transition-colors shrink-0 shadow cursor-pointer"
+              >
+                <Video className="h-4 w-4" />
+                <span>Join Meet</span>
+              </a>
+            )}
             <a
-              href={nextSession.meetLink}
+              href={getGoogleCalendarUrl({
+                title: `1:1 Mentorship Session with ${(nextSession as unknown as { mentor?: { displayName?: string } }).mentor?.displayName ?? "Mentor"}`,
+                description: `Mentorship session via HelpMeMan.\nGoogle Meet: ${nextSession.meetLink ?? ""}\nDuration: ${nextSession.durationMinutes} mins`,
+                location: nextSession.meetLink ?? "",
+                startDate: nextSession.scheduledAt,
+                durationMinutes: nextSession.durationMinutes,
+              })}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 text-sm font-semibold transition-colors shrink-0 shadow cursor-pointer"
+              className="flex items-center gap-1.5 rounded-xl border border-[var(--hairline)] bg-[var(--fg)]/[0.05] hover:bg-[var(--fg)]/[0.1] px-3.5 py-2.5 text-xs font-semibold transition-colors shrink-0"
+              title="Add to Google Calendar"
             >
-              <Video className="h-4 w-4" />
-              Join Meet
+              <CalendarPlus className="h-4 w-4 text-blue-500" />
+              <span>Calendar</span>
             </a>
-          )}
+          </div>
         </div>
       )}
 
@@ -173,7 +192,7 @@ export default function MeetingsPage() {
           ) : (
             <EmptyState
               icon={
-                <div className="p-4 rounded-2xl mb-4" style={{ background: "color-mix(in srgb, var(--fg) 5%, transparent)" }}>
+                <div className="p-4 rounded-2xl" style={{ background: "color-mix(in srgb, var(--fg) 5%, transparent)" }}>
                   <CalendarCheck className="h-8 w-8" style={{ color: "var(--fg)" }} />
                 </div>
               }

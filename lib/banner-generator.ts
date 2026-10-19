@@ -49,15 +49,15 @@ export const PRESET_BANNERS = [
     id: 'founder-mentor',
     name: 'Leadership & Founder',
     category: 'Leadership',
-    background: 'linear-gradient(135deg, #18181b 0%, #292524 50%, #d97706 100%)',
-    description: 'Sophisticated warm amber & neutral charcoal',
+    background: '#18181b',
+    description: 'Sophisticated neutral obsidian charcoal',
   },
   {
     id: 'medical-doctor',
     name: 'Medical & Healthcare',
     category: 'Healthcare',
-    background: 'linear-gradient(135deg, #06201b 0%, #064e3b 60%, #059669 100%)',
-    description: 'Crisp emerald & botanical dark gradient',
+    background: '#0a1714',
+    description: 'Crisp botanical dark emerald slate',
   },
 ];
 

@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { CalendarCheck, Video } from "lucide-react";
+import { CalendarCheck, Video, CalendarPlus } from "lucide-react";
 import { useBookings } from "@/lib/hooks";
 import { StatusBadge } from "@/components/StatusBadge";
 import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/Skeleton";
 import { formatCurrency } from "@/lib/currency-context";
+import { getGoogleCalendarUrl } from "@/lib/calendar-utils";
 
 const TABS = [
   { value: undefined, label: "All" },
@@ -120,16 +121,36 @@ export default function BookingsPage() {
                     <span className="text-base sm:text-lg font-semibold sm:mr-4" style={{ color: "var(--fg)" }}>{formatPrice(booking.amountPaid, booking.currency)}</span>
                     <StatusBadge status={booking.status} />
                     {booking.status === "CONFIRMED" && (
-                      <a
-                        href={booking.meetLink || "https://meet.google.com/qhs-wase-kny?pli=1"}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="rounded-xl px-3.5 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer flex items-center gap-1 shadow-sm ml-1"
-                      >
-                        <Video className="h-3.5 w-3.5" />
-                        <span>Join Meet</span>
-                      </a>
+                      <div className="flex items-center gap-1.5 ml-1">
+                        <a
+                          href={booking.meetLink || "https://meet.google.com/qhs-wase-kny?pli=1"}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="rounded-xl px-3 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer flex items-center gap-1 shadow-sm"
+                          title="Open Google Meet Session"
+                        >
+                          <Video className="h-3.5 w-3.5" />
+                          <span>Join Meet</span>
+                        </a>
+                        <a
+                          href={getGoogleCalendarUrl({
+                            title: `1:1 Mentorship Session with ${booking.mentor?.displayName ?? "Mentor"}`,
+                            description: `Mentorship session via HelpMeMan.\nGoogle Meet: ${booking.meetLink ?? ""}\nDuration: ${booking.durationMinutes} mins`,
+                            location: booking.meetLink ?? "",
+                            startDate: booking.scheduledAt,
+                            durationMinutes: booking.durationMinutes,
+                          })}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="rounded-xl px-2.5 py-1.5 text-xs font-semibold border border-[var(--hairline)] bg-[var(--fg)]/[0.04] hover:bg-[var(--fg)]/[0.08] transition-colors flex items-center gap-1"
+                          title="Add to Google Calendar"
+                        >
+                          <CalendarPlus className="h-3.5 w-3.5 text-blue-500" />
+                          <span className="hidden sm:inline">Calendar</span>
+                        </a>
+                      </div>
                     )}
                   </div>
                 </Link>
@@ -164,7 +185,7 @@ export default function BookingsPage() {
           </>
         ) : (
           <EmptyState
-            icon={<div className="p-4 rounded-2xl mb-4" style={{ background: "color-mix(in srgb, var(--fg) 5%, transparent)" }}><CalendarCheck className="h-8 w-8" style={{ color: "var(--fg)" }} /></div>}
+            icon={<div className="p-4 rounded-2xl" style={{ background: "color-mix(in srgb, var(--fg) 5%, transparent)" }}><CalendarCheck className="h-8 w-8" style={{ color: "var(--fg)" }} /></div>}
             title="No bookings yet"
             description="Book your first session with a verified mentor to get started on your journey."
             action={

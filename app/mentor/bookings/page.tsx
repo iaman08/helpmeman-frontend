@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CalendarCheck } from "lucide-react";
+import { CalendarCheck, Video, CalendarPlus } from "lucide-react";
 import api from "@/lib/api";
 import { StatusBadge } from "@/components/StatusBadge";
 import { EmptyState } from "@/components/EmptyState";
@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/Skeleton";
 import type { Booking } from "@/lib/types";
 import { AxiosError } from "axios";
 import { formatCurrency } from "@/lib/currency-context";
+import { getGoogleCalendarUrl } from "@/lib/calendar-utils";
 
 import { PreSessionBriefCard } from "@/components/PreSessionBriefCard";
 
@@ -129,15 +130,35 @@ export default function MentorBookingsPage() {
 
               <div className="flex gap-2">
                 {b.status === "CONFIRMED" && (
-                  <a
-                    href={b.meetLink || "https://meet.google.com/qhs-wase-kny?pli=1"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-xl px-4 py-2 text-xs font-semibold cursor-pointer shadow transition-opacity hover:opacity-90 flex items-center gap-1.5"
-                    style={{ background: "var(--fg)", color: "var(--bg)" }}
-                  >
-                    <span>Join Meet</span>
-                  </a>
+                  <>
+                    <a
+                      href={b.meetLink || "https://meet.google.com/qhs-wase-kny?pli=1"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-xl px-4 py-2 text-xs font-semibold cursor-pointer shadow transition-opacity hover:opacity-90 flex items-center gap-1.5"
+                      style={{ background: "var(--fg)", color: "var(--bg)" }}
+                    >
+                      <Video className="h-3.5 w-3.5" />
+                      <span>Join Meet</span>
+                    </a>
+                    <a
+                      href={getGoogleCalendarUrl({
+                        title: `1:1 Session with ${b.user?.name ?? "Student"}`,
+                        description: `Mentorship session via HelpMeMan.\nGoogle Meet: ${b.meetLink ?? ""}\nDuration: ${b.durationMinutes} mins`,
+                        location: b.meetLink ?? "",
+                        startDate: b.scheduledAt,
+                        durationMinutes: b.durationMinutes,
+                      })}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-xl px-3 py-2 text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5"
+                      style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 5%, transparent)", color: "var(--fg)" }}
+                      title="Add to Google Calendar"
+                    >
+                      <CalendarPlus className="h-3.5 w-3.5 text-blue-500" />
+                      <span>Add to Calendar</span>
+                    </a>
+                  </>
                 )}
                 <button
                   type="button"
