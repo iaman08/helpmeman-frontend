@@ -3,6 +3,7 @@
 import React from "react";
 import { Settings2 } from "lucide-react";
 import PasskeyManagerCard from "@/components/PasskeyManagerCard";
+import CentralMeetManagerCard from "@/components/CentralMeetManagerCard";
 
 export default function SuperAdminSettingsPage() {
   return (
@@ -11,6 +12,9 @@ export default function SuperAdminSettingsPage() {
         <p className="text-xs uppercase tracking-[0.22em]" style={{ color: "var(--muted)" }}>Super Admin</p>
         <h1 className="font-display text-4xl leading-tight" style={{ color: "var(--fg)" }}>Settings.</h1>
       </div>
+
+      {/* Central Google Meet Microservice Status & Management */}
+      <CentralMeetManagerCard />
 
       {/* Security Keys & Passkeys Management Card */}
       <PasskeyManagerCard />
