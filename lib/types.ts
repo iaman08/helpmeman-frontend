@@ -59,6 +59,26 @@ export interface MentorProfileData {
   completedAt?: string;
 }
 
+export interface UserLanguage {
+  id?: string;
+  languageCode?: string | null;
+  languageName: string;
+  proficiency: 'Native' | 'Fluent' | 'Professional' | 'Intermediate' | 'Basic' | string;
+  displayOrder?: number;
+}
+
+export interface OrganizationBranding {
+  id: string;
+  name: string;
+  slug: string;
+  type: 'COMPANY' | 'UNIVERSITY' | 'COLLEGE' | 'STARTUP' | string;
+  logoUrl?: string | null;
+  bannerUrl?: string | null;
+  website?: string | null;
+  domain?: string | null;
+  isVerified?: boolean;
+}
+
 export interface User {
   id: string;
   name: string;
@@ -70,6 +90,29 @@ export interface User {
   status?: string;
   onboardingRole?: string | null;
   currentRole?: string | null;
+  headline?: string | null;
+  bio?: string | null;
+  bannerImageUrl?: string | null;
+  bannerPosition?: string | null;
+  currentCompany?: string | null;
+  companyId?: string | null;
+  jobTitle?: string | null;
+  university?: string | null;
+  universityId?: string | null;
+  degree?: string | null;
+  graduationYear?: number | null;
+  skills?: string[];
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  websiteUrl?: string | null;
+  socialLinks?: Record<string, string> | any;
+  followersCount?: number;
+  followingCount?: number;
+  isFollowing?: boolean;
+  languages?: UserLanguage[];
+  companyBranding?: OrganizationBranding | null;
+  universityBranding?: OrganizationBranding | null;
   isEmailVerified: boolean;
   mustChangePassword?: boolean;
   twoFactorEnabled?: boolean;
@@ -101,6 +144,9 @@ export interface Mentor {
   displayName: string;
   bio: string;
   avatar?: string | null;
+  headline?: string | null;
+  bannerImageUrl?: string | null;
+  bannerPosition?: string | null;
   institutionType: InstitutionType;
   institutionName: string;
   institutionEmail: string;
@@ -128,6 +174,12 @@ export interface Mentor {
   activeStatus?: string | null;
   averageResponseTime?: string | null;
   languages?: string[] | string | null;
+  userLanguages?: UserLanguage[];
+  followersCount?: number;
+  followingCount?: number;
+  isFollowing?: boolean;
+  companyBranding?: OrganizationBranding | null;
+  universityBranding?: OrganizationBranding | null;
   experienceYears?: number | null;
   isOnline: boolean;
   googleCalendarConnected?: boolean;

@@ -11,13 +11,7 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
       {icon && (
-        <div
-          className="flex h-16 w-16 items-center justify-center rounded-full"
-          style={{
-            background: "color-mix(in srgb, var(--fg) 5%, transparent)",
-            color: "var(--fg)",
-          }}
-        >
+        <div className="flex items-center justify-center text-[var(--fg)]">
           {icon}
         </div>
       )}

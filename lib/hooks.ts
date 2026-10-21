@@ -26,6 +26,7 @@ export interface MentorFilters {
   minPrice?: number;    
   maxPrice?: number;
   minRating?: number;
+  language?: string;
   sortBy?: string;
   page?: number;
   limit?: number;
@@ -153,7 +154,7 @@ export function useGoogleCalendarStatus() {
   const { user } = useAuth();
   const canAccessMentor = user?.role === "MENTOR" || user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
   const key = canAccessMentor && user?.id ? ["/mentor/me/google/status", user.id] as [string, string] : null;
-  return useSWR<{ connected: boolean; timezone: string; isAdminPreview?: boolean }>(key, fetcher, {
+  return useSWR<{ connected: boolean; timezone: string; customMeetLink?: string | null; isAdminPreview?: boolean }>(key, fetcher, {
     revalidateOnFocus: false,
   });
 }

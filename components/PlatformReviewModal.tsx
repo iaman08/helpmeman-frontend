@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Star, X, Heart, Sparkles, Loader2, ArrowLeft } from "lucide-react";
+import { Star, X, Heart, Loader2, ArrowLeft } from "lucide-react";
 import api from "@/lib/api";
 import { useToast } from "@/components/Toast";
 
@@ -217,7 +217,6 @@ export function PlatformReviewModal({
                 >
                   <Heart className="w-8 h-8 fill-emerald-500 text-emerald-500 animate-pulse" />
                 </motion.div>
-                <Sparkles className="w-5 h-5 text-amber-400 absolute -top-2 -right-2 animate-bounce" />
               </div>
 
               <div className="space-y-1">

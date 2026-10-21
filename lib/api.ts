@@ -31,7 +31,7 @@ const api = axios.create({
     "Pragma": "no-cache",
     "Expires": "0",
   },
-  timeout: 15_000,
+  timeout: 45_000,
 });
 
 let startLoaderCallback: ((show: boolean) => void) | null = null;

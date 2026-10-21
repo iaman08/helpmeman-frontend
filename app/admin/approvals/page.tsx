@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle, XCircle, ExternalLink, UserCheck, X, Clock, Flame, AlertCircle, Eye, Sparkles } from "lucide-react";
+import { CheckCircle, XCircle, ExternalLink, UserCheck, X, Clock, Flame, AlertCircle, Eye, Bot } from "lucide-react";
 import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
@@ -251,8 +251,8 @@ export default function ApprovalsPage() {
                         <InstitutionBadge institutionName={m.institutionName} institutionType={m.institutionType} />
                         {m.category && <span className="text-xs font-medium" style={{ color: "var(--muted)" }}>{m.category.name}</span>}
                         {answerCount > 0 && (
-                          <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 font-medium">
-                            <Sparkles className="h-3 w-3" /> {answerCount} AI answers
+                          <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium">
+                            <Bot className="h-3 w-3" /> {answerCount} AI answers
                           </span>
                         )}
                       </div>

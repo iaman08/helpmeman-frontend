@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, useInView } from "motion/react";
-import { Send, Sparkles, User } from "lucide-react";
+import { Send, Bot, User } from "lucide-react";
 import { API_BASE } from "@/lib/api";
 import { useAIStream } from "@/hooks/useAIStream";
 import { RuthMascotInline, BotStateProvider } from "@/components/AICompanion/AICompanion";
@@ -232,8 +232,8 @@ function AIDemoSectionInner() {
           transition={{ duration: 0.6 }}
           className="text-center mb-8 md:mb-10"
         >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#E67579]/30 dark:border-yellow-500/30 bg-[#E67579]/10 dark:bg-yellow-500/10 text-[#E67579] dark:text-yellow-400 text-[12px] font-medium mb-6 select-none">
-            <Sparkles size={13} />
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-neutral-200 dark:border-zinc-800 bg-neutral-100/80 dark:bg-zinc-800/60 text-neutral-700 dark:text-neutral-300 text-[12px] font-medium mb-6 select-none shadow-2xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             Powered by AI
           </div>
           <h2 className="text-[clamp(30px,5vw,52px)] font-semibold tracking-[-0.025em] text-[var(--fg)] leading-[1.1]">
@@ -271,7 +271,7 @@ function AIDemoSectionInner() {
             {/* Header */}
             <div className="ai-chat-header px-5 py-3.5 flex items-center gap-2.5">
               <div className="w-6 h-6 rounded-md bg-[#2563EB] flex items-center justify-center">
-                <Sparkles size={12} className="text-white" />
+                <Bot size={12} className="text-white" />
               </div>
               <span className="text-[13px] font-medium text-[var(--fg)]">
                 Ruth

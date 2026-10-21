@@ -19,7 +19,7 @@ import {
   type ScoredMentor,
   type SwipeAction,
 } from "./useSwipeEngine";
-import { SlidersHorizontal, Sparkles } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 
 interface SwipeArenaProps {
   initialFilters?: MatchFilters;
@@ -95,12 +95,12 @@ export function SwipeArena({ initialFilters = {} }: SwipeArenaProps) {
 
       if (action === "priority") {
         setMatchedMentor(targetMentor);
-        showToast(`⭐ Marked ${targetMentor.displayName} as Priority!`, "priority");
+        showToast(`Marked ${targetMentor.displayName} as Priority`, "priority");
       } else if (action === "interested") {
-        showToast(`❤️ Opening ${targetMentor.displayName}'s profile…`, "like");
+        showToast(`Connecting with ${targetMentor.displayName}…`, "like");
         router.push(`/mentors/${targetMentor.id}?from=discover`);
       } else {
-        showToast(`✕ Skipped`, "skip");
+        showToast(`Passed`, "skip");
       }
 
       swipe(action);
@@ -125,7 +125,7 @@ export function SwipeArena({ initialFilters = {} }: SwipeArenaProps) {
   const handleUndo = useCallback(() => {
     if (!canUndo) return;
     undo();
-    showToast("↶ Undone last swipe", "undo");
+    showToast("Undone last action", "undo");
   }, [canUndo, undo, showToast]);
 
   // Keyboard navigation
@@ -183,26 +183,29 @@ export function SwipeArena({ initialFilters = {} }: SwipeArenaProps) {
       {/* ─── Matchmaker Mini Header ─── */}
       <div className="flex items-center justify-between px-4 sm:px-6 py-2 z-10 flex-shrink-0">
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--fg)]/6 border border-[var(--hairline)] text-xs font-bold text-[var(--fg)] shadow-xs">
-            <Sparkles className="h-3.5 w-3.5 text-amber-500 fill-amber-500 animate-pulse" />
-            <span>AI Matchmaker</span>
+          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neutral-900/5 dark:bg-white/5 border border-neutral-200/80 dark:border-zinc-800 text-xs font-semibold text-neutral-800 dark:text-neutral-200 shadow-2xs backdrop-blur-md">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
+            <span>Curated Matches</span>
+            {deck.length > 0 && (
+              <>
+                <span className="text-neutral-300 dark:text-zinc-700">·</span>
+                <span className="text-neutral-500 dark:text-neutral-400 font-normal">
+                  {deck.length} profiles ready
+                </span>
+              </>
+            )}
           </div>
-          {deck.length > 0 && (
-            <span className="text-xs text-[var(--fg)]/60 font-medium hidden sm:inline">
-              {deck.length} curated profiles ready
-            </span>
-          )}
         </div>
 
         <button
           type="button"
           onClick={() => setShowFilters(true)}
-          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-[var(--fg)]/5 hover:bg-[var(--fg)]/10 border border-[var(--hairline)] text-[var(--fg)] transition-colors cursor-pointer shadow-xs"
+          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-neutral-100 hover:bg-neutral-200/80 dark:bg-zinc-800/80 dark:hover:bg-zinc-700/80 border border-neutral-200/80 dark:border-zinc-700/80 text-neutral-700 dark:text-neutral-200 transition-colors cursor-pointer shadow-2xs"
         >
           <SlidersHorizontal className="h-3.5 w-3.5" />
           <span>Filters</span>
           {activeFiltersCount > 0 && (
-            <span className="h-4.5 w-4.5 rounded-full bg-[var(--bg)] text-[var(--fg)] text-[10px] font-bold flex items-center justify-center">
+            <span className="h-4.5 w-4.5 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-[10px] font-bold flex items-center justify-center">
               {activeFiltersCount}
             </span>
           )}
@@ -304,15 +307,39 @@ export function SwipeArena({ initialFilters = {} }: SwipeArenaProps) {
       </div>
 
       {/* ─── Keyboard shortcuts hint ─── */}
+      {/* ─── Keyboard Guide ─── */}
       {!isEmpty && !isLoading && (
-        <motion.p
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="text-center text-[10px] text-[var(--fg)]/50 pb-1 flex-shrink-0 hidden sm:block select-none"
+          transition={{ delay: 0.6 }}
+          className="flex items-center justify-center gap-3 text-[11px] text-neutral-500 dark:text-neutral-400 pb-2.5 flex-shrink-0 hidden sm:flex select-none"
         >
-          ← Skip · → Like & View Profile · ↑ Priority · Enter View Details · Ctrl+Z Undo
-        </motion.p>
+          <span className="inline-flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 rounded border border-neutral-200 dark:border-zinc-800 bg-neutral-100/90 dark:bg-zinc-800/90 font-mono text-[10px] text-neutral-600 dark:text-neutral-300">←</kbd>
+            <span>Pass</span>
+          </span>
+          <span className="text-neutral-300 dark:text-zinc-700">·</span>
+          <span className="inline-flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 rounded border border-neutral-200 dark:border-zinc-800 bg-neutral-100/90 dark:bg-zinc-800/90 font-mono text-[10px] text-neutral-600 dark:text-neutral-300">→</kbd>
+            <span>Connect</span>
+          </span>
+          <span className="text-neutral-300 dark:text-zinc-700">·</span>
+          <span className="inline-flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 rounded border border-neutral-200 dark:border-zinc-800 bg-neutral-100/90 dark:bg-zinc-800/90 font-mono text-[10px] text-neutral-600 dark:text-neutral-300">↑</kbd>
+            <span>Priority</span>
+          </span>
+          <span className="text-neutral-300 dark:text-zinc-700">·</span>
+          <span className="inline-flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 rounded border border-neutral-200 dark:border-zinc-800 bg-neutral-100/90 dark:bg-zinc-800/90 font-mono text-[10px] text-neutral-600 dark:text-neutral-300">↵</kbd>
+            <span>View Profile</span>
+          </span>
+          <span className="text-neutral-300 dark:text-zinc-700">·</span>
+          <span className="inline-flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 rounded border border-neutral-200 dark:border-zinc-800 bg-neutral-100/90 dark:bg-zinc-800/90 font-mono text-[10px] text-neutral-600 dark:text-neutral-300">Ctrl+Z</kbd>
+            <span>Undo</span>
+          </span>
+        </motion.div>
       )}
 
       {/* ─── Tactile Action Bar ─── */}

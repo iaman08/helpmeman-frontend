@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Star, Download, Search, Filter, CheckCircle, EyeOff, Sparkles, Trash2, Loader2 } from "lucide-react";
+import { Star, Download, Search, Filter, CheckCircle, EyeOff, Award, Trash2, Loader2 } from "lucide-react";
 import api from "@/lib/api";
 import { Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
@@ -417,7 +417,7 @@ export default function AdminPlatformReviewsPage() {
 
                       {r.featured && (
                         <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
-                          <Sparkles className="w-3 h-3" /> Featured
+                          <Award className="w-3 h-3" /> Featured
                         </span>
                       )}
                     </div>
@@ -456,7 +456,7 @@ export default function AdminPlatformReviewsPage() {
                         }}
                         title={r.featured ? "Un-feature review" : "Feature review on landing page"}
                       >
-                        <Sparkles className="w-3.5 h-3.5" />
+                        <Award className="w-3.5 h-3.5" />
                       </button>
 
                       {/* Delete Button */}

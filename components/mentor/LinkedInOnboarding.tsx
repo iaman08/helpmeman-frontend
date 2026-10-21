@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import {
-  Sparkles,
+  Bot,
   ArrowRight,
   CheckCircle2,
   Clock,
@@ -405,7 +405,7 @@ export default function LinkedInOnboarding({
           {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--hairline)] bg-[var(--fg)]/[0.03] text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-3">
-              <Sparkles className="h-3.5 w-3.5 text-amber-500" /> Mentor Onboarding
+              <Bot className="h-3.5 w-3.5 text-blue-500" /> Mentor Onboarding
             </div>
             <h1 className="text-3xl sm:text-4xl font-display font-semibold tracking-tight">
               Become a Mentor
@@ -444,7 +444,7 @@ export default function LinkedInOnboarding({
                         <Check className="h-3.5 w-3.5 text-emerald-500" /> You control publication
                       </span>
                       <span className="inline-flex items-center gap-1">
-                        <Sparkles className="h-3.5 w-3.5 text-amber-500" /> Ruth AI assisted
+                        <Bot className="h-3.5 w-3.5 text-blue-500" /> Ruth AI assisted
                       </span>
                     </div>
                   </div>
@@ -712,8 +712,8 @@ export default function LinkedInOnboarding({
                   <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
                     Mentor Headline
                   </label>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
-                    <Sparkles className="h-3 w-3" /> Suggested by Ruth AI
+                  <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-semibold text-blue-600 dark:text-blue-400">
+                    <Bot className="h-3 w-3" /> Suggested by Ruth AI
                   </span>
                 </div>
                 <input
@@ -731,8 +731,8 @@ export default function LinkedInOnboarding({
                   <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
                     Professional Bio
                   </label>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
-                    <Sparkles className="h-3 w-3" /> Suggested by Ruth AI
+                  <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-semibold text-blue-600 dark:text-blue-400">
+                    <Bot className="h-3 w-3" /> Suggested by Ruth AI
                   </span>
                 </div>
                 <textarea
@@ -750,8 +750,8 @@ export default function LinkedInOnboarding({
                   <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
                     Expertise Areas
                   </label>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
-                    <Sparkles className="h-3 w-3" /> Suggested by Ruth AI
+                  <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-semibold text-blue-600 dark:text-blue-400">
+                    <Bot className="h-3 w-3" /> Suggested by Ruth AI
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-2 mb-3">
@@ -796,8 +796,8 @@ export default function LinkedInOnboarding({
                   <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
                     Mentoring Topics
                   </label>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
-                    <Sparkles className="h-3 w-3" /> Suggested by Ruth AI
+                  <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-semibold text-blue-600 dark:text-blue-400">
+                    <Bot className="h-3 w-3" /> Suggested by Ruth AI
                   </span>
                 </div>
                 <ul className="space-y-2 mb-3">

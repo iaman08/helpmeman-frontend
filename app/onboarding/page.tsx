@@ -11,7 +11,7 @@ import {
   Clock3,
   Loader2,
   Send,
-  Sparkles,
+  Bot,
   UserRound,
   UsersRound,
   X,
@@ -73,7 +73,7 @@ function RuthMark({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
     <div className={`${sizes[size]} relative shrink-0 rounded-2xl bg-fg text-bg shadow-[0_22px_70px_rgba(10,10,10,.16)]`}>
       <div className="absolute inset-[-14px] -z-10 rounded-full bg-[radial-gradient(circle,rgba(34,211,238,.26),transparent_62%)] blur-xl" />
       <div className="flex h-full w-full items-center justify-center rounded-2xl">
-        <Sparkles className={size === "lg" ? "h-7 w-7" : "h-5 w-5"} />
+        <Bot className={size === "lg" ? "h-7 w-7" : "h-5 w-5"} />
       </div>
     </div>
   );
@@ -534,7 +534,7 @@ function OnboardingContent() {
         <Aura />
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative text-center">
           <motion.div animate={{ rotate: 360, scale: [1, 1.08, 1] }} transition={{ rotate: { repeat: Infinity, duration: 4, ease: "linear" }, scale: { repeat: Infinity, duration: 1.4 } }} className="mx-auto flex h-20 w-20 items-center justify-center rounded-[28px] bg-fg text-bg shadow-[0_30px_100px_rgba(0,0,0,.18)]">
-            <Sparkles className="h-9 w-9" />
+            <Bot className="h-9 w-9" />
           </motion.div>
           <p className="mt-72 text-lg">Ruth AI is preparing your mentor onboarding...</p>
         </motion.div>

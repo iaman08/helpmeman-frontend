@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Sparkles, CheckCircle2, FileText, Send, HelpCircle, Target, Link2 } from "lucide-react";
+import { X, Bot, CheckCircle2, FileText, Send, HelpCircle, Target, Link2 } from "lucide-react";
 import api from "@/lib/api";
 
 interface PreSessionIntakeModalProps {
@@ -104,7 +104,7 @@ export function PreSessionIntakeModal({
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <div className="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-2xl">
-            <Sparkles size={22} />
+            <Bot size={22} />
           </div>
           <div>
             <h3 className="text-xl font-bold text-white">Pre-Session Prerequisites</h3>
@@ -129,7 +129,7 @@ export function PreSessionIntakeModal({
 
             <div className="p-5 bg-zinc-900/90 border border-amber-500/30 rounded-2xl space-y-3 relative overflow-hidden">
               <div className="flex items-center gap-2 text-xs font-bold text-amber-400 uppercase tracking-wider">
-                <Sparkles size={14} />
+                <Bot size={14} />
                 <span>⚡ AI-Generated Mentor Briefing</span>
               </div>
               <div className="text-sm text-zinc-200 leading-relaxed whitespace-pre-wrap font-sans">

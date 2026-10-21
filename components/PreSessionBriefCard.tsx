@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, ChevronDown, ChevronUp, FileText, Target, HelpCircle, Link2, ExternalLink } from "lucide-react";
+import { Bot, ChevronDown, ChevronUp, FileText, Target, HelpCircle, Link2, ExternalLink } from "lucide-react";
 
 interface PreSessionBriefCardProps {
   aiBriefSummary?: string | null;
@@ -41,7 +41,7 @@ export function PreSessionBriefCard({
       <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpanded(!expanded)}>
         <div className="flex items-center gap-2.5">
           <div className="p-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg">
-            <Sparkles size={16} />
+            <Bot size={16} />
           </div>
           <div>
             <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">

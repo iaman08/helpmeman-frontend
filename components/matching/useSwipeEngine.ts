@@ -114,9 +114,9 @@ export function computeMatchScore(
     const ratingScore = Math.max(0, Math.min(15, (mentor.rating - 4.0) * 15));
     score += ratingScore;
     if (mentor.rating >= 4.9) {
-      reasons.push({ label: `Top-rated ${mentor.rating.toFixed(1)} ⭐`, icon: "⭐" });
+      reasons.push({ label: `Top-rated (${mentor.rating.toFixed(1)})`, icon: "★" });
     } else if (mentor.rating >= 4.5) {
-      reasons.push({ label: `Highly rated ${mentor.rating.toFixed(1)} ⭐`, icon: "⭐" });
+      reasons.push({ label: `Highly rated (${mentor.rating.toFixed(1)})`, icon: "★" });
     }
   }
 
@@ -141,7 +141,7 @@ export function computeMatchScore(
   const expYears = mentor.experienceYears || 0;
   if (expYears >= 7) {
     score += 10;
-    reasons.push({ label: `${expYears} years experience`, icon: "🎓" });
+    reasons.push({ label: `${expYears} years experience`, icon: "•" });
   } else if (expYears >= 3) {
     score += 6;
   } else if (expYears >= 1) {
@@ -152,7 +152,7 @@ export function computeMatchScore(
   const sessions = mentor.totalSessions || 0;
   if (sessions >= 500) {
     score += 10;
-    reasons.push({ label: `${sessions}+ sessions completed`, icon: "🏆" });
+    reasons.push({ label: `${sessions}+ sessions completed`, icon: "•" });
   } else if (sessions >= 100) {
     score += 7;
   } else if (sessions >= 20) {
@@ -170,7 +170,7 @@ export function computeMatchScore(
 
   // Always have at least 1 reason
   if (reasons.length === 0) {
-    reasons.push({ label: "Compatible mentor", icon: "✨" });
+    reasons.push({ label: "Compatible mentor", icon: "✓" });
   }
 
   return { score: finalScore, reasons };

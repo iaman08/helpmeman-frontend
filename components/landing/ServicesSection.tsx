@@ -4,7 +4,6 @@ import { useState, useRef, useMemo } from "react";
 import { motion, useInView } from "motion/react";
 import Link from "next/link";
 import {
-  Sparkles,
   BookOpen,
   Stethoscope,
   Laptop,
@@ -411,7 +410,7 @@ export function ServicesSection() {
           className="text-center max-w-3xl mx-auto mb-12 md:mb-16"
         >
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 dark:bg-blue-400/10 text-blue-600 dark:text-blue-400 text-xs font-semibold uppercase tracking-wider mb-4 border border-blue-500/20">
-            <Sparkles className="w-3.5 h-3.5" />
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
             Complete Mentorship Ecosystem
           </div>
           <h2 className="text-[clamp(28px,4.5vw,52px)] font-bold tracking-[-0.03em] text-[var(--fg)] leading-[1.08]">

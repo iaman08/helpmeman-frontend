@@ -541,17 +541,32 @@ html[data-theme="dark"] .scroll-text-dot {
   width: 60%;
 }
 
-/* ── Footer (always dark, elevated) ── */
+/* ── Footer (dark in light mode, white inverted contrast in dark mode) ── */
 .landing-footer {
   background: #0B0B0C;
   color: #FFFFFF;
   position: relative;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html[data-theme="dark"] .landing-footer,
+html.dark .landing-footer,
+.dark .landing-footer {
+  background: #FFFFFF !important;
+  color: #111111 !important;
 }
 
 /* Override the section rule for footer */
 .landing-page footer.landing-footer {
   background: #0B0B0C !important;
   color: #FFFFFF !important;
+}
+
+html[data-theme="dark"] .landing-page footer.landing-footer,
+html.dark .landing-page footer.landing-footer,
+.dark .landing-page footer.landing-footer {
+  background: #FFFFFF !important;
+  color: #111111 !important;
 }
 
 /* ── Review cards ── */

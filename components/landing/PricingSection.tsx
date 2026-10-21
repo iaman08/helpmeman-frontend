@@ -2,7 +2,7 @@
 
 import { motion, useInView } from "motion/react";
 import { useRef, useState } from "react";
-import { Check, X, Sparkles, ShieldCheck, Zap, Award } from "lucide-react";
+import { Check, X, ShieldCheck, Zap, Award } from "lucide-react";
 import { PriceDisplay } from "@/components/PriceDisplay";
 
 const pricingTiers = [
@@ -165,7 +165,7 @@ export function PricingSection() {
           className="text-center max-w-3xl mx-auto mb-8 md:mb-10"
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-wider mb-4">
-            <Sparkles className="w-4 h-4" />
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
             Unmatched Value & Transparency
           </div>
 

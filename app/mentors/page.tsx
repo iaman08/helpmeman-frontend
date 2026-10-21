@@ -12,7 +12,7 @@ import {
   MessageCircle,
   Settings,
   Search as SearchIcon,
-  Sparkles,
+  Bot,
   Bell,
   Clock,
   DollarSign,
@@ -47,6 +47,25 @@ const INSTITUTION_TYPES = [
   { value: "COLLEGE", label: "College" },
   { value: "COMPANY", label: "Company" },
   { value: "STARTUP", label: "Startup" },
+];
+
+const LANGUAGE_FILTER_OPTIONS = [
+  { value: "", label: "All Languages" },
+  { value: "English", label: "English" },
+  { value: "Hindi", label: "Hindi" },
+  { value: "Punjabi", label: "Punjabi" },
+  { value: "Bengali", label: "Bengali" },
+  { value: "Tamil", label: "Tamil" },
+  { value: "Telugu", label: "Telugu" },
+  { value: "Marathi", label: "Marathi" },
+  { value: "Gujarati", label: "Gujarati" },
+  { value: "Urdu", label: "Urdu" },
+  { value: "Kannada", label: "Kannada" },
+  { value: "Malayalam", label: "Malayalam" },
+  { value: "Spanish", label: "Spanish" },
+  { value: "French", label: "French" },
+  { value: "German", label: "German" },
+  { value: "Arabic", label: "Arabic" },
 ];
 
 function MentorsContent() {
@@ -96,6 +115,7 @@ function MentorsContent() {
     if (filters.institutionType) count++;
     if (filters.minPrice) count++;
     if (filters.maxPrice) count++;
+    if (filters.language) count++;
     return count;
   }, [filters]);
 
@@ -114,28 +134,27 @@ function MentorsContent() {
         </div>
         
         {/* Tabs switcher */}
-        <div className="flex bg-[var(--fg)]/5 p-1 rounded-xl border border-[var(--hairline)] self-start md:self-auto">
+        <div className="flex bg-neutral-100 dark:bg-zinc-900/90 p-1 rounded-xl border border-neutral-200/80 dark:border-zinc-800 self-start md:self-auto shadow-2xs">
           <button
             type="button"
             onClick={() => setActiveTab("grid")}
-            className={`px-5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
               activeTab === "grid"
-                ? "bg-[var(--bg)] text-[var(--fg)] shadow-sm"
-                : "text-[var(--fg)] hover:text-[var(--fg)]"
+                ? "bg-white text-neutral-900 dark:bg-zinc-800 dark:text-white shadow-2xs font-bold"
+                : "text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
             }`}
           >
-            Directory List
+            Directory
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("discover")}
-            className={`flex items-center gap-1.5 px-5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
               activeTab === "discover"
-                ? "bg-[var(--bg)] text-[var(--fg)] shadow-sm"
-                : "text-[var(--fg)] hover:text-[var(--fg)]"
+                ? "bg-white text-neutral-900 dark:bg-zinc-800 dark:text-white shadow-2xs font-bold"
+                : "text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
             }`}
           >
-            <span>✦</span>
             Matchmaker Swipe
           </button>
         </div>
@@ -151,36 +170,37 @@ function MentorsContent() {
       <div className="flex flex-col gap-3 mb-6 sm:mb-8">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div className="relative flex-1 group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--fg)] group-focus-within:text-[var(--fg)] transition-colors" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400 group-focus-within:text-neutral-800 dark:group-focus-within:text-neutral-200 transition-colors" />
             <input
               type="text"
               placeholder="Search by name, institution, or skill…"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              className="w-full bg-[var(--fg)]/5 border border-[var(--hairline)] rounded-xl sm:rounded-2xl pl-11 pr-4 py-3 sm:py-4 text-base sm:text-sm outline-none focus:border-[var(--hairline)]/20 focus:bg-[var(--fg)]/10 transition-all shadow-sm placeholder:text-[var(--muted)]"
+              className="w-full bg-white dark:bg-zinc-900/90 border border-neutral-200 dark:border-zinc-800 rounded-xl sm:rounded-2xl pl-11 pr-4 py-3 sm:py-3.5 text-base sm:text-sm outline-none focus:border-neutral-400 dark:focus:border-zinc-600 focus:ring-2 focus:ring-neutral-400/20 dark:focus:ring-zinc-600/20 transition-all shadow-xs placeholder:text-neutral-400 dark:placeholder:text-zinc-500"
             />
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               type="button"
               onClick={handleSearch}
-              className="flex-1 sm:flex-none rounded-xl sm:rounded-2xl bg-[var(--bg)] text-[var(--fg)] px-6 sm:px-8 py-3 sm:py-4 text-sm font-bold hover:opacity-90 transition-all active:scale-95 cursor-pointer"
+              className="flex-1 sm:flex-none rounded-xl sm:rounded-2xl bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 font-semibold px-6 sm:px-8 py-3 sm:py-3.5 text-sm hover:opacity-90 active:scale-95 transition-all cursor-pointer shadow-xs"
             >
               Search
             </button>
             <button
               type="button"
               onClick={() => setShowFilters((p) => !p)}
-              className={`flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl border px-4 sm:px-6 py-3 sm:py-4 text-sm font-bold transition-all active:scale-95 cursor-pointer ${showFilters
-                ? "bg-[var(--fg)]/10 border-[var(--hairline)]/20 text-[var(--fg)]"
-                : "bg-[var(--fg)]/5 border-[var(--hairline)] text-[var(--fg)] hover:border-[var(--hairline)]/20 hover:text-[var(--fg)]"
-                }`}
+              className={`flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl border px-4 sm:px-6 py-3 sm:py-3.5 text-sm font-semibold transition-all active:scale-95 cursor-pointer ${
+                showFilters
+                  ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 border-neutral-900 dark:border-white shadow-xs"
+                  : "bg-white text-neutral-700 dark:bg-zinc-900/90 dark:text-zinc-300 border-neutral-200 dark:border-zinc-800 hover:bg-neutral-50 dark:hover:bg-zinc-800/80 shadow-xs"
+              }`}
             >
               <SlidersHorizontal className="h-4 w-4" />
               <span className="hidden sm:inline">Filters</span>
               {activeFilterCount > 0 && (
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--bg)] text-[var(--fg)] text-[10px] font-bold">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-white text-[10px] font-bold">
                   {activeFilterCount}
                 </span>
               )}
@@ -188,17 +208,18 @@ function MentorsContent() {
           </div>
         </div>
 
-        {/* Quick Category Filter Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1 pb-1">
+        {/* ─── Sleek Segmented Category Filter Tabs ─── */}
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
           <button
             type="button"
             onClick={() => updateFilter("category", undefined)}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${!filters.category
-              ? "bg-amber-500 text-black shadow-md"
-              : "bg-zinc-900/80 text-zinc-400 hover:text-white border border-zinc-800"
-              }`}
+            className={`px-3.5 py-1.5 rounded-full text-xs transition-all whitespace-nowrap cursor-pointer ${
+              !filters.category
+                ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 font-semibold shadow-xs ring-1 ring-neutral-900/10 dark:ring-white/20"
+                : "bg-neutral-100/90 text-neutral-600 hover:text-neutral-950 hover:bg-neutral-200/80 dark:bg-zinc-900/80 dark:text-neutral-400 dark:hover:text-white dark:hover:bg-zinc-800/80 border border-neutral-200/80 dark:border-zinc-800"
+            }`}
           >
-            🌟 All Mentors
+            All Mentors
           </button>
           {categories.map((cat) => {
             const isSelected = filters.category === cat.slug;
@@ -207,13 +228,38 @@ function MentorsContent() {
                 key={cat.id}
                 type="button"
                 onClick={() => updateFilter("category", isSelected ? undefined : cat.slug)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${isSelected
-                  ? "bg-amber-500 text-black shadow-md font-extrabold"
-                  : "bg-zinc-900/80 text-zinc-300 hover:text-white border border-zinc-800"
-                  }`}
+                className={`px-3.5 py-1.5 rounded-full text-xs transition-all whitespace-nowrap cursor-pointer ${
+                  isSelected
+                    ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 font-semibold shadow-xs ring-1 ring-neutral-900/10 dark:ring-white/20"
+                    : "bg-neutral-100/90 text-neutral-600 hover:text-neutral-950 hover:bg-neutral-200/80 dark:bg-zinc-900/80 dark:text-neutral-400 dark:hover:text-white dark:hover:bg-zinc-800/80 border border-neutral-200/80 dark:border-zinc-800"
+                }`}
               >
-                <span>{cat.icon || "🎓"}</span>
                 <span>{cat.name}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ─── Integrated Language Filters ─── */}
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs">
+          <span className="text-[11px] font-medium text-neutral-400 dark:text-zinc-500 shrink-0 mr-1.5">
+            Language:
+          </span>
+          {["All", "English", "Hindi", "Punjabi", "Bengali", "Tamil", "Telugu", "Marathi", "Spanish"].map((lang) => {
+            const isAll = lang === "All";
+            const isSelected = isAll ? !filters.language : filters.language?.toLowerCase() === lang.toLowerCase();
+            return (
+              <button
+                key={lang}
+                type="button"
+                onClick={() => updateFilter("language", isAll ? undefined : lang)}
+                className={`px-2.5 py-0.5 rounded-md text-[11px] transition-all whitespace-nowrap cursor-pointer ${
+                  isSelected
+                    ? "bg-neutral-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-xs"
+                    : "text-neutral-500 hover:text-neutral-900 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-neutral-100 dark:hover:bg-zinc-800/60"
+                }`}
+              >
+                {lang}
               </button>
             );
           })}
@@ -311,6 +357,24 @@ function MentorsContent() {
                   className="w-full bg-[var(--bg)] border border-[var(--hairline)] rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 outline-none text-sm focus:border-[var(--hairline)]/20 transition-all placeholder:text-[var(--muted)]"
                 />
               </div>
+
+              {/* Language Spoken (Section 11) */}
+              <div className="flex flex-col gap-2 sm:col-span-2">
+                <label className="text-[10px] uppercase tracking-[0.2em] text-[var(--fg)] font-bold ml-1">Languages Spoken</label>
+                <select
+                  value={filters.language ?? ""}
+                  onChange={(e) =>
+                    updateFilter("language", e.target.value || undefined)
+                  }
+                  className="w-full bg-[var(--bg)] border border-[var(--hairline)] rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 outline-none text-sm focus:border-[var(--hairline)]/20 cursor-pointer appearance-none transition-all hover:bg-[var(--fg)]/5"
+                >
+                  {LANGUAGE_FILTER_OPTIONS.map((lang) => (
+                    <option key={lang.value} value={lang.value}>
+                      {lang.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-[var(--hairline)]">
@@ -338,20 +402,21 @@ function MentorsContent() {
 
       {/* ─── Sort ─── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
-        <span className="text-sm text-[var(--fg)] font-medium">
-          Showing <span className="text-[var(--fg)]">{data?.total ?? 0}</span> mentor{data?.total !== 1 ? "s" : ""}
+        <span className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 font-medium">
+          Showing <span className="text-neutral-900 dark:text-white font-semibold">{data?.total ?? 0}</span> mentor{data?.total !== 1 ? "s" : ""}
         </span>
-        <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto no-scrollbar pb-1">
-          <span className="text-[10px] uppercase tracking-widest text-[var(--fg)] font-bold shrink-0">Sort by:</span>
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-1">
+          <span className="text-[11px] text-neutral-400 dark:text-zinc-500 font-medium shrink-0 mr-1">Sort by:</span>
           {SORT_OPTIONS.map((opt) => (
             <button
               key={opt.value}
               type="button"
               onClick={() => updateFilter("sortBy", opt.value)}
-              className={`rounded-full px-3.5 sm:px-5 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${filters.sortBy === opt.value
-                ? "bg-[var(--bg)] text-[var(--fg)] shadow-lg"
-                : "bg-[var(--fg)]/5 text-[var(--fg)] hover:text-[var(--fg)] border border-[var(--hairline)]"
-                }`}
+              className={`rounded-full px-3 py-1 text-xs transition-all whitespace-nowrap cursor-pointer ${
+                filters.sortBy === opt.value
+                  ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 font-semibold shadow-xs"
+                  : "bg-neutral-100/90 text-neutral-600 hover:text-neutral-950 hover:bg-neutral-200/80 dark:bg-zinc-900/80 dark:text-neutral-400 dark:hover:text-white dark:hover:bg-zinc-800/80 border border-neutral-200/80 dark:border-zinc-800"
+              }`}
             >
               {opt.label}
             </button>
@@ -478,7 +543,7 @@ function MentorsContent() {
             }
           },
           label: "Ruth",
-          icon: Sparkles,
+          icon: Bot,
         },
       ];
     } else if (isMentor) {
@@ -501,7 +566,7 @@ function MentorsContent() {
             }
           },
           label: "Ruth",
-          icon: Sparkles,
+          icon: Bot,
         },
       ];
     } else {
@@ -517,7 +582,7 @@ function MentorsContent() {
             }
           },
           label: "Ruth",
-          icon: Sparkles,
+          icon: Bot,
         },
         { href: "/mentors", label: "Browse Mentors", icon: SearchIcon },
         { href: "/dashboard/settings", label: "Settings", icon: Settings },

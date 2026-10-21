@@ -8,7 +8,6 @@ import {
   Terminal,
   Trophy,
   TrendingUp,
-  Sparkles,
   Zap,
   ArrowRight,
   ChevronRight,
@@ -743,7 +742,7 @@ export default function CompetitiveProgrammingPage() {
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
             <div className="space-y-2 max-w-xl">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold">
-                <Sparkles className="w-3.5 h-3.5" />
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 <span>Aggregated Competitive Programming Profile</span>
               </div>
               <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">

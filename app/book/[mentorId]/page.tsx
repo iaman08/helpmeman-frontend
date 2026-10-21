@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { ArrowLeft, Calendar, Clock, CreditCard, Star, Tag, X, CheckCircle2, Sparkles } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, CreditCard, Star, Tag, X, CheckCircle2 } from "lucide-react";
 import { useMentor } from "@/lib/hooks";
 import { useAuth } from "@/lib/auth-context";
 import api from "@/lib/api";
@@ -14,6 +14,7 @@ import { AxiosError } from "axios";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import { useCurrency } from "@/lib/currency-context";
 import { FooterSection } from "@/components/landing/FooterSection";
+import { playSuccessSound } from "@/lib/soundService";
 
 declare global {
   interface Window {
@@ -160,7 +161,8 @@ export default function BookMentorPage() {
 
       // ── Zero-Amount / Free Coupon Booking Success ──
       if (isFree || !order || !razorpayKeyId || !window.Razorpay) {
-        router.push(`/dashboard/bookings/${bookingData.id}`);
+        playSuccessSound(0.35, bookingData.id);
+        router.push(`/dashboard/bookings/${bookingData.id}?justBooked=true`);
         return;
       }
 
@@ -183,7 +185,8 @@ export default function BookMentorPage() {
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
             });
-            router.push(`/dashboard/bookings/${bookingData.id}`);
+            playSuccessSound(0.35, bookingData.id);
+            router.push(`/dashboard/bookings/${bookingData.id}?justBooked=true`);
           } catch {
             setError("Payment verification failed. Please contact support.");
           }
@@ -469,7 +472,7 @@ export default function BookMentorPage() {
 
                   {!appliedCoupon && (
                     <div className="flex items-center gap-1.5 text-[11px] text-[var(--muted)] mt-0.5">
-                      <Sparkles className="w-3 h-3 text-amber-500 shrink-0" />
+                      <Tag className="w-3 h-3 text-amber-500 shrink-0" />
                       <span>
                         Testing? Use code{" "}
                         <button

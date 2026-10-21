@@ -10,7 +10,7 @@ import {
   DollarSign,
   Shield,
   Users,
-  Sparkles,
+  Bot,
   MessageCircle,
   HelpCircle,
   ArrowRight,
@@ -165,7 +165,7 @@ const CATEGORIES = [
               ["No Commitments", "No fixed working hours or long-term lock-in periods."],
             ].map(([title, desc]) => (
               <li key={title} className="flex gap-2">
-                <span className="text-zinc-900 mt-0.5 shrink-0">✦</span>
+                <span className="text-zinc-400 mt-0.5 shrink-0">•</span>
                 <span><strong className="text-zinc-950">{title}:</strong> <span className="text-zinc-600">{desc}</span></span>
               </li>
             ))}
@@ -176,7 +176,7 @@ const CATEGORIES = [
   },
   {
     id: "platform",
-    icon: Sparkles,
+    icon: Bot,
     label: "Platform & Ruth AI",
     color: "#EC4899",
     bg: "rgba(236,72,153,0.12)",
@@ -391,7 +391,7 @@ export default function HelpPage() {
                 href="/?auth=signin"
                 className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-6 py-2.5 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 transition-colors"
               >
-                <Sparkles className="h-4 w-4 text-purple-600" />
+                <Bot className="h-4 w-4 text-purple-600" />
                 Ask Ruth AI
               </Link>
               <button

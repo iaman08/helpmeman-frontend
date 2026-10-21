@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Check, DollarSign, Sparkles, AlertCircle } from "lucide-react";
+import { X, Check, DollarSign, AlertCircle } from "lucide-react";
 import api from "@/lib/api";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import type { Mentor } from "@/lib/types";

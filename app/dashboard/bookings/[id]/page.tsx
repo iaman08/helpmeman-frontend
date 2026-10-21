@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   ArrowLeft,
@@ -11,6 +11,11 @@ import {
   Star,
   ExternalLink,
   FileDown,
+  CalendarPlus,
+  Copy,
+  Check,
+  X,
+  Volume2,
 } from "lucide-react";
 import api from "@/lib/api";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -20,9 +25,8 @@ import { AxiosError } from "axios";
 import { formatCurrency } from "@/lib/currency-context";
 import { CountdownTimer, isJoinable } from "@/components/CountdownTimer";
 import { useState as useLiveState, useEffect as useLiveEffect } from "react";
-import { PreSessionIntakeModal } from "@/components/PreSessionIntakeModal";
-import { PreSessionBriefCard } from "@/components/PreSessionBriefCard";
-import { Sparkles, Edit3 } from "lucide-react";
+import { getGoogleCalendarUrl, isValidMeetLink } from "@/lib/calendar-utils";
+import { playSuccessSound } from "@/lib/soundService";
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-IN", {
@@ -55,9 +59,18 @@ export default function BookingDetailPage() {
   const [rescheduleOpen, setRescheduleOpen] = useState(false);
   const [newDate, setNewDate] = useState("");
   const [rescheduling, setRescheduling] = useState(false);
-  const [intakeModalOpen, setIntakeModalOpen] = useState(false);
+  const searchParams = useSearchParams();
+  const [showSuccessCard, setShowSuccessCard] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   // Live join-ability state (re-evaluated every 30s)
   const [joinable, setJoinable] = useLiveState(false);
+
+  useEffect(() => {
+    if (searchParams?.get("justBooked") === "true") {
+      setShowSuccessCard(true);
+      playSuccessSound(0.35, id);
+    }
+  }, [searchParams, id]);
 
   useEffect(() => {
     api
@@ -194,6 +207,144 @@ export default function BookingDetailPage() {
         All bookings
       </Link>
 
+      {/* ─── Premium Executive Booking Confirmed Card ─── */}
+      {showSuccessCard && booking && booking.status === "CONFIRMED" && (
+        <div className="relative rounded-3xl border border-emerald-500/25 bg-gradient-to-b from-emerald-500/[0.08] via-[var(--fg)]/[0.02] to-transparent p-6 sm:p-8 backdrop-blur-xl shadow-2xl shadow-emerald-500/5 overflow-hidden">
+          {/* Top ambient hairline accent */}
+          <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
+
+          {/* Top Row: Status badge (clickable to replay chime) & Dismiss button */}
+          <div className="flex items-center justify-between gap-4 mb-4">
+            <button
+              type="button"
+              onClick={() => playSuccessSound(0.35)}
+              className="inline-flex items-center gap-2 rounded-full px-3 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer group"
+              title="Click to replay confirmation sound"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
+              Booking Confirmed
+              <Volume2 className="h-3 w-3 opacity-60 group-hover:opacity-100 transition-opacity ml-0.5" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowSuccessCard(false)}
+              className="text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--fg)]/10 p-1.5 rounded-full transition-colors cursor-pointer"
+              title="Dismiss announcement"
+              aria-label="Dismiss banner"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Headline & Description */}
+          <div className="max-w-2xl mb-6">
+            <h2 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight" style={{ color: "var(--fg)" }}>
+              You&apos;re confirmed with {(booking as unknown as { mentor?: { displayName?: string } }).mentor?.displayName ?? "your mentor"}.
+            </h2>
+            <p className="text-xs sm:text-sm text-[var(--muted)] mt-1.5 leading-relaxed">
+              We&apos;ve reserved your session and dispatched calendar invitations to <span className="font-semibold text-[var(--fg)]">{booking.user?.email || "your registered email"}</span>.
+            </p>
+          </div>
+
+          {/* Metric Badges */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+            <div className="rounded-2xl border border-[var(--hairline)] bg-[var(--fg)]/[0.03] p-4 flex flex-col gap-1">
+              <div className="flex items-center gap-1.5 text-xs text-[var(--muted)] font-medium">
+                <Calendar className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                <span>Scheduled Date</span>
+              </div>
+              <span className="text-sm font-bold truncate" style={{ color: "var(--fg)" }}>
+                {formatDate(booking.scheduledAt)}
+              </span>
+            </div>
+
+            <div className="rounded-2xl border border-[var(--hairline)] bg-[var(--fg)]/[0.03] p-4 flex flex-col gap-1">
+              <div className="flex items-center gap-1.5 text-xs text-[var(--muted)] font-medium">
+                <Clock className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                <span>Time & Duration</span>
+              </div>
+              <span className="text-sm font-bold truncate" style={{ color: "var(--fg)" }}>
+                {formatTime(booking.scheduledAt)} · {booking.durationMinutes} min
+              </span>
+            </div>
+
+            <div className="rounded-2xl border border-[var(--hairline)] bg-[var(--fg)]/[0.03] p-4 flex flex-col gap-1">
+              <div className="flex items-center gap-1.5 text-xs text-[var(--muted)] font-medium">
+                <Video className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                <span>Meeting Space</span>
+              </div>
+              <span className={`text-sm font-bold truncate ${isValidMeetLink(booking.meetLink) ? "text-emerald-600 dark:text-emerald-400" : "text-amber-500"}`}>
+                {isValidMeetLink(booking.meetLink) ? "Google Meet Active" : "Host Link Preparing"}
+              </span>
+            </div>
+          </div>
+
+          {/* Action Shortcuts */}
+          <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-[var(--hairline)]">
+            <a
+              href={getGoogleCalendarUrl({
+                title: `1:1 Mentorship Session with ${(booking as unknown as { mentor?: { displayName?: string } }).mentor?.displayName ?? "Mentor"}`,
+                description: `Mentorship session via HelpMeMan.\nGoogle Meet: ${isValidMeetLink(booking.meetLink) ? booking.meetLink! : "Link will be shared before session"}\nDuration: ${booking.durationMinutes} mins`,
+                location: isValidMeetLink(booking.meetLink) ? booking.meetLink! : "",
+                startDate: booking.scheduledAt,
+                durationMinutes: booking.durationMinutes,
+              })}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--fg)] text-[var(--bg)] px-5 py-2.5 text-xs sm:text-sm font-semibold hover:opacity-90 transition-opacity shadow-sm cursor-pointer"
+            >
+              <CalendarPlus className="h-4 w-4" />
+              <span>Add to Google Calendar</span>
+            </a>
+
+            {isValidMeetLink(booking.meetLink) ? (
+              <>
+                <a
+                  href={booking.meetLink!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-4 py-2.5 text-xs sm:text-sm font-semibold hover:bg-emerald-500/20 transition-colors cursor-pointer"
+                >
+                  <Video className="h-4 w-4" />
+                  <span>Join / Test Meet</span>
+                  <ExternalLink className="h-3 w-3 opacity-70" />
+                </a>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(booking.meetLink!);
+                    setCopiedLink(true);
+                    setTimeout(() => setCopiedLink(false), 2000);
+                  }}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-[var(--hairline)] bg-[var(--fg)]/[0.04] hover:bg-[var(--fg)]/[0.08] px-3.5 py-2.5 text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  {copiedLink ? (
+                    <>
+                      <Check className="h-3.5 w-3.5 text-emerald-500" />
+                      <span className="text-emerald-500">Link Copied</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3.5 w-3.5 text-[var(--muted)]" />
+                      <span>Copy Link</span>
+                    </>
+                  )}
+                </button>
+              </>
+            ) : (
+              <span className="text-xs text-[var(--muted)] flex items-center gap-1.5 px-3 py-2">
+                <span>Google Meet link will be provided by mentor before call</span>
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="font-display text-3xl font-bold" style={{ color: "var(--fg)" }}>Session Details</h1>
         <div className="flex items-center gap-3">
@@ -244,69 +395,113 @@ export default function BookingDetailPage() {
           </div>
 
           {booking.status === "CONFIRMED" && (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
               <CountdownTimer
                 scheduledAt={booking.scheduledAt}
                 durationMinutes={booking.durationMinutes}
               />
-              <a
-                href={booking.meetLink || "https://meet.google.com/qhs-wase-kny?pli=1"}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Join Google Meet"
-                className="flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg cursor-pointer"
-                title="Join Google Meet Session"
-              >
-                <Video className="h-4 w-4" />
-                Join Google Meet
-                <ExternalLink className="h-3.5 w-3.5 opacity-80" />
-              </a>
-            </div>
-          )}
-
-          {/* ─── Pre-Session Prerequisites & AI Briefing ─── */}
-          {booking.status === "CONFIRMED" && (
-            <div className="flex flex-col gap-3 pt-2">
-              {(booking.aiBriefSummary || booking.intakeAnswers) ? (
-                <div className="space-y-3">
-                  <PreSessionBriefCard
-                    aiBriefSummary={booking.aiBriefSummary}
-                    intakeAnswers={booking.intakeAnswers}
-                    menteeName={booking.user?.name || "Mentee"}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setIntakeModalOpen(true)}
-                    className="text-xs text-amber-400 hover:underline font-semibold flex items-center gap-1.5 cursor-pointer ml-1"
+              {isValidMeetLink(booking.meetLink) ? (
+                <div className="flex flex-col gap-2">
+                  <a
+                    href={booking.meetLink!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Join Google Meet"
+                    className={`flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-semibold transition-all shadow-md cursor-pointer ${
+                      joinable
+                        ? "bg-emerald-600 hover:bg-emerald-700 text-white animate-pulse-subtle"
+                        : "bg-emerald-600/90 hover:bg-emerald-600 text-white"
+                    }`}
+                    title="Open Google Meet Session"
                   >
-                    <Edit3 size={13} />
-                    <span>Edit Session Prerequisites</span>
-                  </button>
+                    <Video className="h-4 w-4" />
+                    <span>{joinable ? "Join Google Meet (Live Now)" : "Join / Test Google Meet"}</span>
+                    <ExternalLink className="h-3.5 w-3.5 opacity-80" />
+                  </a>
+
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={getGoogleCalendarUrl({
+                        title: `1:1 Mentorship Session with ${(booking as unknown as { mentor?: { displayName?: string } }).mentor?.displayName ?? "Mentor"}`,
+                        description: `Mentorship session on HelpMeMan.\nGoogle Meet: ${booking.meetLink!}\nDuration: ${booking.durationMinutes} mins`,
+                        location: booking.meetLink!,
+                        startDate: booking.scheduledAt,
+                        durationMinutes: booking.durationMinutes,
+                      })}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-2 rounded-xl py-2.5 px-3 text-xs font-semibold border border-[var(--hairline)] bg-[var(--fg)]/[0.04] hover:bg-[var(--fg)]/[0.08] transition-colors"
+                      title="Add to Google Calendar"
+                    >
+                      <CalendarPlus className="h-4 w-4 text-blue-500" />
+                      <span>Add to Google Calendar</span>
+                    </a>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (booking.meetLink) {
+                          navigator.clipboard.writeText(booking.meetLink);
+                          setCopiedLink(true);
+                          setTimeout(() => setCopiedLink(false), 2000);
+                        }
+                      }}
+                      className="flex items-center justify-center gap-1.5 rounded-xl py-2.5 px-3 text-xs font-semibold border border-[var(--hairline)] bg-[var(--fg)]/[0.04] hover:bg-[var(--fg)]/[0.08] transition-colors cursor-pointer"
+                      title="Copy Google Meet Link"
+                    >
+                      {copiedLink ? (
+                        <>
+                          <Check className="h-4 w-4 text-emerald-500" />
+                          <span className="text-emerald-500">Copied</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-4 w-4 text-[var(--muted)]" />
+                          <span>Copy Link</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               ) : (
-                <button
-                  type="button"
-                  onClick={() => setIntakeModalOpen(true)}
-                  className="w-full py-3.5 px-4 bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-500/20 border border-amber-500/40 hover:border-amber-400 text-amber-300 font-bold text-xs rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer group"
-                >
-                  <Sparkles size={16} className="text-amber-400 group-hover:rotate-12 transition-transform" />
-                  <span>⚡ Add Pre-Session Prerequisites (1-Min AI Form)</span>
-                </button>
+                <div className="flex flex-col gap-3">
+                  <div className="rounded-xl p-4 flex flex-col gap-2 border border-amber-500/25 bg-amber-500/[0.04]">
+                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-semibold text-xs uppercase tracking-wider">
+                      <Video className="h-4 w-4" />
+                      <span>Meeting Link Being Prepared</span>
+                    </div>
+                    <p className="text-xs text-[var(--muted)] leading-relaxed">
+                      Your session will be hosted on Google Meet by {(booking as unknown as { mentor?: { displayName?: string } }).mentor?.displayName ?? "your mentor"}. The meeting room link will appear here before your session starts.
+                    </p>
+                    <div className="flex items-center gap-2 pt-1">
+                      <Link
+                        href={`/dashboard/chat?mentorId=${booking.mentorId}`}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-[var(--hairline)] bg-[var(--fg)]/[0.04] hover:bg-[var(--fg)]/[0.08] px-3.5 py-2 text-xs font-semibold transition-colors"
+                      >
+                        <span>Message Mentor</span>
+                      </Link>
+                    </div>
+                  </div>
+
+                  <a
+                    href={getGoogleCalendarUrl({
+                      title: `1:1 Mentorship Session with ${(booking as unknown as { mentor?: { displayName?: string } }).mentor?.displayName ?? "Mentor"}`,
+                      description: `Mentorship session on HelpMeMan.\nDuration: ${booking.durationMinutes} mins`,
+                      startDate: booking.scheduledAt,
+                      durationMinutes: booking.durationMinutes,
+                    })}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 text-xs font-semibold border border-[var(--hairline)] bg-[var(--fg)]/[0.04] hover:bg-[var(--fg)]/[0.08] transition-colors"
+                  >
+                    <CalendarPlus className="h-4 w-4 text-blue-500" />
+                    <span>Add to Google Calendar</span>
+                  </a>
+                </div>
               )}
             </div>
           )}
         </div>
-
-        {/* Modal */}
-        <PreSessionIntakeModal
-          isOpen={intakeModalOpen}
-          onClose={() => setIntakeModalOpen(false)}
-          bookingId={booking.id}
-          mentorName={booking.mentor?.displayName || "Mentor"}
-          onSuccess={(summary) => {
-            setBooking((prev) => prev && { ...prev, aiBriefSummary: summary });
-          }}
-        />
 
         {/* ─── Payment Info ─── */}
         <div className="rounded-2xl p-6 flex flex-col gap-5" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
