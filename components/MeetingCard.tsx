@@ -138,7 +138,7 @@ export function MeetingCard({ booking, viewAs, onCancel, onReschedule, onRateSes
       {booking.status === "CONFIRMED" && isValidMeetLink(booking.meetLink) && (
         <div className="flex flex-col sm:flex-row items-stretch gap-2">
           <a
-            href={booking.meetLink}
+            href={booking.meetLink!}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Join Google Meet session"
@@ -158,7 +158,7 @@ export function MeetingCard({ booking, viewAs, onCancel, onReschedule, onRateSes
             href={getGoogleCalendarUrl({
               title: `1:1 Mentorship Session with ${otherPersonName}`,
               description: `Mentorship session via HelpMeMan.\nGoogle Meet: ${booking.meetLink}\nSession Duration: ${booking.durationMinutes} mins`,
-              location: booking.meetLink,
+              location: booking.meetLink!,
               startDate: booking.scheduledAt,
               durationMinutes: booking.durationMinutes,
             })}
