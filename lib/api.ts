@@ -230,4 +230,21 @@ api.interceptors.response.use(
   },
 );
 
+export async function provisionMeeting(bookingId: string) {
+  const { data } = await api.post(`/meetings/provision/${bookingId}`);
+  return data;
+}
+
+export async function getMeetingServiceStatus() {
+  const { data } = await api.get("/meetings/status");
+  return data;
+}
+
+export async function getMeetingAuthUrl(returnPath?: string) {
+  const { data } = await api.get("/meetings/auth-url", {
+    params: { returnPath },
+  });
+  return data;
+}
+
 export default api;

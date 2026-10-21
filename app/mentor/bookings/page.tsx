@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CalendarCheck, Video, CalendarPlus, Copy, Check, ExternalLink, Link2, AlertCircle, ShieldCheck, Edit3 } from "lucide-react";
-import api from "@/lib/api";
+import { CalendarCheck, Video, CalendarPlus, Copy, Check, ExternalLink, Link2, AlertCircle, ShieldCheck, Edit3, Sparkles } from "lucide-react";
+import api, { provisionMeeting } from "@/lib/api";
 import { StatusBadge } from "@/components/StatusBadge";
 import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/Skeleton";
@@ -68,6 +68,25 @@ export default function MentorBookingsPage() {
       if (err instanceof AxiosError) alert(err.response?.data?.error ?? "Failed");
     } finally {
       setSaving(false);
+    }
+  }
+
+  const [provisioningId, setProvisioningId] = useState<string | null>(null);
+
+  async function handleAutoProvision(bookingId: string) {
+    setProvisioningId(bookingId);
+    try {
+      const res = await provisionMeeting(bookingId);
+      if (res?.meetUrl) {
+        setBookings((prev) =>
+          prev.map((item) => (item.id === bookingId ? { ...item, meetLink: res.meetUrl } : item))
+        );
+        toast("Google Meet link successfully generated!", "success");
+      }
+    } catch (err: any) {
+      toast(err.response?.data?.details || err.message || "Failed to generate meet link", "error");
+    } finally {
+      setProvisioningId(null);
     }
   }
 
@@ -303,17 +322,30 @@ export default function MentorBookingsPage() {
                         <ExternalLink className="h-3 w-3 opacity-70" />
                       </a>
                     ) : (
-                      <a
-                        href="https://meet.google.com/new"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="rounded-xl px-4 py-2 text-xs font-semibold cursor-pointer shadow transition-opacity hover:opacity-90 flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
-                        title="Start a fresh Google Meet call where you are the host"
-                      >
-                        <Video className="h-3.5 w-3.5" />
-                        <span>Start Meet as Host (meet.new)</span>
-                        <ExternalLink className="h-3 w-3 opacity-70" />
-                      </a>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <button
+                          type="button"
+                          onClick={() => handleAutoProvision(b.id)}
+                          disabled={provisioningId === b.id}
+                          className="rounded-xl px-3.5 py-2 text-xs font-semibold cursor-pointer shadow transition-all bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 disabled:opacity-50"
+                          title="Generate a Google Meet link automatically via centralized platform"
+                        >
+                          <Sparkles className="h-3.5 w-3.5" />
+                          <span>{provisioningId === b.id ? "Generating…" : "Auto-Generate Meet Link"}</span>
+                        </button>
+
+                        <a
+                          href="https://meet.google.com/new"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-xl px-3.5 py-2 text-xs font-semibold cursor-pointer border border-[var(--hairline)] hover:bg-[var(--fg)]/[0.04] transition-colors flex items-center gap-1.5"
+                          title="Start a fresh Google Meet call where you are the host"
+                        >
+                          <Video className="h-3.5 w-3.5" />
+                          <span>meet.new</span>
+                          <ExternalLink className="h-3 w-3 opacity-70" />
+                        </a>
+                      </div>
                     )}
 
                     <a

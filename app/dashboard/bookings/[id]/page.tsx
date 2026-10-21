@@ -16,8 +16,9 @@ import {
   Check,
   X,
   Volume2,
+  Sparkles,
 } from "lucide-react";
-import api from "@/lib/api";
+import api, { provisionMeeting } from "@/lib/api";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Skeleton } from "@/components/Skeleton";
 import type { Booking } from "@/lib/types";
@@ -64,6 +65,26 @@ export default function BookingDetailPage() {
   const [copiedLink, setCopiedLink] = useState(false);
   // Live join-ability state (re-evaluated every 30s)
   const [joinable, setJoinable] = useLiveState(false);
+  const [provisioningMeet, setProvisioningMeet] = useState(false);
+
+  const handleProvisionMeet = async () => {
+    if (!booking) return;
+    setProvisioningMeet(true);
+    try {
+      const res = await provisionMeeting(booking.id);
+      if (res?.meetUrl) {
+        setBooking((prev: any) => ({
+          ...prev,
+          meetLink: res.meetUrl,
+          googleEventId: res.meeting?.googleEventId || prev?.googleEventId,
+        }));
+      }
+    } catch (err: any) {
+      alert("Could not auto-provision Google Meet link: " + (err.response?.data?.details || err.message));
+    } finally {
+      setProvisioningMeet(false);
+    }
+  };
 
   useEffect(() => {
     if (searchParams?.get("justBooked") === "true") {
@@ -337,9 +358,21 @@ export default function BookingDetailPage() {
                 </button>
               </>
             ) : (
-              <span className="text-xs text-[var(--muted)] flex items-center gap-1.5 px-3 py-2">
-                <span>Google Meet link will be provided by mentor before call</span>
-              </span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={handleProvisionMeet}
+                  disabled={provisioningMeet}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-3.5 py-2 text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
+                  title="Generate Google Meet link automatically via centralized platform"
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                  <span>{provisioningMeet ? "Generating Meet Link…" : "Generate Google Meet Link"}</span>
+                </button>
+                <span className="text-xs text-[var(--muted)]">
+                  (Or mentor will provide link before session)
+                </span>
+              </div>
             )}
           </div>
         </div>
@@ -473,7 +506,17 @@ export default function BookingDetailPage() {
                     <p className="text-xs text-[var(--muted)] leading-relaxed">
                       Your session will be hosted on Google Meet by {(booking as unknown as { mentor?: { displayName?: string } }).mentor?.displayName ?? "your mentor"}. The meeting room link will appear here before your session starts.
                     </p>
-                    <div className="flex items-center gap-2 pt-1">
+                    <div className="flex items-center gap-2 pt-1 flex-wrap">
+                      <button
+                        type="button"
+                        onClick={handleProvisionMeet}
+                        disabled={provisioningMeet}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-3.5 py-2 text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
+                        title="Auto-provision a Google Meet link via centralized platform"
+                      >
+                        <Sparkles className="h-3.5 w-3.5" />
+                        <span>{provisioningMeet ? "Generating Meet Link…" : "Generate Meet Link"}</span>
+                      </button>
                       <Link
                         href={`/dashboard/chat?mentorId=${booking.mentorId}`}
                         className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-[var(--hairline)] bg-[var(--fg)]/[0.04] hover:bg-[var(--fg)]/[0.08] px-3.5 py-2 text-xs font-semibold transition-colors"
