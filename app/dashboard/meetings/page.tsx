@@ -11,7 +11,7 @@ import Link from "next/link";
 import { mutate } from "swr";
 import { useAuth } from "@/lib/auth-context";
 import type { Booking } from "@/lib/types";
-import { getGoogleCalendarUrl } from "@/lib/calendar-utils";
+import { getGoogleCalendarUrl, isValidMeetLink } from "@/lib/calendar-utils";
 
 const TABS = [
   { value: "upcoming", label: "Upcoming" },
@@ -112,9 +112,9 @@ export default function MeetingsPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {nextSession.meetLink && (
+            {isValidMeetLink(nextSession.meetLink) && (
               <a
-                href={nextSession.meetLink}
+                href={nextSession.meetLink!}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 text-xs sm:text-sm font-semibold transition-colors shrink-0 shadow cursor-pointer"
@@ -126,8 +126,8 @@ export default function MeetingsPage() {
             <a
               href={getGoogleCalendarUrl({
                 title: `1:1 Mentorship Session with ${(nextSession as unknown as { mentor?: { displayName?: string } }).mentor?.displayName ?? "Mentor"}`,
-                description: `Mentorship session via HelpMeMan.\nGoogle Meet: ${nextSession.meetLink ?? ""}\nDuration: ${nextSession.durationMinutes} mins`,
-                location: nextSession.meetLink ?? "",
+                description: `Mentorship session via HelpMeMan.\nGoogle Meet: ${isValidMeetLink(nextSession.meetLink) ? nextSession.meetLink! : "Link will be shared before session"}\nDuration: ${nextSession.durationMinutes} mins`,
+                location: isValidMeetLink(nextSession.meetLink) ? nextSession.meetLink! : "",
                 startDate: nextSession.scheduledAt,
                 durationMinutes: nextSession.durationMinutes,
               })}

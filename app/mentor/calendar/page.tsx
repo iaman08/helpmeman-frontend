@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Calendar, Clock, Globe } from "lucide-react";
+import { Calendar, Clock, Globe, Video, ExternalLink, ShieldCheck } from "lucide-react";
 import { useGoogleCalendarStatus, useMentorBlockedDates } from "@/lib/hooks";
 import { MeetingCard } from "@/components/MeetingCard";
 import { Skeleton } from "@/components/Skeleton";
@@ -26,15 +26,18 @@ export default function MentorCalendarPage() {
   const [newBlockDate, setNewBlockDate] = useState("");
   const [newBlockReason, setNewBlockReason] = useState("");
   const [timezone, setTimezone] = useState("");
+  const [customMeetLink, setCustomMeetLink] = useState("");
+  const [savingMeetLink, setSavingMeetLink] = useState(false);
 
   // Upcoming confirmed sessions for the mentor
   const [sessions, setSessions] = useState<Booking[]>([]);
   const [sessionsLoading, setSessionsLoading] = useState(true);
 
-  // Load timezone when connection status resolves
+  // Load timezone and custom meet link when status resolves
   useEffect(() => {
     if (calStatus?.timezone) setTimezone(calStatus.timezone);
-  }, [calStatus?.timezone]);
+    if (calStatus?.customMeetLink) setCustomMeetLink(calStatus.customMeetLink);
+  }, [calStatus?.timezone, calStatus?.customMeetLink]);
 
   // Load upcoming sessions
   useEffect(() => {
@@ -135,6 +138,20 @@ export default function MentorCalendarPage() {
     }
   }
 
+  async function handleSaveMeetLink() {
+    setSavingMeetLink(true);
+    try {
+      await api.put("/google/calendar/meet-link", { meetLink: customMeetLink || null });
+      toast("Default Google Meet link saved! Future bookings will use this room.", "success");
+      mutateStatus();
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { error?: string } } })?.response?.data?.error || "Failed to save Google Meet link.";
+      toast(msg, "error");
+    } finally {
+      setSavingMeetLink(false);
+    }
+  }
+
   const connected = calStatus?.connected ?? false;
 
   return (
@@ -190,6 +207,73 @@ export default function MentorCalendarPage() {
                 {connecting ? "Connecting…" : "Connect Google Calendar"}
               </button>
             )}
+          </div>
+
+          {/* ─── Google Meet Host & Meeting Link Card ─── */}
+          <div className="rounded-2xl p-6 flex flex-col gap-5" style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 2%, transparent)" }}>
+            <div className="flex items-start justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-2xl bg-emerald-500/10 text-emerald-500">
+                  <Video size={24} />
+                </div>
+                <div>
+                  <h2 className="font-bold text-lg" style={{ color: "var(--fg)" }}>Meeting Host & Google Meet Control</h2>
+                  <p className="text-xs text-[var(--muted)]">Ensure you are the meeting host with full moderation controls</p>
+                </div>
+              </div>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                Mentor Host Priority
+              </span>
+            </div>
+
+            <div className="text-xs leading-relaxed text-[var(--muted)] rounded-xl p-4 border border-[var(--hairline)] bg-[var(--fg)]/[0.02]">
+              <p className="font-semibold text-[var(--fg)] mb-1.5">How Google Meet hosting works:</p>
+              <ul className="list-disc list-inside space-y-1">
+                <li><strong>Connected Google Calendar:</strong> Sessions are scheduled directly on your primary calendar, granting you native host controls (admitting students, screen sharing, muting).</li>
+                <li><strong>Personal Meeting Link:</strong> You can also set a recurring Google Meet link below (e.g. from <a href="https://meet.google.com" target="_blank" rel="noopener noreferrer" className="underline font-semibold text-emerald-500">meet.google.com</a>). Since it is created by you, you will always enter as host.</li>
+              </ul>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-semibold uppercase tracking-[0.15em] text-[var(--muted)]">
+                Default Google Meet Link (Mentor is Host)
+              </label>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="url"
+                  value={customMeetLink}
+                  onChange={(e) => setCustomMeetLink(e.target.value)}
+                  placeholder="https://meet.google.com/abc-defg-hij"
+                  className="flex-1 rounded-xl px-4 py-2.5 text-sm outline-none font-medium"
+                  style={{ border: "1px solid var(--hairline)", background: "color-mix(in srgb, var(--fg) 4%, transparent)", color: "var(--fg)" }}
+                />
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleSaveMeetLink}
+                    disabled={savingMeetLink}
+                    className="px-5 py-2.5 rounded-xl text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer whitespace-nowrap shadow flex items-center justify-center gap-1.5"
+                    style={{ background: "var(--fg)", color: "var(--bg)" }}
+                  >
+                    {savingMeetLink ? "Saving…" : "Save Meet Link"}
+                  </button>
+                  <a
+                    href={customMeetLink && customMeetLink.includes("meet.google.com") ? customMeetLink : "https://meet.google.com/new"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2.5 rounded-xl text-xs font-semibold border border-[var(--hairline)] bg-[var(--fg)]/[0.04] hover:bg-[var(--fg)]/[0.08] transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                    title="Opens Google Meet in a new tab where you are the host"
+                  >
+                    <span>{customMeetLink ? "Test Room" : "Create at Google Meet"}</span>
+                    <ExternalLink className="h-3.5 w-3.5 opacity-70" />
+                  </a>
+                </div>
+              </div>
+              <span className="text-[11px] text-[var(--muted)]">
+                Tip: Go to <a href="https://meet.google.com" target="_blank" rel="noopener noreferrer" className="underline font-semibold">meet.google.com</a> &rarr; <strong>New meeting</strong> &rarr; <strong>Create a meeting for later</strong>, then paste the link here.
+              </span>
+            </div>
           </div>
 
           {/* Timezone Settings (When connected) */}

@@ -25,7 +25,7 @@ import { AxiosError } from "axios";
 import { formatCurrency } from "@/lib/currency-context";
 import { CountdownTimer, isJoinable } from "@/components/CountdownTimer";
 import { useState as useLiveState, useEffect as useLiveEffect } from "react";
-import { getGoogleCalendarUrl } from "@/lib/calendar-utils";
+import { getGoogleCalendarUrl, isValidMeetLink } from "@/lib/calendar-utils";
 import { playSuccessSound } from "@/lib/soundService";
 
 function formatDate(d: string) {
@@ -277,8 +277,8 @@ export default function BookingDetailPage() {
                 <Video className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
                 <span>Meeting Space</span>
               </div>
-              <span className="text-sm font-bold truncate text-emerald-600 dark:text-emerald-400">
-                Google Meet Active
+              <span className={`text-sm font-bold truncate ${isValidMeetLink(booking.meetLink) ? "text-emerald-600 dark:text-emerald-400" : "text-amber-500"}`}>
+                {isValidMeetLink(booking.meetLink) ? "Google Meet Active" : "Host Link Preparing"}
               </span>
             </div>
           </div>
@@ -288,8 +288,8 @@ export default function BookingDetailPage() {
             <a
               href={getGoogleCalendarUrl({
                 title: `1:1 Mentorship Session with ${(booking as unknown as { mentor?: { displayName?: string } }).mentor?.displayName ?? "Mentor"}`,
-                description: `Mentorship session via HelpMeMan.\nGoogle Meet: ${booking.meetLink ?? ""}\nDuration: ${booking.durationMinutes} mins`,
-                location: booking.meetLink ?? "",
+                description: `Mentorship session via HelpMeMan.\nGoogle Meet: ${isValidMeetLink(booking.meetLink) ? booking.meetLink! : "Link will be shared before session"}\nDuration: ${booking.durationMinutes} mins`,
+                location: isValidMeetLink(booking.meetLink) ? booking.meetLink! : "",
                 startDate: booking.scheduledAt,
                 durationMinutes: booking.durationMinutes,
               })}
@@ -301,41 +301,45 @@ export default function BookingDetailPage() {
               <span>Add to Google Calendar</span>
             </a>
 
-            {booking.meetLink && (
-              <a
-                href={booking.meetLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-4 py-2.5 text-xs sm:text-sm font-semibold hover:bg-emerald-500/20 transition-colors cursor-pointer"
-              >
-                <Video className="h-4 w-4" />
-                <span>Join / Test Meet</span>
-                <ExternalLink className="h-3 w-3 opacity-70" />
-              </a>
-            )}
+            {isValidMeetLink(booking.meetLink) ? (
+              <>
+                <a
+                  href={booking.meetLink!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-4 py-2.5 text-xs sm:text-sm font-semibold hover:bg-emerald-500/20 transition-colors cursor-pointer"
+                >
+                  <Video className="h-4 w-4" />
+                  <span>Join / Test Meet</span>
+                  <ExternalLink className="h-3 w-3 opacity-70" />
+                </a>
 
-            {booking.meetLink && (
-              <button
-                type="button"
-                onClick={() => {
-                  navigator.clipboard.writeText(booking.meetLink!);
-                  setCopiedLink(true);
-                  setTimeout(() => setCopiedLink(false), 2000);
-                }}
-                className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-[var(--hairline)] bg-[var(--fg)]/[0.04] hover:bg-[var(--fg)]/[0.08] px-3.5 py-2.5 text-xs font-semibold transition-colors cursor-pointer"
-              >
-                {copiedLink ? (
-                  <>
-                    <Check className="h-3.5 w-3.5 text-emerald-500" />
-                    <span className="text-emerald-500">Link Copied</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-3.5 w-3.5 text-[var(--muted)]" />
-                    <span>Copy Link</span>
-                  </>
-                )}
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(booking.meetLink!);
+                    setCopiedLink(true);
+                    setTimeout(() => setCopiedLink(false), 2000);
+                  }}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-[var(--hairline)] bg-[var(--fg)]/[0.04] hover:bg-[var(--fg)]/[0.08] px-3.5 py-2.5 text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  {copiedLink ? (
+                    <>
+                      <Check className="h-3.5 w-3.5 text-emerald-500" />
+                      <span className="text-emerald-500">Link Copied</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3.5 w-3.5 text-[var(--muted)]" />
+                      <span>Copy Link</span>
+                    </>
+                  )}
+                </button>
+              </>
+            ) : (
+              <span className="text-xs text-[var(--muted)] flex items-center gap-1.5 px-3 py-2">
+                <span>Google Meet link will be provided by mentor before call</span>
+              </span>
             )}
           </div>
         </div>
@@ -396,10 +400,10 @@ export default function BookingDetailPage() {
                 scheduledAt={booking.scheduledAt}
                 durationMinutes={booking.durationMinutes}
               />
-              {booking.meetLink ? (
+              {isValidMeetLink(booking.meetLink) ? (
                 <div className="flex flex-col gap-2">
                   <a
-                    href={booking.meetLink}
+                    href={booking.meetLink!}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Join Google Meet"
@@ -419,8 +423,8 @@ export default function BookingDetailPage() {
                     <a
                       href={getGoogleCalendarUrl({
                         title: `1:1 Mentorship Session with ${(booking as unknown as { mentor?: { displayName?: string } }).mentor?.displayName ?? "Mentor"}`,
-                        description: `Mentorship session on HelpMeMan.\nGoogle Meet: ${booking.meetLink}\nDuration: ${booking.durationMinutes} mins`,
-                        location: booking.meetLink,
+                        description: `Mentorship session on HelpMeMan.\nGoogle Meet: ${booking.meetLink!}\nDuration: ${booking.durationMinutes} mins`,
+                        location: booking.meetLink!,
                         startDate: booking.scheduledAt,
                         durationMinutes: booking.durationMinutes,
                       })}
@@ -460,10 +464,25 @@ export default function BookingDetailPage() {
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-col gap-2">
-                  <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-3 text-xs text-amber-500">
-                    ⏳ Google Meet link is syncing with Google Calendar.
+                <div className="flex flex-col gap-3">
+                  <div className="rounded-xl p-4 flex flex-col gap-2 border border-amber-500/25 bg-amber-500/[0.04]">
+                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-semibold text-xs uppercase tracking-wider">
+                      <Video className="h-4 w-4" />
+                      <span>Meeting Link Being Prepared</span>
+                    </div>
+                    <p className="text-xs text-[var(--muted)] leading-relaxed">
+                      Your session will be hosted on Google Meet by {(booking as unknown as { mentor?: { displayName?: string } }).mentor?.displayName ?? "your mentor"}. The meeting room link will appear here before your session starts.
+                    </p>
+                    <div className="flex items-center gap-2 pt-1">
+                      <Link
+                        href={`/dashboard/chat?mentorId=${booking.mentorId}`}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-[var(--hairline)] bg-[var(--fg)]/[0.04] hover:bg-[var(--fg)]/[0.08] px-3.5 py-2 text-xs font-semibold transition-colors"
+                      >
+                        <span>Message Mentor</span>
+                      </Link>
+                    </div>
                   </div>
+
                   <a
                     href={getGoogleCalendarUrl({
                       title: `1:1 Mentorship Session with ${(booking as unknown as { mentor?: { displayName?: string } }).mentor?.displayName ?? "Mentor"}`,

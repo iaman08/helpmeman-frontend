@@ -7,7 +7,7 @@ import { CountdownTimer, isJoinable } from "./CountdownTimer";
 import { StatusBadge } from "./StatusBadge";
 import type { Booking } from "@/lib/types";
 import { formatCurrency } from "@/lib/currency-context";
-import { getGoogleCalendarUrl } from "@/lib/calendar-utils";
+import { getGoogleCalendarUrl, isValidMeetLink } from "@/lib/calendar-utils";
 
 interface MeetingCardProps {
   booking: Booking & {
@@ -135,7 +135,7 @@ export function MeetingCard({ booking, viewAs, onCancel, onReschedule, onRateSes
       )}
 
       {/* ─── Join Meeting & Google Calendar ─── */}
-      {booking.status === "CONFIRMED" && booking.meetLink && (
+      {booking.status === "CONFIRMED" && isValidMeetLink(booking.meetLink) && (
         <div className="flex flex-col sm:flex-row items-stretch gap-2">
           <a
             href={booking.meetLink}
@@ -175,9 +175,9 @@ export function MeetingCard({ booking, viewAs, onCancel, onReschedule, onRateSes
       )}
 
       {/* No meet link yet */}
-      {booking.status === "CONFIRMED" && !booking.meetLink && (
+      {booking.status === "CONFIRMED" && !isValidMeetLink(booking.meetLink) && (
         <div className="rounded-xl bg-amber-500/8 border border-amber-500/15 px-4 py-3 text-xs text-amber-600 flex items-center justify-between">
-          <span>⏳ Meet link will be generated shortly by Google Calendar</span>
+          <span>⏳ Google Meet link will be provided by mentor before call</span>
           <a
             href={getGoogleCalendarUrl({
               title: `1:1 Mentorship Session with ${otherPersonName}`,

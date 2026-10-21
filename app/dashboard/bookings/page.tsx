@@ -8,7 +8,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/Skeleton";
 import { formatCurrency } from "@/lib/currency-context";
-import { getGoogleCalendarUrl } from "@/lib/calendar-utils";
+import { getGoogleCalendarUrl, isValidMeetLink } from "@/lib/calendar-utils";
 
 const TABS = [
   { value: undefined, label: "All" },
@@ -122,22 +122,28 @@ export default function BookingsPage() {
                     <StatusBadge status={booking.status} />
                     {booking.status === "CONFIRMED" && (
                       <div className="flex items-center gap-1.5 ml-1">
-                        <a
-                          href={booking.meetLink || "https://meet.google.com/qhs-wase-kny?pli=1"}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="rounded-xl px-3 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer flex items-center gap-1 shadow-sm"
-                          title="Open Google Meet Session"
-                        >
-                          <Video className="h-3.5 w-3.5" />
-                          <span>Join Meet</span>
-                        </a>
+                        {isValidMeetLink(booking.meetLink) ? (
+                          <a
+                            href={booking.meetLink!}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="rounded-xl px-3 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer flex items-center gap-1 shadow-sm"
+                            title="Open Google Meet Session"
+                          >
+                            <Video className="h-3.5 w-3.5" />
+                            <span>Join Meet</span>
+                          </a>
+                        ) : (
+                          <span className="text-[11px] font-medium text-[var(--muted)] px-2.5 py-1 rounded-lg border border-[var(--hairline)] bg-[var(--fg)]/[0.02]">
+                            Link Pending
+                          </span>
+                        )}
                         <a
                           href={getGoogleCalendarUrl({
                             title: `1:1 Mentorship Session with ${booking.mentor?.displayName ?? "Mentor"}`,
-                            description: `Mentorship session via HelpMeMan.\nGoogle Meet: ${booking.meetLink ?? ""}\nDuration: ${booking.durationMinutes} mins`,
-                            location: booking.meetLink ?? "",
+                            description: `Mentorship session via HelpMeMan.\nGoogle Meet: ${isValidMeetLink(booking.meetLink) ? booking.meetLink! : "Link will be shared before session"}\nDuration: ${booking.durationMinutes} mins`,
+                            location: isValidMeetLink(booking.meetLink) ? booking.meetLink! : "",
                             startDate: booking.scheduledAt,
                             durationMinutes: booking.durationMinutes,
                           })}
