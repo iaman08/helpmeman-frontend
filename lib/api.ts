@@ -247,4 +247,50 @@ export async function getMeetingAuthUrl(returnPath?: string) {
   return data;
 }
 
+/**
+ * Safely extracts a user-facing error message from any backend API response or error object.
+ * Guarantees a string is returned, preventing React error #31 (objects as React children).
+ */
+export function extractErrorMessage(err: unknown, fallback = "An unexpected error occurred. Please try again."): string {
+  if (!err) return fallback;
+  if (typeof err === "string") return err.trim() || fallback;
+
+  if (axios.isAxiosError(err)) {
+    const errorData = err.response?.data?.error;
+    const msg = err.response?.data?.message;
+
+    // 1. Structured operational error: { code, message, details?: [...] }
+    if (errorData && typeof errorData === "object") {
+      // First check for specific field validation message in details array
+      if (Array.isArray(errorData.details) && errorData.details.length > 0) {
+        const first = errorData.details[0];
+        if (first?.message && typeof first.message === "string") {
+          return first.message;
+        }
+      }
+      if (errorData.message && typeof errorData.message === "string") {
+        return errorData.message;
+      }
+    }
+
+    // 2. Plain string error property
+    if (typeof errorData === "string" && errorData.trim()) {
+      return errorData.trim();
+    }
+
+    // 3. Root message property
+    if (typeof msg === "string" && msg.trim()) {
+      return msg.trim();
+    }
+
+    if (err.message) return err.message;
+  }
+
+  if (err instanceof Error && err.message) {
+    return err.message;
+  }
+
+  return fallback;
+}
+
 export default api;

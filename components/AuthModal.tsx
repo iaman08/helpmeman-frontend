@@ -4,7 +4,7 @@ import { useState, useEffect, type FormEvent } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { AxiosError } from "axios";
 import OTPInput from "@/components/OTPInput";
-import api from "@/lib/api";
+import api, { extractErrorMessage } from "@/lib/api";
 import PasswordStrength from "@/components/PasswordStrength";
 import { X, Eye, EyeOff } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -134,10 +134,8 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
         setUnverifiedEmail(err.response.data.email || email);
         setStep("otp");
         setCooldown(60);
-      } else if (err instanceof AxiosError) {
-        setError(err.response?.data?.error ?? "Login failed. Please try again.");
       } else {
-        setError("Something went wrong. Please try again.");
+        setError(extractErrorMessage(err, "Login failed. Please check your credentials."));
       }
     } finally {
       setSubmitting(false);
@@ -156,8 +154,9 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
       setError("Please enter your email.");
       return;
     }
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setError("Password must be at least 8 characters and include at least one uppercase letter, one lowercase letter, and one number.");
       return;
     }
     if (!agreed) {
@@ -174,11 +173,7 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
         setCooldown(60);
       }
     } catch (err) {
-      if (err instanceof AxiosError) {
-        setError(err.response?.data?.error ?? "Registration failed. Please try again.");
-      } else {
-        setError("Something went wrong. Please try again.");
-      }
+      setError(extractErrorMessage(err, "Registration failed. Please try again."));
     } finally {
       setSubmitting(false);
     }
@@ -211,11 +206,7 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
         window.location.replace(dest);
       }
     } catch (err) {
-      if (err instanceof AxiosError) {
-        setError(err.response?.data?.error ?? "Verification failed. Please try again.");
-      } else {
-        setError("Something went wrong. Please try again.");
-      }
+      setError(extractErrorMessage(err, "Verification failed. Please try again."));
     } finally {
       setSubmitting(false);
     }
@@ -235,11 +226,7 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
       setResendSuccess(data.message || "OTP resent successfully.");
       setCooldown(data.cooldown || 60);
     } catch (err) {
-      if (err instanceof AxiosError) {
-        setError(err.response?.data?.error ?? "Failed to resend OTP.");
-      } else {
-        setError("Failed to resend OTP.");
-      }
+      setError(extractErrorMessage(err, "Failed to resend OTP."));
     } finally {
       setResending(false);
     }
