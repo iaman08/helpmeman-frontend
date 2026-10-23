@@ -28,7 +28,6 @@ import {
   Bell,
   User,
   CheckCircle2,
-  UserPlus,
 } from "lucide-react";
 import { FaLinkedin } from "react-icons/fa";
 import { useMentor, useMentorReviews, useUnreadChatCount } from "@/lib/hooks";
@@ -49,8 +48,6 @@ import { getComputedBanner } from "@/lib/banner-generator";
 import { OrganizationLogo } from "@/components/OrganizationLogo";
 import { BrandBanner } from "@/components/BrandBanner";
 import { GoldenVerifiedBadge } from "@/components/GoldenVerifiedBadge";
-import api from "@/lib/api";
-import { useToast } from "@/components/Toast";
 
 function formatDate(d: string): string {
   return new Date(d).toLocaleDateString("en-IN", {
@@ -106,54 +103,6 @@ export default function MentorProfilePage() {
   const [isShareOpen, setIsShareOpen] = useState(false);
 
   const mentor = data?.mentor;
-  const { toast } = useToast();
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [followersCount, setFollowersCount] = useState(0);
-  const [followLoading, setFollowLoading] = useState(false);
-
-  useEffect(() => {
-    if (mentor) {
-      setFollowersCount(mentor.followersCount || 0);
-    }
-  }, [mentor?.followersCount]);
-
-  useEffect(() => {
-    if (mentor?.userId && user && user.id !== mentor.userId) {
-      api.get(`/users/${mentor.userId}/follow-status`)
-        .then((res) => setIsFollowing(res.data?.isFollowing || false))
-        .catch(() => {});
-    }
-  }, [mentor?.userId, user]);
-
-  const handleFollowToggle = async () => {
-    if (!user) {
-      window.location.href = `/auth/login?redirect=/mentors/${id}`;
-      return;
-    }
-    const targetUserId = mentor?.userId;
-    if (!targetUserId || user.id === targetUserId) return;
-
-    const willFollow = !isFollowing;
-    setIsFollowing(willFollow);
-    setFollowersCount((prev) => (willFollow ? prev + 1 : Math.max(0, prev - 1)));
-    setFollowLoading(true);
-
-    try {
-      if (willFollow) {
-        await api.post(`/users/${targetUserId}/follow`);
-        toast("Followed mentor", "success");
-      } else {
-        await api.delete(`/users/${targetUserId}/follow`);
-        toast("Unfollowed mentor", "info");
-      }
-    } catch {
-      setIsFollowing(!willFollow);
-      setFollowersCount((prev) => (willFollow ? Math.max(0, prev - 1) : prev + 1));
-      toast("Could not update follow status", "error");
-    } finally {
-      setFollowLoading(false);
-    }
-  };
 
   const computedBanner = useMemo(() => {
     if (!mentor) return { isImage: false, gradientClass: "from-zinc-900 to-zinc-950", bannerImageUrl: null, bannerPosition: "50% 50%" };
@@ -269,30 +218,6 @@ export default function MentorProfilePage() {
 
                   {/* Actions Group */}
                   <div className="flex flex-wrap items-center gap-2 sm:self-end">
-                    {user?.id !== mentor.userId && (
-                      <button
-                        type="button"
-                        onClick={handleFollowToggle}
-                        disabled={followLoading}
-                        className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-sm ${
-                          isFollowing
-                            ? "bg-zinc-800 text-zinc-200 border border-zinc-700 hover:bg-zinc-700"
-                            : "bg-blue-600 hover:bg-blue-500 text-white"
-                        }`}
-                      >
-                        {isFollowing ? (
-                          <>
-                            <UserCheck className="h-3.5 w-3.5 text-blue-400" />
-                            Following
-                          </>
-                        ) : (
-                          <>
-                            <UserPlus className="h-3.5 w-3.5" />
-                            Follow
-                          </>
-                        )}
-                      </button>
-                    )}
 
                     <Link
                       href={`/dashboard/chat?mentorId=${mentor.id}`}
@@ -386,23 +311,15 @@ export default function MentorProfilePage() {
                     </div>
                   )}
 
-                  {/* Social Metrics + Location */}
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[var(--muted)] pt-2 border-t border-[var(--hairline)]/60 mt-2">
-                    <div className="flex items-center gap-1 font-medium">
-                      <span className="font-bold text-[var(--fg)]">{mentor.followingCount || 42}</span>
-                      <span>Following</span>
-                      <span className="mx-1">·</span>
-                      <span className="font-bold text-[var(--fg)]">{followersCount}</span>
-                      <span>Followers</span>
-                    </div>
-
-                    {mentor.location && (
+                  {/* Location */}
+                  {mentor.location && (
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[var(--muted)] pt-2 border-t border-[var(--hairline)]/60 mt-2">
                       <div className="flex items-center gap-1">
                         <MapPin className="h-3.5 w-3.5 text-[var(--muted)]" />
                         <span>{mentor.location}</span>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

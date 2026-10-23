@@ -4,13 +4,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { LandingNavbar } from "@/components/landing/LandingNavbar";
 import { HeroSection } from "@/components/landing/HeroSection";
-import { FloatingStatsSection } from "@/components/landing/FloatingStatsSection";
-import { FloatingLogosSection } from "@/components/landing/FloatingLogosSection";
 import { AIDemoSection } from "@/components/landing/AIDemoSection";
+import { ComparisonSection } from "@/components/landing/ComparisonSection";
+import { FloatingStatsSection } from "@/components/landing/FloatingStatsSection";
 import { FeaturedMentorsSection } from "@/components/landing/FeaturedMentorsSection";
-import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { SuccessStoriesSection } from "@/components/landing/SuccessStoriesSection";
 import { PricingSection } from "@/components/landing/PricingSection";
+import { FloatingLogosSection } from "@/components/landing/FloatingLogosSection";
 import { FinalCTASection } from "@/components/landing/FinalCTASection";
 import { FooterSection } from "@/components/landing/FooterSection";
 import AuthModal from "@/components/AuthModal";
@@ -59,10 +59,10 @@ function LandingPageContent() {
       <LandingNavbar />
       <div className="relative z-10 rounded-b-[40px] md:rounded-b-[48px] shadow-[0_20px_60px_rgba(0,0,0,0.10)] border-b border-[var(--hairline)]" style={{ background: 'var(--bg)' }}>
         <HeroSection />
-        <FloatingStatsSection />
         <AIDemoSection />
+        <ComparisonSection />
+        <FloatingStatsSection />
         <FeaturedMentorsSection />
-        <TestimonialsSection />
         <SuccessStoriesSection />
         <PricingSection />
         <FloatingLogosSection />

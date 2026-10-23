@@ -6,8 +6,6 @@ import {
   Share2,
   Globe,
   Star,
-  UserPlus,
-  UserCheck,
   X,
   ArrowRight,
   MapPin,
@@ -17,8 +15,6 @@ import { BrandBanner } from "./BrandBanner";
 import { GoldenVerifiedBadge } from "./GoldenVerifiedBadge";
 import { PriceDisplay } from "./PriceDisplay";
 import { resolveOrganizationBranding } from "@/lib/organization-branding-db";
-import api from "@/lib/api";
-import { useAuth } from "@/lib/auth-context";
 import type { Mentor, User } from "@/lib/types";
 
 export interface ProfileCardProps {
@@ -53,7 +49,6 @@ export function ProfileCard({
   onShare,
   className = "",
 }: ProfileCardProps) {
-  const { user: currentUser } = useAuth();
   const [isAvatarEnlarged, setIsAvatarEnlarged] = useState(false);
 
   // Extract normalized fields from either mentor or user
@@ -130,21 +125,6 @@ export function ProfileCard({
     return [];
   }, [mentor?.userLanguages, profile?.languages, mentor?.languages]);
 
-  // Follow states
-  const initialFollowersCount =
-    mentor?.followersCount ??
-    mentor?.user?.followersCount ??
-    profile?.followersCount ??
-    0;
-  const initialIsFollowing =
-    mentor?.isFollowing ??
-    mentor?.user?.isFollowing ??
-    profile?.isFollowing ??
-    false;
-
-  const [followersCount, setFollowersCount] = useState(initialFollowersCount);
-  const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
-  const [followLoading, setFollowLoading] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
 
   // Fallback initials
@@ -157,39 +137,6 @@ export function ProfileCard({
 
   const customBannerUrl = mentor?.bannerImageUrl || profile?.bannerImageUrl || null;
   const bannerPosition = mentor?.bannerPosition || profile?.bannerPosition || "50% 50%";
-
-  // Follow / Unfollow Handler
-  const handleFollowToggle = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (!currentUser) {
-      window.location.href = `/signin?redirect=${encodeURIComponent(window.location.pathname)}`;
-      return;
-    }
-
-    if (currentUser.id === userId) return;
-
-    const previousState = isFollowing;
-    const previousCount = followersCount;
-
-    setIsFollowing(!previousState);
-    setFollowersCount(previousState ? Math.max(0, previousCount - 1) : previousCount + 1);
-    setFollowLoading(true);
-
-    try {
-      if (previousState) {
-        await api.post(`/users/${userId}/unfollow`);
-      } else {
-        await api.post(`/users/${userId}/follow`);
-      }
-    } catch {
-      setIsFollowing(previousState);
-      setFollowersCount(previousCount);
-    } finally {
-      setFollowLoading(false);
-    }
-  };
 
   const isMentorMode = mode === "mentor" && mentor != null;
   const profileLink = isMentorMode
@@ -272,32 +219,6 @@ export function ProfileCard({
                 />
               )}
             </button>
-
-            {/* Right Header: Follow Button if User profile */}
-            {!isMentorMode && currentUser?.id !== userId && (
-              <button
-                type="button"
-                onClick={handleFollowToggle}
-                disabled={followLoading}
-                className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                  isFollowing
-                    ? "bg-neutral-100 text-neutral-700 hover:bg-neutral-200 dark:bg-zinc-800 dark:text-zinc-200"
-                    : "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 hover:opacity-90 shadow-xs"
-                }`}
-              >
-                {isFollowing ? (
-                  <>
-                    <UserCheck className="h-3 w-3" />
-                    <span>Following</span>
-                  </>
-                ) : (
-                  <>
-                    <UserPlus className="h-3 w-3" />
-                    <span>Follow</span>
-                  </>
-                )}
-              </button>
-            )}
           </div>
 
           {/* ─── Organization Badge at Top (Matching Reference Image 2: [ IIT Madras ]) ─── */}
