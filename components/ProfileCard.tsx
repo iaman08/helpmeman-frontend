@@ -153,7 +153,7 @@ export function ProfileCard({
         className={`group relative flex flex-col rounded-2xl overflow-hidden transition-all duration-300 bg-white dark:bg-zinc-900 border border-neutral-200/80 dark:border-zinc-800 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] ${className}`}
       >
         {/* ─── 1. Official Corporate / Collegiate Brand Banner ─── */}
-        <div className="relative w-full h-28 sm:h-32 overflow-hidden bg-zinc-950 shrink-0">
+        <div className="relative w-full h-28 sm:h-32 overflow-hidden bg-neutral-100 dark:bg-zinc-800 shrink-0">
           <BrandBanner
             customBannerUrl={customBannerUrl}
             bannerPosition={bannerPosition}
@@ -205,7 +205,7 @@ export function ProfileCard({
                     loading="lazy"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-lg sm:text-xl font-bold text-white bg-zinc-900 select-none">
+                  <div className="flex h-full w-full items-center justify-center text-lg sm:text-xl font-bold bg-neutral-200 text-neutral-800 dark:bg-zinc-800 dark:text-zinc-200 select-none">
                     {initials}
                   </div>
                 )}

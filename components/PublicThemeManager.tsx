@@ -9,25 +9,16 @@ export function PublicThemeManager() {
   const { theme } = useTheme();
 
   useEffect(() => {
-    const isDashboardRoute =
-      pathname.startsWith("/dashboard") ||
-      pathname.startsWith("/mentor") ||
-      pathname.startsWith("/admin");
-
-    if (!isDashboardRoute) {
-      // Force light theme on all public routes
-      document.documentElement.dataset.theme = "light";
-      document.documentElement.classList.remove("dark");
+    // Keep user's theme selection consistent across all route transitions
+    // without forcing conflicting light/dark states on public vs mentor routes.
+    document.documentElement.dataset.theme = theme;
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
     } else {
-      // Restore user theme preference inside dashboard
-      document.documentElement.dataset.theme = theme;
-      if (theme === "dark") {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
+      document.documentElement.classList.remove("dark");
     }
   }, [pathname, theme]);
 
   return null;
 }
+

@@ -283,7 +283,7 @@ export const MentorSwipeCard = forwardRef<MentorSwipeCardHandle, MentorSwipeCard
           )}
 
           {/* ─── 1. Brand Banner Header (Top Section) ─── */}
-          <div className="relative w-full h-28 sm:h-32 shrink-0 overflow-hidden bg-zinc-950">
+          <div className="relative w-full h-28 sm:h-32 shrink-0 overflow-hidden bg-neutral-100 dark:bg-zinc-800">
             <BrandBanner
               customBannerUrl={customBannerUrl}
               bannerPosition={bannerPosition}
@@ -324,7 +324,7 @@ export const MentorSwipeCard = forwardRef<MentorSwipeCardHandle, MentorSwipeCard
                       draggable={false}
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-xl font-bold text-white bg-zinc-900 select-none">
+                    <div className="flex h-full w-full items-center justify-center text-xl font-bold bg-neutral-200 text-neutral-800 dark:bg-zinc-800 dark:text-zinc-200 select-none">
                       {initials}
                     </div>
                   )}

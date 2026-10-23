@@ -56,7 +56,10 @@ export function useMentor(id: string | null) {
   return useSWR<{ mentor: Mentor }>(
     id ? `/mentors/${id}` : null,
     fetcher,
-    { revalidateOnFocus: false },
+    {
+      revalidateOnFocus: false,
+      keepPreviousData: true,
+    },
   );
 }
 

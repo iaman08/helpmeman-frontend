@@ -21,11 +21,11 @@ export function BrandBanner({
   // 1. User uploaded custom banner
   if (customBannerUrl && customBannerUrl.trim()) {
     return (
-      <div className={`relative w-full h-full overflow-hidden bg-zinc-950 ${className}`}>
+      <div className={`relative w-full h-full overflow-hidden bg-neutral-100 dark:bg-zinc-800 ${className}`}>
         <img
           src={customBannerUrl.trim()}
           alt="Profile banner"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-opacity duration-200"
           style={{ objectPosition: bannerPosition || "50% 50%" }}
           loading="lazy"
         />
@@ -42,9 +42,9 @@ export function BrandBanner({
   if (!brand) {
     return (
       <div
-        className={`relative w-full h-full overflow-hidden select-none bg-[#121316] ${className}`}
+        className={`relative w-full h-full overflow-hidden select-none bg-gradient-to-r from-neutral-100 via-neutral-200/60 to-neutral-100 dark:from-zinc-900 dark:via-zinc-800/80 dark:to-zinc-900 border-b border-[var(--hairline)] ${className}`}
       >
-        <div className="absolute inset-x-0 bottom-0 h-px bg-white/[0.06] pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-neutral-200 dark:bg-white/[0.06] pointer-events-none" />
       </div>
     );
   }

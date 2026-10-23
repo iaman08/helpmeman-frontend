@@ -155,7 +155,6 @@ body {
   text-rendering: optimizeLegibility;
   font-feature-settings: "blwf" on, "cv03" on, "cv04" on, "cv09" on, "cv11" on, "ss07" on;
   letter-spacing: -0.012em;
-  transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease;
 }
 
 /* ── Global Fallbacks for Tailwind v4 [var(--fg)] Utility Classes ── */

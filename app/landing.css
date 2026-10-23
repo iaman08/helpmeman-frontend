@@ -114,14 +114,12 @@
   background: var(--bg);
   color: var(--fg);
   min-height: 100vh;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Force light background on all landing sections by default */
 .landing-page section {
   background: #FFFFFF;
   color: #111111;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 html[data-theme="dark"] .landing-page section {

@@ -125,53 +125,50 @@ export default function MentorProfilePage() {
     }
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="max-w-[1000px] mx-auto px-6 sm:px-10 py-24 flex flex-col gap-10">
-        <div className="flex flex-col md:flex-row gap-6 md:gap-8 pb-6 border-b border-[var(--hairline)]">
-          <Skeleton className="h-28 w-28 rounded-full shrink-0" />
-          <div className="flex-1 flex flex-col gap-3">
-            <Skeleton className="h-8 w-64 rounded-lg" />
-            <Skeleton className="h-5 w-48 rounded-lg" />
-            <Skeleton className="h-5 w-full rounded-lg" />
-          </div>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          <div className="lg:col-span-2 flex flex-col gap-6">
-            <Skeleton className="h-24 w-full rounded-2xl" />
-            <Skeleton className="h-48 w-full rounded-2xl" />
-          </div>
-          <Skeleton className="h-64 w-full rounded-2xl" />
+  const renderSkeleton = () => (
+    <div className={`w-full max-w-[1000px] ${user ? 'px-4 sm:px-6 pt-6 sm:pt-8' : 'mx-auto px-5 sm:px-10 pt-24 sm:pt-28'} pb-10 flex flex-col gap-10`}>
+      <div className="flex flex-col md:flex-row gap-6 md:gap-8 pb-6 border-b border-[var(--hairline)]">
+        <Skeleton className="h-28 w-28 rounded-full shrink-0" />
+        <div className="flex-1 flex flex-col gap-3">
+          <Skeleton className="h-8 w-64 rounded-lg" />
+          <Skeleton className="h-5 w-48 rounded-lg" />
+          <Skeleton className="h-5 w-full rounded-lg" />
         </div>
       </div>
-    );
-  }
-
-  if (error || !mentor) {
-    return (
-      <div className="max-w-[1000px] mx-auto px-6 sm:px-10 py-24">
-        <EmptyState
-          icon={<Star className="h-8 w-8 text-red-500" />}
-          title="Mentor not found"
-          description="The mentor you are looking for does not exist or has deactivated their profile."
-          action={
-            <Link
-              href="/"
-              className="rounded-full bg-[var(--fg)] text-[var(--bg)] px-6 py-2.5 text-sm hover:opacity-90 transition-opacity"
-            >
-              Back to Home
-            </Link>
-          }
-        />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div className="lg:col-span-2 flex flex-col gap-6">
+          <Skeleton className="h-24 w-full rounded-2xl" />
+          <Skeleton className="h-48 w-full rounded-2xl" />
+        </div>
+        <Skeleton className="h-64 w-full rounded-2xl" />
       </div>
-    );
-  }
+    </div>
+  );
 
-  const content = (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+  const renderNotFound = () => (
+    <div className={`w-full max-w-[1000px] ${user ? 'px-4 sm:px-6 pt-6 sm:pt-8' : 'mx-auto px-5 sm:px-10 py-24'}`}>
+      <EmptyState
+        icon={<Star className="h-8 w-8 text-red-500" />}
+        title="Mentor not found"
+        description="The mentor you are looking for does not exist or has deactivated their profile."
+        action={
+          <Link
+            href="/mentors"
+            className="rounded-full bg-[var(--fg)] text-[var(--bg)] px-6 py-2.5 text-sm hover:opacity-90 transition-opacity"
+          >
+            Back to Mentors
+          </Link>
+        }
+      />
+    </div>
+  );
+
+  const content = isLoading ? (
+    renderSkeleton()
+  ) : error || !mentor ? (
+    renderNotFound()
+  ) : (
+    <div
       className={`w-full max-w-[1000px] ${user ? 'px-4 sm:px-6 pt-6 sm:pt-8' : 'mx-auto px-5 sm:px-10 pt-24 sm:pt-28'} pb-10`}
     >
       {/* Back Button */}
@@ -191,7 +188,7 @@ export default function MentorProfilePage() {
             {/* Premium Profile Header Card with Banner & Overlapping Avatar */}
             <div className="relative border border-[var(--hairline)] rounded-3xl bg-[var(--bg)] shadow-md overflow-hidden">
               {/* Official Corporate / Collegiate Brand Banner */}
-              <div className="relative w-full h-40 sm:h-52 overflow-hidden bg-zinc-950">
+              <div className="relative w-full h-40 sm:h-52 overflow-hidden bg-neutral-100 dark:bg-zinc-900 border-b border-[var(--hairline)]">
                 <BrandBanner
                   customBannerUrl={mentor.bannerImageUrl}
                   bannerPosition={mentor.bannerPosition}
@@ -560,7 +557,7 @@ export default function MentorProfilePage() {
           mentor={mentor}
         />
       )}
-    </motion.div>
+    </div>
   );
 
   if (user) {
@@ -657,7 +654,7 @@ export default function MentorProfilePage() {
   }
 
   return (
-    <div className="landing-page min-h-screen flex flex-col" style={{ background: "#0B0B0C" }}>
+    <div className="landing-page min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)]">
       <div
         className="relative z-10 flex-1 rounded-b-[40px] md:rounded-b-[48px] shadow-[0_20px_60px_rgba(0,0,0,0.10)] border-b border-[var(--hairline)] overflow-hidden flex flex-col bg-[var(--bg)]"
       >

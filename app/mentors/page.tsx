@@ -609,7 +609,7 @@ function MentorsContent() {
   }
 
   return (
-    <div className="landing-page min-h-screen flex flex-col" style={{ background: "#0B0B0C" }}>
+    <div className="landing-page min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)]">
       <div
         className="relative z-10 flex-1 rounded-b-[40px] md:rounded-b-[48px] shadow-[0_20px_60px_rgba(0,0,0,0.10)] border-b border-[var(--hairline)] overflow-hidden flex flex-col bg-[var(--bg)]"
       >
