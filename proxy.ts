@@ -10,7 +10,7 @@ function getDashboardDest(request: NextRequest): string {
   return "/dashboard";
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const token = request.cookies.get("helpmeman.accessToken")?.value;
   const { pathname, searchParams } = request.nextUrl;
 

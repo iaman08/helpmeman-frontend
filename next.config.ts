@@ -1,6 +1,11 @@
+import path from "node:path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Pin the file-tracing root to this project. Without it Next.js walks up and
+  // finds a stray ~/package-lock.json, so it treats the home directory as the
+  // workspace root (multiple-lockfile warning, slower tracing, wrong build output).
+  outputFileTracingRoot: path.resolve(__dirname),
   allowedDevOrigins: ['192.168.1.7', '192.168.1.10'],
   productionBrowserSourceMaps: false,
   images: {
