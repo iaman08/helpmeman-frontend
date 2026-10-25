@@ -67,7 +67,8 @@ export function getLoginDest(u: User, m: MentorMeta | null): string {
   if (u.role === "SUPER_ADMIN") return "/superadmin";
   if (u.role === "ADMIN") return "/admin";
   if (u.role === "MENTOR" || u.onboardingRole === "MENTOR") {
-    return "/mentor";
+    if (!m?.onboardingCompleted) return "/onboarding?role=mentor";
+    return m.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status";
   }
   if (u.onboardingRole === "MENTEE" || u.role === "STUDENT") return "/dashboard";
   return "/onboarding";
@@ -501,6 +502,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data.mentor) {
         setMentor(data.mentor);
         localStorage.setItem(KEYS.mentor, JSON.stringify(data.mentor));
+      } else {
+        setMentor(null);
+        localStorage.removeItem(KEYS.mentor);
       }
       return data.user;
     } catch (err) {

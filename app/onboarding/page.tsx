@@ -19,6 +19,7 @@ import {
 import api from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import LinkedInOnboarding from "@/components/mentor/LinkedInOnboarding";
+import { AxiosError } from "axios";
 
 type QuestionType = "text" | "single_choice" | "multi_choice";
 type Answer = { id: string; question: string; answer: string; skipped: boolean; questionKey?: string };
@@ -103,7 +104,11 @@ function initialState(): State {
 function OnboardingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, mentor, loading, updateUser } = useAuth();
+  const { user, mentor, loading, updateUser, setSessionFromToken } = useAuth();
+  const callbackToken = searchParams.get("linkedin") === "success" ? searchParams.get("token") : null;
+  const [restoringLinkedIn, setRestoringLinkedIn] = useState(Boolean(callbackToken));
+  const [sessionError, setSessionError] = useState(false);
+  const restoredTokenRef = useRef<string | null>(null);
   const [state, setState] = useState<State | null>(null);
   const [stage, setStage] = useState<Stage>("role");
   const [input, setInput] = useState("");
@@ -131,7 +136,16 @@ function OnboardingContent() {
     localStageRef.current = stage;
   }, [stage]);
 
+  useEffect(() => {
+    if (!callbackToken || restoredTokenRef.current === callbackToken) return;
+    restoredTokenRef.current = callbackToken;
+    setSessionFromToken(callbackToken, searchParams.get("refreshToken") || undefined)
+      .then(restored => { if (!restored) setSessionError(true); })
+      .finally(() => setRestoringLinkedIn(false));
+  }, [callbackToken, searchParams, setSessionFromToken]);
+
   const resetOnboarding = useCallback(() => {
+    lastFetchedUserIdRef.current = null;
     setState(null);
     setInput("");
     setSelected([]);
@@ -171,7 +185,7 @@ function OnboardingContent() {
         const { data } = await api.patch<State>("/mentor/onboarding", { role: "MENTOR" });
         updateUser({ role: "MENTOR", onboardingRole: "MENTOR" });
         if (data.status === "COMPLETED") {
-          if (data.mentor) localStorage.setItem("helpmeman.mentor", JSON.stringify(data.mentor));
+          if (data.mentor) localStorage.setItem("helpmeman.mentor", JSON.stringify({ ...data.mentor, onboardingCompleted: true }));
           if (data.mentor?.approvalStatus === "APPROVED") {
             router.replace("/mentor");
           } else {
@@ -196,7 +210,7 @@ function OnboardingContent() {
 
       const { data } = await api.get<State>("/mentor/onboarding");
       if (data.role === "MENTOR" && data.status === "COMPLETED") {
-        if (data.mentor) localStorage.setItem("helpmeman.mentor", JSON.stringify(data.mentor));
+        if (data.mentor) localStorage.setItem("helpmeman.mentor", JSON.stringify({ ...data.mentor, onboardingCompleted: true }));
         if (data.mentor?.approvalStatus === "APPROVED") {
           router.replace("/mentor");
         } else {
@@ -233,10 +247,10 @@ function OnboardingContent() {
       console.error("[Onboarding] Error loading conversation:", err);
       setError("Ruth couldn't load your conversation. Please try again.");
     }
-  }, [user?.role, router, updateUser]);
+  }, [user?.role, router, updateUser, searchParams]);
 
   useEffect(() => {
-    if (loading) return;
+    if (loading || restoringLinkedIn || sessionError) return;
     if (!user) {
       resetOnboarding();
       router.replace("/signin");
@@ -257,11 +271,11 @@ function OnboardingContent() {
       localStorage.removeItem("helpmeman.onboardingRoleIntent");
     }
 
-    if (lastFetchedUserIdRef.current !== user.id || !state) {
+    if (lastFetchedUserIdRef.current !== user.id) {
       lastFetchedUserIdRef.current = user.id;
       fetchOnboardingState(user.id, roleParam);
     }
-  }, [user?.id, loading, mentor?.onboardingCompleted, mentor?.approvalStatus, user?.role, user?.onboardingRole, router, resetOnboarding, fetchOnboardingState, state, searchParams]);
+  }, [user?.id, loading, restoringLinkedIn, sessionError, mentor?.onboardingCompleted, mentor?.approvalStatus, user?.role, user?.onboardingRole, router, resetOnboarding, fetchOnboardingState, state, searchParams]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -369,13 +383,20 @@ function OnboardingContent() {
         return next;
       }
 
-      const { data } = await api.post<State>("/mentor/onboarding", { answer: value, skip });
+      const { data } = await api.post<State>("/mentor/onboarding", { answer: value, skip, questionKey: state.question.key });
       setState(data);
       setLatestRuthMessage(data.message || data.question?.text || "Tell me more.");
-      if (data.status === "COMPLETED" && data.mentor) localStorage.setItem("helpmeman.mentor", JSON.stringify(data.mentor));
+      if (data.status === "COMPLETED" && data.mentor) localStorage.setItem("helpmeman.mentor", JSON.stringify({ ...data.mentor, onboardingCompleted: true }));
       return data;
-    } catch {
-      setError("That didn't save. Your answer is still here — try once more.");
+    } catch (err) {
+      setError(err instanceof AxiosError ? err.response?.data?.error || "That didn't save. Your answer is still here — try once more." : "That didn't save. Your answer is still here — try once more.");
+      if ((err instanceof AxiosError && err.response?.status === 409) || state.currentQuestion + 1 >= state.totalQuestions) {
+        try {
+          const { data } = await api.get<State>("/mentor/onboarding");
+          setState(data);
+          if (data.question) setLatestRuthMessage(data.question.text);
+        } catch { /* Preserve the current answer if the connection is unavailable. */ }
+      }
     } finally {
       setSending(false);
     }
@@ -393,7 +414,8 @@ function OnboardingContent() {
   function submitCurrent(e?: FormEvent, skip = false) {
     e?.preventDefault();
     const answerText = questionType === "text" ? input : selected.join(", ");
-    submitAnswer(answerText, skip).then(() => {
+    submitAnswer(answerText, skip).then(saved => {
+      if (!saved) return;
       setInput("");
       setSelected([]);
     });
@@ -407,7 +429,14 @@ function OnboardingContent() {
     setSelected(current => current.includes(option) ? current.filter(item => item !== option) : [...current, option]);
   }
 
-  if (loading || !user) {
+  if (sessionError) return (
+    <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-bg px-5 text-center text-fg">
+      <p>We couldn&apos;t restore your LinkedIn session. Please try signing in again.</p>
+      <button onClick={() => router.replace('/apply-mentor')} className="rounded-full bg-fg px-5 py-3 text-sm text-bg">Return to mentor sign-in</button>
+    </main>
+  );
+
+  if (loading || restoringLinkedIn || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-bg">
         <div className="text-center">
@@ -460,6 +489,30 @@ function OnboardingContent() {
             {isApproved ? "Enter mentor workspace" : "View Application Status"} <ArrowRight className="h-4 w-4" />
           </button>
         </motion.section>
+      </main>
+    );
+  }
+
+  if (state.status === "PROCESSING") {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center gap-5 bg-bg px-5 text-center text-fg">
+        <RuthMark size="lg" />
+        <h1 className="text-3xl font-semibold">Your answers are saved.</h1>
+        <p className="max-w-md text-sm text-muted">Ruth still needs to finish preparing your profile. You can retry without answering the questions again.</p>
+        <button disabled={sending} onClick={async () => {
+          setSending(true);
+          setError("");
+          try {
+            const { data } = await api.post<State>("/mentor/onboarding", {});
+            setState(data);
+            if (data.mentor) localStorage.setItem("helpmeman.mentor", JSON.stringify({ ...data.mentor, onboardingCompleted: true }));
+          } catch {
+            setError("Your profile couldn't be prepared yet. Please try again.");
+          } finally { setSending(false); }
+        }} className="rounded-full bg-fg px-6 py-3 text-sm font-semibold text-bg disabled:opacity-40">
+          {sending ? "Preparing profile…" : "Finish my application"}
+        </button>
+        {error && <p role="alert" className="text-sm text-red-500">{error}</p>}
       </main>
     );
   }
@@ -523,6 +576,7 @@ function OnboardingContent() {
             {sending ? <><Loader2 className="h-4 w-4 animate-spin" /> Saving…</> : <>Continue <ArrowRight className="h-4 w-4" /></>}
           </button>
           <p className="mt-5 text-xs text-muted">Tip: this becomes the first saved mentor onboarding answer.</p>
+          {error && <p role="alert" className="mt-3 text-sm text-red-500">{error}</p>}
         </motion.form>
       </main>
     );
@@ -702,15 +756,15 @@ function OnboardingContent() {
                   className="max-h-28 min-h-12 w-full resize-none bg-transparent px-1 text-sm outline-none placeholder:text-muted"
                 />
                 <div className="flex items-center justify-between">
-                  <button type="button" onClick={() => submitCurrent(undefined, true)} disabled={sending} className="px-1 text-xs text-muted hover:text-fg">Skip</button>
-                  <button disabled={!input.trim() || sending} className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl sm:rounded-2xl bg-fg text-bg disabled:opacity-25"><Send className="h-3.5 w-3.5 sm:h-4 sm:w-4" /></button>
+                  {!['full_name', 'email_address', 'mentor_track'].includes(question?.key || '') && <button type="button" onClick={() => submitCurrent(undefined, true)} disabled={sending} className="px-1 text-xs text-muted hover:text-fg">Skip</button>}
+                  <button aria-label="Send answer" disabled={!input.trim() || sending} className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl sm:rounded-2xl bg-fg text-bg disabled:opacity-25"><Send className="h-3.5 w-3.5 sm:h-4 sm:w-4" /></button>
                 </div>
               </form>
             ) : (
               <div className="rounded-2xl sm:rounded-[24px] border border-hairline bg-bg p-3 shadow-[0_14px_55px_rgba(0,0,0,.08)]">
                 <div className="mb-2 sm:mb-3 flex items-center justify-between gap-3">
                   <span className="text-xs font-medium text-muted">{questionType === "single_choice" ? "Choose one answer" : "Choose all that apply"}</span>
-                  <button onClick={() => submitCurrent(undefined, true)} disabled={sending} className="text-xs text-muted hover:text-fg">Skip</button>
+                  {!['full_name', 'email_address', 'mentor_track'].includes(question?.key || '') && <button onClick={() => submitCurrent(undefined, true)} disabled={sending} className="text-xs text-muted hover:text-fg">Skip</button>}
                 </div>
                 <div className="flex max-h-40 sm:max-h-32 flex-wrap gap-1.5 sm:gap-2 overflow-y-auto pr-1">
                   {question?.options?.map(option => {

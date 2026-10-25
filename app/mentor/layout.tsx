@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   LayoutDashboard,
   CalendarCheck,
@@ -28,6 +28,9 @@ export default function MentorLayout({
   const { user, mentor, loading, logout, isMentor } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [access, setAccess] = useState<{ key: string; status: 'allowed' | 'error' } | null>(null);
+  const accessKey = `${user?.id}:${pathname}`;
+  const [retry, setRetry] = useState(0);
   const { data: unreadData } = useUnreadChatCount();
   const unreadChatCount = unreadData?.unreadCount ?? 0;
 
@@ -60,47 +63,35 @@ export default function MentorLayout({
     if (user) {
       hasRedirectedRef.current = false;
       const isTeam = user.role === "ADMIN" || user.role === "SUPER_ADMIN";
-      const activeRole = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("hmm.activeRole") : null;
-
-      if (!user.onboardingRole && !isTeam) {
-        router.replace("/onboarding");
-      } else if (!isMentor && !isTeam && activeRole !== "mentor") {
-        const dest = user.role === "ADMIN" || user.role === "SUPER_ADMIN" ? "/admin" : "/dashboard";
-        router.replace(dest);
-      } else if (
-        !isTeam &&
-        mentor?.approvalStatus !== "APPROVED" &&
-        pathname !== "/mentor/status" &&
-        !localStorage.getItem("helpmeman.accessToken")?.startsWith("demo_")
-      ) {
-        router.replace("/mentor/status");
+      if (isTeam || localStorage.getItem("helpmeman.accessToken")?.startsWith("demo_")) {
+        return;
       }
-      return;
+      if (!isMentor) {
+        router.replace("/dashboard");
+        return;
+      }
+
+      let cancelled = false;
+      api.get<{ status: string; mentor: { approvalStatus: string } | null }>("/mentor/onboarding")
+        .then(({ data }) => {
+          if (cancelled) return;
+          if (data.status !== "COMPLETED") {
+            router.replace("/onboarding?role=mentor");
+          } else if (data.mentor?.approvalStatus !== "APPROVED" && pathname !== "/mentor/status") {
+            router.replace("/mentor/status");
+          } else {
+            setAccess({ key: accessKey, status: 'allowed' });
+          }
+        })
+        .catch(() => { if (!cancelled) setAccess({ key: accessKey, status: 'error' }); });
+      return () => { cancelled = true; };
     }
 
     if (!hasRedirectedRef.current) {
       hasRedirectedRef.current = true;
       router.replace("/signin");
     }
-  }, [loading, user, isMentor, mentor, pathname, router]);
-
-  useEffect(() => {
-    const isDemo = localStorage.getItem("helpmeman.accessToken")?.startsWith("demo_");
-    if (
-      loading ||
-      !user ||
-      !isMentor ||
-      isDemo ||
-      mentor?.approvalStatus === "APPROVED" ||
-      pathname === "/mentor/status"
-    )
-      return;
-    api.get<{ role: string | null; status: string }>("/mentor/onboarding")
-      .then(({ data }) => {
-        if (data.role !== "MENTOR" || data.status !== "COMPLETED") router.replace("/onboarding");
-      })
-      .catch(() => { /* keep the dashboard usable during a transient API outage */ });
-  }, [loading, user, isMentor, pathname, router]);
+  }, [loading, user, isMentor, pathname, router, retry, accessKey]);
 
   // ─── Real-Time Presence Heartbeat (using global socket) ───
   const { socket } = useSocket();
@@ -141,8 +132,15 @@ export default function MentorLayout({
   }, [user, socket]);
 
 
-  if (loading) return null;
-  const isTeam = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
+  const isTeam = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
+  const isDemo = typeof window !== 'undefined' && localStorage.getItem('helpmeman.accessToken')?.startsWith('demo_');
+  if (loading || (user && !isTeam && !isDemo && access?.key !== accessKey)) return null;
+  if (!isTeam && !isDemo && access?.key === accessKey && access.status === 'error') return (
+    <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-bg px-5 text-center text-fg">
+      <p>We couldn&apos;t check your application status. Please try again.</p>
+      <button onClick={() => { setAccess(null); setRetry(value => value + 1); }} className="rounded-full bg-fg px-5 py-3 text-sm text-bg">Retry</button>
+    </main>
+  );
   if (!user || (!isMentor && !isTeam)) return null;
 
   return (

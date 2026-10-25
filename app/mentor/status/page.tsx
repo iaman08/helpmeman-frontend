@@ -9,6 +9,8 @@ import api from "@/lib/api";
 export default function MentorStatusPage() {
   const { mentor } = useAuth();
   const [onboardingStatus, setOnboardingStatus] = useState<string>("LOADING");
+  const [approvalStatus, setApprovalStatus] = useState<string | null>(null);
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
     const isDemo = typeof window !== "undefined" ? localStorage.getItem("helpmeman.accessToken")?.startsWith("demo_") : false;
@@ -17,14 +19,15 @@ export default function MentorStatusPage() {
       return;
     }
 
-    api.get<{ role: string | null; status: string }>("/mentor/onboarding")
+    api.get<{ role: string | null; status: string; mentor: { approvalStatus: string } | null }>("/mentor/onboarding")
       .then(({ data }) => {
         setOnboardingStatus(data.status);
+        setApprovalStatus(data.mentor?.approvalStatus || null);
       })
       .catch(() => {
-        setOnboardingStatus("COMPLETED");
+        setOnboardingStatus("ERROR");
       });
-  }, []);
+  }, [retry]);
 
   if (onboardingStatus === "LOADING") {
     return (
@@ -34,7 +37,14 @@ export default function MentorStatusPage() {
     );
   }
 
-  const mentorStatus = mentor?.approvalStatus ?? "PENDING";
+  if (onboardingStatus === "ERROR") return (
+    <main className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
+      <p>We couldn&apos;t load your application status.</p>
+      <button onClick={() => { setOnboardingStatus("LOADING"); setRetry(value => value + 1); }} className="rounded-full bg-fg px-6 py-3 text-sm text-bg">Try again</button>
+    </main>
+  );
+
+  const mentorStatus = approvalStatus ?? mentor?.approvalStatus ?? "PENDING";
   const displayStatus = onboardingStatus === "COMPLETED" ? mentorStatus : "INCOMPLETE";
 
   const config = {

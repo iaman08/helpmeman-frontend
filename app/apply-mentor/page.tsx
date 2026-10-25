@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, type FormEvent } from "react";
-import { useAuth } from "@/lib/auth-context";
+import { getLoginDest, useAuth } from "@/lib/auth-context";
 import { AxiosError } from "axios";
 import OTPInput from "@/components/OTPInput";
 import api from "@/lib/api";
@@ -45,15 +45,17 @@ export default function ApplyMentorPage() {
     router.prefetch("/mentor/availability");
   }, [router]);
 
-  // Redirect if already logged in -> always send to mentor dashboard
+  // Resume the interview or application status for returning candidates.
   useEffect(() => {
     if (!loading && user && step === 1) {
       if (typeof sessionStorage !== "undefined") {
         sessionStorage.setItem("hmm.activeRole", "mentor");
       }
-      window.location.replace("/mentor");
+      const destination = user.role === "STUDENT"
+        ? "/onboarding?role=mentor" : getLoginDest(user, mentor);
+      window.location.replace(destination);
     }
-  }, [user, loading, step]);
+  }, [user, mentor, loading, step]);
 
   // Cooldown countdown timer
   useEffect(() => {
@@ -139,8 +141,9 @@ export default function ApplyMentorPage() {
       if (typeof sessionStorage !== "undefined") {
         sessionStorage.setItem("hmm.activeRole", "mentor");
       }
-      await login(email.toLowerCase(), password);
-      router.push("/mentor");
+      const destination = await login(email.toLowerCase(), password);
+      if (typeof destination === "string") router.push(destination);
+      else setError("Please use the main sign-in page to complete two-factor authentication.");
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(err.response?.data?.error ?? "Login failed. Please check your credentials.");
@@ -163,7 +166,7 @@ export default function ApplyMentorPage() {
 
     setSubmitting(true);
     try {
-      await verifySignupOTP({
+      const destination = await verifySignupOTP({
         name: name.trim(),
         email: email.toLowerCase(),
         password,
@@ -176,8 +179,7 @@ export default function ApplyMentorPage() {
       if (typeof sessionStorage !== "undefined") {
         sessionStorage.setItem("hmm.activeRole", "mentor");
       }
-      // Direct mentors straight into the mentor dashboard
-      router.push("/mentor");
+      router.push(destination);
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(
@@ -524,7 +526,7 @@ export default function ApplyMentorPage() {
                 disabled={submitting || otp.length < 6}
                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-[var(--bg)] bg-[var(--fg)] hover:opacity-90 active:scale-[0.99] focus:outline-none transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {submitting ? "Verifying…" : "Verify & Go to Dashboard"}
+                {submitting ? "Verifying…" : "Verify & Start Onboarding"}
               </button>
 
               <a
