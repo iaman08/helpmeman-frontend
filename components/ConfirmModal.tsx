@@ -6,10 +6,10 @@ import React, {
   useState,
   useCallback,
   useRef,
-  useEffect,
   type ReactNode,
 } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { AlertDialog } from "@base-ui/react/alert-dialog";
+import surfaces from "./PublicDialog.module.css";
 import { Trash2, AlertTriangle, Info, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -50,31 +50,7 @@ export function ConfirmModal({
   isLoading = false,
   icon,
 }: ConfirmModalProps) {
-  const confirmButtonRef = useRef<HTMLButtonElement>(null);
-
-  // Auto-focus the confirm button when opened
-  useEffect(() => {
-    if (isOpen) {
-      const timer = setTimeout(() => {
-        confirmButtonRef.current?.focus();
-      }, 50);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen]);
-
-  // Keyboard shortcut: Escape to close
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !isLoading) {
-        onClose();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, isLoading, onClose]);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
   const defaultConfirmText =
     confirmText || (variant === "danger" ? "Delete" : "Confirm");
@@ -120,41 +96,18 @@ export function ConfirmModal({
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="confirm-modal-title"
-        >
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={() => !isLoading && onClose()}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
-          />
-
-          {/* Modal Container */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ type: "spring", duration: 0.3, bounce: 0.05 }}
-            className="relative w-full max-w-md bg-[color:var(--bg)] text-[color:var(--fg)] border border-[color:var(--hairline)] rounded-3xl p-6 sm:p-7 shadow-2xl z-10 overflow-hidden"
-          >
-            {/* Close (X) button */}
-            <button
-              onClick={onClose}
-              disabled={isLoading}
-              className="absolute top-5 right-5 p-1.5 rounded-full text-[color:var(--muted)] hover:text-[color:var(--fg)] hover:bg-[color:var(--fg)]/5 transition-colors cursor-pointer disabled:opacity-40"
-              aria-label="Close dialog"
-            >
+    <AlertDialog.Root open={isOpen} onOpenChange={(open, details) => {
+      if (open) return;
+      if (isLoading) { details.cancel(); return; }
+      onClose();
+    }}>
+      <AlertDialog.Portal>
+        <AlertDialog.Backdrop className={`${surfaces.backdrop} ${surfaces.confirmBackdrop}`} />
+        <AlertDialog.Viewport className={`${surfaces.viewport} ${surfaces.confirmViewport}`}>
+          <AlertDialog.Popup initialFocus={cancelButtonRef} className={`${surfaces.popup} relative w-full max-w-md bg-[color:var(--bg)] text-[color:var(--fg)] border border-[color:var(--hairline)] rounded-3xl p-6 sm:p-7 shadow-2xl overflow-hidden`}>
+            <AlertDialog.Close disabled={isLoading} className={`${surfaces.close} absolute top-3 right-3 rounded-full text-[color:var(--muted)] bg-transparent disabled:opacity-40`} aria-label="Close confirmation dialog">
               <X className="w-5 h-5" />
-            </button>
+            </AlertDialog.Close>
 
             {/* Icon & Title */}
             <div className="flex flex-col items-start gap-4">
@@ -165,37 +118,29 @@ export function ConfirmModal({
               </div>
 
               <div className="space-y-1.5 pr-6">
-                <h3
-                  id="confirm-modal-title"
+                <AlertDialog.Title
                   className="text-lg sm:text-xl font-bold tracking-tight text-[color:var(--fg)]"
                 >
                   {title}
-                </h3>
+                </AlertDialog.Title>
                 {message && (
-                  <div className="text-xs sm:text-sm text-[color:var(--muted)] leading-relaxed">
+                  <AlertDialog.Description render={<div />} className="text-xs sm:text-sm text-[color:var(--muted)] leading-relaxed">
                     {message}
-                  </div>
+                  </AlertDialog.Description>
                 )}
               </div>
             </div>
 
             {/* Actions */}
             <div className="mt-6 flex flex-col-reverse sm:flex-row items-center justify-end gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isLoading}
-                onClick={onClose}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold h-auto"
-              >
+              <AlertDialog.Close ref={cancelButtonRef} disabled={isLoading} render={<Button type="button" variant="outline" className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold min-h-11 h-auto" />}>
                 {cancelText}
-              </Button>
+              </AlertDialog.Close>
               <Button
-                ref={confirmButtonRef}
                 type="button"
                 disabled={isLoading}
                 onClick={onConfirm}
-                className={`w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-white shadow-md active:scale-[0.98] transition-all h-auto flex items-center justify-center gap-2 ${getConfirmButtonStyle()}`}
+                className={`w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-white shadow-md min-h-11 h-auto flex items-center justify-center gap-2 ${getConfirmButtonStyle()}`}
               >
                 {isLoading ? (
                   <>
@@ -207,10 +152,10 @@ export function ConfirmModal({
                 )}
               </Button>
             </div>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+          </AlertDialog.Popup>
+        </AlertDialog.Viewport>
+      </AlertDialog.Portal>
+    </AlertDialog.Root>
   );
 }
 

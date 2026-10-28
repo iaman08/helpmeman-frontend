@@ -1,8 +1,6 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import { motion, useInView } from "motion/react";
-import { useRef } from "react";
 import Link from "next/link";
 import { ProfileCard } from "@/components/ProfileCard";
 import type { Mentor } from "@/lib/types";
@@ -144,24 +142,19 @@ const featuredMentors: Mentor[] = rawMentors.map((m) => ({
 })) as Mentor[];
 
 export function FeaturedMentorsSection() {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section ref={ref} id="mentors" className="py-10 md:py-16 lg:py-20 px-6 bg-white dark:bg-[#0A0A0A] transition-colors duration-300">
+    <section id="mentors" className="scroll-mt-24 py-10 md:py-16 lg:py-20 px-6 bg-white dark:bg-[#0A0A0A] transition-colors duration-300">
       <div className="max-w-[1240px] mx-auto">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+        <div
           className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 md:mb-12"
         >
           <div>
-            <h2 className="text-[clamp(28px,4vw,44px)] font-semibold tracking-[-0.02em] text-[#111111] dark:text-white leading-[1.1]">
+            <h2 className="public-section-title text-[#111111] dark:text-white">
               Featured Mentors
             </h2>
-            <p className="mt-3 text-[16px] text-[#6B7280] dark:text-[#A1A1AA] max-w-md leading-relaxed">
+            <p className="public-section-description mt-3 text-[#6B7280] dark:text-[#A1A1AA] max-w-md">
               Handpicked top-rated professionals and alumni ready to guide you.
             </p>
           </div>
@@ -170,22 +163,19 @@ export function FeaturedMentorsSection() {
             className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors no-underline shrink-0 group"
           >
             <span>View all 1,000+ mentors</span>
-            <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
+            <ArrowRight size={15} aria-hidden="true" />
           </Link>
-        </motion.div>
+        </div>
 
         {/* Mentor grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-          {featuredMentors.map((mentor, i) => (
-            <motion.div
+          {featuredMentors.map((mentor) => (
+            <div
               key={mentor.id}
-              initial={{ opacity: 0, y: 24 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: i * 0.07 }}
               className="h-full flex flex-col"
             >
               <ProfileCard mentor={mentor} mode="mentor" className="h-full" />
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

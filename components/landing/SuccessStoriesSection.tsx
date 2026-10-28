@@ -45,10 +45,10 @@ export function SuccessStoriesSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-8 md:mb-10"
         >
-          <h2 className="text-[clamp(28px,4vw,44px)] font-semibold tracking-[-0.02em] text-[#111111] dark:text-white leading-[1.1]">
+          <h2 className="public-section-title text-[#111111] dark:text-white">
             Real outcomes, not promises
           </h2>
-          <p className="mt-3 text-[16px] text-[#6B7280] dark:text-[#A1A1AA] max-w-lg mx-auto leading-relaxed">
+          <p className="public-section-description mt-3 text-[#6B7280] dark:text-[#A1A1AA] max-w-lg mx-auto">
             Every number represents a real person whose career changed after a
             single conversation.
           </p>
@@ -67,13 +67,13 @@ export function SuccessStoriesSection() {
               <div className="w-10 h-10 rounded-xl bg-[#EFF6FF] dark:bg-[#1E3A8A]/30 flex items-center justify-center mx-auto mb-4">
                 <stat.icon size={18} className="text-[#2563EB]" />
               </div>
-              <p className="text-[clamp(28px,4vw,40px)] font-bold tracking-[-0.02em] text-[#111111] dark:text-white leading-none">
+              <p className="text-[clamp(28px,4vw,40px)] font-semibold tracking-[-0.02em] text-[#111111] dark:text-white leading-none">
                 {stat.number}
               </p>
               <p className="text-[14px] font-semibold text-[#111111] dark:text-white mt-2">
                 {stat.label}
               </p>
-              <p className="text-[13px] text-[#6B7280] dark:text-[#A1A1AA] mt-2 leading-relaxed">
+              <p className="text-[14px] text-[#6B7280] dark:text-[#A1A1AA] mt-2 leading-relaxed">
                 {stat.description}
               </p>
             </motion.div>

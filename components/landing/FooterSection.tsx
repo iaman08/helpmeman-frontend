@@ -16,11 +16,11 @@ export function FooterSection() {
           <div className="md:col-span-6 flex flex-col items-start gap-4">
             <div className="flex items-center gap-2.5">
               <img src="/logo.svg" alt="HelpMeMan Logo" className="w-8 h-8 object-contain rounded-md border border-white/20 dark:border-neutral-300" />
-              <span className="font-bold text-[20px] tracking-tight text-white dark:text-neutral-900">
+              <span className="font-semibold text-[20px] tracking-tight text-white dark:text-neutral-900">
                 HelpMeMan
               </span>
             </div>
-            <p className="text-[14px] text-[#8E8E93] dark:text-neutral-600 leading-relaxed max-w-sm">
+            <p className="text-[15px] text-[#8E8E93] dark:text-neutral-600 leading-relaxed max-w-sm">
               Connecting students and professionals with verified mentors from
               IITs, AIIMS, FAANG, and YC startups.
             </p>
@@ -71,10 +71,10 @@ export function FooterSection() {
 
           {/* Right link columns */}
           <div className="md:col-span-3 flex flex-col gap-4">
-            <h4 className="text-[13px] font-bold text-white dark:text-neutral-900 uppercase tracking-[0.1em]">
+            <h4 className="text-[13px] font-semibold text-white dark:text-neutral-900 uppercase tracking-[0.06em]">
               Explore
             </h4>
-            <div className="flex flex-col gap-2.5 text-[14px] text-[#8E8E93] dark:text-neutral-600">
+            <div className="flex flex-col gap-2.5 text-[15px] text-[#8E8E93] dark:text-neutral-600">
               <Link href="/services" className="hover:text-white dark:hover:text-neutral-900 transition-colors">
                 All Services
               </Link>
@@ -94,14 +94,14 @@ export function FooterSection() {
           </div>
 
           <div className="md:col-span-3 flex flex-col gap-4">
-            <h4 className="text-[13px] font-bold text-white dark:text-neutral-900 uppercase tracking-[0.1em]">
+            <h4 className="text-[13px] font-semibold text-white dark:text-neutral-900 uppercase tracking-[0.06em]">
               Support & Community
             </h4>
-            <div className="flex flex-col gap-2.5 text-[14px] text-[#8E8E93] dark:text-neutral-600">
+            <div className="flex flex-col gap-2.5 text-[15px] text-[#8E8E93] dark:text-neutral-600">
               <button
                 type="button"
                 onClick={() => openTawkChat()}
-                className="text-left bg-transparent border-none p-0 cursor-pointer text-[#8E8E93] dark:text-neutral-600 hover:text-white dark:hover:text-neutral-900 transition-colors text-[14px]"
+                className="text-left bg-transparent border-none p-0 cursor-pointer text-[#8E8E93] dark:text-neutral-600 hover:text-white dark:hover:text-neutral-900 transition-colors text-[15px]"
               >
                 Live Chat Support
               </button>
@@ -126,11 +126,11 @@ export function FooterSection() {
 
         {/* Footer Bottom */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-8 border-t border-[#1F1F23] dark:border-neutral-200">
-          <p className="text-[12px] text-[#8E8E93] dark:text-neutral-500 order-2 sm:order-1">
+          <p className="text-[13px] text-[#8E8E93] dark:text-neutral-500 order-2 sm:order-1">
             &copy; {currentYear} HelpMeMan. All rights reserved.
           </p>
 
-          <div className="flex flex-wrap gap-x-6 gap-y-2 text-[12px] text-[#8E8E93] dark:text-neutral-600 order-1 sm:order-2 justify-center sm:justify-end">
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-[13px] text-[#8E8E93] dark:text-neutral-600 order-1 sm:order-2 justify-center sm:justify-end">
             <Link href="/terms" className="hover:text-white dark:hover:text-neutral-900 transition-colors">
               Terms & Conditions
             </Link>
@@ -140,7 +140,7 @@ export function FooterSection() {
             <button
               type="button"
               onClick={() => openDpdpNotice()}
-              className="hover:text-white dark:hover:text-neutral-900 transition-colors cursor-pointer text-[12px] text-[#8E8E93] dark:text-neutral-600 bg-transparent border-none p-0 inline-block"
+              className="hover:text-white dark:hover:text-neutral-900 transition-colors cursor-pointer text-[13px] text-[#8E8E93] dark:text-neutral-600 bg-transparent border-none p-0 inline-block"
             >
               DPDP Act
             </button>

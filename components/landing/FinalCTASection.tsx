@@ -18,10 +18,10 @@ export function FinalCTASection() {
           transition={{ duration: 0.7 }}
           className="max-w-3xl mx-auto"
         >
-          <h2 className="text-[clamp(32px,5vw,56px)] font-semibold tracking-[-0.03em] text-[#111111] dark:text-white leading-[1.05] mb-4">
+          <h2 className="public-section-title text-[#111111] dark:text-white mb-4">
             Your next breakthrough is one conversation away.
           </h2>
-          <p className="text-[17px] text-[#6B7280] dark:text-[#A1A1AA] leading-relaxed max-w-xl mx-auto mb-6">
+          <p className="public-section-description text-[#6B7280] dark:text-[#A1A1AA] max-w-xl mx-auto mb-6">
             Skip months of trial and error. Connect directly with the top 1% who have already walked your path.
           </p>
 

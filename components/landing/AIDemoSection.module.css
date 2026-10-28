@@ -1,0 +1,98 @@
+.prompt {
+  position: relative;
+  isolation: isolate;
+  border: 1.5px solid transparent;
+  border-radius: 28px;
+  padding: 24px;
+  background: linear-gradient(#fff, #fff) padding-box, linear-gradient(115deg, #91b7ef, #c2a4e6 42%, #e9b7c4 72%, #efd2ac) border-box;
+  box-shadow: 0 24px 44px -22px #61578e33, 0 8px 18px -10px #6589bf26;
+}
+
+.prompt::before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: -1;
+  inset: 9px -4px -12px;
+  border-radius: inherit;
+  background: linear-gradient(110deg, #9bc7f322, #c3a0ec26 47%, #edb8c51f 76%, #e9d4aa1f);
+  filter: blur(18px);
+  opacity: .7;
+  transition: opacity 200ms ease;
+}
+
+.prompt:focus-within::before { opacity: 1; }
+
+.prompt:focus-within {
+  outline: 3px solid #9e9cdb33;
+  outline-offset: 5px;
+}
+
+.promptHeading {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #715a91;
+  font-size: .8125rem;
+  font-weight: 600;
+  letter-spacing: .025em;
+  margin-bottom: 17px;
+}
+
+.submit {
+  transition: transform 160ms var(--ease-out), opacity 160ms ease;
+}
+
+.submit:active:not(:focus-visible):not(:disabled) {
+  transform: scale(.97);
+}
+
+.submit:focus-visible, .suggestion:focus-visible {
+  outline: 3px solid #9e9cdb;
+  outline-offset: 4px;
+}
+
+.suggestion {
+  transition: opacity 150ms ease;
+  text-align: left;
+}
+
+.suggestion:disabled {
+  opacity: .55;
+}
+
+:global(html[data-theme="dark"]) .prompt {
+  background: linear-gradient(135deg, #1b2232, #171c2a) padding-box, linear-gradient(115deg, #596d9f, #796995 42%, #936e85 72%, #96856d) border-box;
+  box-shadow: 0 26px 50px -20px #000a, 0 12px 26px -18px #a694c840, inset 0 1px #ffffff05;
+}
+
+:global(html[data-theme="dark"]) .promptHeading {
+  color: #c1b3dc;
+}
+
+:global(html[data-theme="dark"]) .prompt textarea { color: #edf0fa; caret-color: #c0b9f1; }
+:global(html[data-theme="dark"]) .prompt textarea::placeholder { color: #939bb0; }
+:global(html[data-theme="dark"]) .prompt::before { opacity: .35; }
+:global(html[data-theme="dark"]) .prompt:focus-within::before { opacity: .7; }
+:global(html[data-theme="dark"]) .prompt:focus-within { outline-color: #a29bdc55; }
+:global(html[data-theme="dark"]) .suggestion { background: #1a2030; border-color: #343c50; color: #c4cbdf; }
+:global(html[data-theme="dark"]) .suggestion[aria-pressed="true"] { background: #3b3d69; border-color: #9f9ad3; color: #f0ecff; }
+
+@media (max-width: 640px) {
+  .prompt {
+    padding: 20px;
+    border-radius: 23px;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .submit:hover:not(:disabled), .suggestion:hover:not(:disabled) {
+    opacity: .85;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .submit:active:not(:focus-visible):not(:disabled) {
+    transform: none;
+  }
+}

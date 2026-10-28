@@ -18,6 +18,13 @@ export function BrandBanner({
   institutionType,
   className = "",
 }: BrandBannerProps) {
+  // Resolve verified branding from the database. Must run before any early
+  // return: calling it after the `customBannerUrl` branch meant the hook count
+  // changed whenever a custom banner was set or cleared.
+  const brand = useMemo(() => {
+    return resolveOrganizationBranding(organization, institutionType);
+  }, [organization, institutionType]);
+
   // 1. User uploaded custom banner
   if (customBannerUrl && customBannerUrl.trim()) {
     return (
@@ -32,11 +39,6 @@ export function BrandBanner({
       </div>
     );
   }
-
-  // 2. Resolve verified branding from the database
-  const brand = useMemo(() => {
-    return resolveOrganizationBranding(organization, institutionType);
-  }, [organization, institutionType]);
 
   // If no organization or independent
   if (!brand) {

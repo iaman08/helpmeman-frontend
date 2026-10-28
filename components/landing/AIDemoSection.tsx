@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { motion, useInView, AnimatePresence } from "motion/react";
-import { ArrowRight } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { isAxiosError } from "axios";
+import { ArrowRight, Sparkles } from "lucide-react";
+import styles from "./AIDemoSection.module.css";
 import Link from "next/link";
 import api from "@/lib/api";
 import { PriceDisplay } from "@/components/PriceDisplay";
@@ -75,9 +77,7 @@ function MatchAvatar({ mentor, featured }: { mentor: MatchedMentor; featured: bo
           strokeLinecap="round"
           stroke={`url(#${gradId})`}
           strokeDasharray={c}
-          initial={{ strokeDashoffset: c }}
-          animate={{ strokeDashoffset: c - (c * mentor.fit) / 100 }}
-          transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+          strokeDashoffset={c - (c * mentor.fit) / 100}
         />
       </svg>
 
@@ -111,7 +111,6 @@ function MatchAvatar({ mentor, featured }: { mentor: MatchedMentor; featured: bo
 function AIDemoSectionInner() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
-  const inView = useInView(sectionRef, { once: true, margin: "-80px" });
 
   const [inputValue, setInputValue] = useState("");
   const [activeSuggestion, setActiveSuggestion] = useState<string | null>(null);
@@ -125,18 +124,14 @@ function AIDemoSectionInner() {
 
   useEffect(() => {
     if (status !== "loading") return;
-    setLoadingStep(0);
     const t = setInterval(() => setLoadingStep((s) => Math.min(s + 1, LOADING_STEPS.length - 1)), 1100);
     return () => clearInterval(t);
   }, [status]);
 
   useEffect(() => {
-    if (status === "loading") setDemoBotState("thinking");
-    else if (status === "done") {
-      setDemoBotState("success");
-      const t = setTimeout(() => setDemoBotState("idle"), 2200);
-      return () => clearTimeout(t);
-    } else setDemoBotState("idle");
+    if (status !== "done") return;
+    const timer = setTimeout(() => setDemoBotState("idle"), 2200);
+    return () => clearTimeout(timer);
   }, [status]);
 
   const runSearch = useCallback(async (raw: string) => {
@@ -144,6 +139,8 @@ function AIDemoSectionInner() {
     if (query.length < 3) return;
 
     const myId = ++requestId.current;
+    setLoadingStep(0);
+    setDemoBotState("thinking");
     setStatus("loading");
     setErrorMsg("");
     setMentors([]);
@@ -152,11 +149,13 @@ function AIDemoSectionInner() {
       const res = await api.post("/public/ai/match-mentors", { query });
       if (myId !== requestId.current) return;
       setMentors((res.data as MatchResponse).mentors || []);
+      setDemoBotState("success");
       setStatus("done");
-      setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 120);
-    } catch (err: any) {
+      setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "nearest" }), 120);
+    } catch (err: unknown) {
       if (myId !== requestId.current) return;
-      setErrorMsg(err?.response?.data?.error || "We couldn't search right now. Please try again in a moment.");
+      setDemoBotState("idle");
+      setErrorMsg((isAxiosError<{ error?: string }>(err) && err.response?.data?.error) || "We couldn't search right now. Please try again in a moment.");
       setStatus("error");
     }
   }, []);
@@ -179,6 +178,7 @@ function AIDemoSectionInner() {
     setActiveSuggestion(null);
     setMentors([]);
     setErrorMsg("");
+    setDemoBotState("idle");
     setStatus("idle");
   };
 
@@ -188,16 +188,14 @@ function AIDemoSectionInner() {
     <section
       ref={sectionRef}
       id="about"
-      className="py-14 md:py-20 lg:py-24 px-6 bg-white dark:bg-[#0B0B0C] border-t border-[#F3F4F6] dark:border-[#1F1F23] transition-colors duration-300 relative overflow-hidden"
+      className="scroll-mt-24 py-14 md:py-20 lg:py-24 px-6 bg-white dark:bg-[#0B0B0C] border-t border-[#F3F4F6] dark:border-[#1F1F23] transition-colors duration-300 relative overflow-hidden"
     >
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-blue-500/[0.03] dark:bg-blue-600/[0.05] blur-[120px] rounded-full pointer-events-none -z-10" />
 
       <div className="max-w-[960px] mx-auto">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          initial={false}
           className="text-center mb-8 md:mb-10"
         >
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-neutral-200 dark:border-white/[0.08] bg-neutral-100/90 dark:bg-[#18181F] text-neutral-800 dark:text-neutral-200 text-[12px] font-semibold mb-5 select-none shadow-xs">
@@ -205,25 +203,25 @@ function AIDemoSectionInner() {
             <span>Ruth AI Copilot</span>
           </div>
 
-          <h2 className="text-[clamp(32px,5.5vw,56px)] font-bold tracking-[-0.035em] text-[#111111] dark:text-white leading-[1.08]">
+          <h2 className="public-section-title text-[#111111] dark:text-white">
             What do you need help with?
           </h2>
 
-          <p className="mt-3.5 text-[16px] sm:text-[18px] text-[#6B7280] dark:text-[#9CA3AF] max-w-xl mx-auto leading-relaxed font-normal">
+          <p className="public-section-description mt-3.5 text-[#6B7280] dark:text-[#9CA3AF] max-w-xl mx-auto">
             Describe it and we will find the people who have done it.
           </p>
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.65, delay: 0.1 }}
+          initial={false}
           className="max-w-[780px] mx-auto"
         >
           {/* Prompt box */}
-          <div className="relative rounded-[28px] sm:rounded-[32px] p-5 sm:p-7 bg-[#FBFBFC] dark:bg-[#131317] border border-neutral-200/90 dark:border-white/[0.08] shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.45)] transition-all focus-within:border-[#0066FF]/60 focus-within:ring-4 focus-within:ring-[#0066FF]/10">
+          <div className={styles.prompt}>
+            <div className={styles.promptHeading}><Sparkles size={15} aria-hidden="true" /> A GOOD CONVERSATION STARTS WITH A QUESTION</div>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <textarea
+                aria-label="What do you need help with?"
                 rows={2}
                 value={inputValue}
                 maxLength={500}
@@ -265,7 +263,7 @@ function AIDemoSectionInner() {
                   <button
                     type="submit"
                     disabled={inputValue.trim().length < 3 || isLoading}
-                    className="inline-flex items-center gap-2 px-6 py-2.5 sm:py-3 rounded-full bg-[#0066FF] hover:bg-[#0052CC] text-white font-semibold text-[13.5px] sm:text-[14.5px] shadow-md shadow-blue-500/25 disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer border-none shrink-0"
+                    className={`${styles.submit} inline-flex items-center gap-2 px-6 py-2.5 sm:py-3 rounded-full bg-[#0066FF] text-white font-semibold text-[13.5px] sm:text-[14.5px] shadow-md shadow-blue-500/25 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer border-none shrink-0`}
                   >
                     <span>Find an expert</span>
                     <ArrowRight size={15} />
@@ -283,12 +281,13 @@ function AIDemoSectionInner() {
                 <button
                   key={text}
                   type="button"
+                  aria-pressed={selected}
                   disabled={isLoading}
                   onClick={() => handleSuggestion(text)}
-                  className={`px-4 py-2 sm:py-2.5 rounded-full text-[12.5px] sm:text-[13.5px] font-medium transition-all duration-200 cursor-pointer disabled:cursor-wait ${
+                  className={`${styles.suggestion} px-4 py-2 sm:py-2.5 rounded-full text-[12.5px] sm:text-[13.5px] font-medium cursor-pointer disabled:cursor-wait ${
                     selected
-                      ? "bg-[#0066FF] text-white shadow-md shadow-blue-500/25 scale-[1.02] border border-[#0066FF]"
-                      : "bg-[#F3F4F6] dark:bg-[#1A1A22] text-[#374151] dark:text-[#D1D5DB] hover:text-[#111111] dark:hover:text-white border border-[#E5E7EB] dark:border-white/[0.08] hover:border-neutral-300 dark:hover:border-white/20 hover:scale-[1.01]"
+                      ? "bg-[#0066FF] text-white shadow-md shadow-blue-500/25 border border-[#0066FF]"
+                      : "bg-[#F3F4F6] dark:bg-[#1A1A22] text-[#374151] dark:text-[#D1D5DB] hover:text-[#111111] dark:hover:text-white border border-[#E5E7EB] dark:border-white/[0.08] hover:border-neutral-300 dark:hover:border-white/20"
                   }`}
                 >
                   {text}
@@ -326,8 +325,8 @@ function AIDemoSectionInner() {
             {status === "error" && (
               <motion.div
                 key="error"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="mt-8 max-w-[780px] mx-auto rounded-2xl px-5 py-4 bg-rose-50 dark:bg-rose-950/30 border border-rose-200/70 dark:border-rose-900/50 text-[13.5px] text-rose-700 dark:text-rose-300"
               >
@@ -362,10 +361,9 @@ function AIDemoSectionInner() {
                     return (
                       <motion.div
                         key={m.id}
-                        initial={{ opacity: 0, y: 22 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        whileHover={{ y: -6 }}
-                        transition={{ duration: 0.5, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
                         className={`relative rounded-[28px] ${
                           featured
                             ? "p-[1.5px] bg-gradient-to-b from-[#4F9BFF] via-[#0066FF]/60 to-[#0066FF]/10 shadow-[0_20px_50px_rgba(0,82,255,0.18)]"
@@ -443,8 +441,8 @@ function AIDemoSectionInner() {
             {status === "done" && mentors.length === 0 && (
               <motion.div
                 key="empty"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="mt-10 max-w-[780px] mx-auto rounded-3xl px-6 py-8 text-center bg-[#FBFBFC] dark:bg-[#131317] border border-neutral-200/90 dark:border-white/[0.08]"
               >

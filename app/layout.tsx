@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { MotionProvider } from "@/components/MotionProvider";
 import { SidebarProvider } from "@/components/SidebarContext";
 import { AuthProvider } from "@/lib/auth-context";
 import { ToastProvider } from "@/components/Toast";
@@ -12,47 +13,16 @@ import GoogleAuthOverlay from "@/components/GoogleAuthOverlay";
 import { LoaderProvider } from "@/components/LoaderContext";
 import { CurrencyProvider } from "@/lib/currency-context";
 
-import { PublicThemeManager } from "@/components/PublicThemeManager";
 
 import { SocketProvider } from "@/lib/socket-context";
 import { PlatformReviewTrigger } from "@/components/PlatformReviewTrigger";
 import { TawkToScript } from "@/components/TawkToScript";
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 
+// Use one authoritative variable face: the legacy "Bold" asset is actually weight 900.
 const mSaans = localFont({
-  src: [
-    {
-      path: "./fonts/MSaans-Regular.woff2",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "./fonts/MSaans-SemiBold.woff2",
-      weight: "500",
-      style: "normal",
-    },
-    {
-      path: "./fonts/MSaans-SemiBold.woff2",
-      weight: "600",
-      style: "normal",
-    },
-    {
-      path: "./fonts/MSaans-Bold.woff2",
-      weight: "700",
-      style: "normal",
-    },
-    {
-      path: "./fonts/MSaans-Bold.woff2",
-      weight: "800",
-      style: "normal",
-    },
-    {
-      path: "./fonts/MSaans-Variable.woff2",
-      weight: "300 900",
-      style: "normal",
-    },
-  ],
-  variable: "--font-sans",
+  src: [{ path: "./fonts/MSaans-Variable.woff2", weight: "300 900", style: "normal" }],
+  variable: "--font-ui",
   display: "swap",
 });
 
@@ -186,7 +156,8 @@ export default function RootLayout({
       className={`${mSaans.variable} antialiased selection:bg-white selection:text-black`}
     >
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <script dangerouslySetInnerHTML={{ __html: `(function(){var t='light';try{if(localStorage.getItem('helpmeman.theme')==='dark')t='dark'}catch(e){}var d=document.documentElement;d.dataset.theme=t;d.classList.toggle('dark',t==='dark');d.style.colorScheme=t})()` }} />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrganization) }}
@@ -198,9 +169,9 @@ export default function RootLayout({
       </head>
       <body className="font-sans bg-bg text-fg overflow-x-hidden">
         <ThemeProvider>
+          <MotionProvider>
           <SidebarProvider>
             <LoaderProvider>
-              <PublicThemeManager />
               <AuthProvider>
                 <CurrencyProvider>
                   <GoogleAuthOverlay />
@@ -220,6 +191,7 @@ export default function RootLayout({
               </AuthProvider>
             </LoaderProvider>
           </SidebarProvider>
+          </MotionProvider>
         </ThemeProvider>
       </body>
     </html>
