@@ -6,6 +6,7 @@ import {
   Download, FileText, AlertCircle, X
 } from "lucide-react";
 import type { ChatMessage, ChatAttachment } from "@/lib/types";
+import { useNow } from "@/hooks/useNow";
 
 const REACTION_EMOJIS = ["❤️", "👍", "😂", "😮", "😢", "🔥"];
 
@@ -464,6 +465,9 @@ function formatTime(d: string) {
   return new Date(d).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
 }
 
+/* How long a sent message stays editable. */
+const EDIT_WINDOW_MS = 15 * 60 * 1000;
+
 export function MessageBubble({
   msg, isMine, isLastMine, chatTheme, onReply, onEdit, onDelete, onReact, userId, otherName, onProfileClick, onImageClick,
 }: MessageBubbleProps) {
@@ -498,17 +502,23 @@ export function MessageBubble({
     setDeletedForMe(true);
   }, [msg.id]);
 
-  if (deletedForMe) return null;
-
   const pickerRef = useRef<HTMLDivElement>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const touchMoved = useRef(false);
 
   const isDeleted = !!msg.deletedAt;
   const isEdited = !!msg.editedAt && !isDeleted;
+
+  // The 15-minute edit window used to be computed with Date.now() during render:
+  // impure (breaks React Compiler / StrictMode) and it never expired, because
+  // nothing re-rendered at the deadline. Read the clock from a store instead.
+  const now = useNow();
   const canEdit =
-    isMine && !isDeleted && !!msg.createdAt &&
-    Date.now() - new Date(msg.createdAt).getTime() < 15 * 60 * 1000;
+    isMine &&
+    !isDeleted &&
+    !!msg.createdAt &&
+    now > 0 &&
+    new Date(msg.createdAt).getTime() + EDIT_WINDOW_MS > now;
 
   const attachments = Array.isArray(msg.attachments) ? (msg.attachments as ChatAttachment[]) : null;
 
@@ -550,6 +560,11 @@ export function MessageBubble({
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [showReactionPicker]);
+
+  // "Delete for me" hides the bubble. This used to return before the hooks above,
+  // so hiding a message changed the hook count and React threw
+  // "Rendered fewer hooks than expected" on the next render.
+  if (deletedForMe) return null;
 
   const bubbleSty = bubbleStyle(chatTheme, isMine);
 
