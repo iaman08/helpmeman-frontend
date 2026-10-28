@@ -15,7 +15,7 @@ Current code from `/Users/prativ/dev/helpmeman-platform/frontend/components/land
 
 ```tsx
 38:   }, [exampleIndex, onExampleChange]);
-39: 
+39:
 40:   useEffect(() => {
 41:     if (reduceMotion || !playing || !inView || !pageVisible) return;
 42:     const timer = window.setTimeout(() => {
@@ -24,7 +24,7 @@ Current code from `/Users/prativ/dev/helpmeman-platform/frontend/components/land
 45:     }, [1100, 1000, 3200][phase]);
 46:     return () => window.clearTimeout(timer);
 47:   }, [step, phase, playing, inView, pageVisible, reduceMotion]);
-48: 
+48:
 49:   return (
 ```
 

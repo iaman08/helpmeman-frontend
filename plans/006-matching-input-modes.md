@@ -18,7 +18,7 @@ Current code from `/Users/prativ/dev/helpmeman-platform/frontend/components/matc
 132:   useEffect(() => {
 133:     const handler = (e: KeyboardEvent) => {
 134:       if (showFilters || matchedMentor) return;
-135: 
+135:
 136:       switch (e.key) {
 137:         case "ArrowLeft":
 138:           e.preventDefault();

@@ -15,23 +15,23 @@ Current code from `/Users/prativ/dev/helpmeman-platform/frontend/components/Toas
 
 ```tsx
 46: }
-47: 
+47:
 48: function ToastItem({ data, onDismiss }: { data: ToastData; onDismiss: (id: number) => void }) {
 49:   const [visible, setVisible] = useState(false);
 50:   const [exiting, setExiting] = useState(false);
-51: 
+51:
 52:   useEffect(() => {
 53:     // Trigger entrance
 54:     requestAnimationFrame(() => setVisible(true));
-55: 
+55:
 56:     const timer = setTimeout(() => {
 57:       setExiting(true);
 58:       setTimeout(() => onDismiss(data.id), 300);
 59:     }, 3500);
-60: 
+60:
 61:     return () => clearTimeout(timer);
 62:   }, [data.id, onDismiss]);
-63: 
+63:
 64:   const icons = {
 ```
 

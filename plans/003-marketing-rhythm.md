@@ -14,7 +14,7 @@ Three counts currently consume a 135vh sticky section while logo physics continu
 Current code from `/Users/prativ/dev/helpmeman-platform/frontend/components/landing/FloatingStatsSection.tsx:389`:
 
 ```tsx
-389: 
+389:
 390:   return (
 391:     <section
 392:       ref={sectionRef}
