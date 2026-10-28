@@ -291,7 +291,7 @@ export default function LinkedInOnboarding({
 
       // If token provided, establish session
       const establishAndLoad = async () => {
-        if (token) {
+        if (token && localStorage.getItem("helpmeman.accessToken") !== token) {
           await setSessionFromToken(token, refreshToken || undefined);
         }
         try {
@@ -319,6 +319,7 @@ export default function LinkedInOnboarding({
     try {
       const payload = {
         displayName: form.displayName,
+        headline: form.headline,
         bio: form.bio,
         currentRole: form.currentRole,
         company: form.company,
@@ -1058,7 +1059,7 @@ export default function LinkedInOnboarding({
               Here is what mentees will see
             </h1>
             <p className="text-xs sm:text-sm text-[var(--muted)] mt-1">
-              You own the final decision. Once published, your profile becomes active on HelpMeMan.
+              Confirm your details to submit your application. Our team will review your profile before it becomes active on HelpMeMan.
             </p>
           </div>
 
@@ -1179,12 +1180,12 @@ export default function LinkedInOnboarding({
               {isSubmitting ? (
                 <>
                   <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Publishing...
+                  Submitting...
                 </>
               ) : (
                 <>
                   <Check className="h-4 w-4" />
-                  Publish Mentor Profile
+                  Submit for Admin Review
                 </>
               )}
             </button>
@@ -1206,19 +1207,19 @@ export default function LinkedInOnboarding({
           </div>
 
           <h1 className="text-3xl font-display font-semibold tracking-tight">
-            Profile Published!
+            Application Submitted!
           </h1>
           <p className="mt-2 text-sm text-[var(--muted)] leading-relaxed">
-            Welcome to the HelpMeMan mentor community, {form.displayName}. Your profile is now live and ready to connect with mentees.
+            Thanks, {form.displayName}. Your mentor application has been submitted for admin review. You can check its status while our team reviews your details.
           </p>
 
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
             <button
               type="button"
-              onClick={() => router.replace("/mentor")}
+              onClick={() => router.replace("/mentor/status")}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--fg)] text-[var(--bg)] px-6 py-3 text-sm font-semibold hover:scale-[1.02] transition cursor-pointer"
             >
-              Go to Mentor Dashboard
+              View Application Status
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
