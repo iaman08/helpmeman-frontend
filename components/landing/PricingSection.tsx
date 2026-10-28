@@ -1,8 +1,8 @@
 "use client";
 
-import { motion, useInView } from "motion/react";
-import { useRef } from "react";
-import { Check } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Check } from "lucide-react";
+import styles from "./MarketingSections.module.css";
 import { PriceDisplay } from "@/components/PriceDisplay";
 
 const pricingTiers = [
@@ -17,7 +17,6 @@ const pricingTiers = [
       "30-day offline chat follow-up",
       "Basic study templates & resources",
     ],
-    cta: "Book Starter Session",
     popular: false,
   },
   {
@@ -31,7 +30,6 @@ const pricingTiers = [
       "30-day offline chat follow-up",
       "Resume review & roadmap builder",
     ],
-    cta: "Book Undergrad Session",
     popular: true,
   },
   {
@@ -45,7 +43,6 @@ const pricingTiers = [
       "30-day offline chat follow-up",
       "Mock interview & referral guidance",
     ],
-    cta: "Book Career Session",
     popular: false,
   },
   {
@@ -59,108 +56,32 @@ const pricingTiers = [
       "7-day priority chat follow-up",
       "Direct referral pool access",
     ],
-    cta: "Book Premium Session",
     popular: false,
   },
 ];
 
 
 export function PricingSection() {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
-
   return (
-    <section id="pricing" ref={ref} className="py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0A0A0A] border-t border-[#F3F4F6] dark:border-[#1F1F23] transition-colors duration-300">
-      <div className="max-w-[1200px] mx-auto px-6">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center max-w-3xl mx-auto mb-10 md:mb-12"
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-wider mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-            Simple, Transparent Pricing
-          </div>
-
-          <h2 className="text-[clamp(28px,4vw,44px)] font-bold tracking-[-0.02em] text-[#111111] dark:text-white leading-[1.1]">
-            Investment in your future
-          </h2>
-          <p className="mt-4 text-[16px] text-[#6B7280] dark:text-[#A1A1AA] leading-relaxed">
-            Choose the mentorship format that fits your immediate goals and budget. No hidden fees or recurring subscriptions.
-          </p>
-        </motion.div>
-
-        {/* Pricing Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.4 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch"
-        >
-            {pricingTiers.map((tier, index) => (
-              <div
-                key={tier.name}
-                className={`relative flex flex-col rounded-2xl p-6 transition-all duration-300 ${tier.popular
-                  ? "bg-[#111111] dark:bg-white text-white dark:text-[#111111] shadow-xl scale-[1.02] md:scale-[1.03] lg:scale-[1.04] border border-transparent"
-                  : "bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] text-[#111111] dark:text-white hover:border-[#CCCCCC] dark:hover:border-[#3F3F46] hover:shadow-md"
-                  }`}
-              >
-                {tier.popular && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#2563EB] text-white text-[10px] uppercase font-bold tracking-[0.15em] px-3 py-1 rounded-full">
-                    Most Chosen
-                  </div>
-                )}
-
-                {/* Title & Price */}
-                <div className="mb-6">
-                  <h3 className={`text-[15px] font-medium tracking-tight uppercase ${tier.popular ? "text-[#9CA3AF] dark:text-[#6B7280]" : "text-[#6B7280] dark:text-[#A1A1AA]"}`}>
-                    {tier.name}
-                  </h3>
-                  <div className="mt-3 flex items-baseline gap-1.5">
-                    <span className="text-[40px] font-semibold tracking-[-0.02em] leading-none">
-                      <PriceDisplay amountInPaise={tier.priceInPaise} />
-                    </span>
-                    <span className={`text-[13px] ${tier.popular ? "text-[#9CA3AF] dark:text-[#6B7280]" : "text-[#6B7280] dark:text-[#A1A1AA]"}`}>
-                      / {tier.duration}
-                    </span>
-                  </div>
-                  <p className={`mt-4 text-[13px] leading-[1.6] ${tier.popular ? "text-[#D1D5DB] dark:text-[#4B5563]" : "text-[#4B5563] dark:text-[#D1D5DB]"}`}>
-                    {tier.description}
-                  </p>
-                </div>
-
-                {/* Divider */}
-                <div className={`h-px w-full my-1 ${tier.popular ? "bg-[#27272A] dark:bg-[#E5E7EB]" : "bg-[#F3F4F6] dark:bg-[#27272A]"}`} />
-
-                {/* Features */}
-                <ul className="space-y-4 my-6 flex-1">
-                  {tier.features.map((feature, fIndex) => (
-                    <li key={fIndex} className="flex items-start gap-2.5 text-[13px] leading-snug">
-                      <Check
-                        size={15}
-                        className="mt-0.5 flex-shrink-0 text-[#2563EB]"
-                      />
-                      <span className={tier.popular ? "text-[#E5E7EB] dark:text-[#374151]" : "text-[#374151] dark:text-[#D1D5DB]"}>
-                        {feature}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Action Button */}
-                <button
-                  className={`w-full py-3 px-4 rounded-xl text-[13px] font-medium transition-all duration-200 active:scale-[0.98] ${tier.popular
-                    ? "bg-[#2563EB] text-white hover:bg-[#3B82F6]"
-                    : "bg-[#F3F4F6] dark:bg-[#27272A] text-[#111111] dark:text-white hover:bg-[#E5E7EB] dark:hover:bg-[#3F3F46]"
-                    }`}
-                >
-                  {tier.cta}
-                </button>
-              </div>
-            ))}
-          </motion.div>
+    <section id="pricing" className={styles.pricingSection} aria-labelledby="pricing-heading">
+      <div className={styles.sectionInner}>
+        <div className={styles.pricingHeader}>
+          <h2 id="pricing-heading">Investment in your future</h2>
+          <p>Choose the mentorship format that fits your immediate goals and budget. No hidden fees or recurring subscriptions.</p>
+        </div>
+        <div className={styles.pricingGrid}>
+          {pricingTiers.map((tier) => (
+            <article key={tier.name} className={styles.priceCard} data-popular={tier.popular}>
+              <div className={styles.tierNameRow}><h3>{tier.name}</h3>{tier.popular && <span>Most chosen</span>}</div>
+              <div className={styles.tierPrice}><strong><PriceDisplay amountInPaise={tier.priceInPaise} /></strong><span>/ {tier.duration.toLowerCase()}</span></div>
+              <p className={styles.tierDescription}>{tier.description}</p>
+              <ul className={styles.tierFeatures}>
+                {tier.features.map((feature) => <li key={feature}><Check size={15} aria-hidden="true" /><span>{feature}</span></li>)}
+              </ul>
+              <Link href="/mentors" className={styles.tierAction}>Explore mentors <ArrowRight size={15} aria-hidden="true" /></Link>
+            </article>
+          ))}
+        </div>
       </div>
     </section>
   );

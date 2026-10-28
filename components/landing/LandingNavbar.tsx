@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, type MouseEvent } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+import { Popover } from "@base-ui/react/popover";
+import styles from "./LandingNavbar.module.css";
 import { useAuth } from "@/lib/auth-context";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { openTawkChat } from "@/components/TawkToScript";
@@ -29,7 +30,7 @@ export function LandingNavbar() {
   const [scrolled, setScrolled] = useState(false);
   const { user, mentor, loading } = useAuth();
   const pathname = usePathname();
-  const router = useRouter();
+  const [menuKeyboard, setMenuKeyboard] = useState(false);
 
   /** Compute the correct dashboard path for the current user */
   const dashboardPath = useMemo(() => {
@@ -51,17 +52,29 @@ export function LandingNavbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleNavClick = (link: NavLinkItem) => {
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const handleBreakpoint = (event: MediaQueryListEvent) => {
+      if (event.matches) setMobileOpen(false);
+    };
+    desktop.addEventListener("change", handleBreakpoint);
+    return () => desktop.removeEventListener("change", handleBreakpoint);
+  }, []);
+
+  const handleNavLink = (event: MouseEvent<HTMLAnchorElement>, link: NavLinkItem) => {
     setMobileOpen(false);
-    if (link.isSupport) {
-      openTawkChat();
-      return;
-    }
-    if (link.id && pathname === "/") {
-      document.getElementById(link.id)?.scrollIntoView({ behavior: "smooth" });
-    } else if (link.href) {
-      router.push(link.href);
-    }
+    if (!link.id || pathname !== "/" || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+    const target = document.getElementById(link.id);
+    if (!target) return;
+    event.preventDefault();
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    target.scrollIntoView({ behavior: reduced || event.detail === 0 ? "instant" : "smooth" });
+    window.history.pushState(null, "", link.href);
+  };
+
+  const handleSupport = () => {
+    setMobileOpen(false);
+    openTawkChat();
   };
 
   const isLoggedIn = !loading && user;
@@ -79,15 +92,11 @@ export function LandingNavbar() {
         </Link>
 
         {/* Right Side: Desktop Navigation Links & Actions (matching reference) */}
-        <div className="hidden lg:flex items-center gap-6 xl:gap-7">
-          {navLinks.map((link) => (
-            <button
-              key={link.label}
-              onClick={() => handleNavClick(link)}
-              className="nav-link-pill text-[14px] font-semibold text-[#141414] dark:text-[#f4f4f5] hover:opacity-75 transition-opacity bg-transparent border-none cursor-pointer p-0 whitespace-nowrap tracking-[-0.01em]"
-            >
-              {link.label}
-            </button>
+        <div className="hidden lg:flex items-center gap-4 xl:gap-5">
+          {navLinks.map((link) => link.isSupport ? (
+            <button key={link.label} onClick={handleSupport} className={styles.desktopLink}>{link.label}</button>
+          ) : (
+            <Link key={link.label} href={link.href!} onClick={(event) => handleNavLink(event, link)} className={styles.desktopLink}>{link.label}</Link>
           ))}
 
           {!isLoggedIn ? (
@@ -106,81 +115,43 @@ export function LandingNavbar() {
             </Link>
           )}
 
-          <AnimatePresence>
-            {!isLoggedIn && scrolled && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9, width: 0 }}
-                animate={{ opacity: 1, scale: 1, width: "auto" }}
-                exit={{ opacity: 0, scale: 0.9, width: 0 }}
-                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                className="overflow-hidden flex items-center"
-              >
-                <Link
-                  href="/?auth=signup"
-                  className="text-[13px] font-semibold text-white dark:text-black bg-[#141414] dark:bg-[#f4f4f5] px-4 py-1.5 rounded-full hover:opacity-90 active:scale-[0.98] transition-all no-underline whitespace-nowrap shadow-sm inline-block"
-                >
-                  Join for free
-                </Link>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {!isLoggedIn && <Link href="/?auth=signup" className={styles.guestAction}>Join for free</Link>}
 
           <ThemeToggle variant="pill" />
         </div>
 
-        {/* Mobile Controls */}
-        <div className="flex items-center gap-2 lg:hidden">
-          <ThemeToggle variant="pill" />
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="bg-transparent border-none cursor-pointer text-[#141414] dark:text-[#f4f4f5] p-1 flex items-center justify-center"
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
-        </div>
-
-        {/* Mobile Dropdown Panel */}
-        {mobileOpen && (
-          <div className="mobile-dropdown-panel lg:hidden">
-            <div className="flex flex-col gap-1">
-              {navLinks.map((link) => (
-                <button
-                  key={link.label}
-                  onClick={() => handleNavClick(link)}
-                  className="text-left py-2.5 text-[14px] font-semibold text-[#141414] dark:text-[#f4f4f5] bg-transparent border-none cursor-pointer"
-                >
-                  {link.label}
-                </button>
-              ))}
-            </div>
-            {!isLoggedIn ? (
-              <div className="border-t border-[var(--hairline)] mt-2 pt-3 flex gap-2">
-                <Link
-                  href="/?auth=signin"
-                  className="flex-1 text-center py-2.5 text-[14px] font-semibold text-[#141414] dark:text-[#f4f4f5] border border-[var(--hairline)] rounded-xl no-underline"
-                >
-                  Log in
-                </Link>
-                <Link
-                  href="/?auth=signup"
-                  className="flex-1 text-center py-2.5 text-[14px] font-semibold text-white dark:text-black bg-[#141414] dark:bg-[#f4f4f5] rounded-xl no-underline"
-                >
-                  Join for free
-                </Link>
-              </div>
-            ) : (
-              <div className="border-t border-[var(--hairline)] mt-2 pt-3 flex">
-                <Link
-                  href={dashboardPath}
-                  className="flex-1 text-center py-2.5 text-[14px] font-semibold text-white dark:text-black bg-[#141414] dark:bg-[#f4f4f5] rounded-xl no-underline shadow-sm"
-                >
-                  Go to Dashboard
-                </Link>
-              </div>
-            )}
+        {/* Base UI owns dismissal, focus return and transition lifetime. */}
+        <Popover.Root open={mobileOpen} onOpenChange={(open, details) => {
+          setMenuKeyboard(details.event.type.startsWith("key") || (details.event.type === "click" && "detail" in details.event && details.event.detail === 0));
+          setMobileOpen(open);
+        }}>
+          <div className="flex items-center gap-1 lg:hidden">
+            <ThemeToggle variant="pill" />
+            <Popover.Trigger className={styles.menuTrigger} aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}>
+              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            </Popover.Trigger>
           </div>
-        )}
+          <Popover.Portal>
+            <Popover.Positioner side="bottom" align="end" sideOffset={16} collisionPadding={16} positionMethod="fixed" className={styles.positioner}>
+              <Popover.Popup className={styles.popup} data-keyboard={menuKeyboard}>
+                <Popover.Title className="sr-only">Main navigation</Popover.Title>
+                <div className={styles.menuItems}>
+                  {navLinks.map((link) => link.isSupport ? (
+                    <button key={link.label} onClick={handleSupport} className={styles.menuLink}>{link.label}</button>
+                  ) : (
+                    <Link key={link.label} href={link.href!} onClick={(event) => handleNavLink(event, link)} className={styles.menuLink}>{link.label}</Link>
+                  ))}
+                </div>
+                <div className={styles.menuFooter}>
+                  {!isLoggedIn ? <>
+                    <Link href="/?auth=signin" onClick={() => setMobileOpen(false)} className={styles.menuAction}>Log in</Link>
+                    <Link href="/?auth=signup" onClick={() => setMobileOpen(false)} className={`${styles.menuAction} ${styles.menuPrimary}`}>Join for free</Link>
+                  </> : <Link href={dashboardPath} onClick={() => setMobileOpen(false)} className={`${styles.menuAction} ${styles.menuPrimary}`}>Go to Dashboard</Link>}
+                </div>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
       </div>
     </nav>
   );

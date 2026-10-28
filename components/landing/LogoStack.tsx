@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 
 /* ─────────────────────────────────────────────────────────
    Mobbin-style Stacked Logo Cards
@@ -320,15 +320,16 @@ export function LogoStack({
   const [internalIndex, setInternalIndex] = useState(0);
   const isControlled = activeIndex !== undefined;
   const currentIndex = isControlled ? activeIndex : internalIndex;
+  const reduceMotion = useReducedMotion();
 
   // Uncontrolled fallback timer
   useEffect(() => {
-    if (isControlled) return;
+    if (isControlled || reduceMotion) return;
     const timer = setInterval(() => {
       setInternalIndex((prev) => (prev + 1) % LOGOS.length);
     }, ROTATE_MS);
     return () => clearInterval(timer);
-  }, [isControlled]);
+  }, [isControlled, reduceMotion]);
 
   const total = LOGOS.length;
   const safeCurrentIndex = ((currentIndex % total) + total) % total;
@@ -350,12 +351,25 @@ export function LogoStack({
     >
       {/* Stack container */}
       <div
-        className="relative cursor-pointer select-none"
+        className="relative cursor-pointer select-none rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-neutral-500"
         style={{
           width: CARD_SIZE,
           height: CARD_SIZE + 40,
         }}
+        role="button"
+        tabIndex={0}
+        aria-label={`Show the next mentor background. Currently ${LOGOS[safeCurrentIndex]?.name ?? "a university or company"}.`}
         onClick={() => {
+          const nextIdx = (safeCurrentIndex + 1) % total;
+          if (onSelectIndex) {
+            onSelectIndex(nextIdx);
+          } else {
+            setInternalIndex(nextIdx);
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key !== "Enter" && e.key !== " ") return;
+          e.preventDefault();
           const nextIdx = (safeCurrentIndex + 1) % total;
           if (onSelectIndex) {
             onSelectIndex(nextIdx);

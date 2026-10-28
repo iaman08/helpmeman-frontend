@@ -4,32 +4,26 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-@font-face {
-  font-family: 'M Saans';
-  src: url('/fonts/MSaans-Variable.woff2') format('woff2-variations'),
-       url('/fonts/MSaans-Variable.woff2') format('woff2');
-  font-weight: 300 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'M Saans';
-  src: url('/fonts/MSaans-SemiBold.woff2') format('woff2');
-  font-weight: 500 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'M Saans';
-  src: url('/fonts/MSaans-Bold.woff2') format('woff2');
-  font-weight: 700 900;
-  font-style: normal;
-  font-display: swap;
-}
+/* One locally hosted variable font supplies every UI weight. */
 
 :root {
+  --font-sans: var(--font-ui), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --type-display: clamp(2.125rem, 5.8vw, 4.5rem);
+  --type-section: clamp(1.875rem, 3.5vw, 2.75rem);
+  --type-card: 1.25rem;
+  --type-body: 1rem;
+  --type-small: .875rem;
+  --type-caption: .8125rem;
+  --type-heading-weight: 600;
+  --type-heading-tracking: -.025em;
+  --type-body-leading: 1.65;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --motion-press: 160ms;
+  --motion-feedback: 150ms;
+  --motion-surface: 200ms;
+  --motion-dialog: 240ms;
   --bg: #ffffff;
   --fg: #141414;
   --muted: #5b5b5b;
@@ -105,8 +99,8 @@ html.dark,
   --color-hairline: var(--hairline);
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
-  --font-sans: var(--font-sans), 'M Saans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-heading: var(--font-sans), 'M Saans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: var(--font-ui), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-heading: var(--font-ui), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -149,12 +143,15 @@ html,
 body {
   background: var(--bg);
   color: var(--fg);
-  font-family: var(--font-sans), 'M Saans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-ui), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  font-feature-settings: "blwf" on, "cv03" on, "cv04" on, "cv09" on, "cv11" on, "ss07" on;
-  letter-spacing: -0.012em;
+  font-optical-sizing: auto;
+  font-kerning: normal;
+  font-feature-settings: normal;
+  letter-spacing: 0;
+  line-height: 1.6;
 }
 
 /* ── Global Fallbacks for Tailwind v4 [var(--fg)] Utility Classes ── */
@@ -275,6 +272,10 @@ body {
 
 html {
   scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto !important; }
 }
 
 body {

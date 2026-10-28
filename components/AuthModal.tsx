@@ -7,7 +7,8 @@ import OTPInput from "@/components/OTPInput";
 import api, { extractErrorMessage } from "@/lib/api";
 import PasswordStrength from "@/components/PasswordStrength";
 import { X, Eye, EyeOff } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+import { Dialog } from "@base-ui/react/dialog";
+import surfaces from "./PublicDialog.module.css";
 
 import TwoFactorModal from "@/components/TwoFactorModal";
 import CaptchaWidget from "@/components/CaptchaWidget";
@@ -78,20 +79,6 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
     }, 1000);
     return () => clearInterval(timer);
   }, [cooldown]);
-
-  // Prevent scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isOpen]);
-
-  if (!isOpen) return null;
 
   async function handleLoginSubmit(e: FormEvent) {
     e.preventDefault();
@@ -233,33 +220,23 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
   }
 
   return (
-    <AnimatePresence>
-      <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
-        {/* Backdrop */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-          className="absolute inset-0 bg-black/60 backdrop-blur-md"
-        />
-
-        {/* Modal Card */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 10 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          transition={{ duration: 0.25, ease: "easeOut" }}
-          className="relative w-full max-w-md bg-white dark:bg-[#121214] border border-gray-200/60 dark:border-zinc-800/80 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden max-h-[90vh] flex flex-col z-10"
-        >
-          {/* Close button */}
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 p-1.5 rounded-full text-gray-400 dark:text-zinc-500 hover:text-[var(--fg)] hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors z-20 cursor-pointer bg-transparent border-none"
-            aria-label="Close modal"
-          >
-            <X size={18} />
-          </button>
+    <>
+      <Dialog.Root
+        open={isOpen && !twoFactorModalOpen}
+        modal={!twoFactorModalOpen}
+        onOpenChange={(open) => { if (!open && !twoFactorModalOpen) onClose(); }}
+      >
+        <Dialog.Portal>
+          <Dialog.Backdrop className={`${surfaces.backdrop} ${surfaces.authBackdrop}`} />
+          <Dialog.Viewport className={`${surfaces.viewport} ${surfaces.authViewport}`}>
+            <Dialog.Popup
+              finalFocus={twoFactorModalOpen ? false : true}
+              className={`${surfaces.popup} relative w-full max-w-md bg-white dark:bg-[#121214] border border-gray-200/60 dark:border-zinc-800/80 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden max-h-[90dvh] flex flex-col`}
+            >
+              <Dialog.Title className="sr-only">{step === "otp" ? "Verify your email" : mode === "signin" ? "Sign in to HelpMeMan" : "Create your HelpMeMan account"}</Dialog.Title>
+              <Dialog.Close className={`${surfaces.close} absolute top-2 right-2 rounded-full text-gray-500 dark:text-zinc-400 bg-transparent z-20`} aria-label="Close authentication dialog">
+                <X size={18} />
+              </Dialog.Close>
 
           {/* Scrollable Container */}
           <div className="overflow-y-auto px-6 sm:px-8 py-8 no-scrollbar">
@@ -692,15 +669,26 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
               </>
             )}
           </div>
-        </motion.div>
-      </div>
+            </Dialog.Popup>
+          </Dialog.Viewport>
+        </Dialog.Portal>
+      </Dialog.Root>
 
-      <TwoFactorModal
-        isOpen={twoFactorModalOpen}
-        onClose={() => setTwoFactorModalOpen(false)}
-        mode={twoFactorModalMode}
-        tempToken={twoFactorTempToken}
-      />
-    </AnimatePresence>
+      {/* Transfer focus ownership while 2FA is shown; never trap it behind auth. */}
+      <Dialog.Root open={isOpen && twoFactorModalOpen} onOpenChange={(open) => { if (!open) setTwoFactorModalOpen(false); }}>
+        <Dialog.Portal keepMounted>
+          <Dialog.Popup className={surfaces.twoFactorLayer} finalFocus={false}>
+            <Dialog.Title className="sr-only">Two-factor authentication</Dialog.Title>
+            <TwoFactorModal
+              isOpen={isOpen && twoFactorModalOpen}
+              onClose={() => setTwoFactorModalOpen(false)}
+              mode={twoFactorModalMode}
+              tempToken={twoFactorTempToken}
+            />
+            <Dialog.Close className="sr-only" tabIndex={-1}>Close two-factor authentication</Dialog.Close>
+          </Dialog.Popup>
+        </Dialog.Portal>
+      </Dialog.Root>
+    </>
   );
 }

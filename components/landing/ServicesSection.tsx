@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useMemo } from "react";
-import { motion, useInView } from "motion/react";
+import { useState, useMemo } from "react";
+import styles from "./ServicesSection.module.css";
 import Link from "next/link";
 import {
   BookOpen,
@@ -364,9 +364,6 @@ const SERVICES: ServiceItem[] = [
 ];
 
 export function ServicesSection() {
-  const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
-
   const [activeTab, setActiveTab] = useState<"all" | "domain" | "platform" | "typing">("all");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -394,45 +391,43 @@ export function ServicesSection() {
   return (
     <section
       id="services"
-      ref={ref}
-      className="py-20 md:py-28 lg:py-32 bg-[var(--bg)] border-t border-[var(--hairline)] transition-colors duration-300 relative overflow-hidden"
+      className={`${styles.section} pt-28 pb-12 md:pt-32 md:pb-20 bg-[var(--bg)] border-t border-[var(--hairline)] relative overflow-hidden`}
     >
       {/* Background glow effects */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-blue-500/5 blur-[120px] rounded-full pointer-events-none -z-10" />
       <div className="absolute bottom-10 right-10 w-[500px] h-[300px] bg-purple-500/5 blur-[100px] rounded-full pointer-events-none -z-10" />
 
-      <div className="max-w-[1200px] mx-auto px-6">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
         {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+        <div
           className="text-center max-w-3xl mx-auto mb-12 md:mb-16"
         >
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 dark:bg-blue-400/10 text-blue-600 dark:text-blue-400 text-xs font-semibold uppercase tracking-wider mb-4 border border-blue-500/20">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
             Complete Mentorship Ecosystem
           </div>
-          <h2 className="text-[clamp(28px,4.5vw,52px)] font-bold tracking-[-0.03em] text-[var(--fg)] leading-[1.08]">
+          <h2 className="public-section-title text-[var(--fg)]">
             Every Service You Need to Succeed
           </h2>
-          <p className="mt-4 text-[16px] md:text-[18px] text-[var(--muted)] leading-relaxed max-w-2xl mx-auto">
+          <p className="public-section-description mt-4 text-[var(--muted)] max-w-2xl mx-auto">
             From 1:1 strategy calls with verified toppers and engineers to 24/7 Ruth AI guidance, explore our complete range of specialized offerings.
           </p>
-        </motion.div>
+        </div>
 
         {/* Filter Bar: Tabs + Search Input */}
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.15 }}
+        <div
           className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-10 pb-4 border-b border-[var(--hairline)]"
         >
           {/* Tabs */}
-          <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-[#18181B] border border-slate-200 dark:border-[#27272A] w-full sm:w-auto overflow-x-auto no-scrollbar gap-1">
+          <div role="group"
+            aria-label="Filter services"
+            className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-[#18181B] border border-slate-200 dark:border-[#27272A] w-full sm:w-auto overflow-x-auto no-scrollbar gap-1">
             <button
+              type="button"
+              aria-pressed={activeTab === "all"}
+              aria-controls="service-results"
               onClick={() => setActiveTab("all")}
-              className={`px-3 sm:px-4 py-2 text-xs md:text-sm font-semibold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+              className={`px-3 sm:px-4 py-2 text-xs md:text-sm font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
                 activeTab === "all"
                   ? "bg-white dark:bg-[#27272A] text-[var(--fg)] shadow-xs"
                   : "text-[var(--muted)] hover:text-[var(--fg)]"
@@ -441,8 +436,11 @@ export function ServicesSection() {
               All Services ({SERVICES.length})
             </button>
             <button
+              type="button"
+              aria-pressed={activeTab === "domain"}
+              aria-controls="service-results"
               onClick={() => setActiveTab("domain")}
-              className={`px-3 sm:px-4 py-2 text-xs md:text-sm font-semibold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+              className={`px-3 sm:px-4 py-2 text-xs md:text-sm font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
                 activeTab === "domain"
                   ? "bg-white dark:bg-[#27272A] text-[var(--fg)] shadow-xs"
                   : "text-[var(--muted)] hover:text-[var(--fg)]"
@@ -451,8 +449,11 @@ export function ServicesSection() {
               Domain Guidance ({SERVICES.filter((s) => s.category === "domain").length})
             </button>
             <button
+              type="button"
+              aria-pressed={activeTab === "platform"}
+              aria-controls="service-results"
               onClick={() => setActiveTab("platform")}
-              className={`px-3 sm:px-4 py-2 text-xs md:text-sm font-semibold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+              className={`px-3 sm:px-4 py-2 text-xs md:text-sm font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
                 activeTab === "platform"
                   ? "bg-white dark:bg-[#27272A] text-[var(--fg)] shadow-xs"
                   : "text-[var(--muted)] hover:text-[var(--fg)]"
@@ -461,8 +462,11 @@ export function ServicesSection() {
               Core Capabilities ({SERVICES.filter((s) => s.category === "platform").length})
             </button>
             <button
+              type="button"
+              aria-pressed={activeTab === "typing"}
+              aria-controls="service-results"
               onClick={() => setActiveTab("typing")}
-              className={`px-3 sm:px-4 py-2 text-xs md:text-sm font-semibold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+              className={`px-3 sm:px-4 py-2 text-xs md:text-sm font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
                 activeTab === "typing"
                   ? "bg-white dark:bg-[#27272A] text-[var(--fg)] shadow-xs"
                   : "text-[var(--muted)] hover:text-[var(--fg)]"
@@ -477,13 +481,17 @@ export function ServicesSection() {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted)]" />
             <input
               type="text"
+              aria-label="Search services"
+              aria-controls="service-results"
               placeholder="Search services..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 dark:bg-[#18181B] border border-slate-200 dark:border-[#27272A] rounded-xl text-[var(--fg)] placeholder-[var(--muted)] focus:outline-none focus:border-blue-500 transition-colors"
+              className="w-full pl-10 pr-16 py-2 text-base sm:text-sm bg-slate-50 dark:bg-[#18181B] border border-slate-200 dark:border-[#27272A] rounded-xl text-[var(--fg)] placeholder-[var(--muted)] focus:outline-none focus:border-blue-500 transition-colors"
             />
             {searchQuery && (
               <button
+                type="button"
+                aria-label="Clear service search"
                 onClick={() => setSearchQuery("")}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[var(--muted)] hover:text-[var(--fg)] bg-transparent border-none cursor-pointer"
               >
@@ -491,14 +499,11 @@ export function ServicesSection() {
               </button>
             )}
           </div>
-        </motion.div>
+        </div>
 
         {/* Typing Tab Highlight Banner */}
         {activeTab === "typing" && (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
+          <div
             className="mb-8 p-6 md:p-8 rounded-2xl bg-gradient-to-r from-blue-600/10 via-indigo-600/10 to-purple-600/10 border border-blue-500/20 flex flex-col md:flex-row items-center justify-between gap-6"
           >
             <div className="flex items-start gap-4">
@@ -521,15 +526,17 @@ export function ServicesSection() {
             </div>
             <Link
               href="/typing-test"
-              className="px-6 py-3 text-sm font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20 transition-all whitespace-nowrap no-underline shrink-0 flex items-center gap-2"
+              className="px-6 py-3 text-sm font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20 transition-colors whitespace-nowrap no-underline shrink-0 flex items-center gap-2"
             >
               <span>Take Test Now</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
-          </motion.div>
+          </div>
         )}
 
-        {/* Services Grid */}
+        <p role="status" className={styles.resultCount}>{filteredServices.length} {filteredServices.length === 1 ? "service" : "services"}{searchQuery.trim() ? ` matching “${searchQuery.trim()}”` : " to explore"}</p>
+        <div id="service-results">
+          {/* Services Grid */}
         {filteredServices.length === 0 ? (
           <div className="text-center py-16 px-4 bg-slate-50 dark:bg-[#18181B] rounded-2xl border border-dashed border-slate-300 dark:border-[#27272A]">
             <Filter className="w-8 h-8 mx-auto text-[var(--muted)] mb-3 opacity-60" />
@@ -549,22 +556,19 @@ export function ServicesSection() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredServices.map((service, index) => {
+            {filteredServices.map((service) => {
               const IconComponent = service.icon;
               return (
-                <motion.div
+                <article
                   key={service.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={inView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.4, delay: Math.min(index * 0.04, 0.4) }}
-                  className="group relative flex flex-col justify-between p-6 rounded-2xl bg-white dark:bg-[#121214] border border-slate-200/80 dark:border-[#27272A] hover:border-blue-500/40 dark:hover:border-blue-500/40 hover:shadow-xl dark:hover:shadow-2xl dark:hover:shadow-blue-500/5 transition-all duration-300"
+                  className={`${styles.serviceCard} relative flex flex-col justify-between p-6 rounded-2xl bg-white dark:bg-[#121214] border border-slate-200/80 dark:border-[#27272A]`}
                 >
                   {/* Top Header */}
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       {/* Icon Badge */}
                       <div
-                        className="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform duration-300"
+                        className="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-sm"
                         style={{ backgroundColor: service.iconColor }}
                       >
                         <IconComponent className="w-6 h-6" />
@@ -584,7 +588,7 @@ export function ServicesSection() {
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-lg font-bold text-[var(--fg)] group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    <h3 className="text-lg font-bold text-[var(--fg)] ">
                       {service.title}
                     </h3>
 
@@ -608,23 +612,22 @@ export function ServicesSection() {
                   <div className="mt-6 pt-4 border-t border-slate-100 dark:border-[#1F1F23]">
                     <Link
                       href={service.ctaLink}
-                      className="inline-flex items-center justify-between w-full px-4 py-2.5 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-[#18181B] text-[var(--fg)] hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 dark:hover:text-white border border-slate-200 dark:border-[#27272A] hover:border-transparent transition-all no-underline group/btn"
+                      className="inline-flex items-center justify-between w-full px-4 py-2.5 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-[#18181B] text-[var(--fg)] hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 dark:hover:text-white border border-slate-200 dark:border-[#27272A] hover:border-transparent transition-colors no-underline group/btn"
                     >
                       <span>{service.ctaText}</span>
-                      <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
+                      <ArrowRight className="w-3.5 h-3.5 " />
                     </Link>
                   </div>
-                </motion.div>
+                </article>
               );
             })}
           </div>
         )}
 
+        </div>
+
         {/* Bottom Banner Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.4 }}
+        <div
           className="mt-16 rounded-3xl p-8 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/50 shadow-sm relative overflow-hidden"
         >
           {/* Subtle decorative blob */}
@@ -643,19 +646,19 @@ export function ServicesSection() {
             <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
               <Link
                 href="/?auth=signup"
-                className="w-full sm:w-auto px-6 py-3.5 text-sm font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-md shadow-blue-200 dark:shadow-blue-900/40 text-center no-underline"
+                className="w-full sm:w-auto px-6 py-3.5 text-sm font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-md shadow-blue-200 dark:shadow-blue-900/40 text-center no-underline"
               >
                 Find My Mentor Now
               </Link>
               <Link
                 href="/#about"
-                className="w-full sm:w-auto px-6 py-3.5 text-sm font-semibold rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 transition-all text-center no-underline"
+                className="w-full sm:w-auto px-6 py-3.5 text-sm font-semibold rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 transition-colors text-center no-underline"
               >
                 Ask Ruth AI
               </Link>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

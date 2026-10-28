@@ -1,0 +1,36 @@
+.orbit {
+  position: absolute;
+  z-index: -1;
+  top: 46%;
+  left: 50%;
+  width: min(510px, 140vw);
+  height: 380px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.orbit canvas, .fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity var(--motion-dialog, 240ms) var(--ease-out);
+}
+
+.orbit canvas { opacity: 0; }
+.orbit[data-ready="true"] canvas { opacity: 1; }
+.orbit[data-ready="true"] .fallback { opacity: 0; }
+.fallback { opacity: .7; }
+.fallback ellipse { stroke: #a99abb; stroke-width: .65; opacity: .28; }
+.fallback circle { fill: #a99abb; opacity: .65; }
+:global(html[data-theme="dark"]) .fallback ellipse { stroke: #b4a4d3; opacity: .18; }
+:global(html[data-theme="dark"]) .fallback circle { fill: #b4a4d3; }
+
+@media (max-width: 760px) {
+  .orbit { opacity: .7; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit canvas { display: none; }
+  .fallback { transition: opacity 150ms ease; }
+}

@@ -1,0 +1,121 @@
+.sectionInner,
+.trustInner {
+  width: min(1200px, 100%);
+  margin-inline: auto;
+}
+
+.trustBand,
+.institutionSection,
+.pricingSection {
+  --marketing-muted: #677084;
+  --marketing-line: #e7e9ef;
+  --marketing-surface: #f8f9fc;
+  --marketing-accent: #756e9f;
+  padding-inline: 24px;
+}
+
+.trustBand { padding-block: 40px; }
+.trustInner { display: grid; grid-template-columns: 1fr 1.4fr; column-gap: 56px; align-items: center; }
+.trustIntro h2 { color: var(--fg); font-size: 22px; line-height: 1.25; font-weight: 600; letter-spacing: -.02em; margin: 0; }
+.trustIntro p { color: var(--marketing-muted); font-size: 14px; line-height: 1.6; margin: 8px 0 0; }
+.communityStats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; }
+.communityStats > div { display: flex; flex-direction: column; gap: 5px; padding-inline: 28px; border-left: 1px solid var(--marketing-line); }
+.communityStats dt { order: 1; color: var(--marketing-muted); font-size: 13px; line-height: 1.5; }
+.communityStats dd { color: var(--fg); font-size: 44px; line-height: 1; letter-spacing: -.025em; font-weight: 600; font-variant-numeric: tabular-nums; margin: 0; }
+.disciplines { grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px 28px; margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--marketing-line); }
+.disciplines > span { display: inline-flex; align-items: center; gap: 8px; color: var(--marketing-muted); font-size: 13px; }
+.disciplineLogo { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; background: #fff; border: 1px solid #e7e9ef; }
+.disciplineLogo img { width: 18px; height: 18px; object-fit: contain; }
+
+.institutionSection { padding-block: 72px; border-top: 1px solid var(--hairline); }
+.institutionHeader { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; margin-bottom: 32px; }
+.institutionHeader h2,
+.pricingHeader h2 { color: var(--fg); font-size: var(--type-section); font-weight: var(--type-heading-weight); line-height: 1.18; letter-spacing: var(--type-heading-tracking); text-wrap: balance; margin: 0; }
+.institutionHeader p,
+.pricingHeader p { color: var(--marketing-muted); font-size: var(--type-body); line-height: var(--type-body-leading); max-width: 510px; margin: 16px 0 0; text-wrap: pretty; }
+.textAction { display: inline-flex; align-items: center; justify-content: center; gap: 8px; color: var(--marketing-accent); min-height: 44px; font-size: 13px; font-weight: 600; text-decoration: none; flex-shrink: 0; }
+.institutionGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); list-style: none; margin: 0; padding: 0; border: 1px solid var(--marketing-line); border-radius: 22px; overflow: hidden; background: var(--marketing-surface); }
+.institutionGrid > li { display: flex; align-items: center; min-width: 0; gap: 12px; padding: 24px 20px; border-right: 1px solid var(--marketing-line); border-bottom: 1px solid var(--marketing-line); }
+.institutionGrid > li:nth-child(4n) { border-right: 0; }
+.institutionGrid > li:nth-last-child(-n + 4) { border-bottom: 0; }
+.institutionLogo { display: grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px; border-radius: 13px; border: 1px solid #e7e9ef; background: #fff; }
+.institutionLogo img { width: 27px; height: 27px; object-fit: contain; }
+.institutionLogo.practiceIcon { color: var(--marketing-accent); background: #eeebf5; border-color: #e0dcea; }
+.institutionGrid li > span:last-child { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.institutionGrid strong { color: var(--fg); font-size: 14px; font-weight: 600; line-height: 1.35; letter-spacing: -.015em; overflow-wrap: anywhere; }
+.institutionGrid li > span:last-child > span { color: var(--marketing-muted); font-size: 13px; line-height: 1.4; }
+
+.pricingSection { padding-block: 72px; scroll-margin-top: 100px; border-top: 1px solid var(--hairline); }
+.pricingHeader { max-width: 640px; margin-bottom: 34px; }
+.pricingGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+.priceCard { display: flex; flex-direction: column; min-width: 0; padding: 25px 22px; border: 1px solid var(--marketing-line); border-radius: 24px; background: var(--marketing-surface); }
+.priceCard[data-popular="true"] { border-color: #afa3cb; background: #f3eff9; box-shadow: 0 10px 30px -24px #7f6b9b80; }
+.tierNameRow { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 8px; min-height: 24px; }
+.tierNameRow h3 { color: var(--fg); font-size: 16px; font-weight: 600; line-height: 1.4; margin: 0; letter-spacing: -.02em; }
+.tierNameRow > span { color: #75628c; font-size: 13px; font-weight: 600; padding: 4px 7px; border-radius: 20px; background: #e6ddf1; white-space: nowrap; }
+.tierPrice { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; margin-top: 21px; }
+.tierPrice > strong { color: var(--fg); font-size: clamp(30px, 2.8vw, 38px); line-height: 1; font-weight: 600; letter-spacing: -.025em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tierPrice > span { color: var(--marketing-muted); font-size: 13px; line-height: 1.4; white-space: nowrap; }
+.tierDescription { color: var(--marketing-muted); font-size: 15px; line-height: 1.65; margin: 17px 0 20px; }
+.tierFeatures { display: flex; flex-direction: column; gap: 13px; flex: 1; list-style: none; padding: 20px 0 24px; margin: 0; border-top: 1px solid var(--marketing-line); }
+.tierFeatures li { display: flex; align-items: flex-start; gap: 7px; color: var(--fg); font-size: 14px; line-height: 1.6; }
+.tierFeatures svg { flex-shrink: 0; color: #699a89; margin-top: 1px; }
+.tierAction { letter-spacing: 0; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; color: var(--fg); font-size: 13px; font-weight: 600; border: 1px solid var(--marketing-line); border-radius: 12px; background: var(--bg); text-decoration: none; transition: transform var(--motion-press, 160ms) var(--ease-out, cubic-bezier(.23, 1, .32, 1)), opacity 150ms ease; }
+.priceCard[data-popular="true"] .tierAction { background: #343043; border-color: #343043; color: #fff; }
+.tierAction:active:not(:focus-visible) { transform: scale(.97); }
+.tierAction:focus-visible,
+.textAction:focus-visible { outline: 3px solid #9c94d1; outline-offset: 4px; }
+
+:global(html[data-theme="dark"]) .trustBand,
+:global(html[data-theme="dark"]) .institutionSection,
+:global(html[data-theme="dark"]) .pricingSection { --marketing-muted: #a5afc2; --marketing-line: #30394a; --marketing-surface: #171e2b; --marketing-accent: #bfb3df; }
+:global(html[data-theme="dark"]) .priceCard[data-popular="true"] { background: #25263b; border-color: #77708f; box-shadow: 0 12px 28px -20px #0009; }
+:global(html[data-theme="dark"]) .tierNameRow > span { color: #d2c5ea; background: #3d3551; }
+:global(html[data-theme="dark"]) .priceCard[data-popular="true"] .tierAction { background: #d6d0eb; border-color: #d6d0eb; color: #262338; }
+:global(html[data-theme="dark"]) .tierFeatures svg { color: #8ab9a7; }
+:global(html[data-theme="dark"]) .institutionLogo.practiceIcon { background: #2c2b40; border-color: #49435e; }
+
+@media (hover: hover) and (pointer: fine) { .tierAction:hover, .textAction:hover { opacity: .8; } }
+@media (max-width: 1050px) {
+  .trustInner { column-gap: 24px; }
+  .communityStats > div { padding-inline: 18px; }
+  .institutionGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .institutionGrid > li:nth-child(4n) { border-right: 1px solid var(--marketing-line); }
+  .institutionGrid > li:nth-child(3n) { border-right: 0; }
+  .institutionGrid > li:nth-last-child(-n + 4) { border-bottom: 1px solid var(--marketing-line); }
+  .institutionGrid > li:nth-last-child(-n + 3) { border-bottom: 0; }
+  .pricingGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 700px) {
+  .trustBand, .institutionSection, .pricingSection { padding-inline: 16px; }
+  .trustBand { padding-block: 28px; }
+  .trustInner { grid-template-columns: 1fr; }
+  .trustIntro { text-align: center; }
+  .trustIntro h2 { font-size: 20px; }
+  .trustIntro p { font-size: 13px; margin-top: 5px; }
+  .communityStats { margin-top: 24px; text-align: center; }
+  .communityStats > div { padding-inline: 5px; }
+  .communityStats > div:first-child { border-left: 0; }
+  .communityStats dd { font-size: 32px; }
+  .communityStats dt { font-size: 13px; }
+  .disciplines { gap: 12px 20px; margin-top: 24px; padding-top: 18px; }
+  .disciplines > span { font-size: 13px; gap: 6px; }
+  .institutionSection, .pricingSection { padding-block: 48px; }
+  .institutionHeader { flex-direction: column; align-items: flex-start; gap: 16px; margin-bottom: 24px; }
+  .institutionHeader p, .pricingHeader p { font-size: var(--type-body); }
+  .institutionGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); border-radius: 18px; }
+  .institutionGrid > li { align-items: flex-start; gap: 8px; padding: 17px 12px; }
+  .institutionGrid > li:nth-child(3n) { border-right: 1px solid var(--marketing-line); }
+  .institutionGrid > li:nth-child(2n) { border-right: 0; }
+  .institutionGrid > li:nth-last-child(-n + 3) { border-bottom: 1px solid var(--marketing-line); }
+  .institutionGrid > li:nth-last-child(-n + 2) { border-bottom: 0; }
+  .institutionLogo { width: 32px; height: 32px; border-radius: 9px; }
+  .institutionLogo img { width: 21px; height: 21px; }
+  .institutionLogo.practiceIcon svg { width: 19px; height: 19px; }
+  .institutionGrid strong { font-size: 13px; }
+  .institutionGrid li > span:last-child > span { font-size: 13px; }
+  .priceCard { padding: 23px; }
+  .tierPrice > strong { font-size: 38px; }
+}
+@media (max-width: 480px) { .pricingGrid { grid-template-columns: 1fr; gap: 13px; } }
+@media (prefers-reduced-motion: reduce) { .tierAction:active:not(:focus-visible) { transform: none; } }

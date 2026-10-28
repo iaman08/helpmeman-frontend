@@ -122,32 +122,53 @@
   color: #111111;
 }
 
+html[data-theme="dark"] .landing-page {
+  --bg: #0d1018;
+  --fg: #edf0f7;
+  --muted: #a8afbf;
+  --hairline: rgba(160, 174, 205, 0.16);
+}
+
 html[data-theme="dark"] .landing-page section {
-  background: #0A0A0A;
-  color: #F4F4F4;
+  background: #0d1018;
+  color: #edf0f7;
 }
 
 /* ── Floating Capsule Navbar ── */
 .landing-nav-capsule {
   position: fixed;
-  top: 16px;
+  top: calc(16px + env(safe-area-inset-top, 0px));
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, 0);
   z-index: 100;
   width: 92%;
   max-width: 860px;
   border-radius: 9999px;
-  transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform var(--motion-surface, 200ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
   padding: 0;
   box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 /* Scrolled variant */
 .landing-nav-capsule.nav-scrolled {
-  top: 12px;
-  max-width: 840px;
-  width: 90%;
+  transform: translate(-50%, -4px);
+}
+
+/* Keep capsule geometry stable; only the shadow layer fades on scroll. */
+.landing-nav-capsule::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
   box-shadow: 0 10px 32px -8px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.04);
+  transition: opacity var(--motion-surface, 200ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+}
+.landing-nav-capsule.nav-scrolled::before { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-nav-capsule, .landing-nav-capsule.nav-scrolled { transform: translateX(-50%); }
 }
 
 /* Light Theme Navbar — matching Mobbin reference */
@@ -165,34 +186,6 @@ html[data-theme="dark"] .landing-nav-capsule {
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* Mobile Dropdown Panel */
-.mobile-dropdown-panel {
-  position: absolute;
-  top: calc(100% + 10px);
-  left: 0;
-  right: 0;
-  border-radius: 24px;
-  border: 1px solid var(--hairline);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  animation: landing-fade-up 0.22s ease-out forwards;
-  z-index: 200;
-}
-
-html[data-theme="light"] .mobile-dropdown-panel,
-:root:not([data-theme="dark"]) .mobile-dropdown-panel {
-  background: rgba(255, 255, 255, 0.97);
-  backdrop-filter: blur(20px);
-}
-
-html[data-theme="dark"] .mobile-dropdown-panel {
-  background: rgba(16, 16, 16, 0.97);
-  backdrop-filter: blur(20px);
 }
 
 /* ── AI Section ── */
@@ -675,3 +668,46 @@ html[data-theme="dark"] .review-card-pink .fill-current {
     border-radius: 2rem;
   }
 }
+/* Reduced motion: DOM feedback can fade; decorative loops stay still.
+   Motion components follow MotionProvider. JS/WebGL loops also opt out locally. */
+@media (prefers-reduced-motion: reduce) {
+  .landing-page [class*="marquee"],
+  .landing-page [class*="float"],
+  .landing-page .animate-pulse,
+  .landing-page .animate-bounce {
+    animation: none !important;
+  }
+
+  .landing-page [class*="marquee"],
+  .landing-page [class*="float"] {
+    transform: none !important;
+  }
+
+  .landing-page *,
+  .landing-page *::before,
+  .landing-page *::after {
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* Shared public typography: the same role looks the same in every section. */
+.landing-page .public-section-title {
+  font-size: var(--type-section);
+  font-weight: var(--type-heading-weight);
+  line-height: 1.18;
+  letter-spacing: var(--type-heading-tracking);
+  text-wrap: balance;
+}
+.landing-page .public-section-description {
+  font-size: var(--type-body);
+  font-weight: 400;
+  line-height: var(--type-body-leading);
+  letter-spacing: 0;
+  text-wrap: pretty;
+}
+.landing-page .public-section-title + .public-section-description { margin-top: 1rem; }
+.landing-page .landing-footer { line-height: 1.7; letter-spacing: 0; }
+.landing-page .landing-footer h4 { font-size: .8125rem; font-weight: 600; }
+.landing-page .landing-footer p { max-width: 44ch; }
+.landing-page .landing-footer a { text-underline-offset: .2em; }

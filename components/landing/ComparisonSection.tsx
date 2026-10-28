@@ -28,10 +28,10 @@ export function ComparisonSection() {
             Unmatched Value & Transparency
           </div>
 
-          <h2 className="text-[clamp(28px,4vw,44px)] font-bold tracking-[-0.02em] text-[#111111] dark:text-white leading-[1.1]">
+          <h2 className="public-section-title text-[#111111] dark:text-white">
             Why Students Choose HelpMeMan
           </h2>
-          <p className="mt-4 text-[16px] text-[#6B7280] dark:text-[#A1A1AA] leading-relaxed">
+          <p className="public-section-description mt-4 text-[#6B7280] dark:text-[#A1A1AA]">
             See how HelpMeMan stacks up against traditional platforms like Topmate, Preplaced, and open directories.
           </p>
         </motion.div>
@@ -50,7 +50,7 @@ export function ComparisonSection() {
               <div>
                 {/* Top Header Tag */}
                 <div className="flex items-center justify-between mb-6">
-                  <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#E2E8F0] dark:bg-[#1E222B] text-slate-600 dark:text-slate-300 text-[11px] font-bold tracking-[0.14em] uppercase">
+                  <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#E2E8F0] dark:bg-[#1E222B] text-slate-600 dark:text-slate-300 text-[12px] font-bold tracking-[0.14em] uppercase">
                     COMPETITOR
                   </span>
                 </div>
@@ -72,7 +72,7 @@ export function ComparisonSection() {
                 </div>
 
                 {/* Card Title & Description */}
-                <h3 className="text-2xl sm:text-[32px] font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
+                <h3 className="text-2xl sm:text-[32px] font-semibold tracking-[-0.02em] text-slate-900 dark:text-white leading-tight">
                   Topmate & Preplaced
                 </h3>
                 <p className="mt-2.5 text-sm sm:text-[15px] text-slate-500 dark:text-slate-400 leading-relaxed max-w-md">
@@ -84,10 +84,10 @@ export function ComparisonSection() {
                   {/* Row 1: Pricing */}
                   <div className="flex items-center justify-between gap-4 py-4 first:pt-0">
                     <div className="flex-1 pr-2">
-                      <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500">
+                      <span className="text-[12px] font-semibold uppercase tracking-[0.055em] text-slate-600 dark:text-slate-300">
                         PRICING MODEL
                       </span>
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-200 mt-1 leading-snug">
+                      <p className="text-[15px] font-normal text-slate-700 dark:text-slate-200 mt-1 leading-relaxed">
                         Topmate (₹1.5k–₹5k/call) • Preplaced (₹25k–₹60k upfront)
                       </p>
                     </div>
@@ -99,10 +99,10 @@ export function ComparisonSection() {
                   {/* Row 2: Mentor Standard */}
                   <div className="flex items-center justify-between gap-4 py-4">
                     <div className="flex-1 pr-2">
-                      <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500">
+                      <span className="text-[12px] font-semibold uppercase tracking-[0.055em] text-slate-600 dark:text-slate-300">
                         MENTOR STANDARD
                       </span>
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-200 mt-1 leading-snug">
+                      <p className="text-[15px] font-normal text-slate-700 dark:text-slate-200 mt-1 leading-relaxed">
                         Topmate creators & ADPList open directories (high no-show rates)
                       </p>
                     </div>
@@ -114,10 +114,10 @@ export function ComparisonSection() {
                   {/* Row 3: AI Career Copilot */}
                   <div className="flex items-center justify-between gap-4 py-4">
                     <div className="flex-1 pr-2">
-                      <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500">
+                      <span className="text-[12px] font-semibold uppercase tracking-[0.055em] text-slate-600 dark:text-slate-300">
                         AI CAREER COPILOT
                       </span>
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-200 mt-1 leading-snug">
+                      <p className="text-[15px] font-normal text-slate-700 dark:text-slate-200 mt-1 leading-relaxed">
                         Zero AI tools — no ATS resume roast, pre-briefs, or skill tests
                       </p>
                     </div>
@@ -129,10 +129,10 @@ export function ComparisonSection() {
                   {/* Row 4: Session Workspace */}
                   <div className="flex items-center justify-between gap-4 py-4">
                     <div className="flex-1 pr-2">
-                      <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500">
+                      <span className="text-[12px] font-semibold uppercase tracking-[0.055em] text-slate-600 dark:text-slate-300">
                         SESSION WORKSPACE
                       </span>
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-200 mt-1 leading-snug">
+                      <p className="text-[15px] font-normal text-slate-700 dark:text-slate-200 mt-1 leading-relaxed">
                         Manual meeting links, missed calendar invites & no structured agenda
                       </p>
                     </div>
@@ -144,10 +144,10 @@ export function ComparisonSection() {
                   {/* Row 5: Post-Call Support */}
                   <div className="flex items-center justify-between gap-4 py-4 last:pb-0">
                     <div className="flex-1 pr-2">
-                      <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500">
+                      <span className="text-[12px] font-semibold uppercase tracking-[0.055em] text-slate-600 dark:text-slate-300">
                         POST-CALL SUPPORT
                       </span>
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-200 mt-1 leading-snug">
+                      <p className="text-[15px] font-normal text-slate-700 dark:text-slate-200 mt-1 leading-relaxed">
                         Call abruptly ends — extra fee per text or locked into costly cohorts
                       </p>
                     </div>
@@ -179,18 +179,18 @@ export function ComparisonSection() {
                     <div className="w-10 h-10 rounded-2xl bg-black border border-white/10 flex items-center justify-center p-2 shadow-sm shrink-0">
                       <img src="/logo.svg" alt="HelpMeMan" className="w-full h-full object-contain" />
                     </div>
-                    <span className="px-3 py-1 rounded-full bg-[#EBF3FF] dark:bg-blue-500/15 text-[#0066FF] dark:text-blue-400 text-[11px] font-bold uppercase tracking-wider border border-blue-200/60 dark:border-blue-500/20">
+                    <span className="px-3 py-1 rounded-full bg-[#EBF3FF] dark:bg-blue-500/15 text-[#0066FF] dark:text-blue-400 text-[12px] font-bold uppercase tracking-wider border border-blue-200/60 dark:border-blue-500/20">
                       PREMIUM
                     </span>
                   </div>
 
-                  <span className="px-4 py-1.5 rounded-full bg-[#0066FF] text-white text-[11px] font-extrabold tracking-[0.14em] uppercase shadow-md shadow-blue-500/20">
+                  <span className="px-4 py-1.5 rounded-full bg-[#0066FF] text-white text-[12px] font-extrabold tracking-[0.14em] uppercase shadow-md shadow-blue-500/20">
                     YOU
                   </span>
                 </div>
 
                 {/* Card Title & Description */}
-                <h3 className="text-2xl sm:text-[32px] font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
+                <h3 className="text-2xl sm:text-[32px] font-semibold tracking-[-0.02em] text-slate-900 dark:text-white leading-tight">
                   HelpMeMan
                 </h3>
                 <p className="mt-2.5 text-sm sm:text-[15px] text-slate-600 dark:text-slate-300 leading-relaxed max-w-md">
@@ -202,10 +202,10 @@ export function ComparisonSection() {
                   {/* Row 1: Pricing */}
                   <div className="flex items-center justify-between gap-4 py-4 first:pt-0">
                     <div className="flex-1 pr-2">
-                      <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#0066FF] dark:text-[#3B82F6]">
+                      <span className="text-[12px] font-semibold uppercase tracking-[0.055em] text-[#0066FF] dark:text-[#3B82F6]">
                         PRICING MODEL
                       </span>
-                      <p className="text-sm font-semibold text-slate-900 dark:text-white mt-1 leading-snug">
+                      <p className="text-[15px] font-medium text-slate-900 dark:text-white mt-1 leading-relaxed">
                         Transparent, flat student fee (₹129 – ₹499 flat per call)
                       </p>
                     </div>
@@ -217,10 +217,10 @@ export function ComparisonSection() {
                   {/* Row 2: Mentor Standard */}
                   <div className="flex items-center justify-between gap-4 py-4">
                     <div className="flex-1 pr-2">
-                      <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#0066FF] dark:text-[#3B82F6]">
+                      <span className="text-[12px] font-semibold uppercase tracking-[0.055em] text-[#0066FF] dark:text-[#3B82F6]">
                         MENTOR STANDARD
                       </span>
-                      <p className="text-sm font-semibold text-slate-900 dark:text-white mt-1 leading-snug">
+                      <p className="text-[15px] font-medium text-slate-900 dark:text-white mt-1 leading-relaxed">
                         100% 5-stage verified mentors (FAANG, AIR 1, IITs, IIMs)
                       </p>
                     </div>
@@ -232,10 +232,10 @@ export function ComparisonSection() {
                   {/* Row 3: AI Career Copilot */}
                   <div className="flex items-center justify-between gap-4 py-4">
                     <div className="flex-1 pr-2">
-                      <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#0066FF] dark:text-[#3B82F6]">
+                      <span className="text-[12px] font-semibold uppercase tracking-[0.055em] text-[#0066FF] dark:text-[#3B82F6]">
                         AI CAREER COPILOT
                       </span>
-                      <p className="text-sm font-semibold text-slate-900 dark:text-white mt-1 leading-snug">
+                      <p className="text-[15px] font-medium text-slate-900 dark:text-white mt-1 leading-relaxed">
                         24/7 Ruth AI Copilot, instant ATS Resume Roast & Auto Briefs
                       </p>
                     </div>
@@ -247,10 +247,10 @@ export function ComparisonSection() {
                   {/* Row 4: Session Workspace */}
                   <div className="flex items-center justify-between gap-4 py-4">
                     <div className="flex-1 pr-2">
-                      <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#0066FF] dark:text-[#3B82F6]">
+                      <span className="text-[12px] font-semibold uppercase tracking-[0.055em] text-[#0066FF] dark:text-[#3B82F6]">
                         SESSION WORKSPACE
                       </span>
-                      <p className="text-sm font-semibold text-slate-900 dark:text-white mt-1 leading-snug">
+                      <p className="text-[15px] font-medium text-slate-900 dark:text-white mt-1 leading-relaxed">
                         Browser-first, 1-click Google Meet with auto host privileges
                       </p>
                     </div>
@@ -262,10 +262,10 @@ export function ComparisonSection() {
                   {/* Row 5: Post-Call Support */}
                   <div className="flex items-center justify-between gap-4 py-4 last:pb-0">
                     <div className="flex-1 pr-2">
-                      <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#0066FF] dark:text-[#3B82F6]">
+                      <span className="text-[12px] font-semibold uppercase tracking-[0.055em] text-[#0066FF] dark:text-[#3B82F6]">
                         POST-CALL SUPPORT
                       </span>
-                      <p className="text-sm font-semibold text-slate-900 dark:text-white mt-1 leading-snug">
+                      <p className="text-[15px] font-medium text-slate-900 dark:text-white mt-1 leading-relaxed">
                         30-day offline chat follow-up included free + direct referral pool
                       </p>
                     </div>

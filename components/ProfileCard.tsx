@@ -9,6 +9,8 @@ import {
   X,
   ArrowRight,
   MapPin,
+  Clock3,
+  MessagesSquare,
 } from "lucide-react";
 import { FaLinkedin, FaGithub } from "react-icons/fa";
 import { BrandBanner } from "./BrandBanner";
@@ -16,6 +18,9 @@ import { GoldenVerifiedBadge } from "./GoldenVerifiedBadge";
 import { PriceDisplay } from "./PriceDisplay";
 import { resolveOrganizationBranding } from "@/lib/organization-branding-db";
 import type { Mentor, User } from "@/lib/types";
+import styles from "./ProfileCard.module.css";
+import { Dialog } from "@base-ui/react/dialog";
+import surfaces from "./PublicDialog.module.css";
 
 export interface ProfileCardProps {
   profile?: User | null;
@@ -53,7 +58,6 @@ export function ProfileCard({
 
   // Extract normalized fields from either mentor or user
   const id = mentor?.id || profile?.id || "";
-  const userId = mentor?.userId || profile?.id || "";
   const name =
     mentor?.displayName ||
     mentor?.user?.name ||
@@ -123,7 +127,7 @@ export function ProfileCard({
       }
     }
     return [];
-  }, [mentor?.userLanguages, profile?.languages, mentor?.languages]);
+  }, [mentor, profile]);
 
   const [avatarError, setAvatarError] = useState(false);
 
@@ -145,270 +149,67 @@ export function ProfileCard({
     ? `/${username}`
     : `/mentors/${id}`;
 
-  const ratingCount = mentor?.totalSessions || 0;
+  const sessionCount = mentor?.totalSessions || 0;
+  const rating = Number(mentor?.rating) || 0;
 
   return (
-    <>
-      <div
-        className={`group relative flex flex-col rounded-2xl overflow-hidden transition-all duration-300 bg-white dark:bg-zinc-900 border border-neutral-200/80 dark:border-zinc-800 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] ${className}`}
-      >
-        {/* ─── 1. Official Corporate / Collegiate Brand Banner ─── */}
-        <div className="relative w-full h-28 sm:h-32 overflow-hidden bg-neutral-100 dark:bg-zinc-800 shrink-0">
-          <BrandBanner
-            customBannerUrl={customBannerUrl}
-            bannerPosition={bannerPosition}
-            organization={institution}
-            institutionType={mentor?.institutionType}
-          />
-
-          {/* Subtle share button in corner */}
-          {onShare && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onShare(mentor || (profile as any));
-              }}
-              className="absolute top-2.5 right-3 z-10 p-1.5 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-md transition-all cursor-pointer opacity-90 sm:opacity-0 sm:group-hover:opacity-100 shadow-sm"
-              title="Share profile"
-            >
-              <Share2 className="h-3.5 w-3.5" />
-            </button>
+    <Dialog.Root open={isAvatarEnlarged} onOpenChange={setIsAvatarEnlarged}>
+      <article className={`${styles.card} ${className}`}>
+        <div className={styles.cover}>
+          <BrandBanner customBannerUrl={customBannerUrl} bannerPosition={bannerPosition} organization={institution} institutionType={mentor?.institutionType} className={customBannerUrl ? "" : styles.coverArtwork} />
+          {onShare && (mentor || profile) && (
+            <button type="button" aria-label={`Share ${name}'s profile`} onClick={() => onShare(mentor || profile!)} className={styles.share}><Share2 size={16} /></button>
           )}
         </div>
-
-        {/* ─── 2. Card Body ─── */}
-        <div className="flex flex-col flex-1 px-4 sm:px-5 pb-4 sm:pb-5 pt-0">
-          {/* Avatar Row */}
-          <div className="flex items-end justify-between -mt-10 sm:-mt-11 mb-2.5">
-            {/* Click Avatar to Enlarge */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (avatarUrl && !avatarError) {
-                  setIsAvatarEnlarged(true);
-                }
-              }}
-              className="relative block shrink-0 z-10 cursor-pointer group/avatar focus:outline-hidden"
-              title="Click to enlarge profile photo"
-            >
-              <div className="relative h-[72px] w-[72px] sm:h-20 sm:w-20 rounded-full overflow-hidden shadow-md ring-4 ring-white dark:ring-zinc-900 bg-neutral-100 dark:bg-zinc-800 transition-transform duration-300 group-hover/avatar:scale-105">
-                {avatarUrl && !avatarError ? (
-                  <img
-                    src={avatarUrl}
-                    alt={name}
-                    className="h-full w-full object-cover"
-                    onError={() => setAvatarError(true)}
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-lg sm:text-xl font-bold bg-neutral-200 text-neutral-800 dark:bg-zinc-800 dark:text-zinc-200 select-none">
-                    {initials}
-                  </div>
-                )}
-              </div>
-
-              {/* Active Online Indicator */}
-              {mentor?.isOnline && (
-                <span
-                  className="absolute bottom-1 right-1 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white dark:border-zinc-900 shadow-xs"
-                  title="Active now"
-                />
-              )}
-            </button>
-          </div>
-
-          {/* ─── Organization Badge at Top (Matching Reference Image 2: [ IIT Madras ]) ─── */}
-          {(brand || institution) && (
-            <div className="mb-2">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 border border-blue-200/50 dark:border-blue-800/40">
-                {brand?.shortName || institution}
+        <div className={styles.body}>
+          <div className={styles.identityRow}>
+            <Dialog.Trigger disabled={!avatarUrl || avatarError} className={styles.avatarButton} aria-label={`Enlarge ${name}'s profile photo`}>
+              <span className={styles.avatar}>
+                {avatarUrl && !avatarError ? <img src={avatarUrl} alt={name} onError={() => setAvatarError(true)} loading="lazy" /> : <span>{initials}</span>}
               </span>
-            </div>
-          )}
-
-          {/* ─── Name & Golden 16-Lobe Rosette Tick (Matching Reference Image 1) ─── */}
-          <div className="min-w-0">
-            <Link
-              href={profileLink}
-              className="inline-flex items-center gap-1.5 font-display text-base sm:text-lg font-bold text-neutral-900 dark:text-white hover:underline truncate max-w-full"
-            >
-              <span className="truncate">{name}</span>
-              {/* Golden 16-Lobe Rosette Tick */}
-              <GoldenVerifiedBadge size={18} className="h-4.5 w-4.5" />
-            </Link>
-
-            {/* Clean, punchy subtitle role (Matching Image 2) */}
-            <p className="text-xs sm:text-[13px] font-medium text-neutral-600 dark:text-neutral-300 truncate mt-1">
-              {displayHeadline}
-            </p>
+              {mentor?.isOnline && <span className={styles.online} title="Active now" />}
+            </Dialog.Trigger>
+            {institution && <span className={styles.organization} title={institution}>{brand?.shortName || institution}</span>}
           </div>
-
-          {/* ─── Skills Tags (Matching Image 2: [Tech] [Ops]) ─── */}
-          {skills.length > 0 && (
-            <div className="mt-3.5 flex flex-wrap items-center gap-1.5">
-              {skills.slice(0, 3).map((skill) => (
-                <span
-                  key={skill}
-                  className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-medium bg-neutral-100 dark:bg-zinc-800 text-neutral-700 dark:text-zinc-300 border border-neutral-200/60 dark:border-zinc-700/60"
-                >
-                  {skill}
-                </span>
-              ))}
-              {skills.length > 3 && (
-                <span className="text-[11px] font-medium text-neutral-400 dark:text-neutral-500 pl-0.5">
-                  +{skills.length - 3}
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* ─── Rating Row: 5 Gold Stars with Review Count (Matching Image 2: ★★★★★ (36)) ─── */}
-          <div className="mt-3.5 flex items-center gap-1.5 text-xs">
-            <div className="flex items-center gap-0.5 text-amber-500">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className="h-3.5 w-3.5 fill-amber-400 text-amber-400"
-                />
-              ))}
-            </div>
-            <span className="text-neutral-500 dark:text-neutral-400 text-xs font-medium ml-0.5">
-              ({ratingCount})
-            </span>
+          <div className={styles.identity}>
+            <Link href={profileLink} className={styles.name}><span>{name}</span>{isMentorMode && mentor.approvalStatus === "APPROVED" && <GoldenVerifiedBadge size={18} className="shrink-0" />}</Link>
+            <p className={styles.headline} title={displayHeadline}>{displayHeadline}</p>
           </div>
-
-          {/* ─── Languages: Properly Visible & Premium ─── */}
-          {languagesList.length > 0 && (
-            <div className="mt-3.5 flex items-center gap-2 text-xs">
-              <span className="text-[11px] font-semibold text-neutral-500 dark:text-neutral-400 shrink-0">
-                Languages:
-              </span>
-              <div className="flex flex-wrap items-center gap-1.5">
-                {languagesList.slice(0, 3).map((l, i) => (
-                  <span
-                    key={i}
-                    className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-neutral-100 dark:bg-zinc-800 text-neutral-800 dark:text-zinc-200 border border-neutral-200/80 dark:border-zinc-700/80 shadow-2xs"
-                  >
-                    {l.name}
-                  </span>
-                ))}
-                {languagesList.length > 3 && (
-                  <span className="text-[10px] font-medium text-neutral-400">
-                    +{languagesList.length - 3}
-                  </span>
-                )}
+          {skills.length > 0 && <div className={styles.skills}>{skills.slice(0, 3).map((skill) => <span key={skill} title={skill}>{skill}</span>)}{skills.length > 3 && <span title={skills.slice(3).join(", ")}>+{skills.length - 3}</span>}</div>}
+          {(shortLocation || languagesList.length > 0) && <div className={styles.details}>
+            {shortLocation && <span title={location || undefined}><MapPin size={12} aria-hidden="true" />{shortLocation}</span>}
+            {languagesList.length > 0 && <span title={languagesList.map((language) => language.name).join(", ")}><Globe size={12} aria-hidden="true" />{languagesList.slice(0, 2).map((language) => language.name).join(", ")}{languagesList.length > 2 ? ` +${languagesList.length - 2}` : ""}</span>}
+          </div>}
+          {isMentorMode ? (
+            <div className={styles.footer}>
+              <div className={styles.stats}>
+                <div><Star size={17} className={styles.ratingIcon} aria-hidden="true" /><strong>{rating > 0 ? rating.toFixed(1) : "New"}</strong><span>Rating</span></div>
+                <div><MessagesSquare size={17} className={styles.priceIcon} aria-hidden="true" /><strong><PriceDisplay amountInPaise={mentor.pricePerSession} /></strong><span>Per session</span></div>
+                <div><Clock3 size={17} className={styles.timeIcon} aria-hidden="true" /><strong>{mentor.sessionDuration}</strong><span>Minutes</span></div>
               </div>
+              <Link href={profileLink} className={styles.action}>View profile <ArrowRight size={15} aria-hidden="true" /></Link>
+              <p className={styles.sessionNote}>{sessionCount > 0 ? `${sessionCount} ${sessionCount === 1 ? "conversation" : "conversations"} and counting` : "Start a conversation"}</p>
+            </div>
+          ) : (
+            <div className={styles.userFooter}>
+              <div className={styles.socials}>
+                {profile?.websiteUrl && <a href={profile.websiteUrl} target="_blank" rel="noopener noreferrer" aria-label={`${name}'s website`}><Globe size={16} /></a>}
+                {profile?.socialLinks?.linkedin && <a href={profile.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" aria-label={`${name}'s LinkedIn`}><FaLinkedin size={16} /></a>}
+                {profile?.socialLinks?.github && <a href={profile.socialLinks.github} target="_blank" rel="noopener noreferrer" aria-label={`${name}'s GitHub`}><FaGithub size={16} /></a>}
+              </div>
+              <Link href={profileLink} className={styles.action}>View profile <ArrowRight size={15} /></Link>
             </div>
           )}
-
-          {/* ─── Location: Properly Visible & Premium in its Own Row ─── */}
-          {location && (
-            <div className="mt-3 flex items-center gap-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-300">
-              <MapPin className="h-3.5 w-3.5 text-neutral-400 dark:text-neutral-500 shrink-0" />
-              <span className="truncate">{location}</span>
-            </div>
-          )}
-
-          {/* ─── Action Footer (Matching Image 2: ₹999/session      Book →) ─── */}
-          <div className="mt-auto pt-4 flex items-center justify-between gap-3 border-t border-neutral-100 dark:border-zinc-800">
-            {isMentorMode ? (
-              <>
-                {/* Clean Price Display: ₹999/session */}
-                <div className="flex items-baseline gap-0.5">
-                  <span className="font-display text-base font-bold text-neutral-900 dark:text-white">
-                    <PriceDisplay amountInPaise={mentor.pricePerSession} />
-                  </span>
-                  <span className="text-xs text-neutral-500 dark:text-neutral-400 font-normal">
-                    /session
-                  </span>
-                </div>
-
-                {/* Direct Link matching Image 2: Book → */}
-                <Link
-                  href={profileLink}
-                  className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors group-hover:translate-x-0.5 duration-200"
-                >
-                  <span>Book</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </>
-            ) : (
-              <>
-                {/* User Socials */}
-                <div className="flex items-center gap-2">
-                  {profile?.websiteUrl && (
-                    <a
-                      href={profile.websiteUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-1 rounded-md text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
-                      title="Website"
-                    >
-                      <Globe className="h-3.5 w-3.5" />
-                    </a>
-                  )}
-                  {profile?.socialLinks?.linkedin && (
-                    <a
-                      href={profile.socialLinks.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-1 rounded-md text-neutral-400 hover:text-[#0a66c2] transition-colors"
-                      title="LinkedIn"
-                    >
-                      <FaLinkedin className="h-3.5 w-3.5" />
-                    </a>
-                  )}
-                  {profile?.socialLinks?.github && (
-                    <a
-                      href={profile.socialLinks.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-1 rounded-md text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
-                      title="GitHub"
-                    >
-                      <FaGithub className="h-3.5 w-3.5" />
-                    </a>
-                  )}
-                </div>
-
-                <Link
-                  href={profileLink}
-                  className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
-                >
-                  <span>View</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </>
-            )}
-          </div>
         </div>
-      </div>
+      </article>
 
-      {/* ─── Profile Photo Enlarge Lightbox / Modal ─── */}
-      {isAvatarEnlarged && avatarUrl && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          onClick={() => setIsAvatarEnlarged(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative max-w-sm w-full bg-zinc-900 border border-zinc-800 rounded-3xl p-5 flex flex-col items-center gap-4 shadow-2xl animate-in zoom-in-95 duration-200"
-          >
-            {/* Close Button */}
-            <button
-              type="button"
-              onClick={() => setIsAvatarEnlarged(false)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
-              title="Close"
-            >
+      {avatarUrl && <Dialog.Portal>
+        <Dialog.Backdrop className={`${surfaces.backdrop} ${surfaces.photoBackdrop}`} />
+        <Dialog.Viewport className={`${surfaces.viewport} ${surfaces.photoViewport}`}>
+          <Dialog.Popup className={`${surfaces.popup} relative max-w-sm w-full bg-zinc-900 border border-zinc-800 rounded-3xl p-5 flex flex-col items-center gap-4 shadow-2xl`}>
+            <Dialog.Close className={`${surfaces.close} absolute top-2 right-2 rounded-full bg-white/10 text-white`} aria-label="Close profile photo">
               <X className="h-4 w-4" />
-            </button>
+            </Dialog.Close>
 
             {/* High-res Image */}
             <div className="h-56 w-56 sm:h-64 sm:w-64 rounded-full overflow-hidden ring-4 ring-white/20 shadow-xl bg-zinc-950 mt-2">
@@ -419,18 +220,18 @@ export function ProfileCard({
               />
             </div>
 
-            <div className="text-center">
-              <h3 className="font-display font-bold text-lg text-white flex items-center justify-center gap-1.5">
+            <div className="text-center min-w-0 max-w-full">
+              <Dialog.Title className={`${surfaces.photoTitle} font-display font-bold text-lg text-white flex items-center justify-center gap-1.5`}>
                 <span>{name}</span>
                 <GoldenVerifiedBadge size={18} className="h-4.5 w-4.5" />
-              </h3>
+              </Dialog.Title>
               {displayHeadline && (
                 <p className="text-xs text-zinc-400 mt-0.5">{displayHeadline}</p>
               )}
             </div>
-          </div>
-        </div>
-      )}
-    </>
+          </Dialog.Popup>
+        </Dialog.Viewport>
+      </Dialog.Portal>}
+    </Dialog.Root>
   );
 }
