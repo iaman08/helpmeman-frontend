@@ -20,6 +20,7 @@ import {
   type SwipeAction,
 } from "./useSwipeEngine";
 import { SlidersHorizontal } from "lucide-react";
+import { getMatchKeyboardAction } from "@/lib/matching-keyboard";
 
 interface SwipeArenaProps {
   initialFilters?: MatchFilters;
@@ -133,45 +134,31 @@ export function SwipeArena({ initialFilters = {} }: SwipeArenaProps) {
     const handler = (e: KeyboardEvent) => {
       if (showFilters || matchedMentor) return;
 
-      switch (e.key) {
-        case "ArrowLeft":
-          e.preventDefault();
-          handleActionSwipe("skip");
-          break;
-        case "ArrowRight":
-          e.preventDefault();
-          handleActionSwipe("interested");
-          break;
-        case "ArrowUp":
-          e.preventDefault();
-          handleActionSwipe("priority");
-          break;
-        case "z":
-        case "Z":
-          if (e.ctrlKey || e.metaKey) {
-            e.preventDefault();
-            handleUndo();
-          }
-          break;
-        case "Enter":
-          if (currentMentor) {
-            e.preventDefault();
-            handleExpand(currentMentor);
-          }
-          break;
+      const target = e.target;
+      const targetIsInteractive = target instanceof Element && !!target.closest(
+        'input, textarea, select, button, a[href], [contenteditable]:not([contenteditable="false"]), [role="textbox"], [role="button"], [role="dialog"], [role="switch"], [role="slider"], [role="combobox"]'
+      );
+      const action = getMatchKeyboardAction({
+        key: e.key, repeat: e.repeat, isComposing: e.isComposing, busy: topCardRef.current?.isAnimating() ?? false,
+        defaultPrevented: e.defaultPrevented, altKey: e.altKey,
+        ctrlKey: e.ctrlKey, metaKey: e.metaKey, shiftKey: e.shiftKey,
+        targetIsInteractive,
+      });
+      if (!action) return;
+      if (action === "undo") {
+        if (!canUndo) return;
+        e.preventDefault();
+        handleUndo();
+      } else if (currentMentor) {
+        e.preventDefault();
+        if (action === "expand") handleExpand(currentMentor);
+        else handleCardSwipeComplete(action);
       }
     };
 
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [
-    handleActionSwipe,
-    handleUndo,
-    currentMentor,
-    showFilters,
-    matchedMentor,
-    handleExpand,
-  ]);
+  }, [handleCardSwipeComplete, handleUndo, currentMentor, showFilters, matchedMentor, handleExpand, canUndo]);
 
   const isEmpty = !isLoading && deck.length === 0;
   const activeFiltersCount = Object.values(filters).filter(

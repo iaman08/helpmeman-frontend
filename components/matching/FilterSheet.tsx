@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
+import styles from "./FilterToggle.module.css";
 import { motion, AnimatePresence } from "motion/react";
 import { X, SlidersHorizontal, ChevronDown } from "lucide-react";
 import type { MatchFilters } from "./useSwipeEngine";
@@ -309,28 +310,14 @@ function Toggle({
   value: boolean;
   onChange: (v: boolean) => void;
 }) {
+  const id = useId();
   return (
-    <div
-      className="flex items-center justify-between gap-3 p-3 rounded-xl cursor-pointer transition-all hover:bg-[var(--fg)]/5 border border-[var(--hairline)]"
-      onClick={() => onChange(!value)}
-    >
-      <div>
-        <p className="text-sm font-medium text-[var(--fg)]">{label}</p>
-        <p className="text-xs text-[var(--fg)] mt-0.5">{description}</p>
-      </div>
-      <div
-        className="relative h-6 w-11 rounded-full transition-all flex-shrink-0"
-        style={{
-          background: value ? "var(--fg)" : "color-mix(in srgb, var(--fg) 15%, transparent)"
-        }}
-      >
-        <motion.div
-          animate={{ x: value ? 22 : 2 }}
-          transition={{ type: "spring", stiffness: 500, damping: 30 }}
-          className="absolute top-1 h-4 w-4 rounded-full shadow-sm"
-          style={{ background: "var(--bg)" }}
-        />
-      </div>
-    </div>
+    <button type="button" role="switch" aria-checked={value} aria-labelledby={`${id}-label`} aria-describedby={`${id}-description`} onClick={() => onChange(!value)} className={styles.toggle}>
+      <span className={styles.copy}>
+        <span id={`${id}-label`} className={styles.label}>{label}</span>
+        <span id={`${id}-description`} className={styles.description}>{description}</span>
+      </span>
+      <span className={styles.track} data-checked={value} aria-hidden="true"><span className={styles.thumb} /></span>
+    </button>
   );
 }

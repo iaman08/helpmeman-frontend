@@ -30,6 +30,7 @@ import { PriceDisplay } from "@/components/PriceDisplay";
 
 export interface MentorSwipeCardHandle {
   swipe: (direction: "left" | "right" | "up") => Promise<void>;
+  isAnimating: () => boolean;
 }
 
 interface MentorSwipeCardProps {
@@ -61,6 +62,7 @@ export const MentorSwipeCard = forwardRef<MentorSwipeCardHandle, MentorSwipeCard
     const cardRef = useRef<HTMLDivElement>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [isExiting, setIsExiting] = useState(false);
+    const exitingRef = useRef(false);
     const [imgError, setImgError] = useState(false);
 
     const x = useMotionValue(0);
@@ -148,7 +150,8 @@ export const MentorSwipeCard = forwardRef<MentorSwipeCardHandle, MentorSwipeCard
 
     const throwCard = useCallback(
       async (direction: "left" | "right" | "up") => {
-        if (isExiting) return;
+        if (exitingRef.current) return;
+        exitingRef.current = true;
         setIsExiting(true);
 
         const screenWidth = typeof window !== "undefined" ? window.innerWidth : 600;
@@ -170,13 +173,14 @@ export const MentorSwipeCard = forwardRef<MentorSwipeCardHandle, MentorSwipeCard
           direction === "right" ? "interested" : direction === "up" ? "priority" : "skip";
         onSwipe(action);
       },
-      [x, y, scale, isExiting, onSwipe]
+      [x, y, scale, onSwipe]
     );
 
     // Expose throwCard method via imperative ref for action buttons
     useImperativeHandle(
       ref,
       () => ({
+        isAnimating: () => exitingRef.current,
         swipe: async (direction: "left" | "right" | "up") => {
           await throwCard(direction);
         },
