@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect, type FormEvent } from "react";
 import { getLoginDest, useAuth } from "@/lib/auth-context";
 import { AxiosError } from "axios";
+import CaptchaWidget from "@/components/CaptchaWidget";
+import TwoFactorModal from "@/components/TwoFactorModal";
 import OTPInput from "@/components/OTPInput";
-import api from "@/lib/api";
+import api, { extractErrorMessage } from "@/lib/api";
 import PasswordStrength from "@/components/PasswordStrength";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Eye, EyeOff } from "lucide-react";
@@ -32,6 +34,9 @@ export default function ApplyMentorPage() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [captcha, setCaptcha] = useState({ captchaId: "", captchaAnswer: "" });
+  const [captchaRefresh, setCaptchaRefresh] = useState(0);
+  const [twoFactor, setTwoFactor] = useState<{ mode: "verify" | "setup"; tempToken: string } | null>(null);
 
   // Resend OTP states
   const [cooldown, setCooldown] = useState(0);
@@ -47,7 +52,7 @@ export default function ApplyMentorPage() {
 
   // Resume the interview or application status for returning candidates.
   useEffect(() => {
-    if (!loading && user && step === 1) {
+    if (!loading && user && step === 1 && !twoFactor) {
       if (typeof sessionStorage !== "undefined") {
         sessionStorage.setItem("hmm.activeRole", "mentor");
       }
@@ -55,7 +60,7 @@ export default function ApplyMentorPage() {
         ? "/onboarding?role=mentor" : getLoginDest(user, mentor);
       window.location.replace(destination);
     }
-  }, [user, mentor, loading, step]);
+  }, [user, mentor, loading, step, twoFactor]);
 
   // Cooldown countdown timer
   useEffect(() => {
@@ -67,7 +72,7 @@ export default function ApplyMentorPage() {
   }, [cooldown]);
 
   // Loading or redirecting state — prevent blank page
-  if (loading || (user && step === 1)) {
+  if (loading || (user && step === 1 && !twoFactor)) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[var(--bg)] text-[var(--fg)]">
         <div className="flex flex-col items-center gap-4 animate-in fade-in duration-300">
@@ -108,9 +113,9 @@ export default function ApplyMentorPage() {
       }
     } catch (err) {
       if (err instanceof AxiosError) {
-        const errMsg = err.response?.data?.error ?? "";
+        const errMsg = extractErrorMessage(err, "Mentor application failed to initiate. Please try again.");
         if (errMsg.toLowerCase().includes("already registered") || errMsg.toLowerCase().includes("already exists")) {
-          setError(`${errMsg} Please sign in below.`);
+          setError("An account already exists for this email. Sign in with that account to continue your mentor application.");
           setMode("signin");
         } else {
           setError(errMsg || "Mentor application failed to initiate. Please try again.");
@@ -136,17 +141,22 @@ export default function ApplyMentorPage() {
       return;
     }
 
+    if (!captcha.captchaId || captcha.captchaAnswer.length !== 4) {
+      setError("Please complete the security verification below.");
+      return;
+    }
     setSubmitting(true);
     try {
       if (typeof sessionStorage !== "undefined") {
         sessionStorage.setItem("hmm.activeRole", "mentor");
       }
-      const destination = await login(email.toLowerCase(), password);
-      if (typeof destination === "string") router.push(destination);
-      else setError("Please use the main sign-in page to complete two-factor authentication.");
+      const destination = await login(email.trim().toLowerCase(), password, captcha);
+      if (typeof destination === "string") return; // Authenticated-user effect chooses the application route.
+      else setTwoFactor({ mode: destination.requires2FASetup ? "setup" : "verify", tempToken: destination.tempToken });
     } catch (err) {
+      setCaptchaRefresh((value) => value + 1);
       if (err instanceof AxiosError) {
-        setError(err.response?.data?.error ?? "Login failed. Please check your credentials.");
+        setError(extractErrorMessage(err, "Login failed. Please check your credentials."));
       } else {
         setError("Something went wrong. Please try again.");
       }
@@ -183,7 +193,7 @@ export default function ApplyMentorPage() {
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(
-          err.response?.data?.error ?? "Verification failed. Please try again.",
+          extractErrorMessage(err, "Verification failed. Please try again."),
         );
       } else {
         setError("Something went wrong. Please try again.");
@@ -208,7 +218,7 @@ export default function ApplyMentorPage() {
       setCooldown(data.cooldown || 60);
     } catch (err) {
       if (err instanceof AxiosError) {
-        setError(err.response?.data?.error ?? "Failed to resend verification code.");
+        setError(extractErrorMessage(err, "Failed to resend verification code."));
       } else {
         setError("Failed to resend verification code.");
       }
@@ -386,6 +396,7 @@ export default function ApplyMentorPage() {
                   </div>
                 </div>
 
+                <CaptchaWidget onChange={setCaptcha} refreshTrigger={captchaRefresh} disabled={submitting} />
                 <button
                   id="mentor-login-submit-button"
                   type="submit"
@@ -396,6 +407,8 @@ export default function ApplyMentorPage() {
                 </button>
               </form>
             )}
+
+            <TwoFactorModal isOpen={!!twoFactor} onClose={() => setTwoFactor(null)} mode={twoFactor?.mode ?? "verify"} tempToken={twoFactor?.tempToken} isMandatory={twoFactor?.mode === "setup"} />
 
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
@@ -418,7 +431,7 @@ export default function ApplyMentorPage() {
                 setError("");
                 setGoogleLoading(true);
                 try {
-                  localStorage.setItem("helpmeman.loginRedirectIntent", "/mentor");
+                  localStorage.removeItem("helpmeman.loginRedirectIntent");
                   localStorage.setItem("helpmeman.onboardingRoleIntent", "MENTOR");
                   if (typeof sessionStorage !== "undefined") {
                     sessionStorage.setItem("hmm.activeRole", "mentor");
@@ -544,7 +557,7 @@ export default function ApplyMentorPage() {
 
             <div className="flex flex-col items-center gap-2 text-xs mt-6 border-t border-gray-200 dark:border-zinc-800 pt-5">
               <p className="text-[var(--muted)] text-center">
-                Didn't receive the code?{" "}
+                Didn’t receive the code?{" "}
                 <button
                   type="button"
                   disabled={cooldown > 0 || resending}

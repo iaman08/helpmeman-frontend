@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useId, useRef } from "react";
 import { ShieldCheck, RotateCcw, Loader2 } from "lucide-react";
-import api from "@/lib/api";
+import api, { extractErrorMessage } from "@/lib/api";
 
 interface CaptchaData {
   captchaId: string;
@@ -27,46 +27,40 @@ export default function CaptchaWidget({
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [notRequired, setNotRequired] = useState(false);
+  const inputId = useId();
+  const requestVersion = useRef(0);
 
   const fetchCaptcha = useCallback(async () => {
+    const version = ++requestVersion.current;
     try {
       setLoading(true);
       setError("");
       setAnswer("");
-      const res = await api.get<CaptchaData>("/auth/captcha");
-      setCaptchaData(res.data);
-      setNotRequired(false);
-      onChange({ captchaId: res.data.captchaId, captchaAnswer: "", notRequired: false });
-    } catch (err: any) {
-      console.error("[CAPTCHA] Failed to load challenge:", err);
-      if (err?.response?.status === 404) {
-        // Backend does not have /auth/captcha deployed yet or captcha is disabled
-        setNotRequired(true);
-        onChange({ captchaId: "", captchaAnswer: "", notRequired: true });
-        return;
+      setCaptchaData(null);
+      onChange({ captchaId: "", captchaAnswer: "", notRequired: false });
+      const res = await api.get<CaptchaData>("/auth/captcha", { timeout: 10_000 });
+      if (version !== requestVersion.current) return;
+      if (!res.data.captchaId || !res.data.svg || res.data.expiresAt <= Date.now()) {
+        throw new Error("Invalid verification challenge");
       }
-      const msg =
-        err?.response?.data?.error?.message ||
-        err?.response?.data?.error ||
-        "Failed to load verification code. Click refresh.";
-      setError(msg);
+      setCaptchaData(res.data);
+      onChange({ captchaId: res.data.captchaId, captchaAnswer: "", notRequired: false });
+    } catch (err: unknown) {
+      if (version !== requestVersion.current) return;
+      setError(extractErrorMessage(err, "Failed to load verification code. Click refresh."));
     } finally {
-      setLoading(false);
+      if (version === requestVersion.current) setLoading(false);
     }
   }, [onChange]);
 
-  // Initial load
+  // One fetch on mount or refresh, including when mounted with a nonzero
+  // refresh trigger. Cleanup invalidates late responses after a refresh/unmount.
   useEffect(() => {
-    fetchCaptcha();
-  }, [fetchCaptcha]);
-
-  // Refresh when parent signals failed submission
-  useEffect(() => {
-    if (refreshTrigger && refreshTrigger > 0) {
-      fetchCaptcha();
-    }
-  }, [refreshTrigger, fetchCaptcha]);
+    // Loading and challenge state synchronize with the external CAPTCHA request.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchCaptcha();
+    return () => { requestVersion.current += 1; };
+  }, [fetchCaptcha, refreshTrigger]);
 
   const handleAnswerChange = (val: string) => {
     const clean = val.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4);
@@ -76,15 +70,11 @@ export default function CaptchaWidget({
     }
   };
 
-  if (notRequired) {
-    return null;
-  }
-
   return (
     <div className={`flex flex-col gap-1.5 select-none ${className}`}>
       <div className="flex items-center justify-between px-0.5">
         <label
-          htmlFor="captcha-answer-input"
+          htmlFor={inputId}
           className="text-xs font-semibold flex items-center gap-1.5"
           style={{ color: "var(--fg)" }}
         >
@@ -122,6 +112,7 @@ export default function CaptchaWidget({
             <button
               type="button"
               onClick={fetchCaptcha}
+              disabled={disabled || loading}
               className="text-[10px] text-amber-500 hover:underline flex items-center gap-1 cursor-pointer font-medium"
             >
               <RotateCcw className="w-3 h-3" />
@@ -144,11 +135,11 @@ export default function CaptchaWidget({
         {/* Answer Input */}
         <div className="relative flex-1 min-w-0">
           <input
-            id="captcha-answer-input"
+            id={inputId}
             type="text"
             value={answer}
             onChange={(e) => handleAnswerChange(e.target.value)}
-            disabled={disabled || loading}
+            disabled={disabled || loading || !captchaData}
             maxLength={4}
             autoComplete="off"
             autoCorrect="off"
@@ -164,7 +155,7 @@ export default function CaptchaWidget({
       </div>
 
       {error && (
-        <p className="text-[11px] text-red-500 px-1 mt-0.5">
+        <p role="alert" className="text-xs text-red-500 px-1 mt-0.5">
           {error}
         </p>
       )}

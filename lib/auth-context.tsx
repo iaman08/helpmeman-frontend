@@ -10,7 +10,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useRouter } from "next/navigation";
 import api, { setAuthCookies, clearAuthCookies } from "./api";
 import { mutate } from "swr";
 import type { AuthResponse, User, OTPResponse } from "./types";
@@ -29,13 +28,14 @@ interface AuthState {
   mentor: MentorMeta | null;
   loading: boolean;
   googleAuthenticating: boolean;
+  googleAuthError: string | null;
   login: (
     email: string,
     password: string,
     captcha?: { captchaId: string; captchaAnswer: string }
   ) => Promise<string | { requires2FA?: boolean; requires2FASetup?: boolean; tempToken: string }>;
   verify2FALogin: (tempToken: string, code: string) => Promise<string>;
-  verifyPasskeyLogin: (tempToken: string, response: any) => Promise<string>;
+  verifyPasskeyLogin: (tempToken: string, response: unknown) => Promise<string>;
   loginWithGoogle: (onboardingRole?: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<OTPResponse>;
   verifySignupOTP: (formData: { name: string; email: string; password: string; phone?: string; otp: string; role?: string; onboardingRole?: string }) => Promise<string>;
@@ -74,13 +74,22 @@ export function getLoginDest(u: User, m: MentorMeta | null): string {
   return "/onboarding";
 }
 
+export function getAuthRedirect(destination: string, intent: string | null): string {
+  if (!intent || !intent.startsWith("/") || intent.startsWith("//") || /[\\\s]/.test(intent) || /%(?:2f|5c|2e)/i.test(intent)) return destination;
+  if (destination !== "/dashboard" && destination !== "/mentor") return destination;
+  const url = new URL(intent, "https://helpmeman.local");
+  return url.origin === "https://helpmeman.local" && (url.pathname === destination || url.pathname.startsWith(`${destination}/`))
+    ? `${url.pathname}${url.search}${url.hash}` : destination;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [mentor, setMentor] = useState<MentorMeta | null>(null);
   const [loading, setLoading] = useState(true);
   // true while Google OAuth is in progress (popup opened → backend sync done)
   const [googleAuthenticating, setGoogleAuthenticating] = useState(false);
+  const [googleAuthError, setGoogleAuthError] = useState<string | null>(null);
+  const googleRequest = useRef<AbortController | null>(null);
 
   // Ref to track intentional Google OAuth flow (accessible without stale closures)
   const googleAuthRef = useRef(false);
@@ -130,16 +139,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         googleAuthRef.current = true;
 
         const mentorIntent = localStorage.getItem("helpmeman.onboardingRoleIntent");
-        if (mentorIntent) localStorage.removeItem("helpmeman.onboardingRoleIntent");
         const redirectIntent = localStorage.getItem("helpmeman.loginRedirectIntent");
-        if (redirectIntent) localStorage.removeItem("helpmeman.loginRedirectIntent");
 
+        const controller = new AbortController();
+        googleRequest.current = controller;
         const { data } = await api.post<AuthResponse>("/auth/google", {
           accessToken,
           onboardingRole: mentorIntent || undefined,
         }, {
-          headers: { "x-show-loader": "true" }
+          signal: controller.signal,
+          timeout: 20_000,
         });
+        if (!googleAuthRef.current || controller.signal.aborted) return;
 
         // Persist tokens, user, mentor and compute redirect destination
         const dest = persist({
@@ -149,31 +160,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (typeof sessionStorage !== "undefined") {
           sessionStorage.removeItem("helpmeman.oauthInProgress");
+          sessionStorage.removeItem("helpmeman.oauthStartedAt");
         }
 
-        const targetUrl = redirectIntent || dest;
+        localStorage.removeItem("helpmeman.onboardingRoleIntent");
+        localStorage.removeItem("helpmeman.loginRedirectIntent");
+        const targetUrl = getAuthRedirect(dest, redirectIntent);
         // Direct reliable replacement: cleanly replaces the OAuth callback in browser history
         // and guarantees cookies and headers are attached for server-side middleware and layouts
         window.location.replace(targetUrl);
-      } catch (err: any) {
-        console.error("[AUTH] Backend sync failed:", err);
-        // Reset flags to allow retry
-        callbackHandled.current = false;
+      } catch {
+        if (!googleAuthRef.current) return;
+        setGoogleAuthError("Google sign-in could not be completed. Please try again or sign in with your email.");
+        // Keep callback events blocked until an explicit new sign-in attempt.
+        callbackHandled.current = true;
         lastSyncedToken.current = null;
         setLoading(false);
         setGoogleAuthenticating(false);
         googleAuthRef.current = false;
         if (typeof sessionStorage !== "undefined") {
           sessionStorage.removeItem("helpmeman.oauthInProgress");
+          sessionStorage.removeItem("helpmeman.oauthStartedAt");
         }
       } finally {
         syncInFlight.current = false;
       }
     },
-    [persist, router],
+    [persist],
   );
 
-  /* ─── Loading timeout safety net ─── */
+  // Start a fresh deadline for every attempt, including attempts started long
+  // after mount. Abort pending API work and ignore late SDK/session results.
+  useEffect(() => {
+    if (!googleAuthenticating) return;
+    const timer = setTimeout(() => {
+      googleAuthRef.current = false;
+      callbackHandled.current = true;
+      googleRequest.current?.abort();
+      setLoading(false);
+      setGoogleAuthenticating(false);
+      setGoogleAuthError("Google sign-in took too long. Please try again or sign in with your email.");
+      sessionStorage.removeItem("helpmeman.oauthInProgress");
+      sessionStorage.removeItem("helpmeman.oauthStartedAt");
+    }, 25_000);
+    return () => clearTimeout(timer);
+  }, [googleAuthenticating]);
+
+  /* ─── Initial hydration timeout safety net ─── */
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading((prev) => {
@@ -183,7 +216,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         return prev;
       });
-      setGoogleAuthenticating(false);
     }, AUTH_LOADING_TIMEOUT_MS);
     return () => clearTimeout(timer);
   }, []);
@@ -191,22 +223,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /* ─── Hydrate from localStorage on mount ─── */
   useEffect(() => {
     async function hydrate() {
-      // An OAuth callback ONLY exists if the URL contains tokens/code or active in-flight ref
+      // Detect an OAuth callback from URL state or a recent intentional sign-in.
       const hasUrlTokens = typeof window !== "undefined" && (
         window.location.hash.includes("access_token=") ||
         window.location.search.includes("code=")
       );
+      // Supabase may consume/clean the callback URL before React mounts.
+      // A short-lived explicit intent survives that handoff without treating
+      // old sessionStorage flags as a new login on every future page load.
+      const startedAt = Number(sessionStorage.getItem("helpmeman.oauthStartedAt"));
+      const recentIntent = sessionStorage.getItem("helpmeman.oauthInProgress") === "true"
+        && startedAt > 0 && Date.now() - startedAt >= 0 && Date.now() - startedAt < 5 * 60_000;
       const isCallback = Boolean(
         googleAuthRef.current ||
         hasUrlTokens ||
-        (typeof sessionStorage !== "undefined" &&
-          sessionStorage.getItem("helpmeman.oauthInProgress") === "true" &&
-          hasUrlTokens)
+        recentIntent
       );
 
-      // Clean up stale oauthInProgress flags if URL doesn't have OAuth tokens
-      if (!hasUrlTokens && typeof sessionStorage !== "undefined") {
+      // Clean up expired intent without discarding a callback already parsed by the SDK.
+      if (!hasUrlTokens && !recentIntent && typeof sessionStorage !== "undefined") {
         sessionStorage.removeItem("helpmeman.oauthInProgress");
+        sessionStorage.removeItem("helpmeman.oauthStartedAt");
       }
 
       try {
@@ -227,44 +264,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setGoogleAuthenticating(true);
         googleAuthRef.current = true;
 
-        // Immediate session probe: check if Supabase already parsed the session
+        // The listener and this probe share the same deduplication guard.
+        // The per-attempt deadline also covers an SDK session probe that hangs.
         try {
           const { data: { session } } = await supabase.auth.getSession();
-          if (session?.access_token && !callbackHandled.current) {
-            await syncGoogleSession(session.access_token, session.refresh_token ?? undefined);
-            return;
+          if (!googleAuthRef.current || callbackHandled.current) return;
+          if (session?.access_token) {
+            void syncGoogleSession(session.access_token, session.refresh_token ?? undefined);
           }
-        } catch (e) {}
-
-        // Fallback: if onAuthStateChange doesn't handle the callback promptly,
-        // try getting the session directly from Supabase as a safety net.
-        setTimeout(async () => {
-          if (callbackHandled.current) return; // Already handled
-
-          try {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session?.access_token && !callbackHandled.current) {
-              await syncGoogleSession(session.access_token, session.refresh_token ?? undefined);
-            } else if (!callbackHandled.current) {
-              setGoogleAuthenticating(false);
-              googleAuthRef.current = false;
-              setLoading(false);
-              if (typeof sessionStorage !== "undefined") {
-                sessionStorage.removeItem("helpmeman.oauthInProgress");
-              }
-            }
-          } catch (err) {
-            console.error("[AUTH] Fallback recovery failed:", err);
-            if (!callbackHandled.current) {
-              setGoogleAuthenticating(false);
-              googleAuthRef.current = false;
-              setLoading(false);
-              if (typeof sessionStorage !== "undefined") {
-                sessionStorage.removeItem("helpmeman.oauthInProgress");
-              }
-            }
-          }
-        }, 2000);
+        } catch {
+          if (!googleAuthRef.current) return;
+          setGoogleAuthError("Your Google session could not be loaded. Please sign in again.");
+          setGoogleAuthenticating(false);
+          googleAuthRef.current = false;
+          setLoading(false);
+          sessionStorage.removeItem("helpmeman.oauthInProgress");
+          sessionStorage.removeItem("helpmeman.oauthStartedAt");
+        }
       }
 
       // Background-refresh profile (non-blocking, fire-and-forget)
@@ -295,7 +311,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /* ─── Supabase Auth State Listener (Google OAuth) ─── */
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event: AuthChangeEvent, session: Session | null) => {
+      (event: AuthChangeEvent, session: Session | null) => {
         const isOAuthCallback = Boolean(
           googleAuthRef.current ||
           (typeof window !== "undefined" && (
@@ -315,7 +331,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         // Only invoke sync if this is an explicit OAuth redirect callback
         if (isOAuthCallback && session.access_token) {
-          await syncGoogleSession(session.access_token, session.refresh_token ?? undefined);
+          setTimeout(() => {
+            if (googleAuthRef.current) void syncGoogleSession(session.access_token, session.refresh_token ?? undefined);
+          }, 0);
         } else {
           // Normal background or tab-switch event: NEVER re-sync or force-redirect
           setLoading(false);
@@ -325,7 +343,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 
     return () => subscription.unsubscribe();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [syncGoogleSession]);
 
 
@@ -373,7 +390,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /* ─── Verify Passkey / Security Key Login ─── */
   const verifyPasskeyLogin = useCallback(
-    async (tempToken: string, response: any): Promise<string> => {
+    async (tempToken: string, response: unknown): Promise<string> => {
       const { data } = await api.post<AuthResponse>("/auth/webauthn/login-verify", { tempToken, response }, {
         headers: { "x-show-loader": "true" }
       });
@@ -386,6 +403,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /* ─── Google Login — triggers full-page redirect to Google OAuth ─── */
   const loginWithGoogle = useCallback(async (onboardingRole?: string): Promise<void> => {
+    setGoogleAuthError(null);
     // Signal that Google auth is in progress so the overlay shows
     setGoogleAuthenticating(true);
     googleAuthRef.current = true;
@@ -393,6 +411,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     callbackHandled.current = false;
     if (typeof sessionStorage !== "undefined") {
       sessionStorage.setItem("helpmeman.oauthInProgress", "true");
+      sessionStorage.setItem("helpmeman.oauthStartedAt", String(Date.now()));
     }
 
     if (onboardingRole) {
@@ -424,6 +443,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       if (typeof sessionStorage !== "undefined") {
         sessionStorage.removeItem("helpmeman.oauthInProgress");
+        sessionStorage.removeItem("helpmeman.oauthStartedAt");
       }
       setGoogleAuthenticating(false);
       googleAuthRef.current = false;
@@ -529,6 +549,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       mentor,
       loading,
       googleAuthenticating,
+      googleAuthError,
       login,
       verify2FALogin,
       verifyPasskeyLogin,
@@ -545,7 +566,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAdmin: user?.role === "ADMIN" || user?.role === "SUPER_ADMIN",
       isSuperAdmin: user?.role === "SUPER_ADMIN",
     }),
-    [user, mentor, loading, googleAuthenticating, login, verify2FALogin, verifyPasskeyLogin, loginWithGoogle, register, verifySignupOTP, logout, refreshUser, setSessionFromToken, updateUser],
+    [user, mentor, loading, googleAuthenticating, googleAuthError, login, verify2FALogin, verifyPasskeyLogin, loginWithGoogle, register, verifySignupOTP, logout, refreshUser, setSessionFromToken, updateUser],
   );
 
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
