@@ -78,6 +78,7 @@ export function getAuthRedirect(destination: string, intent: string | null): str
   if (!intent || !intent.startsWith("/") || intent.startsWith("//") || /[\\\s]/.test(intent) || /%(?:2f|5c|2e)/i.test(intent)) return destination;
   if (destination !== "/dashboard" && destination !== "/mentor") return destination;
   const url = new URL(intent, "https://helpmeman.local");
+  if (destination === "/dashboard" && url.pathname === "/apply-mentor") return "/apply-mentor";
   return url.origin === "https://helpmeman.local" && (url.pathname === destination || url.pathname.startsWith(`${destination}/`))
     ? `${url.pathname}${url.search}${url.hash}` : destination;
 }
@@ -511,27 +512,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /* ─── Establish session directly from received access token ─── */
   const setSessionFromToken = useCallback(async (token: string, refreshToken?: string): Promise<User | null> => {
     try {
-      localStorage.setItem(KEYS.access, token);
-      if (refreshToken) localStorage.setItem(KEYS.refresh, refreshToken);
-      const { data } = await api.get<{ user: User; mentor: MentorMeta | null }>("/users/me", {
+      const { data } = await api.get<Pick<AuthResponse, "user" | "mentor">>("/users/me", {
         headers: { Authorization: `Bearer ${token}` },
+        skipAuthRefresh: true,
+        timeout: 15_000,
       });
-      setAuthCookies(token, data.user.role);
-      setUser(data.user);
-      localStorage.setItem(KEYS.user, JSON.stringify(data.user));
-      if (data.mentor) {
-        setMentor(data.mentor);
-        localStorage.setItem(KEYS.mentor, JSON.stringify(data.mentor));
-      } else {
-        setMentor(null);
-        localStorage.removeItem(KEYS.mentor);
-      }
+      // Validate the callback before replacing the current account/session.
+      if (!data.user?.id || !data.user.role) return null;
+      persist({ ...data, accessToken: token, refreshToken: refreshToken || "" });
+      if (!refreshToken) localStorage.removeItem(KEYS.refresh);
       return data.user;
-    } catch (err) {
-      console.error("[AuthContext] setSessionFromToken failed:", err);
+    } catch {
+      console.warn("[AuthContext] Callback session could not be restored");
       return null;
     }
-  }, []);
+  }, [persist]);
 
   /* ─── Update user locally (optimistic) ─── */
   const updateUser = useCallback((updates: Partial<User>) => {
@@ -539,6 +534,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!prev) return null;
       const next = { ...prev, ...updates };
       localStorage.setItem(KEYS.user, JSON.stringify(next));
+      const token = localStorage.getItem(KEYS.access);
+      if (token && updates.role) setAuthCookies(token, next.role);
       return next;
     });
   }, []);

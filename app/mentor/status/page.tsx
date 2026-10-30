@@ -15,18 +15,23 @@ export default function MentorStatusPage() {
   useEffect(() => {
     const isDemo = typeof window !== "undefined" ? localStorage.getItem("helpmeman.accessToken")?.startsWith("demo_") : false;
     if (isDemo) {
+      // Demo sessions have no backend status to fetch.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOnboardingStatus("COMPLETED");
       return;
     }
 
-    api.get<{ role: string | null; status: string; mentor: { approvalStatus: string } | null }>("/mentor/onboarding")
+    let cancelled = false;
+    api.get<{ role: string | null; status: string; mentor: { approvalStatus: string } | null }>("/mentor/onboarding", { timeout: 15_000 })
       .then(({ data }) => {
+        if (cancelled) return;
         setOnboardingStatus(data.status);
         setApprovalStatus(data.mentor?.approvalStatus || null);
       })
       .catch(() => {
-        setOnboardingStatus("ERROR");
+        if (!cancelled) setOnboardingStatus("ERROR");
       });
+    return () => { cancelled = true; };
   }, [retry]);
 
   if (onboardingStatus === "LOADING") {
@@ -54,7 +59,7 @@ export default function MentorStatusPage() {
       title: "Please complete your onboarding first.",
       description:
         "You started your onboarding conversation with Ruth AI, but haven't finished answering the questions. Please complete it first to submit your application for review.",
-      cta: { label: "Complete Onboarding", href: "/onboarding" },
+      cta: { label: "Complete Onboarding", href: "/onboarding?role=mentor" },
     },
     PENDING: {
       icon: <Clock className="h-8 w-8 text-amber-500" />,
@@ -98,6 +103,9 @@ export default function MentorStatusPage() {
       >
         {c.cta.label}
       </Link>
+      <button onClick={() => { setOnboardingStatus("LOADING"); setRetry(value => value + 1); }} className="rounded-xl border border-hairline px-5 py-2 text-sm text-fg">
+        Refresh application status
+      </button>
     </main>
   );
 }
