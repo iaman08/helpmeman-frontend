@@ -6,8 +6,8 @@ import ts from 'typescript';
 
 // Execute the actual provider with controlled hooks, SDK events, requests and
 // clocks. No real account, network request or CAPTCHA is used.
-function harness({ probe = Promise.resolve({ data: { session: null } }) } = {}) {
-  const slots = [], effects = [], timers = new Map(), redirects = [], posts = [];
+function harness({ probe = Promise.resolve({ data: { session: null } }), getProfile = async () => ({}) } = {}) {
+  const slots = [], effects = [], timers = new Map(), redirects = [], posts = [], gets = [];
   let cursor = 0, listener, nextTimer = 0;
   const storage = () => { const map = new Map(); return { getItem: key => map.get(key) ?? null, setItem: (key, value) => map.set(key, value), removeItem: key => map.delete(key), clear: () => map.clear() }; };
   globalThis.localStorage = storage(); globalThis.sessionStorage = storage();
@@ -19,7 +19,7 @@ function harness({ probe = Promise.resolve({ data: { session: null } }) } = {}) 
     useCallback: fn => fn, useMemo: fn => fn(),
     useEffect(fn, deps) { const i = cursor++; const previous = slots[i]; if (!previous || deps.some((dep, j) => dep !== previous.deps[j])) { effects.push(() => { previous?.cleanup?.(); slots[i] = { deps, cleanup: fn() }; }); } },
   };
-  const api = { post: (...args) => new Promise((resolve, reject) => posts.push({ args, resolve, reject })), get: async () => ({}) };
+  const api = { post: (...args) => new Promise((resolve, reject) => posts.push({ args, resolve, reject })), get: (...args) => { gets.push(args); return getProfile(...args); } };
   const sdk = { auth: { getSession: () => probe, onAuthStateChange: fn => { listener = fn; return { data: { subscription: { unsubscribe() {} } } }; }, signInWithOAuth: async () => ({ error: null }) } };
   const filename = new URL('../lib/auth-context.tsx', import.meta.url).pathname;
   const compiled = ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2020 } }).outputText;
@@ -36,7 +36,7 @@ function harness({ probe = Promise.resolve({ data: { session: null } }) } = {}) 
   globalThis.__authTestClock = { setTimeout: (fn, ms) => { timers.set(++nextTimer, { fn, ms }); return nextTimer; }, clearTimeout: id => timers.delete(id) };
   instance._compile('const {setTimeout, clearTimeout} = globalThis.__authTestClock;\n' + compiled, filename);
   const render = () => { cursor = 0; const value = instance.exports.AuthProvider({ children: null }); effects.splice(0).forEach(fn => fn()); return value; };
-  return { render, posts, redirects, timers, emit: (event, session) => listener(event, session), routing: instance.exports.getAuthRedirect,
+  return { render, posts, gets, redirects, timers, emit: (event, session) => listener(event, session), routing: instance.exports.getAuthRedirect,
     tick(ms) { for (const [id, timer] of [...timers]) if (timer.ms === ms) { timers.delete(id); timer.fn(); } },
   };
 }
@@ -110,4 +110,34 @@ test('expired intent never replays a stored Google session', async () => {
   sessionStorage.setItem('helpmeman.oauthStartedAt', String(Date.now() - 6 * 60_000));
   h.render(); await settle(); h.render();
   assert.equal(h.posts.length, 0); assert.equal(h.render().googleAuthenticating, false);
+});
+
+
+test('failed LinkedIn callback validation leaves the previous session untouched', async () => {
+  const h = harness({ getProfile: async () => { throw Error('Expired callback'); } });
+  const value = h.render(); await settle();
+  localStorage.setItem('helpmeman.accessToken', 'previous-session');
+  localStorage.setItem('helpmeman.refreshToken', 'previous-refresh');
+  assert.equal(await value.setSessionFromToken('invalid-callback', 'new-refresh'), null);
+  assert.equal(localStorage.getItem('helpmeman.accessToken'), 'previous-session');
+  assert.equal(localStorage.getItem('helpmeman.refreshToken'), 'previous-refresh');
+  assert.equal(h.gets.at(-1)[1].skipAuthRefresh, true);
+});
+
+test('successful callback validates its own token and clears an unrelated old refresh token', async () => {
+  const h = harness({ getProfile: async () => ({ data: { user: { id: 'new-user', role: 'MENTOR' }, mentor: null } }) });
+  const value = h.render(); await settle();
+  localStorage.setItem('helpmeman.refreshToken', 'old-account-refresh');
+  assert.equal((await value.setSessionFromToken('validated-callback')).id, 'new-user');
+  assert.equal(h.gets.at(-1)[1].headers.Authorization, 'Bearer validated-callback');
+  assert.equal(localStorage.getItem('helpmeman.accessToken'), 'validated-callback');
+  assert.equal(localStorage.getItem('helpmeman.refreshToken'), null);
+});
+
+
+test('malformed successful callback response cannot replace a stored session', async () => {
+  const h = harness({ getProfile: async () => ({ data: { user: null } }) });
+  const value = h.render(); await settle(); localStorage.setItem('helpmeman.accessToken', 'previous-token');
+  assert.equal(await value.setSessionFromToken('callback-token'), null);
+  assert.equal(localStorage.getItem('helpmeman.accessToken'), 'previous-token');
 });

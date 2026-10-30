@@ -21,6 +21,11 @@ function formHarness(result = '/mentor', failure = null, page = 'apply-mentor') 
     if (dep === 'react') return { useEffect() {}, useRef(initial) { const i = cursor++; return states[i] ??= { current: initial }; }, useState(initial) { const i = cursor++; if (!(i in states)) states[i] = initial; return [states[i], value => states[i] = typeof value === 'function' ? value(states[i]) : value]; } };
     if (dep === 'react/jsx-runtime') return { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }) };
     if (dep === 'next/navigation') return { useRouter: () => ({}) };
+    if (dep === '@/lib/mentor-workflow') {
+      const helper = new Module(filename + '.helpers');
+      helper._compile(ts.transpileModule(fs.readFileSync(new URL('../lib/mentor-workflow.ts', import.meta.url), 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, filename + '.helpers');
+      return helper.exports;
+    }
     if (dep === '@/lib/auth-context') return { useAuth: () => ({ loading: false, user, login: async (...args) => { calls.push(args); if (failure) throw failure; if (result?.requires2FASetup) user = { role: "ADMIN" }; return result; } }) };
     if (dep === '@/components/CaptchaWidget') return { __esModule: true, default: Captcha };
     if (dep === '@/components/TwoFactorModal') return { __esModule: true, default: TwoFactor };

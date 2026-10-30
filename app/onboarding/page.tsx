@@ -16,7 +16,8 @@ import {
   UsersRound,
   X,
 } from "lucide-react";
-import api from "@/lib/api";
+import api, { extractErrorMessage } from "@/lib/api";
+import { onboardingStage, mentorAnswerError, type OnboardingStage } from "@/lib/mentor-workflow";
 import { useAuth } from "@/lib/auth-context";
 import LinkedInOnboarding from "@/components/mentor/LinkedInOnboarding";
 import { AxiosError } from "axios";
@@ -45,7 +46,7 @@ type State = {
   message?: string;
 };
 
-type Stage = "role" | "method_choice" | "linkedin" | "name" | "preparing" | "tour" | "chat";
+type Stage = OnboardingStage;
 
 const DEMO_QUESTIONS: Question[] = [
   { key: "full_name", phase: "Identity", type: "text", text: "Let's begin with your full name.", prompt: "What's your full name?", placeholder: "Enter your full name" },
@@ -104,7 +105,7 @@ function initialState(): State {
 function OnboardingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, mentor, loading, updateUser, setSessionFromToken } = useAuth();
+  const { user, mentor, loading, updateUser, setSessionFromToken, refreshUser } = useAuth();
   const callbackToken = searchParams.get("linkedin") === "success" ? searchParams.get("token") : null;
   const [restoringLinkedIn, setRestoringLinkedIn] = useState(Boolean(callbackToken));
   const [sessionError, setSessionError] = useState(false);
@@ -120,21 +121,19 @@ function OnboardingContent() {
   const [streamedRuthMessage, setStreamedRuthMessage] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const lastFetchedUserIdRef = useRef<string | null>(null);
-  const localStageRef = useRef<Stage>("role");
+  const loadVersion = useRef(0);
+  const answerInFlight = useRef(false);
+  const [loaded, setLoaded] = useState(false);
 
   const question = state?.question;
   const questionType = question?.type || "text";
   const isDemo = typeof window !== "undefined" ? Boolean(localStorage.getItem("helpmeman.accessToken")?.startsWith("demo_")) : false;
   const completed = state?.status === "COMPLETED";
-  const progress = state ? Math.round((state.currentQuestion / state.totalQuestions) * 100) : 0;
+  const progress = state && state.totalQuestions > 0 ? Math.min(100, Math.round((state.currentQuestion / state.totalQuestions) * 100)) : 0;
   const firstName = useMemo(() => {
     const savedName = state?.answers.find(answer => answer.questionKey === "full_name" || answer.question.toLowerCase().includes("name"))?.answer;
     return (savedName || user?.name || "there").split(" ")[0];
   }, [state?.answers, user?.name]);
-
-  useEffect(() => {
-    localStageRef.current = stage;
-  }, [stage]);
 
   useEffect(() => {
     if (!callbackToken || restoredTokenRef.current === callbackToken) return;
@@ -146,6 +145,9 @@ function OnboardingContent() {
 
   const resetOnboarding = useCallback(() => {
     lastFetchedUserIdRef.current = null;
+    loadVersion.current += 1;
+    answerInFlight.current = false;
+    setLoaded(false);
     setState(null);
     setInput("");
     setSelected([]);
@@ -162,6 +164,7 @@ function OnboardingContent() {
     setError("");
     const token = localStorage.getItem("helpmeman.accessToken");
     if (token?.startsWith("demo_")) {
+      setLoaded(true);
       if (user?.role === "MENTOR" || targetRole === "mentor") {
         const next = initialState();
         setState(next);
@@ -180,80 +183,45 @@ function OnboardingContent() {
       return;
     }
 
+    const version = ++loadVersion.current;
+    answerInFlight.current = false;
+    setSending(false);
+    setLoaded(false);
     try {
-      if (targetRole === "mentor") {
-        const { data } = await api.patch<State>("/mentor/onboarding", { role: "MENTOR" });
+      const requestedMentor = targetRole?.toUpperCase() === "MENTOR";
+      const { data } = requestedMentor
+        ? await api.patch<State>("/mentor/onboarding", { role: "MENTOR" }, { timeout: 15_000 })
+        : await api.get<State>("/mentor/onboarding", { timeout: 15_000 });
+      if (version !== loadVersion.current) return;
+      if (requestedMentor) {
         updateUser({ role: "MENTOR", onboardingRole: "MENTOR" });
-        if (data.status === "COMPLETED") {
-          if (data.mentor) localStorage.setItem("helpmeman.mentor", JSON.stringify({ ...data.mentor, onboardingCompleted: true }));
-          if (data.mentor?.approvalStatus === "APPROVED") {
-            router.replace("/mentor");
-          } else {
-            router.replace("/mentor/status");
-          }
-          return;
-        }
-        setState(data);
-        if (searchParams.get("linkedin") || searchParams.get("linkedinError")) {
-          setStage("linkedin");
-        } else if (searchParams.get("mode") === "manual") {
-          if (data.currentQuestion === 0 && data.answers.length === 0) setStage("name");
-          else setStage("chat");
-        } else if (data.currentQuestion === 0 && data.answers.length === 0) {
-          setStage("method_choice");
-        } else {
-          setStage("chat");
-        }
-        if (data.question) setLatestRuthMessage(data.message || data.question.text);
-        return;
+        localStorage.removeItem("helpmeman.onboardingRoleIntent");
       }
-
-      const { data } = await api.get<State>("/mentor/onboarding");
-      if (data.role === "MENTOR" && data.status === "COMPLETED") {
-        if (data.mentor) localStorage.setItem("helpmeman.mentor", JSON.stringify({ ...data.mentor, onboardingCompleted: true }));
-        if (data.mentor?.approvalStatus === "APPROVED") {
-          router.replace("/mentor");
-        } else {
-          router.replace("/mentor/status");
-        }
-        return;
-      }
-
       setState(data);
-      const current = localStageRef.current;
-      const localOnlyStages: Stage[] = ["preparing", "tour", "name", "method_choice", "linkedin"];
-      if (localOnlyStages.includes(current)) {
-        if (current === "name" && (data.currentQuestion > 0 || data.answers.length > 0)) {
-          setStage("chat");
-        }
+      setLoaded(true);
+      if (data.role === "MENTEE") { router.replace("/dashboard"); return; }
+      if (data.role === "MENTOR" && data.status === "COMPLETED") {
+        router.replace(data.mentor?.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status");
         return;
       }
-
-      if (searchParams.get("linkedin") || searchParams.get("linkedinError")) {
-        setStage("linkedin");
-      } else if (data.role !== "MENTOR") {
-        setStage("role");
-      } else if (searchParams.get("mode") === "manual") {
-        if (data.currentQuestion === 0 && data.answers.length === 0) setStage("name");
-        else setStage("chat");
-      } else if (data.currentQuestion === 0 && data.answers.length === 0) {
-        setStage("method_choice");
-      } else {
-        setStage("chat");
-      }
-
+      setStage(onboardingStage(data, {
+        linkedIn: Boolean(searchParams.get("linkedin") || searchParams.get("linkedinError")),
+        manual: searchParams.get("mode") === "manual",
+      }));
       if (data.question) setLatestRuthMessage(data.message || data.question.text);
-    } catch (err: any) {
-      console.error("[Onboarding] Error loading conversation:", err);
-      setError("Ruth couldn't load your conversation. Please try again.");
+    } catch (err) {
+      if (version !== loadVersion.current) return;
+      setError(extractErrorMessage(err, "Ruth couldn't load your conversation. Please try again."));
     }
-  }, [user?.role, router, updateUser, searchParams]);
+  }, [router, updateUser, searchParams, user?.role]);
 
   useEffect(() => {
     if (loading || restoringLinkedIn || sessionError) return;
     if (!user) {
+      // Drop the previous account’s conversation when auth is cleared.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       resetOnboarding();
-      router.replace("/signin");
+      router.replace("/apply-mentor");
       return;
     }
 
@@ -261,33 +229,30 @@ function OnboardingContent() {
       router.replace(user.role === "SUPER_ADMIN" ? "/superadmin" : "/admin");
       return;
     }
-    if (user.role === "MENTOR" && mentor?.onboardingCompleted) {
-      router.replace(mentor.approvalStatus === "APPROVED" ? "/mentor" : "/mentor/status");
-      return;
-    }
+    const roleParam = searchParams.get("role") || (user.role === "MENTOR" || user.onboardingRole === "MENTOR" ? "mentor" : localStorage.getItem("helpmeman.onboardingRoleIntent"));
+    const requestKey = `${user.id}:${roleParam?.toUpperCase() || ""}`;
 
-    const roleParam = searchParams.get("role") || (typeof window !== "undefined" ? localStorage.getItem("helpmeman.onboardingRoleIntent") : null);
-    if (roleParam === "mentor" && typeof window !== "undefined") {
-      localStorage.removeItem("helpmeman.onboardingRoleIntent");
-    }
-
-    if (lastFetchedUserIdRef.current !== user.id) {
-      lastFetchedUserIdRef.current = user.id;
+    if (lastFetchedUserIdRef.current !== requestKey) {
+      lastFetchedUserIdRef.current = requestKey;
       fetchOnboardingState(user.id, roleParam);
     }
-  }, [user?.id, loading, restoringLinkedIn, sessionError, mentor?.onboardingCompleted, mentor?.approvalStatus, user?.role, user?.onboardingRole, router, resetOnboarding, fetchOnboardingState, state, searchParams]);
+  }, [user?.id, loading, restoringLinkedIn, sessionError, mentor?.onboardingCompleted, mentor?.approvalStatus, user?.role, user?.onboardingRole, router, resetOnboarding, fetchOnboardingState, searchParams]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [state?.answers.length, sending, latestRuthMessage]);
 
   useEffect(() => {
+    // A different server question invalidates the previous field/choice draft.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelected([]);
     setInput("");
   }, [question?.key]);
 
   useEffect(() => {
     if (stage !== "chat") {
+      // Reset the animation whenever its external message/stage changes.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStreamedRuthMessage(latestRuthMessage);
       return;
     }
@@ -369,7 +334,11 @@ function OnboardingContent() {
   }
 
   async function submitAnswer(answerText: string, skip = false) {
-    if (!state?.question || sending || (!skip && !answerText.trim())) return;
+    if (!state?.question || answerInFlight.current) return;
+    const validationError = mentorAnswerError(state.question.key, answerText, skip);
+    if (validationError) { setError(validationError); return; }
+    answerInFlight.current = true;
+    const version = loadVersion.current;
     const value = answerText.trim();
     setSending(true);
     setError("");
@@ -384,21 +353,25 @@ function OnboardingContent() {
       }
 
       const { data } = await api.post<State>("/mentor/onboarding", { answer: value, skip, questionKey: state.question.key });
+      if (version !== loadVersion.current) return;
       setState(data);
       setLatestRuthMessage(data.message || data.question?.text || "Tell me more.");
+      if (data.status === "COMPLETED") void refreshUser();
       if (data.status === "COMPLETED" && data.mentor) localStorage.setItem("helpmeman.mentor", JSON.stringify({ ...data.mentor, onboardingCompleted: true }));
       return data;
     } catch (err) {
-      setError(err instanceof AxiosError ? err.response?.data?.error || "That didn't save. Your answer is still here — try once more." : "That didn't save. Your answer is still here — try once more.");
-      if ((err instanceof AxiosError && err.response?.status === 409) || state.currentQuestion + 1 >= state.totalQuestions) {
+      if (version !== loadVersion.current) return;
+      setError(extractErrorMessage(err, "That didn’t save. Your answer is still here — try once more."));
+      if ((err instanceof AxiosError && err.response?.status === 409) || !(err instanceof AxiosError && err.response) || state.currentQuestion + 1 >= state.totalQuestions) {
         try {
           const { data } = await api.get<State>("/mentor/onboarding");
-          setState(data);
+          if (version !== loadVersion.current) return;
+      setState(data);
           if (data.question) setLatestRuthMessage(data.question.text);
         } catch { /* Preserve the current answer if the connection is unavailable. */ }
       }
     } finally {
-      setSending(false);
+      if (version === loadVersion.current) { answerInFlight.current = false; setSending(false); }
     }
   }
 
@@ -407,8 +380,7 @@ function OnboardingContent() {
     const saved = await submitAnswer(input);
     if (!saved) return;
     setInput("");
-    setStage("preparing");
-    window.setTimeout(() => setStage("chat"), 1200);
+    setStage("chat");
   }
 
   function submitCurrent(e?: FormEvent, skip = false) {
@@ -447,7 +419,7 @@ function OnboardingContent() {
     );
   }
 
-  if (!state) {
+  if (!state || !loaded) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-bg px-4">
         <div className="text-center max-w-sm">
@@ -456,8 +428,7 @@ function OnboardingContent() {
           {error && user?.id && (
             <button
               onClick={() => {
-                lastFetchedUserIdRef.current = null;
-                fetchOnboardingState(user.id);
+                fetchOnboardingState(user.id, searchParams.get("role") || user.onboardingRole || user.role);
               }}
               className="mt-4 rounded-xl bg-fg px-4 py-2 text-xs font-semibold text-bg transition hover:scale-[1.02]"
             >
@@ -526,7 +497,7 @@ function OnboardingContent() {
             <RuthMark size="lg" />
             <p className="mt-4 sm:mt-7 text-xs font-semibold uppercase tracking-[0.24em] text-muted">Before Ruth starts</p>
             <h1 className="mt-3 font-display text-3xl sm:text-5xl md:text-6xl tracking-tight">How will you use HelpMeMan?</h1>
-            <p className="mx-auto mt-2 sm:mt-4 max-w-lg text-xs sm:text-sm text-muted">We'll shape the experience around what you're here to do. Mentors get the AI onboarding flow.</p>
+            <p className="mx-auto mt-2 sm:mt-4 max-w-lg text-xs sm:text-sm text-muted">We’ll shape the experience around what you’re here to do. Mentors get the AI onboarding flow.</p>
           </div>
           <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
             {[
@@ -551,7 +522,7 @@ function OnboardingContent() {
   if (stage === "method_choice" || stage === "linkedin") {
     return (
       <LinkedInOnboarding
-        onContinueManual={() => setStage("name")}
+        onContinueManual={() => setStage(state.currentQuestion > 0 || state.answers.length > 0 ? "chat" : "name")}
       />
     );
   }
@@ -569,6 +540,10 @@ function OnboardingContent() {
             autoFocus
             value={input}
             onChange={event => setInput(event.target.value)}
+            aria-label="Your full name"
+            disabled={sending}
+            minLength={2}
+            maxLength={100}
             placeholder={question?.placeholder || "Enter your name"}
             className="mt-6 sm:mt-10 w-full bg-transparent text-center text-3xl sm:text-5xl md:text-6xl font-semibold tracking-[-.05em] text-fg outline-none placeholder:text-fg/25"
           />
@@ -607,7 +582,7 @@ function OnboardingContent() {
         <Aura />
         <div className="mx-auto max-w-5xl px-4 sm:px-6 pt-10 sm:pt-20">
           <h1 className="text-xl sm:text-3xl font-semibold tracking-[-.04em]">Hello {firstName}, I am Ruth your AI onboarding agent!</h1>
-          <p className="mt-2 sm:mt-3 text-sm sm:text-lg text-muted">Let's set up your mentor profile. You can also ask me any questions.</p>
+          <p className="mt-2 sm:mt-3 text-sm sm:text-lg text-muted">Let’s set up your mentor profile. You can also ask me any questions.</p>
           <div className="mt-6 rounded-[20px] sm:rounded-[28px] border border-hairline bg-bg/90 p-5 sm:p-8 shadow-[0_22px_90px_rgba(0,0,0,.08)]">
             <p className="font-semibold text-sm sm:text-base">Please select where your mentorship is strongest right now.</p>
             <div className="mt-4 sm:mt-7 grid gap-2 sm:gap-3 sm:grid-cols-2">
@@ -744,10 +719,13 @@ function OnboardingContent() {
                 <textarea
                   autoFocus
                   rows={2}
+                  aria-label="Your answer"
+                  disabled={sending}
+                  maxLength={question?.key === "full_name" ? 100 : 10000}
                   value={input}
                   onChange={event => setInput(event.target.value)}
                   onKeyDown={event => {
-                    if (event.key === "Enter" && !event.shiftKey) {
+                    if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
                       event.preventDefault();
                       submitCurrent();
                     }
@@ -770,7 +748,7 @@ function OnboardingContent() {
                   {question?.options?.map(option => {
                     const active = selected.includes(option);
                     return (
-                      <button key={option} type="button" onClick={() => toggleChoice(option)} className={`rounded-full border px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm transition ${active ? "border-fg bg-fg text-bg" : "border-hairline bg-fg/[.025] text-fg hover:border-fg/40"}`}>
+                      <button key={option} type="button" disabled={sending} aria-pressed={active} onClick={() => toggleChoice(option)} className={`rounded-full border px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm transition ${active ? "border-fg bg-fg text-bg" : "border-hairline bg-fg/[.025] text-fg hover:border-fg/40"}`}>
                         {option}
                       </button>
                     );
@@ -781,7 +759,7 @@ function OnboardingContent() {
                 </button>
               </div>
             )}
-            {error && <p className="mt-2 text-center text-xs text-red-500">{error}</p>}
+            {error && <p role="alert" className="mt-2 text-center text-sm text-red-500">{error}</p>}
           </div>
         </div>
       </section>

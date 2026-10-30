@@ -1,5 +1,12 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 
+declare module "axios" {
+  interface AxiosRequestConfig {
+    skipAuthRefresh?: boolean;
+    _showLoader?: boolean;
+  }
+}
+
 export const getApiBaseUrl = () => {
   let url = process.env.NEXT_PUBLIC_API_URL?.trim();
   if (
@@ -88,7 +95,7 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const showLoader = config.headers?.["x-show-loader"] === "true";
 
   if (showLoader) {
-    (config as any)._showLoader = true;
+    config._showLoader = true;
   }
 
   if (startLoaderCallback) {
@@ -102,7 +109,7 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("helpmeman.accessToken");
-    if (token && config.headers) {
+    if (token && config.headers && !config.headers.Authorization) {
       config.headers.Authorization = `Bearer ${token}`;
     }
   }
@@ -126,7 +133,7 @@ function processQueue(error: unknown, token: string | null) {
 
 api.interceptors.response.use(
   (res) => {
-    const show = res.config && (res.config as any)._showLoader;
+    const show = Boolean(res.config?._showLoader);
     if (stopLoaderCallback) stopLoaderCallback(show);
     return res;
   },
@@ -143,8 +150,10 @@ api.interceptors.response.use(
       console.groupEnd();
     }
 
-    const show = error?.config && (error.config as any)._showLoader;
+    const show = Boolean(error.config?._showLoader);
     if (stopLoaderCallback) stopLoaderCallback(show);
+    if (error.config?.skipAuthRefresh) return Promise.reject(error);
+
     const original = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };
@@ -210,11 +219,11 @@ api.interceptors.response.use(
           original.headers.Authorization = `Bearer ${newToken}`;
         }
         return api(original);
-      } catch (refreshError: any) {
+      } catch (refreshError: unknown) {
         processQueue(refreshError, null);
         // Only wipe credentials if the server explicitly rejected the refresh token with a 401.
         // If the server is restarting/deploying (502, 503, network error), DO NOT clear session!
-        if (refreshError?.response?.status === 401) {
+        if (axios.isAxiosError(refreshError) && refreshError.response?.status === 401) {
           localStorage.clear();
           sessionStorage.clear();
           clearAuthCookies();

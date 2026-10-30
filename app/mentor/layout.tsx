@@ -10,7 +10,6 @@ import {
   Clock,
   User,
   Bot,
-  Bell,
   MessageCircle,
   Calendar,
 } from "lucide-react";
@@ -72,10 +71,10 @@ export default function MentorLayout({
       }
 
       let cancelled = false;
-      api.get<{ status: string; mentor: { approvalStatus: string } | null }>("/mentor/onboarding")
+      api.get<{ status: string; mentor: { approvalStatus: string } | null }>("/mentor/onboarding", { timeout: 15_000 })
         .then(({ data }) => {
           if (cancelled) return;
-          if (data.status !== "COMPLETED") {
+          if (data.status !== "COMPLETED" && pathname !== "/mentor/status") {
             router.replace("/onboarding?role=mentor");
           } else if (data.mentor?.approvalStatus !== "APPROVED" && pathname !== "/mentor/status") {
             router.replace("/mentor/status");
@@ -116,13 +115,15 @@ export default function MentorLayout({
     window.addEventListener("click", handleActivity);
     window.addEventListener("scroll", handleActivity);
     window.addEventListener("focus", handleActivity);
-    document.addEventListener("visibilitychange", () => {
+    const handleVisibility = () => {
       if (document.visibilityState === "visible") {
         handleActivity();
       }
-    });
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
       window.removeEventListener("mousemove", handleActivity);
       window.removeEventListener("keydown", handleActivity);
       window.removeEventListener("click", handleActivity);
@@ -134,7 +135,11 @@ export default function MentorLayout({
 
   const isTeam = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
   const isDemo = typeof window !== 'undefined' && localStorage.getItem('helpmeman.accessToken')?.startsWith('demo_');
-  if (loading || (user && !isTeam && !isDemo && access?.key !== accessKey)) return null;
+  if (loading || (user && !isTeam && !isDemo && access?.key !== accessKey)) return (
+    <main role="status" className="flex min-h-screen items-center justify-center bg-bg px-5 text-center text-fg">
+      <p>Checking your mentor application…</p>
+    </main>
+  );
   if (!isTeam && !isDemo && access?.key === accessKey && access.status === 'error') return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-bg px-5 text-center text-fg">
       <p>We couldn&apos;t check your application status. Please try again.</p>

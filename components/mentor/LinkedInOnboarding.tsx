@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -27,7 +27,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { FaLinkedin } from "react-icons/fa";
-import api from "@/lib/api";
+import api, { extractErrorMessage } from "@/lib/api";
+import { mentorDraftError } from "@/lib/mentor-workflow";
 import { useAuth } from "@/lib/auth-context";
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -78,6 +79,20 @@ export interface MentorFormState {
   languages: string[];
   availabilities: Array<{ dayOfWeek: number; startTime: string; endTime: string }>;
   avatar?: string;
+}
+
+export function normalizeRuthAnalysis(value: unknown, imported: LinkedInImportedData): RuthAnalysis {
+  const raw = value && typeof value === "object" ? value as Record<string, unknown> : {};
+  const list = (key: string) => Array.isArray(raw[key]) ? (raw[key] as unknown[]).filter((item): item is string => typeof item === "string" && !!item.trim()).map(item => item.trim().slice(0, 500)).slice(0, 50) : [];
+  const text = (key: string, fallback = "") => typeof raw[key] === "string" ? (raw[key] as string).slice(0, 10000) : fallback;
+  return {
+    suggestedHeadline: text("suggestedHeadline", imported.headline || imported.currentPosition || ""),
+    suggestedBio: text("suggestedBio", imported.about || ""),
+    expertiseAreas: list("expertiseAreas"), mentoringTopics: list("mentoringTopics"), mentorCategories: list("mentorCategories"),
+    suggestedAudience: list("suggestedAudience"), suggestedSessionTopics: list("suggestedSessionTopics"), missingInformation: list("missingInformation"),
+    importedList: list("importedList"), stillNeededList: list("stillNeededList"),
+    completionPercentage: typeof raw.completionPercentage === "number" && Number.isFinite(raw.completionPercentage) ? Math.max(0, Math.min(100, raw.completionPercentage)) : 0,
+  };
 }
 
 interface LinkedInOnboardingProps {
@@ -137,7 +152,7 @@ export default function LinkedInOnboarding({
     categorySlug: "general-mentorship",
     pricePerSession: 499,
     sessionDuration: 30,
-    experienceYears: 3,
+    experienceYears: 0,
     languages: ["English", "Hindi"],
     availabilities: [
       { dayOfWeek: 1, startTime: "18:00", endTime: "21:00" },
@@ -147,6 +162,14 @@ export default function LinkedInOnboarding({
     avatar: "",
   });
 
+  const requestVersion = useRef(0);
+  const publishInFlight = useRef(false);
+  const connectInFlight = useRef(false);
+  const initialized = useRef(false);
+  const initializedAccount = useRef<string | null>(null);
+  const callbackSnapshot = useRef<URL | null>(null);
+  const draftKey = user?.id ? `helpmeman.mentorDraft:${user.id}` : null;
+
   const [newSkillInput, setNewSkillInput] = useState("");
   const [newTopicInput, setNewTopicInput] = useState("");
   const [isEditingReview, setIsEditingReview] = useState(false);
@@ -154,24 +177,24 @@ export default function LinkedInOnboarding({
   // ── Initialize form from imported data and Ruth analysis ──────────────────
   const applyDataToForm = useCallback((imported: LinkedInImportedData, analysis: RuthAnalysis) => {
     setForm({
-      displayName: imported.name || user?.name || "Mentor",
-      headline: analysis.suggestedHeadline || imported.headline || imported.currentPosition || "Experienced Mentor",
-      bio: analysis.suggestedBio || imported.about || "Professional mentor helping students achieve their goals.",
-      currentRole: imported.currentPosition || imported.headline || "Industry Specialist",
+      displayName: (imported.name || user?.name || "").slice(0, 100),
+      headline: (analysis.suggestedHeadline || imported.headline || imported.currentPosition || "").slice(0, 2000),
+      bio: analysis.suggestedBio || imported.about || "",
+      currentRole: imported.currentPosition || imported.headline || "",
       company: imported.company || "Independent",
       location: imported.location || "India",
       expertise: analysis.expertiseAreas && analysis.expertiseAreas.length > 0
         ? analysis.expertiseAreas
         : imported.skills && imported.skills.length > 0
           ? imported.skills.slice(0, 6)
-          : ["Career Guidance", "Mentorship", "Industry Insights"],
+          : [],
       mentoringTopics: analysis.mentoringTopics && analysis.mentoringTopics.length > 0
         ? analysis.mentoringTopics
-        : ["Career Roadmap", "Resume & Portfolio Feedback", "Interview Preparation"],
+        : [],
       categorySlug: "general-mentorship",
       pricePerSession: 499,
       sessionDuration: 30,
-      experienceYears: 3,
+      experienceYears: 0,
       languages: ["English", "Hindi"],
       availabilities: [
         { dayOfWeek: 1, startTime: "18:00", endTime: "21:00" },
@@ -182,137 +205,129 @@ export default function LinkedInOnboarding({
     });
   }, [user?.name, user?.avatar]);
 
-  // ── Step progression animation ──────────────────────────────────────────
-  const runProgressSequence = useCallback(async (imported: LinkedInImportedData) => {
+  // Provider work is bounded. A refresh or unmount invalidates stale results;
+  // cosmetic progress never delays entering the editable review.
+  const runProgressSequence = useCallback(async (imported: LinkedInImportedData, version: number) => {
     setStep("progress");
-    setProgressStage(1); // Connecting to LinkedIn... ✓ Connected
-
-    await new Promise((r) => setTimeout(r, 600));
-    setProgressStage(2); // Importing your professional information...
-
-    await new Promise((r) => setTimeout(r, 800));
-    setProgressStage(3); // Ruth AI is preparing your mentor profile...
-
+    setProgressStage(3);
+    let analysis: RuthAnalysis;
     try {
-      // Call Ruth AI analysis endpoint
-      const { data: analysis } = await api.post<RuthAnalysis>("/linkedin/ruth/analyze", {
-        profileData: imported,
-      });
-
-      setRuthAnalysis(analysis);
-      applyDataToForm(imported, analysis);
-
-      await new Promise((r) => setTimeout(r, 600));
-      setProgressStage(4); // Finished
-
-      await new Promise((r) => setTimeout(r, 400));
-      setStep("review");
-    } catch (err) {
-      console.warn("[LinkedIn Onboarding] Ruth analysis fallback:", err);
-      // Construct fallback analysis
-      const fallbackAnalysis: RuthAnalysis = {
-        suggestedHeadline: imported.headline || `${imported.currentPosition || "Mentor"} at ${imported.company || "Leading Firm"}`,
-        suggestedBio: imported.about || `${imported.name || "Mentor"} is an experienced professional offering actionable career guidance, interview insights, and practical mentorship.`,
-        expertiseAreas: imported.skills?.slice(0, 6) || ["Career Strategy", "Industry Guidance", "Mentorship"],
-        mentoringTopics: ["Career exploration", "Resume & Profile Review", "Interview Preparation"],
-        mentorCategories: ["Career Guidance", "Technology"],
-        suggestedAudience: ["Students", "Early-career Professionals"],
-        suggestedSessionTopics: ["1-on-1 Mentorship Strategy", "Portfolio & Resume Review"],
-        missingInformation: ["Pricing", "Availability", "Mentoring Experience"],
-        completionPercentage: 75,
-        importedList: ["Full Name", "Current Role", "Company"],
-        stillNeededList: ["Pricing", "Availability", "Mentoring Experience"],
-      };
-      setRuthAnalysis(fallbackAnalysis);
-      applyDataToForm(imported, fallbackAnalysis);
-      setStep("review");
+      const { data } = await api.post<unknown>("/linkedin/ruth/analyze", { profileData: imported }, { timeout: 8_000 });
+      analysis = normalizeRuthAnalysis(data, imported);
+    } catch {
+      analysis = normalizeRuthAnalysis(null, imported);
     }
+    if (version !== requestVersion.current) return;
+    setRuthAnalysis(analysis);
+    applyDataToForm(imported, analysis);
+    initialized.current = true;
+    setProgressStage(4);
+    setStep("review");
   }, [applyDataToForm]);
 
-  // ── Handle OAuth URL redirect ───────────────────────────────────────────
   async function handleStartLinkedIn() {
+    if (connectInFlight.current) return;
+    connectInFlight.current = true;
     setIsConnecting(true);
     setErrorMessage("");
     try {
-      // Request authorization URL from backend
       const returnPath = window.location.pathname;
-      const { data } = await api.get<{ url: string }>(`/linkedin/auth-url?returnPath=${encodeURIComponent(returnPath)}`);
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error("Failed to generate LinkedIn authentication link.");
-      }
-    } catch (err: any) {
-      console.error("[LinkedIn Onboarding] Start error:", err);
+      const { data } = await api.get<{ url: string }>(`/linkedin/auth-url?returnPath=${encodeURIComponent(returnPath)}`, { timeout: 15_000 });
+      if (!data.url) throw new Error("No LinkedIn authorization link was returned.");
+      window.location.href = data.url;
+    } catch (err) {
+      connectInFlight.current = false;
       setIsConnecting(false);
-      setErrorMessage(
-        err?.response?.data?.error ||
-        "Unable to start LinkedIn connection. Please try again or continue manually."
-      );
+      setErrorMessage(extractErrorMessage(err, "Unable to start LinkedIn connection. Please try again or continue manually."));
       setStep("error");
     }
   }
 
-  // ── Check if URL params contain OAuth callback results ──────────────────
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    const account = user?.id || null;
+    if (initializedAccount.current !== account) { initializedAccount.current = account; initialized.current = false; }
+    if (initialized.current) return;
+    const version = ++requestVersion.current;
+    callbackSnapshot.current ??= new URL(window.location.href);
+    const callback = callbackSnapshot.current;
     const url = new URL(window.location.href);
-    const linkedinSuccess = url.searchParams.get("linkedin");
-    const linkedinError = url.searchParams.get("linkedinError");
-    const token = url.searchParams.get("token");
-    const refreshToken = url.searchParams.get("refreshToken");
-
-    if (linkedinError) {
-      const detailedMessage = url.searchParams.get("message");
-      // Clean up URL
-      url.searchParams.delete("linkedinError");
-      url.searchParams.delete("message");
-      window.history.replaceState({}, "", url.toString());
-
-      if (linkedinError === "cancelled") {
-        setErrorMessage("LinkedIn connection was cancelled. You can continue manually.");
-      } else if (linkedinError === "account_conflict") {
-        setErrorMessage("This LinkedIn account is already linked to another HelpMeMan account.");
-      } else if (detailedMessage) {
-        setErrorMessage(decodeURIComponent(detailedMessage));
-      } else {
-        setErrorMessage("Unable to import your LinkedIn information right now. You can try again or continue manually.");
+    const success = callback.searchParams.get("linkedin") === "success";
+    const providerError = callback.searchParams.get("linkedinError");
+    const token = callback.searchParams.get("token");
+    const refreshToken = callback.searchParams.get("refreshToken");
+    const detailedMessage = callback.searchParams.get("message");
+    // Capture the values before removing credentials from the address/history.
+    for (const key of ["linkedin", "linkedinError", "token", "refreshToken", "message"]) url.searchParams.delete(key);
+    window.history.replaceState({}, "", url.toString());
+    let cancelled = false;
+    async function initialize() {
+      if (providerError || initialError) {
+        setErrorMessage(providerError === "cancelled" ? "LinkedIn connection was cancelled. You can continue manually."
+          : providerError === "account_conflict" ? "This LinkedIn account is already linked to another HelpMeMan account."
+          : initialError || detailedMessage || "Unable to import LinkedIn. Try again or continue manually.");
+        setStep("error");
+        return;
       }
-      setStep("error");
-      return;
-    }
-
-    if (linkedinSuccess === "success") {
-      // Clean up URL params
-      url.searchParams.delete("linkedin");
-      url.searchParams.delete("token");
-      url.searchParams.delete("refreshToken");
-      window.history.replaceState({}, "", url.toString());
-
-      // If token provided, establish session
-      const establishAndLoad = async () => {
-        if (token && localStorage.getItem("helpmeman.accessToken") !== token) {
-          await setSessionFromToken(token, refreshToken || undefined);
-        }
+      if (token && localStorage.getItem("helpmeman.accessToken") !== token) {
+        const restored = await setSessionFromToken(token, refreshToken || undefined);
+        if (cancelled) return;
+        if (!restored) { setErrorMessage("Your session could not be restored. Please sign in again or continue manually."); setStep("error"); return; }
+      }
+      if (!success && draftKey) {
         try {
-          const { data } = await api.get<{ connected: boolean; profile: LinkedInImportedData }>("/linkedin/profile");
-          if (data && data.profile) {
-            setImportedProfile(data.profile);
-            runProgressSequence(data.profile);
+          const raw = localStorage.getItem(draftKey);
+          const draft = raw ? JSON.parse(raw) : null;
+          const f = draft?.form;
+          if (draft?.version === 1 && f && ["displayName", "headline", "bio", "currentRole", "company", "location", "categorySlug"].every(key => typeof f[key] === "string")
+            && ["expertise", "mentoringTopics", "languages"].every(key => Array.isArray(f[key]) && f[key].every((value: unknown) => typeof value === "string"))
+            && ["pricePerSession", "sessionDuration", "experienceYears"].every(key => typeof f[key] === "number" && Number.isFinite(f[key]))
+            && Array.isArray(f.availabilities) && f.availabilities.every((slot: { dayOfWeek?: unknown; startTime?: unknown; endTime?: unknown }) => slot && Number.isInteger(slot.dayOfWeek) && typeof slot.startTime === "string" && typeof slot.endTime === "string")) {
+            setForm(f); initialized.current = true; setStep("review"); return;
           }
-        } catch (fetchErr) {
-          console.error("[LinkedIn Onboarding] Failed to fetch profile after callback:", fetchErr);
-          setErrorMessage("Failed to load imported profile data. You can try again or continue manually.");
-          setStep("error");
+        } catch { /* Unavailable/corrupt browser storage must not block import. */ }
+      }
+      if (initialImportedData) {
+        setImportedProfile(initialImportedData);
+        await runProgressSequence(initialImportedData, version);
+        return;
+      }
+      if (!user && !token) return;
+      try {
+        const { data } = await api.get<{ connected: boolean; profile: LinkedInImportedData | null }>("/linkedin/profile", { timeout: 15_000 });
+        if (cancelled || version !== requestVersion.current) return;
+        if (!data?.profile) {
+          if (success) throw new Error("LinkedIn did not return a profile. Try connecting again or continue manually.");
+          return;
         }
-      };
-
-      establishAndLoad();
+        setImportedProfile(data.profile);
+        await runProgressSequence(data.profile, version);
+      } catch (err) {
+        if (cancelled) return;
+        setErrorMessage(extractErrorMessage(err, "Unable to load your imported profile. Try again or continue manually."));
+        setStep("error");
+      }
     }
-  }, [runProgressSequence, setSessionFromToken]);
+    void initialize();
+    return () => { cancelled = true; requestVersion.current += 1; };
+  }, [user?.id, draftKey, initialImportedData, initialError, runProgressSequence, setSessionFromToken]);
+
+  useEffect(() => {
+    if (!draftKey || !initialized.current || !["review", "missing_info", "preview"].includes(step)) return;
+    try { localStorage.setItem(draftKey, JSON.stringify({ version: 1, form })); } catch { /* Draft remains editable if storage is full or blocked. */ }
+  }, [draftKey, form, step]);
+
+  function continueTo(next: Step) {
+    const error = mentorDraftError(form);
+    setErrorMessage(error || "");
+    if (!error) setStep(next);
+  }
 
   // ── Publish profile action ──────────────────────────────────────────────
   async function handlePublishProfile() {
+    if (publishInFlight.current) return;
+    const error = mentorDraftError(form);
+    if (error) { setErrorMessage(error); return; }
+    publishInFlight.current = true;
     setIsSubmitting(true);
     setErrorMessage("");
 
@@ -338,15 +353,16 @@ export default function LinkedInOnboarding({
       const { data } = await api.post("/linkedin/publish", payload);
 
       if (data.success) {
+        if (draftKey) { try { localStorage.removeItem(draftKey); } catch {} }
         setStep("published");
         await refreshUser();
       } else {
         throw new Error(data.error || "Failed to publish profile");
       }
-    } catch (err: any) {
-      console.error("[LinkedIn Onboarding] Publish failed:", err);
-      setErrorMessage(err?.response?.data?.error || "Failed to publish profile. Please check all fields.");
+    } catch (err) {
+      setErrorMessage(extractErrorMessage(err, "Failed to submit your profile. Your changes are saved — please try again."));
     } finally {
+      publishInFlight.current = false;
       setIsSubmitting(false);
     }
   }
@@ -354,7 +370,7 @@ export default function LinkedInOnboarding({
   // ── Tag helpers ─────────────────────────────────────────────────────────
   function addSkill() {
     const trimmed = newSkillInput.trim();
-    if (trimmed && !form.expertise.includes(trimmed)) {
+    if (trimmed && trimmed.length <= 500 && form.expertise.length < 50 && !form.expertise.includes(trimmed)) {
       setForm((prev) => ({ ...prev, expertise: [...prev.expertise, trimmed] }));
       setNewSkillInput("");
     }
@@ -366,7 +382,7 @@ export default function LinkedInOnboarding({
 
   function addTopic() {
     const trimmed = newTopicInput.trim();
-    if (trimmed && !form.mentoringTopics.includes(trimmed)) {
+    if (trimmed && trimmed.length <= 500 && form.mentoringTopics.length < 50 && !form.mentoringTopics.includes(trimmed)) {
       setForm((prev) => ({ ...prev, mentoringTopics: [...prev.mentoringTopics, trimmed] }));
       setNewTopicInput("");
     }
@@ -503,7 +519,7 @@ export default function LinkedInOnboarding({
                       Continue Manually
                     </h2>
                     <p className="mt-1 text-xs sm:text-sm text-[var(--muted)]">
-                      I'll enter my information myself.
+                      I’ll enter my information myself.
                     </p>
                     <p className="mt-2 text-xs text-[var(--muted)]">
                       Have a natural, focused conversation with Ruth AI to build your profile step-by-step.
@@ -675,6 +691,8 @@ export default function LinkedInOnboarding({
                     </label>
                     <input
                       type="text"
+                      maxLength={100}
+                      aria-label="Display name"
                       value={form.displayName}
                       onChange={(e) => setForm({ ...form, displayName: e.target.value })}
                       className="w-full rounded-xl border border-[var(--hairline)] bg-[var(--bg)] px-3.5 py-2 text-sm text-[var(--fg)] outline-none focus:border-blue-500"
@@ -719,6 +737,8 @@ export default function LinkedInOnboarding({
                 </div>
                 <input
                   type="text"
+                  maxLength={2000}
+                  aria-label="Mentor headline"
                   value={form.headline}
                   onChange={(e) => setForm({ ...form, headline: e.target.value })}
                   className="w-full rounded-xl border border-[var(--hairline)] bg-[var(--bg)]/70 px-4 py-2.5 text-sm font-medium text-[var(--fg)] outline-none focus:border-amber-500"
@@ -738,6 +758,8 @@ export default function LinkedInOnboarding({
                 </div>
                 <textarea
                   rows={4}
+                  maxLength={10000}
+                  aria-label="Professional bio"
                   value={form.bio}
                   onChange={(e) => setForm({ ...form, bio: e.target.value })}
                   className="w-full rounded-xl border border-[var(--hairline)] bg-[var(--bg)]/70 p-3.5 text-sm leading-relaxed text-[var(--fg)] outline-none focus:border-amber-500 resize-none"
@@ -778,6 +800,7 @@ export default function LinkedInOnboarding({
                     value={newSkillInput}
                     onChange={(e) => setNewSkillInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addSkill())}
+                    maxLength={500}
                     placeholder="Add an expertise tag..."
                     className="flex-1 rounded-xl border border-[var(--hairline)] bg-[var(--bg)] px-3.5 py-1.5 text-xs text-[var(--fg)] outline-none focus:border-blue-500"
                   />
@@ -824,6 +847,7 @@ export default function LinkedInOnboarding({
                     value={newTopicInput}
                     onChange={(e) => setNewTopicInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTopic())}
+                    maxLength={500}
                     placeholder="Add a mentoring topic..."
                     className="flex-1 rounded-xl border border-[var(--hairline)] bg-[var(--bg)] px-3.5 py-1.5 text-xs text-[var(--fg)] outline-none focus:border-blue-500"
                   />
@@ -851,7 +875,7 @@ export default function LinkedInOnboarding({
               <button
                 id="btn-continue-missing-info"
                 type="button"
-                onClick={() => setStep("missing_info")}
+                onClick={() => continueTo("missing_info")}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--fg)] text-[var(--bg)] px-6 py-3 text-sm font-semibold hover:scale-[1.02] transition cursor-pointer"
               >
                 Next: Complete Preferences
@@ -879,7 +903,7 @@ export default function LinkedInOnboarding({
               A few remaining details
             </h1>
             <p className="mt-1 text-sm text-[var(--muted)]">
-              Ruth only asks what's still missing so your profile is ready to accept mentees.
+              Ruth only asks what’s still missing so your profile is ready to accept mentees.
             </p>
 
             {/* Smart Completion Meter */}
@@ -917,8 +941,8 @@ export default function LinkedInOnboarding({
               <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-2">
                 Total Professional / Mentoring Experience (Years)
               </label>
-              <div className="flex items-center gap-3">
-                {[1, 3, 5, 8, 10].map((years) => (
+              <div className="flex flex-wrap items-center gap-3">
+                {[0, 1, 3, 5, 8, 10].map((years) => (
                   <button
                     key={years}
                     type="button"
@@ -1019,6 +1043,7 @@ export default function LinkedInOnboarding({
             </div>
           </div>
 
+          {errorMessage && <p role="alert" className="mt-4 text-sm text-red-500">{errorMessage}</p>}
           {/* Navigation */}
           <div className="flex items-center justify-between gap-4 mt-8">
             <button
@@ -1032,7 +1057,7 @@ export default function LinkedInOnboarding({
             <button
               id="btn-continue-preview"
               type="button"
-              onClick={() => setStep("preview")}
+              onClick={() => continueTo("preview")}
               className="inline-flex items-center gap-2 rounded-xl bg-[var(--fg)] text-[var(--bg)] px-6 py-3 text-sm font-semibold hover:scale-[1.02] transition cursor-pointer"
             >
               Preview Final Profile
@@ -1249,6 +1274,7 @@ export default function LinkedInOnboarding({
           <button
             type="button"
             onClick={handleStartLinkedIn}
+            disabled={isConnecting}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#0A66C2] text-white px-5 py-2.5 text-xs font-semibold hover:bg-[#004182] transition cursor-pointer"
           >
             <RotateCcw className="h-3.5 w-3.5" />

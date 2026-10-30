@@ -12,7 +12,7 @@ import TwoFactorModal from "@/components/TwoFactorModal";
 import CaptchaWidget from "@/components/CaptchaWidget";
 
 export default function SignInPage() {
-  const { login, verifySignupOTP, loginWithGoogle, user, mentor, loading } = useAuth();
+  const { login, loginWithGoogle, user, mentor, loading } = useAuth();
   const router = useRouter();
 
   // Login states
@@ -143,7 +143,10 @@ export default function SignInPage() {
       if (err instanceof AxiosError && err.response?.status === 403 && err.response?.data?.requiresVerification) {
         setUnverifiedEmail(err.response.data.email || email);
         setStep("otp");
-        setCooldown(60);
+        try {
+          await api.post("/auth/resend-otp", { email: err.response.data.email || email, purpose: "verify" });
+          setCooldown(60);
+        } catch (sendError) { setError(extractErrorMessage(sendError, "Request a verification code below to continue.")); }
       } else {
         setError(extractErrorMessage(err, "Login failed. Please check your credentials."));
       }
@@ -163,14 +166,11 @@ export default function SignInPage() {
 
     setSubmitting(true);
     try {
-      const dest = await verifySignupOTP({
-        name: "", // Not needed as it resolved on backend for existing users
-        email: unverifiedEmail.toLowerCase(),
-        password,
-        otp,
-      });
-      isNavigatingRef.current = true;
-      router.push(dest);
+      await api.post("/auth/verify-email-otp", { email: unverifiedEmail.trim().toLowerCase(), otp });
+      setStep("login");
+      setOtp("");
+      setCaptchaRefreshTrigger(value => value + 1);
+      setResendSuccess("Your email is verified. Complete security verification and sign in to continue.");
     } catch (err) {
       setError(extractErrorMessage(err, "Verification failed. Please try again."));
     } finally {
@@ -222,6 +222,7 @@ export default function SignInPage() {
               Continue your conversation with the mentors who have been there.
             </p>
 
+            {resendSuccess && <p role="status" className="mb-4 text-sm text-emerald-600 dark:text-emerald-400">{resendSuccess}</p>}
             {error && (
               <div className="rounded-lg bg-red-500/10 text-red-600 px-4 py-3 text-sm mb-4 animate-fade-in text-center" role="alert">
                 {error}

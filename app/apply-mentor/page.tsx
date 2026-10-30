@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useEffect, type FormEvent } from "react";
+import { useState, useEffect, useRef, type FormEvent } from "react";
 import { getLoginDest, useAuth } from "@/lib/auth-context";
 import { AxiosError } from "axios";
 import CaptchaWidget from "@/components/CaptchaWidget";
@@ -11,6 +11,7 @@ import OTPInput from "@/components/OTPInput";
 import api, { extractErrorMessage } from "@/lib/api";
 import PasswordStrength from "@/components/PasswordStrength";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { mentorSignupError } from "@/lib/mentor-workflow";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function ApplyMentorPage() {
@@ -33,6 +34,7 @@ export default function ApplyMentorPage() {
   const [step, setStep] = useState<1 | 2>(1);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const submitInFlight = useRef(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [captcha, setCaptcha] = useState({ captchaId: "", captchaAnswer: "" });
   const [captchaRefresh, setCaptchaRefresh] = useState(0);
@@ -87,26 +89,18 @@ export default function ApplyMentorPage() {
     e.preventDefault();
     setError("");
 
-    if (!name.trim()) {
-      setError("Please enter your name.");
-      return;
-    }
-    if (!email) {
-      setError("Please enter your email.");
-      return;
-    }
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
-      return;
-    }
+    const validationError = mentorSignupError(name, email, password);
+    if (validationError) { setError(validationError); return; }
     if (!agreed) {
       setError("Please agree to the Terms & Conditions and Privacy Policy first.");
       return;
     }
 
+    if (submitInFlight.current) return;
+    submitInFlight.current = true;
     setSubmitting(true);
     try {
-      const response = await register(name.trim(), email.toLowerCase(), password);
+      const response = await register(name.trim(), email.trim().toLowerCase(), password);
       if (response.requiresOTP) {
         setStep(2);
         setCooldown(60);
@@ -124,6 +118,7 @@ export default function ApplyMentorPage() {
         setError("Something went wrong. Please try again.");
       }
     } finally {
+      submitInFlight.current = false;
       setSubmitting(false);
     }
   }
@@ -145,6 +140,8 @@ export default function ApplyMentorPage() {
       setError("Please complete the security verification below.");
       return;
     }
+    if (submitInFlight.current) return;
+    submitInFlight.current = true;
     setSubmitting(true);
     try {
       if (typeof sessionStorage !== "undefined") {
@@ -155,12 +152,17 @@ export default function ApplyMentorPage() {
       else setTwoFactor({ mode: destination.requires2FASetup ? "setup" : "verify", tempToken: destination.tempToken });
     } catch (err) {
       setCaptchaRefresh((value) => value + 1);
+      if (err instanceof AxiosError && err.response?.status === 403 && err.response?.data?.requiresVerification) {
+        window.location.replace("/signin?redirect=/apply-mentor");
+        return;
+      }
       if (err instanceof AxiosError) {
         setError(extractErrorMessage(err, "Login failed. Please check your credentials."));
       } else {
         setError("Something went wrong. Please try again.");
       }
     } finally {
+      submitInFlight.current = false;
       setSubmitting(false);
     }
   }
@@ -174,11 +176,13 @@ export default function ApplyMentorPage() {
       return;
     }
 
+    if (submitInFlight.current) return;
+    submitInFlight.current = true;
     setSubmitting(true);
     try {
       const destination = await verifySignupOTP({
         name: name.trim(),
-        email: email.toLowerCase(),
+        email: email.trim().toLowerCase(),
         password,
         phone: phone ? phone.trim() : undefined,
         otp,
@@ -191,7 +195,12 @@ export default function ApplyMentorPage() {
       }
       router.push(destination);
     } catch (err) {
-      if (err instanceof AxiosError) {
+      if (err instanceof AxiosError && err.response?.status === 409) {
+        setStep(1);
+        setMode("signin");
+        setOtp("");
+        setError("Your account already exists. Sign in below to continue your application.");
+      } else if (err instanceof AxiosError) {
         setError(
           extractErrorMessage(err, "Verification failed. Please try again."),
         );
@@ -199,6 +208,7 @@ export default function ApplyMentorPage() {
         setError("Something went wrong. Please try again.");
       }
     } finally {
+      submitInFlight.current = false;
       setSubmitting(false);
     }
   }
@@ -211,7 +221,7 @@ export default function ApplyMentorPage() {
 
     try {
       const { data } = await api.post("/auth/resend-otp", {
-        email: email.toLowerCase(),
+        email: email.trim().toLowerCase(),
         purpose: "signup",
       });
       setResendSuccess(data.message || "Verification code resent successfully.");
@@ -274,7 +284,9 @@ export default function ApplyMentorPage() {
                     type="text"
                     required
                     placeholder="Dr. Alex Rivera"
-                    value={name}
+                    minLength={2}
+                  maxLength={100}
+                  value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="appearance-none block w-full px-3.5 py-3 border border-gray-300 dark:border-zinc-700 rounded-lg shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-[var(--fg)] focus:border-[var(--fg)] text-[14px] bg-transparent text-[var(--fg)] transition-all"
                     autoComplete="name"
@@ -289,7 +301,8 @@ export default function ApplyMentorPage() {
                     type="email"
                     required
                     placeholder="name@domain.com"
-                    value={email}
+                    maxLength={254}
+                  value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="appearance-none block w-full px-3.5 py-3 border border-gray-300 dark:border-zinc-700 rounded-lg shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-[var(--fg)] focus:border-[var(--fg)] text-[14px] bg-transparent text-[var(--fg)] transition-all"
                     autoComplete="email"
@@ -305,6 +318,7 @@ export default function ApplyMentorPage() {
                       type={showPassword ? "text" : "password"}
                       required
                       placeholder="At least 8 characters"
+                      maxLength={128}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="appearance-none block w-full pl-3.5 pr-11 py-3 border border-gray-300 dark:border-zinc-700 rounded-lg placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-[var(--fg)] focus:border-[var(--fg)] text-[14px] bg-transparent text-[var(--fg)] transition-all"
@@ -364,7 +378,8 @@ export default function ApplyMentorPage() {
                     type="email"
                     required
                     placeholder="name@domain.com"
-                    value={email}
+                    maxLength={254}
+                  value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="appearance-none block w-full px-3.5 py-3 border border-gray-300 dark:border-zinc-700 rounded-lg shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-[var(--fg)] focus:border-[var(--fg)] text-[14px] bg-transparent text-[var(--fg)] transition-all"
                     autoComplete="email"
@@ -380,6 +395,7 @@ export default function ApplyMentorPage() {
                       type={showPassword ? "text" : "password"}
                       required
                       placeholder="Enter your password"
+                      maxLength={128}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="appearance-none block w-full pl-3.5 pr-11 py-3 border border-gray-300 dark:border-zinc-700 rounded-lg placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-[var(--fg)] focus:border-[var(--fg)] text-[14px] bg-transparent text-[var(--fg)] transition-all"

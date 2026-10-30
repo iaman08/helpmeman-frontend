@@ -56,6 +56,8 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
   // Sync mode with initialMode prop when modal opens
   useEffect(() => {
     if (isOpen) {
+      // A newly opened dialog starts a new form session.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMode(initialMode);
       setStep("form");
       setError("");
@@ -120,7 +122,10 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
       if (err instanceof AxiosError && err.response?.status === 403 && err.response?.data?.requiresVerification) {
         setUnverifiedEmail(err.response.data.email || email);
         setStep("otp");
-        setCooldown(60);
+        try {
+          await api.post("/auth/resend-otp", { email: err.response.data.email || email, purpose: "verify" });
+          setCooldown(60);
+        } catch (sendError) { setError(extractErrorMessage(sendError, "Request a verification code below to continue.")); }
       } else {
         setError(extractErrorMessage(err, "Login failed. Please check your credentials."));
       }
@@ -177,9 +182,17 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
 
     setSubmitting(true);
     try {
+      if (mode === "signin") {
+        await api.post("/auth/verify-email-otp", { email: unverifiedEmail.trim().toLowerCase(), otp });
+        setStep("form");
+        setOtp("");
+        setCaptchaRefreshTrigger(value => value + 1);
+        setResendSuccess("Your email is verified. Sign in to continue.");
+        return;
+      }
       const isMentor = mode === "mentor-signup";
       const dest = await verifySignupOTP({
-        name: mode !== "signin" ? name.trim() : "",
+        name: name.trim(),
         email: unverifiedEmail.toLowerCase(),
         password,
         phone: phone ? phone.trim() : undefined,
@@ -256,6 +269,7 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
                     Continue your conversation with the mentors who&apos;ve been there.
                   </p>
 
+                  {resendSuccess && <p role="status" className="mb-4 text-sm text-emerald-600 dark:text-emerald-400">{resendSuccess}</p>}
                   {error && (
                     <div className="rounded-lg bg-red-500/10 text-red-600 px-4 py-2.5 text-xs mb-4 text-center">
                       {error}
