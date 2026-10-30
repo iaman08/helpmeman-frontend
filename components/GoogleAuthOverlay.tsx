@@ -8,12 +8,10 @@ import { useAuth } from "@/lib/auth-context";
  * Full-screen loading overlay shown while Google OAuth authentication is in
  * progress. Renders at root layout level so it persists across navigations.
  *
- * Shown when:  googleAuthenticating === true  (set by loginWithGoogle())
- * Hidden when: the onAuthStateChange handler completes and sets it false
- *              (which also triggers the router.push to the dashboard)
+ * Shows progress during a Google sign-in and a recovery action on failure.
  */
 export default function GoogleAuthOverlay() {
-  const { googleAuthenticating } = useAuth();
+  const { googleAuthenticating, googleAuthError } = useAuth();
   const [dots, setDots] = useState(1);
 
   // Animated ellipsis for the loading text
@@ -25,7 +23,7 @@ export default function GoogleAuthOverlay() {
 
   return (
     <AnimatePresence>
-      {googleAuthenticating && (
+      {(googleAuthenticating || googleAuthError) && (
         <motion.div
           key="google-auth-overlay"
           initial={{ opacity: 0 }}
@@ -35,6 +33,13 @@ export default function GoogleAuthOverlay() {
           className="fixed inset-0 z-[9999] flex flex-col items-center justify-center"
           style={{ background: "var(--bg, #fff)" }}
         >
+          {googleAuthError ? (
+            <div role="alert" className="relative mx-6 max-w-md text-center text-[var(--fg)]">
+              <h2 className="text-xl font-semibold">We couldn’t finish signing you in</h2>
+              <p className="mt-3 text-sm text-[var(--muted)]">{googleAuthError}</p>
+              <a href={typeof window !== "undefined" && localStorage.getItem("helpmeman.onboardingRoleIntent") === "MENTOR" ? "/apply-mentor" : "/signin"} className="mt-6 inline-flex rounded-xl bg-[var(--fg)] px-5 py-3 text-sm font-semibold text-[var(--bg)]">Return to sign in</a>
+            </div>
+          ) : <>
           {/* Subtle animated gradient background */}
           <motion.div
             className="absolute inset-0 opacity-30 pointer-events-none"
@@ -121,6 +126,7 @@ export default function GoogleAuthOverlay() {
               />
             </motion.div>
           </div>
+          </>}
         </motion.div>
       )}
     </AnimatePresence>

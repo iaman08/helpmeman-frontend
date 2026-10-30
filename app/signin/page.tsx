@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef, type FormEvent } from "react";
-import { useAuth, getLoginDest } from "@/lib/auth-context";
+import { useAuth, getLoginDest, getAuthRedirect } from "@/lib/auth-context";
 import { AxiosError } from "axios";
 import { Eye, EyeOff } from "lucide-react";
 import OTPInput from "@/components/OTPInput";
@@ -74,12 +74,12 @@ export default function SignInPage() {
   useEffect(() => {
     if (isNavigatingRef.current) return;
 
-    if (!loading && user) {
+    if (!loading && user && !twoFactorModalOpen) {
       const redirectParam = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("redirect") : null;
-      const dest = redirectParam || getLoginDest(user, mentor);
+      const dest = getAuthRedirect(getLoginDest(user, mentor), redirectParam);
       window.location.replace(dest);
     }
-  }, [user, mentor, loading]);
+  }, [user, mentor, loading, twoFactorModalOpen]);
 
   // Cooldown countdown timer
   useEffect(() => {
@@ -91,7 +91,7 @@ export default function SignInPage() {
   }, [cooldown]);
 
   // Loading or redirecting state — prevent blank page
-  if (loading || user) {
+  if (loading || (user && !twoFactorModalOpen)) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[var(--bg)] text-[var(--fg)]">
         <div className="flex flex-col items-center gap-4 animate-in fade-in duration-300">
@@ -137,7 +137,7 @@ export default function SignInPage() {
       // useEffect (which fires when React commits setUser()) is suppressed.
       isNavigatingRef.current = true;
       const redirectParam = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("redirect") : null;
-      if (typeof result === "string") router.push(redirectParam || result);
+      if (typeof result === "string") router.push(getAuthRedirect(result, redirectParam));
     } catch (err) {
       setCaptchaRefreshTrigger((prev) => prev + 1);
       if (err instanceof AxiosError && err.response?.status === 403 && err.response?.data?.requiresVerification) {
@@ -219,7 +219,7 @@ export default function SignInPage() {
               Welcome back
             </h2>
             <p className="text-center text-[13px] text-[var(--muted)] mb-6 max-w-xs mx-auto">
-              Continue your conversation with the mentors who've been there.
+              Continue your conversation with the mentors who have been there.
             </p>
 
             {error && (
@@ -341,7 +341,7 @@ export default function SignInPage() {
             </button>
 
             <p className="text-center text-sm text-[var(--muted)] mt-6 select-none">
-              Don't have an account?{" "}
+              Don’t have an account?{" "}
               <Link href="/signup" className="text-[#2563EB] font-medium hover:underline">
                 Sign up
               </Link>
@@ -407,7 +407,7 @@ export default function SignInPage() {
 
             <div className="flex flex-col items-center gap-4 text-sm mt-6 border-t border-gray-200 dark:border-zinc-800 pt-6 animate-fade-in">
               <p className="text-[var(--muted)] text-center">
-                Didn't get the code?{" "}
+                Didn’t get the code?{" "}
                 <button
                   type="button"
                   disabled={cooldown > 0 || resending}
@@ -444,6 +444,7 @@ export default function SignInPage() {
         isOpen={twoFactorModalOpen}
         onClose={() => setTwoFactorModalOpen(false)}
         mode={twoFactorModalMode}
+        isMandatory={twoFactorModalMode === "setup"}
         tempToken={twoFactorTempToken}
       />
     </main>
